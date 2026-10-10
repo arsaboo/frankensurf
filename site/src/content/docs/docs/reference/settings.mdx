@@ -75,6 +75,7 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `auth_wall_confirmations` | `5` | Providers in a row that must hit a sign-in wall before a public read stops. |
 | `fake_wall_confirmers` | `jina_reader`, `camoufox`, `firecrawl`, `zyte`, `scrapling`, `zenrows` | Providers that go next after a suspected fake wall, in this order. |
 | `escalate_after_walls` | `4` | Walls in one read before paid providers move ahead, and failed tries of any kind before free tools that fetch from their own network do; 0 turns both off. |
+| `paid_after_walls` | `1` | Walls before allowed paid tools move ahead, cheapest likely success first (one more when a free tool usually beats that wall vendor); 0 leaves them to escalate_after_walls. |
 | `escalation_failures` | `BLOCKED`, `CAPTCHA` | Failures that count as walls. |
 | `use_route_memory` | `True` | Let route memory reorder providers. |
 | `use_wall_priors` | `True` | Start wall-vendor routing from measured priors on a fresh install; your own reads outweigh them. |
@@ -102,8 +103,10 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `completeness_borderline_items` | `20` | A search page that passes with fewer item links (and few prices) gets one more read. |
 | `completeness_settle_ms` | `5000` | Minimum settle time for escalation reads. |
 | `completeness_deadline_seconds` | `150.0` | Time allowed for the whole escalation. |
-| `hedge_after_seconds` | `10.0` | After this long, a slow read gets a second read beside it from the first free ladder tool; 0 turns it off. |
+| `hedge_after_seconds` | `3.0` | After this long without a page, a read is raced by hedge_racers free tools (smart lightning); 0 turns it off. |
+| `hedge_racers` | `2` | Free tools that race a read with no page after hedge_after_seconds (smart lightning), 1 to 3. |
 | `lightning` | `False` | Start the read and two other free tools at once and keep the first complete page; escalation races four. |
+| `rescue_not_found` | `True` | After NOT_FOUND, search the site itself for what the URL asked for and return the results when they mention it (receipt.rescued). |
 | `interact_on_escalation` | `True` | Pages that need a choice or show only a consent notice get one local-browser read with the safe actions first. |
 | `warm_up_on_wall` | `True` | A public read that ends at a wall gets one more try through the site's home page. |
 | `site_session_hours` | `24.0` | Hours the local browser keeps each site's cookies; 0 turns it off. |

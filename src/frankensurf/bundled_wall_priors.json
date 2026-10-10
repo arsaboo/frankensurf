@@ -1,6 +1,6 @@
 {
  "schema": "frankensurf.wall-priors/v1",
- "note": "Measured on 10 October 2026: which free tools got past each wall vendor across seven runs of held-out sets 4 and 5 from one home connection. Counts are scaled to at most 8 tries per tool, so a machine's own reads (state_dir/wall-stats.json) outweigh them quickly. Vendors, not sites.",
+ "note": "Measured on 10 October 2026: which free tools got past each wall vendor across seven runs of held-out sets 4 and 5 from one home connection. Counts are scaled to at most 8 tries per tool, so a machine's own reads (state_dir/wall-stats.json) outweigh them quickly. Vendors, not sites. Paid tools' counts come from their own benchmark arms; 'paid' adds each one's overall success and cost per read, used to try the cheapest likely success first.",
  "vendors": {
   "akamai": {
    "camoufox": [
@@ -36,6 +36,14 @@
     8
    ],
    "steel": [
+    3,
+    8
+   ],
+   "firecrawl": [
+    7,
+    8
+   ],
+   "zenrows": [
     3,
     8
    ]
@@ -76,6 +84,14 @@
    "steel": [
     5,
     8
+   ],
+   "firecrawl": [
+    8,
+    8
+   ],
+   "zenrows": [
+    3,
+    8
    ]
   },
   "datadome": {
@@ -114,6 +130,14 @@
    "steel": [
     2,
     8
+   ],
+   "firecrawl": [
+    7,
+    8
+   ],
+   "zenrows": [
+    2,
+    7
    ]
   },
   "imperva": {
@@ -136,6 +160,10 @@
    "steel": [
     0,
     8
+   ],
+   "firecrawl": [
+    1,
+    1
    ]
   },
   "perimeterx": {
@@ -174,6 +202,14 @@
    "steel": [
     0,
     3
+   ],
+   "firecrawl": [
+    8,
+    8
+   ],
+   "zenrows": [
+    4,
+    8
    ]
   },
   "vercel": {
@@ -185,6 +221,40 @@
     4,
     8
    ]
+  },
+  "kasada": {
+   "firecrawl": [
+    1,
+    1
+   ],
+   "zenrows": [
+    0,
+    1
+   ]
+  }
+ },
+ "paid": {
+  "note": "Paid tools across every labelled and held-out benchmark row: success over all sites, and the measured cost per read in US dollars (null where the provider reports none).",
+  "firecrawl": {
+   "overall": [
+    6,
+    8
+   ],
+   "cost_usd": 0.004
+  },
+  "zyte": {
+   "overall": [
+    6,
+    8
+   ],
+   "cost_usd": null
+  },
+  "zenrows": {
+   "overall": [
+    4,
+    8
+   ],
+   "cost_usd": 0.025
   }
  }
 }

@@ -5,10 +5,11 @@ description: Start three tools at once on a page and keep the first complete one
 
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
-An ordinary read starts with the cheapest tool and climbs only when it has to,
-one tool at a time. That is polite and usually fast, but a walled or
-script-heavy site can take several tools in turn. Lightning mode starts the
-read and two other tools at once and keeps the first complete page.
+An ordinary read starts with the cheapest tool and climbs only when it has to.
+Since v0.33 a read that has no page after 3 seconds starts two racers beside it
+([smart lightning](/docs/blocked/escalation/#racing-a-slow-read-smart-lightning)),
+so slow reads are already raced by default. Lightning mode starts the read and
+the two racers at once, for reads where every second matters.
 
 - The racers are the first free tools on the
   [completeness ladder](/docs/blocked/escalation/#completeness): by default

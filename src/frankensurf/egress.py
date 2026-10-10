@@ -47,3 +47,36 @@ def pool() -> list[dict]:
         names.add(name)
         entries.append({"name": name, **settings})
     return entries
+
+
+# A small public page that says which address a request came from (and whether
+# it came through Cloudflare WARP). Read once per connection by `egress check`.
+TRACE_URL = "https://www.cloudflare.com/cdn-cgi/trace"
+
+
+async def check(entries=None, *, url=TRACE_URL, timeout=15.0):
+    """Can each connection reach the web, and from where? The direct connection
+    first, then each one in the pool: [{"name", "ok", "ip", "country", "warp",
+    "seconds", "error"}]. Never a connection's URL or credentials."""
+    import time
+
+    import httpx
+    entries = pool() if entries is None else entries
+    rows = []
+    for entry in [{"name": "direct"}] + list(entries):
+        started = time.monotonic()
+        row = {"name": entry["name"], "ok": False}
+        try:
+            async with httpx.AsyncClient(timeout=timeout, follow_redirects=True,
+                                         **({"proxy": entry["url"]} if entry.get("url") else {})) as client:
+                response = await client.get(url)
+            fields = dict(line.split("=", 1) for line in response.text.splitlines() if "=" in line)
+            row.update(ok=response.status_code == 200, ip=fields.get("ip"), country=fields.get("loc"),
+                       warp=fields.get("warp"))
+        except ImportError:
+            row["error"] = "needs the socks extra: pip install 'frankensurf[socks]'"
+        except Exception as error:  # the type only: a proxy error can carry its address
+            row["error"] = type(error).__name__
+        row["seconds"] = round(time.monotonic() - started, 2)
+        rows.append(row)
+    return rows

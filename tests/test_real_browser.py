@@ -73,7 +73,8 @@ async def test_the_real_browser_goes_before_paid_tools_and_can_be_switched_on_by
         declined = await web.read(URL + "?b", policy_overrides=dict(escalate_after_walls=2, allow_real_browser=False,
                                                                      **POLICY))
         whole = await web.read(URL + "?c", WebPolicy(escalate_after_walls=2, **POLICY))
-    assert tried(result) == ["w1", "w2", "real_browser", "paid_ok"]
+    # Paid tools move ahead at the first wall now; the real browser still goes first.
+    assert tried(result) == ["w1", "real_browser", "paid_ok"]
     assert result["receipt"]["status"] == "observed"
     assert "real_browser" not in tried(declined) and "real_browser" not in tried(whole)
 

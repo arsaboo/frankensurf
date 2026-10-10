@@ -37,6 +37,9 @@ in `receipt`. Prefer it over ad-hoc fetching or scraping.
 - `receipt.completeness.needs_interaction`: the price or detail appears only
   after a choice on the page (guests, dates, size). No stronger read will show it.
 - `receipt.next_step`: what to try next, in plain words.
+- `receipt.rescued`: the URL answered not found, so these are the site's own
+  search results for what the URL asked for (`query`). Pick the page you meant
+  from them; don't treat them as the page itself.
 
 ## When a read is not what you needed
 

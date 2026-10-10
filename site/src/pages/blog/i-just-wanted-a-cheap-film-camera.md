@@ -59,6 +59,16 @@ Frankensurf got 89.5%. Firecrawl got 80.3%. It finally beat Firecrawl, on sites 
 
 Not all wins though. It's slower, 9.5 s per page vs Firecrawl's 5.6 s, because it sometimes tries something cheap, rejects the page and climbs. Firecrawl went 8 for 8 on government sites, Frankensurf 7. And a few sites like Shopee and Temu still beat every tool I've got.
 
+## Benchmark III: no peeking
+
+Two wins could still be luck, so I had agents pick another 150 sites from memory, 10 in each of 15 categories, every site from the earlier rounds left out. Every tool had a go on its own again, the same day.
+
+Frankensurf got 95.3%. Zyte got 86.0% and Firecrawl 85.3%. Frankensurf read 18 sites Firecrawl missed, and Firecrawl didn't read a single one Frankensurf missed. Even with only the free tools, no keys at all, it got 84.7%.
+
+![Share of 150 more fresh sites read correctly, each tool on its own vs Frankensurf](/blog/head-to-head-set6.png)
+
+And it's not slower anymore, mostly. Slow reads now race two other free tools after 3 seconds, and the paid ones come in at the first wall instead of the fourth, so the median read is 3.0 s against Firecrawl's 4.8 s, at about a quarter of the cost. The slowest tenth of reads still take longer, because sometimes it really does have to try a lot of things.
+
 ## How it works (and what it costs)
 
 It's basically a ladder. Every read starts on the cheapest rung: plain HTTP, then Jina Reader, then a browser on my own machine. If a site blocks it, or hands back a page that isn't real, it climbs. Stealth browsers like Camoufox and Scrapling next, then hosted browsers, then the paid unblockers like Firecrawl and Zyte, but only if you let it spend money. If even that fails, it can pop the page open for you to do the CAPTCHA yourself, then carry on.

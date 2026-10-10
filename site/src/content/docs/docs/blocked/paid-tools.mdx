@@ -8,7 +8,15 @@ import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 The free stack needs no keys. Paid tools join a read only when two things are
 true: the key is set, and the call allows it.
 
-- Paid tools are tried after the free ones, unless [escalation](/docs/blocked/escalation/) moves them up.
+- Paid tools are tried after the free ones, until a wall: then they move ahead
+  ([escalation](/docs/blocked/escalation/), `paid_after_walls`, after the first
+  wall by default, or the second when a free tool usually gets past that wall
+  vendor).
+- Cheapest likely success first: each paid tool's measured cost per read over
+  its chance of getting past this wall vendor (bundled measurements: Firecrawl
+  passed 88 to 100% of the labelled Cloudflare, Akamai, DataDome and PerimeterX
+  sites at $0.004 a read; ZenRows 29 to 50% at $0.025). Your own reads update
+  the chances.
 - They are never retried automatically.
 - A tool without a key is skipped, not failed.
 

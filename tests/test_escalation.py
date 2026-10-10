@@ -43,9 +43,13 @@ async def test_walls_escalate_to_paid_rungs_when_allowed(tmp_path, registry):
     policy = dict(escalate_after_walls=3, origin_route_hint_ttl_seconds=0)
     async with Runtime(tmp_path) as web:
         paid = await web.read(URL, WebPolicy(allow_paid_fallbacks=True, **policy))
+        later = await web.read(URL, WebPolicy(allow_paid_fallbacks=True, paid_after_walls=0, **policy))
         free = await web.read(URL, WebPolicy(**policy))
-    assert tried(paid) == ["w1", "w2", "w3", "paid_ok"]
+    # Paid tools move ahead after the first wall by default (paid_after_walls).
+    assert tried(paid) == ["w1", "paid_ok"]
     assert paid["receipt"]["routing"]["escalated_to"] == "paid_ok"
+    # paid_after_walls=0 leaves them to escalate_after_walls, as before.
+    assert tried(later) == ["w1", "w2", "w3", "paid_ok"]
     assert tried(free) == ["w1", "w2", "w3", "free_ok"]
 
 
@@ -59,7 +63,7 @@ async def test_walls_move_tools_that_fetch_from_elsewhere_ahead(tmp_path, regist
         paid = await web.read(URL, WebPolicy(allow_paid_fallbacks=True, **policy))
     assert tried(free) == ["w1", "w2", "remote_ok"]
     assert free["receipt"]["routing"]["escalated_to"] == "remote_ok"
-    assert tried(paid) == ["w1", "w2", "paid_ok"]
+    assert tried(paid) == ["w1", "paid_ok"]
 
 
 async def test_pages_this_machine_cannot_get_move_remote_tools_ahead_too(tmp_path, registry):
@@ -171,3 +175,37 @@ async def test_plain_not_found_still_ends_the_read(tmp_path, registry):
         result = await web.read(URL, WebPolicy(origin_route_hint_ttl_seconds=0))
     assert tried(result) == ["gone"]
     assert result["receipt"]["failure"]["code"] == "NOT_FOUND"
+
+
+async def test_paid_tools_go_cheapest_likely_success_first_and_wait_for_a_free_favourite(tmp_path, registry, monkeypatch):
+    from frankensurf import runtime
+
+    def walled(identifier, *, paid=False, outcome="BLOCKED"):
+        class Plugin:
+            manifest = ProviderManifest(identifier, "1", paid=paid)
+
+            async def acquire(self, request, services):
+                if outcome == "ok":
+                    return {"url": request.url, "content": PAGE, "content_type": "text/html", "http_status": 200}
+                failure = WebFailure(outcome, "fixture outcome")
+                failure.wall_vendor = "datadome"
+                raise failure
+        return Plugin()
+    monkeypatch.setattr(runtime, "_paid_priors", lambda: {
+        "dear": {"overall": [7, 8], "cost_usd": 0.05}, "cheap": {"overall": [6, 8], "cost_usd": 0.004}})
+    # A paid tool with a better record against the vendor than the free favourite
+    # still waits for the paid escalation.
+    monkeypatch.setattr(runtime, "_wall_priors", lambda: {"datadome": {"favourite": [6, 8], "dear": [8, 8]}})
+    registry(walled("w1"), walled("favourite"), walled("unknown", paid=True), walled("dear", paid=True),
+             walled("cheap", paid=True, outcome="ok"))
+    policy = dict(origin_route_hint_ttl_seconds=0, provider_max_attempts_per_candidate=1, warm_up_on_wall=False)
+    async with Runtime(tmp_path) as web:
+        result = await web.read(URL, policy_overrides={"allow_paid_fallbacks": True, **policy})
+        later = await web.read(URL, policy_overrides={"allow_paid_fallbacks": True, "paid_after_walls": 0,
+                                                      "freshness": "now", **policy})
+    # The free favourite for this vendor gets its try; then the cheapest likely
+    # success (0.004 at 6/8 beats 0.05 at 8/8); a tool with no known cost last.
+    assert tried(result) == ["w1", "favourite", "cheap"]
+    # paid_after_walls=0: paid tools wait for escalate_after_walls, whatever their record.
+    assert tried(later)[:3] == ["w1", "favourite", "unknown"]
+    assert WebPolicy().paid_after_walls == 1

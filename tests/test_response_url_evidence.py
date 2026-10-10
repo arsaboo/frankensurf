@@ -30,7 +30,8 @@ async def test_http_redirected_not_found_retains_final_url_without_browser_fallb
             browser_calls.append(provider)
             raise WebFailure("NOT_FOUND", "confirmed", status, response_url=FINAL)
         web._get_browser = confirms
-        result = await web.read(REQUESTED)
+        # Rescuing a wrong URL through the site's search is tested elsewhere (test_rescue.py).
+        result = await web.read(REQUESTED, policy_overrides={"rescue_not_found": False})
     assert calls == [REQUESTED, FINAL] and browser_calls[:1] == ["local"]
     assert result["url"] == FINAL
     assert result["receipt"]["requested_url"] == REQUESTED

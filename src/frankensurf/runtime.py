@@ -126,10 +126,12 @@ class WebPolicy:
     completeness_parallel: int = 2
     # Stop escalating once two tools have read the same page as the first one.
     completeness_stop_on_agreement: bool = True
-    # When an automatic public read is still climbing after this many seconds,
-    # one read pinned to the first free tool on completeness_ladder starts too;
-    # a complete page from either wins and the other is cancelled. 0 turns it off.
-    hedge_after_seconds: float = 10.0
+    # Smart lightning: when an automatic public read has no page after this many
+    # seconds, hedge_racers reads pinned to the first free tools on
+    # completeness_ladder start beside it; the first complete page wins and the
+    # rest are cancelled. Easy pages finish first and never race. 0 turns it off.
+    hedge_after_seconds: float = 3.0
+    hedge_racers: int = 2
     # Lightning mode: the read and up to two different free tools (the first
     # ones on completeness_ladder) start at once, the first complete page wins,
     # and escalation races four tools. Faster first reads, but a site sees up to
@@ -307,6 +309,11 @@ class WebPolicy:
     allow_real_browser: bool = False
     # How long the real browser lets a challenge clear by itself; it never clicks.
     real_browser_wait_seconds: float = 15.0
+    # Find the page when the URL is wrong: a public read that ends NOT_FOUND
+    # searches the site itself (its search from the home page) for the words the
+    # URL asked for, and returns those results when they mention them
+    # (receipt.rescued says so).
+    rescue_not_found: bool = True
     # More than one connection (see egress.py): with FRANKENSURF_EGRESS set, a
     # read the direct connection ended at one of egress_failures gets one pass
     # through each other connection, with these tools (the wall vendor's best first).
@@ -320,9 +327,14 @@ class WebPolicy:
     origin_min_interval_seconds: float = 2.0
     origin_cooldown_seconds: float = 900.0
     origin_cooldown_failures: tuple[str, ...] = ("BLOCKED", "CAPTCHA", "RATE_LIMITED")
-    # After this many wall failures in one read, paid providers (when allowed
-    # and configured) move ahead of the remaining free ones. 0 disables.
+    # After this many failed tries in one read, free tools that fetch from their
+    # own network move ahead; after this many walls, the real browser (when
+    # allowed) does. 0 disables both.
     escalate_after_walls: int = 4
+    # After this many walls, allowed paid tools move ahead, cheapest likely
+    # success first (one more when a free tool usually beats this wall vendor).
+    # 0 leaves them to escalate_after_walls.
+    paid_after_walls: int = 1
     escalation_failures: tuple[str, ...] = ("BLOCKED", "CAPTCHA")
     # Remember which provider got through a site after earlier ones failed and
     # try it first next time. An ordering hint, not a reliability claim. 0 disables.
@@ -400,9 +412,11 @@ class WebPolicy:
                  "completeness_parallel must be an integer from 1 to 4")
         _require(_is_number(self.hedge_after_seconds), "hedge_after_seconds must be finite and nonnegative")
         _require(type(self.lightning) is bool, "lightning must be a boolean")
+        _require(_is_int(self.hedge_racers, 1) and self.hedge_racers <= 3, "hedge_racers must be 1 to 3")
         _require(type(self.use_wall_priors) is bool, "use_wall_priors must be a boolean")
         _require(type(self.allow_real_browser) is bool, "allow_real_browser must be a boolean")
         _require(type(self.use_egress_pool) is bool, "use_egress_pool must be a boolean")
+        _require(type(self.rescue_not_found) is bool, "rescue_not_found must be a boolean")
         _require(_is_codes(self.egress_failures), "egress_failures must be a tuple of nonempty codes")
         _require(_is_provider_ids(self.egress_tools), "egress_tools must be distinct provider IDs")
         _require(_is_number(self.real_browser_wait_seconds),
@@ -418,6 +432,7 @@ class WebPolicy:
             _require(_is_number(getattr(self, field)), field + " must be finite and nonnegative")
         _require(_is_codes(self.origin_cooldown_failures),
                  "origin_cooldown_failures must be a tuple of nonempty codes")
+        _require(_is_int(self.paid_after_walls, 0), "paid_after_walls must be a nonnegative integer")
         _require(_is_int(self.escalate_after_walls, 0),
                  "escalate_after_walls must be a nonnegative integer")
         _require(_is_codes(self.escalation_failures),
@@ -1649,19 +1664,35 @@ _TOOL_OUTAGES = frozenset({"PROVIDER_DOWN", "PROVIDER_UNAVAILABLE", "TIMEOUT"})
 _PRIORS_CACHE = {}
 
 
-def _wall_priors():
-    """Bundled per-vendor counts: {vendor: {tool: [wins, tries]}} (read once)."""
+def _load_priors():
     if "vendors" not in _PRIORS_CACHE:
         try:
             data = json.loads(Path(__file__).with_name("bundled_wall_priors.json").read_text(encoding="utf-8"))
-            vendors = data.get("vendors") if data.get("schema") == "frankensurf.wall-priors/v1" else None
+            valid = data.get("schema") == "frankensurf.wall-priors/v1"
+            vendors = data.get("vendors") if valid else None
             _PRIORS_CACHE["vendors"] = {
                 vendor: {tool: [int(pair[0]), int(pair[1])] for tool, pair in tools.items()
                          if isinstance(pair, list) and len(pair) == 2}
                 for vendor, tools in (vendors or {}).items() if vendor in WALL_VENDORS and isinstance(tools, dict)}
-        except (OSError, ValueError, TypeError):
-            _PRIORS_CACHE["vendors"] = {}
-    return _PRIORS_CACHE["vendors"]
+            paid = data.get("paid") if valid and isinstance(data.get("paid"), dict) else {}
+            _PRIORS_CACHE["paid"] = {
+                tool: {"overall": [int(entry["overall"][0]), int(entry["overall"][1])],
+                       "cost_usd": entry.get("cost_usd") if isinstance(entry.get("cost_usd"), (int, float)) else None}
+                for tool, entry in paid.items()
+                if isinstance(entry, dict) and isinstance(entry.get("overall"), list) and len(entry["overall"]) == 2}
+        except (OSError, ValueError, TypeError, KeyError):
+            _PRIORS_CACHE.update(vendors={}, paid={})
+    return _PRIORS_CACHE
+
+
+def _wall_priors():
+    """Bundled per-vendor counts: {vendor: {tool: [wins, tries]}} (read once)."""
+    return _load_priors()["vendors"]
+
+
+def _paid_priors():
+    """Bundled paid-tool facts: {tool: {"overall": [wins, tries], "cost_usd": float | None}}."""
+    return _load_priors().get("paid", {})
 
 
 WALL_VENDORS = ("cloudflare", "akamai", "datadome", "perimeterx", "imperva", "kasada", "aws_waf",
@@ -3274,6 +3305,7 @@ class Runtime:
         if selected is None:
             result = await self._read_entry(url, policy, provider, adapter, policy_overrides,
                                             workload_assertions, retry_of)
+            result = await self._rescue(url, result, policy, provider, adapter, policy_overrides)
             self._auto_items(url, result, policy, policy_overrides)
             return result
         if policy is None:
@@ -3287,6 +3319,78 @@ class Runtime:
             ACTIVE_MODULE.reset(token)
         self._apply_module(selected, source, url, result, policy, policy_overrides)
         return result
+
+    async def _rescue(self, url, result, policy, provider, adapter, policy_overrides):
+        """The page the URL meant, when the URL is wrong: after NOT_FOUND, search the
+        site itself for the words the URL asked for. Web conventions only (the
+        site's own search from its home page); the results stand only when they
+        are complete and mention those words."""
+        receipt = result.get("receipt") or {}
+        if ((receipt.get("failure") or {}).get("code") != "NOT_FOUND" or not isinstance(url, str)
+                or provider or adapter):
+            return result
+        from .routes import request_policy
+        try:
+            effective, _ = request_policy(policy, policy_overrides)
+        except ValueError:
+            return result
+        if (not effective.rescue_not_found or effective.provider or effective.provider_candidates is not None
+                or effective.identity or effective.profile):
+            return result
+        from .completeness import _same_site, assess, url_words
+        from .module_discovery import find_search
+        words = url_words(url)
+        parsed = urlparse(url)
+        home = f"{parsed.scheme}://{parsed.netloc}/"
+        if not words or url.split("#")[0].rstrip("/") == home.rstrip("/"):
+            return result
+        inner = {**(policy_overrides or {}), "rescue_not_found": False} if policy is None else None
+        inner_policy = replace(policy, rescue_not_found=False) if policy is not None else None
+        record = {"query": words, "found": False}
+        # Every read the rescue makes stays on the bill, found or not.
+        costs = [receipt.get("cost_usd", 0)]
+
+        def give_up():
+            receipt["cost_usd"] = _total_cost(costs)
+            receipt["rescue"] = record
+            return result
+        home_result = await self.read(home, inner_policy, module=False, policy_overrides=inner)
+        home_receipt = home_result.get("receipt") or {}
+        costs.append(home_receipt.get("cost_usd", 0))
+        record["home_trace_id"] = home_receipt.get("trace_id")
+        if home_receipt.get("status") != "observed":
+            return give_up()
+        search = find_search(home_result, home)
+        if search is not None and search.get("template"):
+            from urllib.parse import quote, quote_plus
+            encode = quote_plus if search["encoding"] == "query" else (lambda text: quote(text, safe=""))
+            target, via = search["template"].replace("{query}", encode(words)), search["from"]
+        else:
+            target, via = await self._probe_search(home, words, effective), "search box"
+        # The site's own search only: its host, a subdomain or its parent, never another site.
+        target_host = urlparse(target or "").hostname
+        if (not target or target.split("#")[0] == url.split("#")[0]
+                or not (_same_site(target_host, parsed.hostname) or _same_site(parsed.hostname, target_host))):
+            return give_up()
+        found = await self.read(target, inner_policy, module=False, policy_overrides=inner)
+        found_receipt = found.get("receipt") or {}
+        costs.append(found_receipt.get("cost_usd", 0))
+        verdict = assess(target, found, expect_terms=tuple(words.split()))
+        record.update(via=via, search_url=target, trace_id=found_receipt.get("trace_id"))
+        if found_receipt.get("status") != "observed" or not verdict.get("complete") or verdict.get("off_query"):
+            return give_up()
+        found_receipt["cost_usd"] = _total_cost(costs)
+        found_receipt["rescued"] = {"from": url, "after": "NOT_FOUND", "query": words, "via": via,
+                                    "search_url": target, "home_trace_id": record["home_trace_id"],
+                                    "trace_id": receipt.get("trace_id")}
+        found_receipt["next_step"] = {
+            "reason": "rescued",
+            "how": ("The URL asked for answered not found, so these are the site's own search results for "
+                    f"'{words}'. Pick the page you meant from them, or read it directly.")}
+        self._annotate_trace(found_receipt, "rescued")
+        if adapter is None:
+            self._grade(target, found, effective)
+        return found
 
     def _apply_module(self, selected, source, url, result, policy, policy_overrides):
         from .completeness import query_terms
@@ -3948,21 +4052,6 @@ class Runtime:
                                                     "trace_id": receipt.get("trace_id")}]}
         return second
 
-    def _hedge_tool(self, effective, adapter):
-        """The first free, available, allowed tool on the completeness ladder."""
-        paid = {item["id"] for item in self.providers.inspect() if item["paid"]}
-        for identifier in effective.completeness_ladder:
-            if (identifier in paid or identifier in effective.exclude_providers
-                    or not self.providers.is_available(identifier)):
-                continue
-            try:
-                self.providers.require_enabled(identifier, effective,
-                                               operation="extract" if adapter else "read")
-            except WebFailure:
-                continue
-            return identifier
-        return None
-
     def _lightning_tools(self, url, effective, adapter, count=2):
         """Lightning's racers: the first free, available tools on the completeness
         ladder (a reader that fetches from elsewhere and a stealth browser, by
@@ -3987,22 +4076,7 @@ class Runtime:
     async def _lightning(self, url, policy, provider, adapter, policy_overrides,
                          workload_assertions, effective, racers):
         """Lightning mode: the read and its racers start together, half a second
-        apart, and the main read leaves the racers' tools to them. The first
-        complete page wins and the rest are cancelled. When none is complete, the
-        more complete of the main read's page and the racers' best stands; when
-        the main read fails, the racers' best does."""
-        from .completeness import assess
-
-        async def pinned(tool, delay):
-            await asyncio.sleep(delay)
-            if policy is not None:
-                return await self._read_unpaced(url, replace(policy, provider_candidates=(tool,)), None,
-                                                 adapter, workload_assertions=workload_assertions)
-            return await self._read_unpaced(url, None, None, adapter, policy_overrides={
-                **(policy_overrides or {}), "provider_candidates": [tool]},
-                workload_assertions=workload_assertions)
-        # The main read leaves the racers' tools to the racers: one tool never
-        # reads the same page twice at once.
+        apart, and the main read leaves the racers' tools to them."""
         if policy is not None:
             main_read = self._read_unpaced(url, replace(policy, exclude_providers=tuple(
                 dict.fromkeys(tuple(policy.exclude_providers) + tuple(racers)))), provider, adapter,
@@ -4013,11 +4087,32 @@ class Runtime:
             main_read = self._read_unpaced(url, None, provider, adapter, policy_overrides={
                 **(policy_overrides or {}), "exclude_providers": excluded},
                 workload_assertions=workload_assertions)
-        main = asyncio.ensure_future(main_read)
-        tasks = {asyncio.ensure_future(pinned(tool, 0.5 * (index + 1))): tool
+        return await self._race(url, policy, adapter, policy_overrides, workload_assertions, effective,
+                                asyncio.ensure_future(main_read), racers, lightning=True)
+
+    async def _race(self, url, policy, adapter, policy_overrides, workload_assertions, effective,
+                    main, racers, *, lightning, after_seconds=0):
+        """The main read (already running) against its racers, which start now,
+        half a second apart. The first complete page wins and the rest are
+        cancelled. When none is complete, the more complete of the main read's
+        page and the racers' best stands; when the main read fails, the racers'
+        best does."""
+        from .completeness import assess
+
+        async def pinned(tool, delay):
+            await asyncio.sleep(delay)
+            if policy is not None:
+                return await self._read_unpaced(url, replace(policy, provider_candidates=(tool,)), None,
+                                                 adapter, workload_assertions=workload_assertions)
+            return await self._read_unpaced(url, None, None, adapter, policy_overrides={
+                **(policy_overrides or {}), "provider_candidates": [tool]},
+                workload_assertions=workload_assertions)
+        tasks = {asyncio.ensure_future(pinned(tool, 0.5 * (index + (1 if lightning else 0)))): tool
                  for index, tool in enumerate(racers)}
-        record = {"lightning": True, "provider": racers[0], "providers": list(racers),
-                  "after_seconds": 0, "won": False, "tried": []}
+        record = {"provider": racers[0], "providers": list(racers), "after_seconds": after_seconds,
+                  "won": False, "tried": []}
+        if lightning:
+            record["lightning"] = True
         pending = {main, *tasks}
         main_result, main_score, best, best_score, best_tool = None, None, None, None, None
 
@@ -4076,19 +4171,20 @@ class Runtime:
 
     async def _hedged(self, url, policy, provider, adapter, policy_overrides,
                       workload_assertions, effective):
-        """The read, with a hedge when it is slow.
+        """The read, raced when it is slow (smart lightning).
 
-        A blocked site can take a dozen tools in turn before one gets through.
-        Once the read has run hedge_after_seconds, one read pinned to the first
-        free ladder tool starts beside it. Whichever returns a complete page
-        first wins; an incomplete hedge page replaces the main read only when
-        the main read fails. Free tools only, so a hedge never costs money.
-        """
+        A blocked or script-heavy site can take several tools in turn. Once the
+        read has run hedge_after_seconds without a page, hedge_racers reads
+        pinned to the first free ladder tools start beside it, and the first
+        complete page wins. Easy pages are done before then and never race.
+        Free tools only, so racing never costs money. With lightning, the
+        racers start at once."""
         automatic = (isinstance(url, str) and self.completeness_enabled
                      and not (provider or effective.provider or effective.provider_candidates is not None
                               or effective.identity or effective.profile))
         from .site_modules import ACTIVE as ACTIVE_MODULE
-        if automatic and effective.lightning and adapter is None and ACTIVE_MODULE.get() is None:
+        plain = automatic and adapter is None and ACTIVE_MODULE.get() is None
+        if plain and effective.lightning:
             racers = self._lightning_tools(url, effective, adapter)
             if racers:
                 return await self._lightning(url, policy, provider, adapter, policy_overrides,
@@ -4096,62 +4192,15 @@ class Runtime:
         main = asyncio.ensure_future(self._read_unpaced(
             url, policy, provider, adapter, policy_overrides=policy_overrides,
             workload_assertions=workload_assertions))
-        hedge_tool = None
-        if effective.hedge_after_seconds and automatic:
-            hedge_tool = self._hedge_tool(effective, adapter)
-        if hedge_tool is None:
+        racers = (self._lightning_tools(url, effective, adapter, count=effective.hedge_racers)
+                  if effective.hedge_after_seconds and automatic else [])
+        if not racers:
             return await main
         done, _ = await asyncio.wait({main}, timeout=effective.hedge_after_seconds)
         if done:
             return main.result()
-        from .completeness import assess
-        if policy is not None:
-            hedge = asyncio.ensure_future(self._read_unpaced(
-                url, replace(policy, provider_candidates=(hedge_tool,)), None, adapter,
-                workload_assertions=workload_assertions))
-        else:
-            hedge = asyncio.ensure_future(self._read_unpaced(
-                url, None, None, adapter,
-                policy_overrides={**(policy_overrides or {}), "provider_candidates": [hedge_tool]},
-                workload_assertions=workload_assertions))
-        record = {"provider": hedge_tool, "after_seconds": effective.hedge_after_seconds}
-        try:
-            done, _ = await asyncio.wait({main, hedge}, return_when=asyncio.FIRST_COMPLETED)
-            if hedge in done and not main.done():
-                second = hedge.result()
-                receipt = second.get("receipt") or {}
-                record.update(status=receipt.get("status"), trace_id=receipt.get("trace_id"))
-                if (receipt.get("status") == "observed"
-                        and assess(url, second, expect_terms=effective.expect_terms).get("complete")):
-                    main.cancel()
-                    record["won"] = True
-                    receipt["hedge"] = record
-                    return second
-            first = await main
-            record.setdefault("won", False)
-            failed = first.get("receipt") or {}
-            if failed.get("status") != "observed":
-                # The main read failed: the hedge's page, complete or not, beats none.
-                try:
-                    second = await hedge
-                except Exception:
-                    second = {}
-                receipt = second.get("receipt") or {}
-                record.update(status=receipt.get("status"), trace_id=receipt.get("trace_id"))
-                if receipt.get("status") == "observed":
-                    record.update(won=True, after_failure=(failed.get("failure") or {}).get("code"),
-                                  walled=sorted({item["provider"] for item in failed.get("attempts") or ()
-                                                 if isinstance(item, dict) and item.get("provider")
-                                                 and item.get("failure") in effective.escalation_failures}))
-                    receipt["hedge"] = record
-                    return second
-            failed["hedge"] = record
-            return first
-        finally:
-            for task in (main, hedge):
-                if not task.done():
-                    task.cancel()
-            await asyncio.gather(main, hedge, return_exceptions=True)
+        return await self._race(url, policy, adapter, policy_overrides, workload_assertions, effective,
+                                main, racers, lightning=False, after_seconds=effective.hedge_after_seconds)
 
     def _grade(self, url, result, effective):
         """receipt.quality on every observed document read: good, partial or poor,
@@ -5118,18 +5167,36 @@ class Runtime:
                 if elsewhere:
                     move_ahead(elsewhere)
                     plan_state["elsewhere"] = True
-            if (not plan_state["escalated"]
-                    and plan_state["walls"] >= policy.escalate_after_walls):
+            remaining_paid = [item for item in order[plan_state["position"] + 1:]
+                              if manifests.get(item, {}).get("paid") and item not in hopeless]
+            paid_threshold = ((policy.paid_after_walls + (1 if plan_state.get("free_favourite") else 0))
+                              if remaining_paid and policy.paid_after_walls else policy.escalate_after_walls)
+            if (not plan_state["escalated"] and paid_threshold
+                    and plan_state["walls"] >= paid_threshold):
                 # The owner's real browser first (free, and walls rarely tell it
-                # from a person), then allowed paid tools.
+                # from a person), then allowed paid tools, cheapest likely success first.
                 ahead = [item for item in order[plan_state["position"] + 1:]
                          if item == "real_browser" and item not in hopeless]
-                ahead += [item for item in order[plan_state["position"] + 1:]
-                          if manifests.get(item, {}).get("paid") and item not in hopeless]
+                ahead += self._rank_paid(remaining_paid, plan_state.get("vendor"), policy)
                 if ahead:
                     move_ahead(ahead)
                     plan_state["escalated"] = True
         return "stop" if (resolved or terminal or candidate == order[-1]) else "next"
+
+    def _rank_paid(self, tools, vendor, policy):
+        """Paid tools, cheapest likely success first: measured cost per read over the
+        chance it gets past this wall vendor (or any wall, when none is named).
+        Tools with no known cost follow those with one."""
+        stats, _ = self._vendor_stats(vendor, policy) if vendor else ({}, {})
+        facts = _paid_priors() if policy.use_wall_priors else {}
+
+        def key(index_tool):
+            index, tool = index_tool
+            wins, tries = stats.get(tool) or (facts.get(tool) or {}).get("overall") or [0, 0]
+            rate = (wins + 1) / (tries + 2)
+            cost = (facts.get(tool) or {}).get("cost_usd")
+            return (cost is None, (cost / rate) if cost is not None else -rate, index)
+        return [tool for _index, tool in sorted(enumerate(tools), key=key)]
 
     def _wall_stats_path(self):
         return self.state_dir / "wall-stats.json"
@@ -5155,20 +5222,26 @@ class Runtime:
         return stats, local
 
     def _route_by_vendor(self, vendor, order, plan_state, receipt, policy, minimum=3, hopeless=8):
-        """Move the tools that got past this wall vendor most often to the front of
-        what is left, and the ones that never have in `hopeless` tries to the back.
-        Learned from this machine's own reads and measured priors, never from site names."""
+        """Move the free tools that got past this wall vendor most often to the front
+        of what is left, and the tools that never have in `hopeless` tries to the
+        back. Paid tools are placed by the paid escalation (paid_after_walls,
+        cheapest likely success first), never here. Learned from this machine's own
+        reads and measured priors, never from site names."""
         stats, local = self._vendor_stats(vendor, policy)
         remaining = order[plan_state["position"] + 1:]
+        paid = {item["id"] for item in self.providers.inspect() if item["paid"]}
 
         def plan(counts):
             rated = sorted(((tool, (counts[tool][0] + 1) / (counts[tool][1] + 2)) for tool in remaining
-                            if tool in counts and counts[tool][1] >= minimum), key=lambda pair: -pair[1])
+                            if tool in counts and counts[tool][1] >= minimum and tool not in paid),
+                           key=lambda pair: -pair[1])
             return ([tool for tool, rate in rated if rate >= 0.5],
                     [tool for tool in remaining if tool in counts and counts[tool][0] == 0
                      and counts[tool][1] >= hopeless])
         ahead, last = plan(stats)
         plan_state["hopeless"] = set(last)
+        # A free tool that usually beats this vendor gets its try before money is spent.
+        plan_state["free_favourite"] = bool(ahead)
         if ahead or last:
             order[plan_state["position"] + 1:] = ahead + [
                 tool for tool in remaining if tool not in ahead and tool not in last] + last

@@ -1,6 +1,6 @@
 // Content for the golden-spec landing page.
 // "today" figures are public, mostly vendor-run claims (see `sources`).
-// Most Frankensurf figures are measured (scripts/toolbench.py, 6 Oct 2026); each section
+// Most Frankensurf figures are measured (scripts/toolbench.py, 6 to 10 Oct 2026); each section
 // says "measured" once, in its subtitle or legend, never per row. The rest (the coverage
 // heatmap, rung tokens and costs) are goals for the ideal tool.
 
@@ -29,7 +29,7 @@ export const sources = {
   fsid: { label: "Frankensurf docs: human handoff", url: "/docs/blocked/handoff/" },
   zyte: { label: "Zyte API docs", url: "https://docs.zyte.com/zyte-api/" },
   apify: { label: "Apify: RAG Web Browser", url: "https://apify.com/apify/rag-web-browser" },
-  bench: { label: "Frankensurf tool benchmark, 6 Oct 2026", url: "https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-06" },
+  bench: { label: "Frankensurf tool benchmark, 10 Oct 2026", url: "https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-10" },
 } as const;
 
 export type SourceKey = keyof typeof sources;
@@ -193,53 +193,56 @@ export const layers: {
   },
 ];
 
-// Measured 6 Oct 2026 on 152 sites chosen before any was read, one run
-// (benchmarks/2026-10-06/toolbench-heldout3-v0.16.jsonl).
+// Measured 10 Oct 2026 with v0.33 on 150 sites in 15 categories chosen before any
+// was read (held-out set 6; benchmarks/2026-10-10/README.md, "v0.33" section).
 export const stats = [
-  { value: "89.5%", label: "of 152 fresh sites read right", note: "Firecrawl Only 80.3%" },
-  { value: "−47%", label: "dead ends vs Firecrawl Only", note: "16 vs 30 of 152 sites" },
-  { value: "⅕", label: "the cost of Firecrawl Only", note: "$0.73 vs $4.33 per 1k pages" },
-  { value: "93%", label: "of sites any tool could read", note: "Firecrawl Only 84%" },
+  { value: "95.3%", label: "of 150 fresh sites read right", note: "Firecrawl Only 85.3%" },
+  { value: "−68%", label: "dead ends vs Firecrawl Only", note: "7 vs 22 of 150 sites" },
+  { value: "¼", label: "the cost of Firecrawl Only", note: "$1.06 vs $4.25 per 1k pages" },
+  { value: "98%", label: "of sites any tool could read", note: "Firecrawl Only 88%" },
 ];
 
-// Share of sites failed (percent) on the same 152 fresh sites: today = Firecrawl
-// alone, the best single tool; target = Frankensurf with paid fallbacks.
+// Share of sites failed (percent) on the same 150 fresh sites: today = Firecrawl
+// alone; target = Frankensurf with paid fallbacks.
 export const failures: { label: string; today: number; target: number; src: SourceKey }[] = [
-  { label: "All 152 sites", today: 19.7, target: 10.5, src: "bench" },
-  { label: "US retail (33)", today: 15.2, target: 3.0, src: "bench" },
-  { label: "UK and EU retail (24)", today: 20.8, target: 12.5, src: "bench" },
-  { label: "Australian retail (18)", today: 33.3, target: 22.2, src: "bench" },
-  { label: "News (16)", today: 25.0, target: 18.8, src: "bench" },
-  { label: "Classifieds (10)", today: 10.0, target: 0.0, src: "bench" },
-  { label: "Developer sites (9)", today: 0.0, target: 0.0, src: "bench" },
-  { label: "Jobs (8)", today: 25.0, target: 12.5, src: "bench" },
-  { label: "Government (8)", today: 0.0, target: 12.5, src: "bench" },
-  { label: "Cars, property, travel, media, food (26)", today: 26.9, target: 11.5, src: "bench" },
+  { label: "All 150 sites", today: 14.7, target: 4.7, src: "bench" },
+  { label: "US retail (10)", today: 20.0, target: 10.0, src: "bench" },
+  { label: "UK and EU retail (10)", today: 20.0, target: 10.0, src: "bench" },
+  { label: "Australian and NZ retail (10)", today: 20.0, target: 10.0, src: "bench" },
+  { label: "Asian and other retail (10)", today: 40.0, target: 20.0, src: "bench" },
+  { label: "News (10)", today: 10.0, target: 0.0, src: "bench" },
+  { label: "Classifieds (10)", today: 20.0, target: 0.0, src: "bench" },
+  { label: "Developer sites (10)", today: 10.0, target: 10.0, src: "bench" },
+  { label: "Jobs (10)", today: 10.0, target: 0.0, src: "bench" },
+  { label: "Social (10)", today: 10.0, target: 0.0, src: "bench" },
+  { label: "Government (10)", today: 0.0, target: 0.0, src: "bench" },
+  { label: "Cars, property, travel, media, food (50)", today: 12.0, target: 2.0, src: "bench" },
 ];
 
-// Head to head, measured 6 Oct 2026 on 152 sites chosen before any was read, one
-// run (benchmarks/2026-10-06/toolbench-heldout3-v0.16.jsonl). all = sites read
-// right; reach = share of the 146 sites at least one tool read; cost per 1,000
-// pages read right. Frankensurf is the stitched router with paid fallbacks.
-// Scrapfly is left out: its free plan ran out of credits mid-run. Every compared
+// Head to head, measured 10 Oct 2026 on held-out set 6 (150 sites chosen before
+// any was read): each tool alone and Frankensurf the same day
+// (benchmarks/2026-10-10/toolbench-heldout6-*.jsonl). all = sites read right;
+// reach = share of the 146 sites at least one tool read; cost per 1,000 pages
+// read right. Frankensurf is the stitched router with paid fallbacks. ZenRows
+// and Scrapfly are left out: their plans had run out of credits. Every compared
 // tool is also one of Frankensurf's own providers, so each is labelled
 // "<Tool> Only" (Frankensurf against that provider used on its own), never as a
 // rival (owner, 6 Oct 2026).
-export const usVersus = { all: [136, 152], unseen: 93.2, cost: "$0.73" };
+export const usVersus = { all: [143, 150], unseen: 97.9, cost: "$1.06" };
 export const versus: { name: string; logo: string; all: [number, number]; unseen: number; cost: string }[] = [
-  { name: "Firecrawl", logo: "firecrawl.png", all: [122, 152], unseen: 83.6, cost: "$4.33" },
-  { name: "Zyte", logo: "zyte.png", all: [112, 152], unseen: 76.7, cost: "not reported" },
-  { name: "Jina Reader", logo: "jina.png", all: [97, 152], unseen: 66.4, cost: "free" },
-  { name: "ZenRows", logo: "zenrows.png", all: [84, 152], unseen: 57.5, cost: "$30.95" },
-  { name: "Scrapling", logo: "scrapling.png", all: [81, 152], unseen: 55.5, cost: "free" },
-  { name: "Camoufox", logo: "camoufox.svg", all: [74, 152], unseen: 50.7, cost: "free" },
-  { name: "Plain HTTP", logo: "http.svg", all: [70, 152], unseen: 47.9, cost: "free" },
-  { name: "Headless Chromium", logo: "chromium.png", all: [49, 152], unseen: 33.6, cost: "free" },
-  { name: "Patchright", logo: "patchright.png", all: [49, 152], unseen: 33.6, cost: "free" },
+  { name: "Zyte", logo: "zyte.png", all: [129, 150], unseen: 88.4, cost: "not reported" },
+  { name: "Firecrawl", logo: "firecrawl.png", all: [128, 150], unseen: 87.7, cost: "$4.25" },
+  { name: "Jina Reader", logo: "jina.png", all: [111, 150], unseen: 76.0, cost: "free" },
+  { name: "Scrapling", logo: "scrapling.png", all: [109, 150], unseen: 74.7, cost: "free" },
+  { name: "Camoufox", logo: "camoufox.svg", all: [99, 150], unseen: 67.8, cost: "free" },
+  { name: "Plain HTTP", logo: "http.svg", all: [77, 150], unseen: 52.7, cost: "free" },
+  { name: "Headless Chromium", logo: "chromium.png", all: [68, 150], unseen: 46.6, cost: "free" },
+  { name: "Patchright", logo: "patchright.png", all: [68, 150], unseen: 46.6, cost: "free" },
 ];
 
 // How the stack changes itself. These describe shipped behaviour, so they carry no label.
 export const ledger = [
+  { when: "10 Oct 2026", layer: "Router", change: "Slow reads raced after 3 s, paid tools after the first wall, wrong URLs found through the site's own search", delta: "−1.4 s", detail: "Paid fallbacks on 40 held-out sites, one read at a time: median 5.1 → 3.6 s, 36 → 37 read" },
   { when: "6 Oct 2026", layer: "Providers", change: "Kernel, Anchor, Zyte, Apify, fastCRW, Tavily, Parallel, Patchright and nodriver bolted on", delta: "+9", detail: "Patchright, nodriver and self-hosted fastCRW read live pages; the rest are tested against their published APIs" },
   { when: "6 Oct 2026", layer: "Router", change: "A rendered second opinion catches pages whose results never loaded", delta: "+13 pts", detail: "Free tools only, on held-out sites: 34.8% → 47.8% of pages read right" },
   { when: "5 Oct 2026", layer: "Checks", change: "Challenge, sign-in and empty pages stop counting as success", delta: "82/82", detail: "Site benchmark from 77 to 82 of 82 pages read right, with no false successes" },

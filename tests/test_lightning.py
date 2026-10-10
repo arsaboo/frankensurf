@@ -179,3 +179,21 @@ async def test_a_site_module_read_is_not_raced(tmp_path, install):
     finally:
         ACTIVE.reset(token)
     assert result["receipt"]["method"] == "slow_main" and ("start", "reader") not in log
+
+
+async def test_by_default_a_slow_read_races_two_tools_and_a_quick_one_none(tmp_path, install):
+    log = []
+    install(tool("slow_main", RESULTS, 5, log), tool("reader", SHELL, 0, log, rendering=True),
+            tool("stealth", RESULTS, 0.1, log, rendering=True))
+    async with Runtime(tmp_path) as web:
+        slow = await web.read(SEARCH, policy_overrides={**POLICY, "hedge_after_seconds": 0.2})
+    receipt = slow["receipt"]
+    assert receipt["method"] == "stealth" and receipt["hedge"]["providers"] == ["reader", "stealth"]
+    assert "lightning" not in receipt["hedge"] and ("cancelled", "slow_main") in log
+    log.clear()
+    install(tool("quick_main", RESULTS, 0.05, log), tool("reader", SHELL, 0, log, rendering=True),
+            tool("stealth", RESULTS, 0, log, rendering=True))
+    async with Runtime(tmp_path / "quick") as web:
+        quick = await web.read(SEARCH, policy_overrides={**POLICY, "hedge_after_seconds": 0.5})
+    assert quick["receipt"]["method"] == "quick_main" and ("start", "reader") not in log
+    assert WebPolicy().hedge_after_seconds == 3.0 and WebPolicy().hedge_racers == 2

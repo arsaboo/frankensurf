@@ -144,6 +144,23 @@ climbing:
   different tool, since some sites serve fake 404s to bots; then the read
   stops.
 
+### When the URL is wrong
+
+A URL can simply be wrong: a guessed search path, a product that moved, a
+typo. When a public read ends `NOT_FOUND`, Frankensurf searches the site itself
+for what the URL asked for: its query (`?q=air+fryer` is "air fryer") or the
+words of its last path segment (`/p/brass-desk-lamp-123` is "brass desk lamp").
+It reads the site's home page, finds its search (schema.org `SearchAction`, the
+search form, or the search box itself), and reads the results. They stand only
+when they are complete and mention those words:
+
+- `receipt.rescued` says it happened: `from` (the URL you asked for), `query`,
+  `via` and `search_url`; the quality grade carries a `rescued` flag and
+  `receipt.next_step` says these are search results, not the page itself.
+- When the search finds nothing that fits, the read stays `NOT_FOUND` and
+  `receipt.rescue` says what was tried.
+- `rescue_not_found: false` turns it off.
+
 ## One small action
 
 Some pages are one action away from their content: a cookie banner over the
@@ -180,24 +197,25 @@ The local browser also keeps each site's cookies for a day
 that way on the next read. Only anonymous state: never a profile's or an
 identity's.
 
-## Hedging a slow read
+## Racing a slow read (smart lightning)
 
-A blocked site can take a dozen tools in turn before one gets through. Once an
-automatic read has run for 10 seconds (`hedge_after_seconds`, 0 turns it off),
-one more read starts beside it, pinned to the first free tool on the
-completeness ladder (Jina Reader by default). If that read brings back a
-complete page first, it wins and the climb is cancelled. An incomplete hedge
-page replaces the main read only when the main read fails (a page beats no
-page; `receipt.hedge.after_failure` names the failure and `walled` the tools
-it met), and a hedge never uses a paid tool. When the hedge wins,
-`receipt.hedge` says so and the site's route hint learns it, so the next read
-starts there. On the 139-site held-out set,
-reads that used to take about 50 seconds (Michaels, Naukri, Anthropologie,
-Urban Outfitters) came back in 8 to 17.
+A blocked or script-heavy site can take several tools in turn before one gets
+through. Once an automatic read has run for 3 seconds without a page
+(`hedge_after_seconds`, 0 turns it off), two more reads start beside it
+(`hedge_racers`), pinned to the first free tools on the completeness ladder:
+Jina Reader, which fetches from its own network, and Scrapling, a stealth
+browser. The first complete page wins and the rest are cancelled. Most pages
+are read well inside 3 seconds and never race, so a site sees extra requests
+only for the reads that need them.
 
-For reads where time matters more than politeness,
-[lightning mode](/docs/read/lightning/) starts the read and two other tools at
-once instead of waiting 10 seconds.
+When nothing is complete, the more complete page stands, and when the main read
+fails, the racers' best page does (`receipt.hedge.after_failure` names the
+failure and `walled` the tools it met). Racers are free tools only. A racer
+that wins becomes the site's route hint, so the next read starts there.
+`receipt.hedge` records the race.
+
+[Lightning mode](/docs/read/lightning/) starts the racers at once instead of
+after 3 seconds.
 
 ## Skipping ahead
 
@@ -206,7 +224,7 @@ Four things reorder the ladder so repeat visits are fast:
 | | What it does | Setting |
 | --- | --- | --- |
 | **Wall vendors** | A wall's response names the bot-defence service behind it (`receipt.wall_vendor`: Cloudflare, Akamai, DataDome, PerimeterX, Imperva, Kasada, AWS WAF, Vercel or Sucuri). Frankensurf counts which tools got past each vendor on this machine; once a tool has at least 3 tries and even odds, later reads that meet the same vendor on any site try it next, and a tool that has never got past it in 8 tries goes last (`receipt.routing.learned_for`). A fresh install starts from measured priors (`bundled_wall_priors.json`, worth up to 8 tries per tool), which count less with each of your own reads and not at all after 8 (`use_wall_priors`). Vendors, never site names. | `state_dir/wall-stats.json` |
-| **Escalation** | After 4 failed tries in one read, free tools that fetch from their own network (Jina Reader) move ahead: a wall that blocks by address stops every tool on this machine alike, and some pages none of them render. After 4 walls, [your real browser](/docs/blocked/real-browser/) (when allowed) and then allowed paid tools move ahead of those. | `escalate_after_walls` |
+| **Escalation** | After 4 failed tries in one read, free tools that fetch from their own network (Jina Reader) move ahead: a wall that blocks by address stops every tool on this machine alike, and some pages none of them render. When paid tools are allowed, they move ahead after the first wall (`paid_after_walls`; after two when a free tool usually beats that wall vendor), cheapest likely success first, behind [your real browser](/docs/blocked/real-browser/) when it is allowed; without paid tools, the real browser moves ahead after 4 walls. | `escalate_after_walls`, `paid_after_walls` |
 | **Site hints** | When a read succeeds only after earlier tools failed, the tool that got through goes first on that site for 24 hours. | `origin_route_hint_ttl_seconds` |
 | **Route memory** | After 3 clean reads in a row on the same path pattern, that tool goes first for that path. | `route_memory_min_samples` |
 

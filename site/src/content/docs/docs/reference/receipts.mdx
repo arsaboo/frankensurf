@@ -67,6 +67,10 @@ read planned, after skipping anything unavailable.
   and `routing.escalated_to` names the tool that failed tries moved ahead (one
   that fetches from its own network) or walls moved ahead (your
   [real browser](/docs/blocked/real-browser/) when allowed, else a paid one).
+- **`rescued`** appears when the URL answered not found and the site's own
+  search found what it asked for: `from`, `query`, `via`, `search_url`
+  ([When the URL is wrong](/docs/blocked/escalation/#when-the-url-is-wrong)).
+  `rescue` (on the not-found receipt) says what was tried when nothing fit.
 - **`egress`** appears whenever a walled read tried
   [your other connections](/docs/blocked/egress/): `used` (the name of the one
   that got through, or `null`), `tried`, `after` and `direct_trace_id`, or

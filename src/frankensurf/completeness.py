@@ -92,6 +92,28 @@ def _same_site(link_host: str | None, base_host: str | None) -> bool:
     return link.endswith("." + base) and link[:-len(base) - 1].split(".")[-1] not in _SERVICE_HOSTS
 
 
+# Path words that name a kind of page or a locale, not what the page is about.
+_URL_FILLER = frozenset({"html", "htm", "php", "aspx", "jsp", "index", "default", "item", "items", "product",
+                         "products", "detail", "details", "page", "pages", "www", "en", "us", "au", "uk",
+                         "gb", "ca", "nz", "de", "fr", "es", "it", "nl", "dp", "view", "listing", "listings"})
+
+
+def url_words(url: str) -> str:
+    """What a URL asks for, in plain words: its search query, or the words of its
+    last meaningful path segment (/p/brass-desk-lamp-123 is "brass desk lamp")."""
+    parsed = urlparse(url)
+    values = [value for key, items in parse_qs(parsed.query).items() if _query_key(key) for value in items]
+    if not values:
+        for segment in reversed([unquote(part) for part in parsed.path.split("/") if part]):
+            words = [word for word in _WORD.findall(segment.lower())
+                     if len(word) >= 3 and not word.isdigit() and word not in _PATH_GENERIC
+                     and word not in _URL_FILLER and word not in _STOPWORDS]
+            if words:
+                values = [" ".join(words[:6])]
+                break
+    return " ".join(" ".join(values).split())[:80]
+
+
 def query_terms(url: str, expect_terms=()) -> list[str]:
     """Words the results of this search should mention, lightly stemmed."""
     values = [value for key, items in parse_qs(urlparse(url).query).items()
@@ -401,6 +423,8 @@ def quality(verdict: dict | None, receipt: dict | None = None) -> dict:
         flags.append("needs_interaction")
     if (receipt or {}).get("archived"):
         flags.append("archived")
+    if (receipt or {}).get("rescued"):
+        flags.append("rescued")
     if not verdict.get("complete", True) or {"placeholder", "off_query", "cookie_notice", "menus"} & set(flags):
         grade = "poor"
     elif flags:

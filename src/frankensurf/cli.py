@@ -228,6 +228,10 @@ async def run(args):
         result = await _profile_op(args)
     elif args.operation == "setup":
         result = _setup(args)
+    elif args.operation == "egress":
+        from .egress import check
+        result = {"connections": await check(),
+                  "note": "direct is this machine; the rest come from FRANKENSURF_EGRESS"}
     elif args.operation == "skill":
         from . import skill
         if args.urls and args.urls[0] == "show":
@@ -344,7 +348,8 @@ def build_parser():
         "search", "images", "do", "import", "repair", "repair-promote", "watch", "watch-sites",
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
-        "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill"])
+        "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
+        "egress"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
@@ -527,6 +532,9 @@ def parse_args(argv=None):
     elif args.operation == "skill":
         if args.urls not in ([], ["install"], ["show"]):
             parser.error("skill takes: install [--skill-dir DIR] | show")
+    elif args.operation == "egress":
+        if args.urls != ["check"]:
+            parser.error("egress takes: check")
     elif args.operation == "setup":
         if args.urls:
             parser.error("setup takes no arguments (add --no-stealth to skip the stealth providers)")

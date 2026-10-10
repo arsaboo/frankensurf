@@ -169,3 +169,34 @@ async def test_a_site_cooling_down_still_gets_its_known_connection(tmp_path, mon
         again = await web.read(url, policy_overrides=cooling)
     assert again["receipt"]["status"] == "observed" and again["receipt"]["egress"]["from_hint"] is True
     assert calls and all(egress == "far" for _tool, egress in calls)
+
+
+
+class _Trace(BaseHTTPRequestHandler):
+    def do_GET(self):
+        through = self.headers.get("X-Through-Proxy") == "1"
+        body = f"ip={'203.0.113.9' if through else '198.51.100.7'}\nloc={'NZ' if through else 'AU'}\nwarp=off\n".encode()
+        self.send_response(200)
+        self.send_header("content-type", "text/plain")
+        self.send_header("content-length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *args):
+        pass
+
+
+async def test_egress_check_reports_where_each_connection_comes_out(monkeypatch):
+    from frankensurf.egress import check
+    trace, proxy = _serve(_Trace), _serve(_Proxy)
+    try:
+        rows = await check([{"name": "lab", "url": f"http://127.0.0.1:{proxy.server_port}"},
+                            {"name": "dead", "url": "http://127.0.0.1:9"}],
+                           url=f"http://127.0.0.1:{trace.server_port}/cdn-cgi/trace", timeout=5)
+    finally:
+        trace.shutdown()
+        proxy.shutdown()
+    by_name = {row["name"]: row for row in rows}
+    assert by_name["direct"]["country"] == "AU" and by_name["lab"]["country"] == "NZ"
+    assert by_name["lab"]["ip"] == "203.0.113.9" and by_name["dead"]["ok"] is False
+    assert "127.0.0.1:9" not in str(rows)  # never a connection's address

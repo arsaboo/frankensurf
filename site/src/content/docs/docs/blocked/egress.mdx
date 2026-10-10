@@ -28,6 +28,24 @@ phone's hotspot, a residential pool. SOCKS needs the socks extra:
 for a tool install. The pool comes from your configuration only: receipts,
 traces and hints name a connection (`vps`), never its address or credentials.
 
+Check them: `frankensurf egress check` reads one small page through your
+direct connection and each connection in the pool, and says whether it works
+and where it comes out (address and country), never the connection's URL.
+
+## A free second connection
+
+- **An SSH tunnel to any server you can log in to** (a VPS, a friend's
+  machine, a cloud shell): `ssh -N -D 1080 you@host`, then
+  `vps=socks5://127.0.0.1:1080`.
+- **Cloudflare WARP**, free: register once with
+  [wgcf](https://github.com/ViRb3/wgcf) (`wgcf register`, then `wgcf generate`),
+  and run [wireproxy](https://github.com/pufferffish/wireproxy) with that
+  profile and a `[Socks5]` section on `127.0.0.1:40000`; then
+  `warp=socks5://127.0.0.1:40000`. `egress check` shows `warp: on` when it
+  works. Walls that refuse data-centre addresses may refuse WARP's too, so
+  check it on the sites you need.
+- **Your phone's hotspot** with a proxy app on the phone.
+
 ## What happens
 
 1. A read starts on your direct connection, as always.
