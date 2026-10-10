@@ -45,14 +45,15 @@ Free or paid
 ------------
 
 Everything works with no keys. Paid tools are opt-in, and only come in once a
-site has walled a free tool, cheapest likely success first. From the benchmark below (152 sites picked before any was read):
+site has walled a free tool, cheapest likely success first. From the newest
+benchmark below (150 sites picked before any was read, v0.33):
 
-=========================================  ==============  =============
-Setup                                      Sites read      Cost per 1k
-=========================================  ==============  =============
-Free tools only (``frankensurf setup``)    73.7%           $0
-Plus paid fallbacks (Firecrawl, Zyte, …)   89.5%           $0.73
-=========================================  ==============  =============
+=========================================  ==============  ========  =============
+Setup                                      Sites read      Median    Cost per 1k
+=========================================  ==============  ========  =============
+Free tools only (``frankensurf setup``)    84.7%           3.3 s     $0
+Plus paid fallbacks (Firecrawl, Zyte, …)   95.3%           3.0 s     $1.06
+=========================================  ==============  ========  =============
 
 To allow paid tools, set their keys (for example ``FIRECRAWL_API_KEY``) and pass
 ``allow_paid_fallbacks``. See
@@ -143,42 +144,33 @@ Benchmark
 ---------
 
 ``scripts/toolbench.py`` runs each tool on its own, then Frankensurf, on the same
-pages with the same content checks. 152 sites picked before any was read, one run
-on 6 October 2026, raw rows in ``benchmarks/2026-10-06/``:
+pages with the same content checks. The newest: 150 sites in 15 categories
+picked before any was read (held-out set 6), read on 10 October 2026 with
+v0.33, raw rows in ``benchmarks/2026-10-10/``:
 
-==========================  ===========
-Tool                        Sites read
-==========================  ===========
-Headless Chromium only      32.2%
-Plain HTTP only             46.1%
-Camoufox only               48.7%
-Scrapling only              53.3%
-ZenRows only                55.3%
-Jina Reader only            63.8%
-Zyte only                   73.7%
-Firecrawl only              80.3%
-**Frankensurf**             **89.5%**
-==========================  ===========
+====================================  ===========  ========  =============
+Tool                                  Sites read   Median    Cost per 1k
+====================================  ===========  ========  =============
+Headless Chromium only                45.3%        2.6 s     free
+Plain HTTP only                       51.3%        1.0 s     free
+Camoufox only                         66.0%        8.5 s     free
+Scrapling only                        72.7%        6.8 s     free
+Jina Reader only                      74.0%        2.3 s     free
+Firecrawl only                        85.3%        4.8 s     $4.25
+Zyte only                             86.0%        12.0 s    not reported
+Frankensurf, free tools only          84.7%        3.3 s     $0
+**Frankensurf, with paid fallbacks**  **95.3%**    3.0 s     $1.06
+====================================  ===========  ========  =============
 
-Frankensurf read 19 sites Firecrawl missed and Firecrawl read 5 Frankensurf
-missed. Frankensurf costs a fifth as much per page, but is slower: median 9.5 s
-against 5.6 s. Scrapfly is left out because its free plan ran out mid-run.
+Frankensurf with paid fallbacks read 18 sites Firecrawl missed; Firecrawl read
+none it missed. Of the 146 sites any tool read, it got 97.9%. Its median read
+is faster than Firecrawl's, but its slowest reads are slower: p90 25.9 s
+against 11.3 s, when a read climbs several tools. Medians are over pages read;
+cost is per 1,000 pages read right. ZenRows is left out (its plan ran out of
+credits), as is Scrapfly.
 
-A second fresh set, 139 different sites picked on 9 October before any was read
-(raw rows in ``benchmarks/2026-10-09/``):
-
-==========================================  ===========  ========
-Tool                                        Sites read   Median
-==========================================  ===========  ========
-Firecrawl only                              74.1%        6.6 s
-Frankensurf, free tools only                81.3%        5.6 s
-**Frankensurf, with paid fallbacks**        **88.5%**    9.2 s
-==========================================  ===========  ========
-
-Frankensurf read 22 sites Firecrawl missed; Firecrawl read 2 Frankensurf
-missed. Firecrawl's rate-limited pages were re-run one at a time until none
-were left. Racing the free tools (v0.26) then took the free tier to 82.0%,
-with its median down to 4.5 s and its p90 from 50 s to 37 s. See
+Earlier fresh sets, same method: 152 sites on 6 October (v0.16) 89.5% against
+Firecrawl's 80.3%; 139 sites on 9 October (v0.26) 88.5% against 74.1%. See
 `Benchmarks <https://frankensurf.dev/docs/more/benchmarks/>`_.
 
 Known walls
@@ -194,7 +186,8 @@ It's an alpha, and some sites still win:
   shell (name, bio, counts); the posts need a login.
 - **Logged-in pages** (your feeds, your orders) need a
   `profile <https://frankensurf.dev/docs/read/profiles/>`_.
-- **Slower than one tool:** a read that climbs several rungs takes 10–30 s.
+- **A slow tail:** most reads take a few seconds, but one in ten climbs several
+  tools and takes 25 s or more.
 
 Found a site it can't read?
 `Report it <https://github.com/yail259/frankensurf/issues/new?template=site-it-cant-read.yml>`_;

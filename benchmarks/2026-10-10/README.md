@@ -265,3 +265,87 @@ four at a time; those were re-read one at a time).
 The same VM read the 108 news and company articles of
 `benchmarks/2026-10-09/articles-108.json` (`articles-108-azure-v0.32.jsonl`):
 103 read and the article present on 100, as on Azure before v0.32.
+
+## v0.33: smart lightning, paid after the first wall, wrong-URL rescue
+
+### Against v0.32, one read at a time (set 5)
+
+`ab-heldout5-free-v0.33-vs-v0.32.jsonl` and `ab-heldout5-paid-v0.33-vs-v0.32.jsonl`:
+40 sites spread over set 5 (`--sample 40`), from home, both versions on every
+site in a shuffled order. The `_v032` arms reproduce v0.32 in v0.33 code (one
+racer after 10 s, paid tools after 4 walls, no rescue).
+
+| Arm | Sites read | Median (read) | p90 (read) | Total time | Cost |
+|---|---|---|---|---|---|
+| Free, v0.32 | 35/40 | 6.5 s | 19.6 s | 450 s | $0 |
+| Free, v0.33 | 37/40 | 3.9 s | 16.9 s | 404 s | $0 |
+| Paid fallbacks, v0.32 | 36/40 | 5.1 s | 15.2 s | 336 s | $0.030 |
+| Paid fallbacks, v0.33 | 37/40 | 3.6 s | 15.1 s | 278 s | $0.049 |
+
+- The second read of a site is faster (Jina Reader's and the site's caches), so
+  compare reads in the same position: free v0.33 against v0.32 was 5.3 s
+  against 7.0 s when both read first, 3.4 s against 5.6 s when both read second.
+- v0.33 read OpenTable and Cotswold Outdoor (a wrong URL, rescued) that v0.32
+  missed, and missed nothing v0.32 read.
+- Paid tools coming in at the first wall: Sierra 35 s (Camoufox) to 3 s
+  (Firecrawl), Ricardo 11 to 3 s. The cost per 1,000 pages read goes from
+  $0.83 to $1.32.
+- A first paid run found a bug: vendor routing moved a paid tool with a strong
+  record ahead of a free tool that usually beats that vendor, even with
+  `paid_after_walls=0`. Fixed before the rows above; paid tools are now placed
+  only by the paid escalation.
+
+### Wrong URLs (set 5)
+
+`rescue-heldout5-dead-urls.jsonl`: the 7 set-5 URLs that ended `NOT_FOUND` for
+every arm in earlier runs, read with v0.33 defaults. Adore Beauty ("serum",
+schema.org SearchAction), Barnes & Noble ("cookbook", the search form), Cotswold
+Outdoor ("boots") and Dunelm ("cushion") came back as the site's own search
+results; lastminute.com, Qoo10 and Seat61 found nothing that fit and stayed
+`NOT_FOUND`.
+
+### Held-out set 6, every tool alone (home)
+
+`toolbench-heldout6-v0.33.jsonl` (FrankenSurf free and paid, both per site in a
+shuffled order), `toolbench-heldout6-alone.jsonl` (each tool alone),
+`toolbench-heldout6-firecrawl.jsonl` (Firecrawl alone, earlier the same day). The
+set had been read once before (v0.32 on the VM, above); no v0.33 change looks at
+its sites.
+
+| Arm | Sites read | Median (read) | p90 (read) | Cost | Per 1k read |
+|---|---|---|---|---|---|
+| Headless Chromium alone | 68/150 (45.3%) | 2.6 s | 4.9 s | $0 | |
+| Patchright alone | 68/150 (45.3%) | 3.6 s | 6.8 s | $0 | |
+| Plain HTTP alone | 77/150 (51.3%) | 1.0 s | 3.0 s | $0 | |
+| Camoufox alone | 99/150 (66.0%) | 8.5 s | 13.3 s | $0 | |
+| Scrapling alone | 109/150 (72.7%) | 6.8 s | 17.2 s | $0 | |
+| Jina Reader alone | 111/150 (74.0%) | 2.3 s | 10.4 s | $0 | |
+| Firecrawl alone | 128/150 (85.3%) | 4.8 s | 11.3 s | $0.54 | $4.25 |
+| Zyte alone | 129/150 (86.0%) | 12.0 s | 42.3 s | not reported | |
+| FrankenSurf free | 127/150 (84.7%) | 3.3 s | 18.1 s | $0 | |
+| FrankenSurf, paid fallbacks | 143/150 (95.3%) | 3.0 s | 25.9 s | $0.15 | $1.06 |
+
+- 146 sites were read by at least one arm; FrankenSurf with paid fallbacks read
+  143 of them. It read 18 that Firecrawl missed; Firecrawl read none it missed.
+- Its 7 misses: one each in cars, developer sites, Australian, European and US
+  retail, two in Asian and other retail.
+- A racer won 32 free reads (30 of them valid) and 10 paid ones. Adairs was
+  rescued (a moved search path).
+- ZenRows answered `BUDGET_EXHAUSTED` on every page (its plan had run out), so
+  it has no row; Scrapfly is still left out.
+
+### Held-out set 6 on a cloud VM again
+
+`toolbench-heldout6-free-azure-v0.33.jsonl`, `toolbench-heldout6-lightning-azure-v0.33.jsonl`
+(GitHub-hosted Azure VM, Moses Lake; v0.32 ran in Dulles):
+
+| Arm | v0.32 | v0.33 |
+|---|---|---|
+| Free, four reads at a time | 118/150, median 5.9 s | 124/150, median 6.4 s |
+| Lightning, one read at a time | 124/150, median 1.7 s | 126/150, median 1.6 s |
+
+v0.33's free arm read Adairs, Houzz, Infobae, Petstock, SpareRoom and Udemy that
+v0.32 missed, and lost none; lightning gained three and lost Blibli. The free
+median is from two different VMs with four reads at a time, where racers add
+browsers to a four-core machine. `articles-108-azure-v0.33.jsonl`: 103 read and
+the article present on 101 (v0.32: 100).
