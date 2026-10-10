@@ -71,6 +71,34 @@ async def test_results_that_ignore_the_words_are_not_a_rescue(tmp_path, install)
         WebPolicy(rescue_not_found="yes")
 
 
+async def test_a_rescue_never_follows_a_search_on_another_site_and_keeps_its_costs(tmp_path, install,
+                                                                                  monkeypatch):
+    elsewhere = HOME.replace("action='/search'", "action='https://search.other.example/find'")
+
+    class Plugin:
+        manifest = ProviderManifest("http", "1")
+
+        def available(self, configured):
+            return True
+
+        async def acquire(self, request, services):
+            if request.url == "https://shop.example.com/":
+                return {"url": request.url, "content": elsewhere, "content_type": "text/html", "http_status": 200}
+            if request.url.startswith("https://search.other.example/"):
+                return {"url": request.url, "content": RESULTS, "content_type": "text/html", "http_status": 200}
+            raise WebFailure("NOT_FOUND", "fixture 404", 404)
+    install(Plugin())
+
+    async def typed_search(self, home, words, effective):  # the search box navigates off the site
+        return "https://search.other.example/find?q=brass+desk+lamp"
+    monkeypatch.setattr(Runtime, "_probe_search", typed_search)
+    async with Runtime(tmp_path) as web:
+        result = await web.read("https://shop.example.com/p/brass-desk-lamp-123456", policy_overrides=QUIET)
+    receipt = result["receipt"]
+    assert receipt["failure"]["code"] == "NOT_FOUND" and receipt["rescue"]["found"] is False
+    assert "search_url" not in receipt["rescue"] and receipt["cost_usd"] == 0
+
+
 def test_url_words():
     from frankensurf.completeness import url_words
     assert url_words("https://www.seat61.com/trains-and-routes/london-to-paris-by-train.htm") == "london paris train"

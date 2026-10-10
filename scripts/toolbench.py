@@ -201,7 +201,11 @@ async def read(web, arm: str, case: dict) -> dict:
             "cost_usd": receipt.get("cost_usd"), "judge_cost_usd": round(judge_cost, 6),
             "agent_retries": retries,
             "escalations": [step.get("provider") for step in
-                            (receipt.get("completeness") or {}).get("escalations") or ()]}
+                            (receipt.get("completeness") or {}).get("escalations") or ()],
+            # Which v0.33 behaviour served the read: a racer won, or the site's own
+            # search stood in for a URL that answered not found.
+            "hedge_won": (receipt.get("hedge") or {}).get("provider") if (receipt.get("hedge") or {}).get("won") else None,
+            "rescued": bool(receipt.get("rescued"))}
 
 
 async def run(cases, state: Path, out: Path, workers: int, gap: float, arms: list[str],

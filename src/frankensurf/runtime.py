@@ -3337,7 +3337,7 @@ class Runtime:
         if (not effective.rescue_not_found or effective.provider or effective.provider_candidates is not None
                 or effective.identity or effective.profile):
             return result
-        from .completeness import assess, url_words
+        from .completeness import _same_site, assess, url_words
         from .module_discovery import find_search
         words = url_words(url)
         parsed = urlparse(url)
@@ -3347,11 +3347,19 @@ class Runtime:
         inner = {**(policy_overrides or {}), "rescue_not_found": False} if policy is None else None
         inner_policy = replace(policy, rescue_not_found=False) if policy is not None else None
         record = {"query": words, "found": False}
-        home_result = await self.read(home, inner_policy, module=False, policy_overrides=inner)
-        record["home_trace_id"] = (home_result.get("receipt") or {}).get("trace_id")
-        if (home_result.get("receipt") or {}).get("status") != "observed":
+        # Every read the rescue makes stays on the bill, found or not.
+        costs = [receipt.get("cost_usd", 0)]
+
+        def give_up():
+            receipt["cost_usd"] = _total_cost(costs)
             receipt["rescue"] = record
             return result
+        home_result = await self.read(home, inner_policy, module=False, policy_overrides=inner)
+        home_receipt = home_result.get("receipt") or {}
+        costs.append(home_receipt.get("cost_usd", 0))
+        record["home_trace_id"] = home_receipt.get("trace_id")
+        if home_receipt.get("status") != "observed":
+            return give_up()
         search = find_search(home_result, home)
         if search is not None and search.get("template"):
             from urllib.parse import quote, quote_plus
@@ -3359,16 +3367,19 @@ class Runtime:
             target, via = search["template"].replace("{query}", encode(words)), search["from"]
         else:
             target, via = await self._probe_search(home, words, effective), "search box"
-        if not target or target.split("#")[0] == url.split("#")[0]:
-            receipt["rescue"] = record
-            return result
+        # The site's own search only: its host, a subdomain or its parent, never another site.
+        target_host = urlparse(target or "").hostname
+        if (not target or target.split("#")[0] == url.split("#")[0]
+                or not (_same_site(target_host, parsed.hostname) or _same_site(parsed.hostname, target_host))):
+            return give_up()
         found = await self.read(target, inner_policy, module=False, policy_overrides=inner)
         found_receipt = found.get("receipt") or {}
+        costs.append(found_receipt.get("cost_usd", 0))
         verdict = assess(target, found, expect_terms=tuple(words.split()))
         record.update(via=via, search_url=target, trace_id=found_receipt.get("trace_id"))
         if found_receipt.get("status") != "observed" or not verdict.get("complete") or verdict.get("off_query"):
-            receipt["rescue"] = record
-            return result
+            return give_up()
+        found_receipt["cost_usd"] = _total_cost(costs)
         found_receipt["rescued"] = {"from": url, "after": "NOT_FOUND", "query": words, "via": via,
                                     "search_url": target, "home_trace_id": record["home_trace_id"],
                                     "trace_id": receipt.get("trace_id")}
@@ -5211,23 +5222,26 @@ class Runtime:
         return stats, local
 
     def _route_by_vendor(self, vendor, order, plan_state, receipt, policy, minimum=3, hopeless=8):
-        """Move the tools that got past this wall vendor most often to the front of
-        what is left, and the ones that never have in `hopeless` tries to the back.
-        Learned from this machine's own reads and measured priors, never from site names."""
+        """Move the free tools that got past this wall vendor most often to the front
+        of what is left, and the tools that never have in `hopeless` tries to the
+        back. Paid tools are placed by the paid escalation (paid_after_walls,
+        cheapest likely success first), never here. Learned from this machine's own
+        reads and measured priors, never from site names."""
         stats, local = self._vendor_stats(vendor, policy)
         remaining = order[plan_state["position"] + 1:]
+        paid = {item["id"] for item in self.providers.inspect() if item["paid"]}
 
         def plan(counts):
             rated = sorted(((tool, (counts[tool][0] + 1) / (counts[tool][1] + 2)) for tool in remaining
-                            if tool in counts and counts[tool][1] >= minimum), key=lambda pair: -pair[1])
+                            if tool in counts and counts[tool][1] >= minimum and tool not in paid),
+                           key=lambda pair: -pair[1])
             return ([tool for tool, rate in rated if rate >= 0.5],
                     [tool for tool in remaining if tool in counts and counts[tool][0] == 0
                      and counts[tool][1] >= hopeless])
         ahead, last = plan(stats)
         plan_state["hopeless"] = set(last)
-        paid = {item["id"] for item in self.providers.inspect() if item["paid"]}
         # A free tool that usually beats this vendor gets its try before money is spent.
-        plan_state["free_favourite"] = any(tool not in paid for tool in ahead)
+        plan_state["free_favourite"] = bool(ahead)
         if ahead or last:
             order[plan_state["position"] + 1:] = ahead + [
                 tool for tool in remaining if tool not in ahead and tool not in last] + last

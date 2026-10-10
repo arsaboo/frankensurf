@@ -44,8 +44,8 @@ embedded and fetched JSON, images, and the receipt.
 Free or paid
 ------------
 
-Everything works with no keys. Paid tools are opt-in, and only run after the
-free ones fail. From the benchmark below (152 sites picked before any was read):
+Everything works with no keys. Paid tools are opt-in, and only come in once a
+site has walled a free tool, cheapest likely success first. From the benchmark below (152 sites picked before any was read):
 
 =========================================  ==============  =============
 Setup                                      Sites read      Cost per 1k
@@ -100,6 +100,13 @@ at once. Running on a server that reads URLs it didn't choose? Set
 Every page read carries ``receipt.quality``: ``good``, ``partial`` or ``poor``,
 with flags such as ``paywall``, ``menus`` or ``placeholder``, so an agent (or a
 paid fallback) knows when a page didn't really come through.
+
+Slow page? A read with no page after 3 seconds starts two more free tools beside
+it and keeps the first complete page (``--lightning`` races from the start). A
+URL that answers not found is looked up with the site's own search, and
+``receipt.rescued`` says so. Still walled? Allow a real Chrome on your machine
+(``--real-browser``, with its own profile, never yours) or a second connection
+(``FRANKENSURF_EGRESS``; ``frankensurf egress check`` shows where each comes out).
 
 Keeping up with many sites? ``frankensurf watch-sites URL… --since DATE`` lists
 their new pages from the feeds and sitemaps they publish, polled with

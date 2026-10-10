@@ -193,13 +193,19 @@ async def test_paid_tools_go_cheapest_likely_success_first_and_wait_for_a_free_f
         return Plugin()
     monkeypatch.setattr(runtime, "_paid_priors", lambda: {
         "dear": {"overall": [7, 8], "cost_usd": 0.05}, "cheap": {"overall": [6, 8], "cost_usd": 0.004}})
-    monkeypatch.setattr(runtime, "_wall_priors", lambda: {"datadome": {"favourite": [6, 8]}})
+    # A paid tool with a better record against the vendor than the free favourite
+    # still waits for the paid escalation.
+    monkeypatch.setattr(runtime, "_wall_priors", lambda: {"datadome": {"favourite": [6, 8], "dear": [8, 8]}})
     registry(walled("w1"), walled("favourite"), walled("unknown", paid=True), walled("dear", paid=True),
              walled("cheap", paid=True, outcome="ok"))
     policy = dict(origin_route_hint_ttl_seconds=0, provider_max_attempts_per_candidate=1, warm_up_on_wall=False)
     async with Runtime(tmp_path) as web:
         result = await web.read(URL, policy_overrides={"allow_paid_fallbacks": True, **policy})
+        later = await web.read(URL, policy_overrides={"allow_paid_fallbacks": True, "paid_after_walls": 0,
+                                                      "freshness": "now", **policy})
     # The free favourite for this vendor gets its try; then the cheapest likely
-    # success (0.004 at 6/8 beats 0.05 at 7/8); a tool with no known cost last.
+    # success (0.004 at 6/8 beats 0.05 at 8/8); a tool with no known cost last.
     assert tried(result) == ["w1", "favourite", "cheap"]
+    # paid_after_walls=0: paid tools wait for escalate_after_walls, whatever their record.
+    assert tried(later)[:3] == ["w1", "favourite", "unknown"]
     assert WebPolicy().paid_after_walls == 1
