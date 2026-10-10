@@ -19,6 +19,7 @@ goes to `--state` (default `./state`).
 | `module` | `list`, `show ID`, `add FILE`, `enable ID`, `disable ID`, `rm ID`, `repair TRACE_ID FILE`, `discover URL [--query TEXT] [--save]` | Manage [site modules](/docs/read/site-modules/); `repair` proposes a fixed version for owner promotion with `repair-promote`; `discover` drafts one from a page's own data. |
 | `watch-sites` | site URLs | New pages on those sites from their feeds and sitemaps; `--since DATE`, `--read-new`. |
 | `skill` | `install` (`--skill-dir`) or `show` | Install the agent skill (SKILL.md). |
+| `plugins` | `list`, `trust KIND ID DISTRIBUTION`, `untrust KIND ID`, `disable KIND ID`, `enable KIND ID` | Third-party [plugins](/docs/more/plugins/): what loaded, what was turned away and why, and the trust file. |
 | `egress` | `check` | Whether your direct connection and each [second connection](/docs/blocked/egress/) works, and where it comes out (address, country, WARP). |
 | `extract` | one URL | Read through `--adapter` (default `html`). |
 | `batch` | URLs | Read several pages. |
@@ -69,8 +70,9 @@ Search adds `--search-source-candidate`, `--search-source-allow`,
 `--search-source-prefer` (each repeatable), `--search-max-attempts`,
 `--search-source-timeout` (0 means the operation timeout) and `--search-url`.
 
-Fields without a flag, such as `allow_paid_fallbacks` and `max_cost_usd`, are
-set from Python or MCP.
+`--paid` allows paid tools whose keys are set (`allow_paid_fallbacks`) and
+`--max-cost USD` caps what one operation may spend (`max_cost_usd`). Fields
+without a flag are set from Python or MCP.
 
 ## Other options
 

@@ -75,10 +75,16 @@ read planned, after skipping anything unavailable.
   [your other connections](/docs/blocked/egress/): `used` (the name of the one
   that got through, or `null`), `tried`, `after` and `direct_trace_id`, or
   `from_hint` when the site's hint chose it.
-- **`hedge`** appears when a slow read started a second read beside it, or
-  a [lightning](/docs/read/lightning/) read raced others (`lightning`,
-  `providers`, `tried`): `provider`, `won`, and when its page stood in for a failed main read,
-  `after_failure` and the `walled` tools.
+- **`hedge`** appears when a read with no page after 3 seconds was raced by
+  other free tools ([smart lightning](/docs/blocked/escalation/#racing-a-slow-read-smart-lightning)),
+  or a [lightning](/docs/read/lightning/) read raced from the start
+  (`lightning`): `providers`, `tried`, `after_seconds`, `provider`, `won`, and
+  when its page stood in for a failed main read, `after_failure` and the
+  `walled` tools. `routing.left_to_racers` lists the tools the main read left
+  to its racers rather than read the page twice.
+- **`completeness.cut_off`** is true when a tool trying to complete a page ran
+  past `completeness_step_timeout_seconds` (or the climb's deadline) and was
+  stopped; the best page so far stands.
 - Cookies, keys and credential URL parameters never appear.
 
 ## Quality

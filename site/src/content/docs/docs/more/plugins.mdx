@@ -1,13 +1,14 @@
 ---
 title: Writing a plugin
-description: Add a provider, search source or adapter without touching Core.
+description: Build your own provider, search source or adapter as a Python package, install it, and trust it.
 ---
 
-import { Aside } from "@astrojs/starlight/components";
+import { Aside, Steps } from "@astrojs/starlight/components";
 
-Every tool in Frankensurf is a plugin behind one of three interfaces. A new
-acquisition method, search source or adapter never becomes a branch inside
-`Runtime.read`.
+Every tool in Frankensurf is a plugin behind one of three interfaces, and yours
+can be too: your company's scraping API, a browser you run elsewhere, a search
+index. Core does the rest for it: routing, pacing, content checks, retries,
+cost caps, receipts and evidence.
 
 | Kind | Interface | Entry-point group |
 | --- | --- | --- |
@@ -15,37 +16,137 @@ acquisition method, search source or adapter never becomes a branch inside
 | Search source | `SearchPlugin` in `search_plugins.py` | `frankensurf.plugins.search` |
 | Adapter (shapes a result) | `AdapterPlugin` in `adapters.py` | `frankensurf.plugins.adapter` |
 
-## A provider
+A plugin is an ordinary Python package. Installing it never makes it run: it
+runs only after you trust that plugin, from that exact package, in a private
+trust file.
 
-A provider has a manifest and an `acquire` method. It makes the call and
-returns the page. Core does everything else: routing, pacing, content checks,
-retries, cost caps, receipts and evidence.
+## Build one in five steps
 
-```python
-from frankensurf.providers import ProviderManifest
-from frankensurf.runtime import WebFailure
+The repository has a working provider to copy:
+[`examples/frankensurf-plugin-example`](https://github.com/yail259/frankensurf/tree/main/examples/frankensurf-plugin-example).
+It reads pages through your own scraping service, an HTTP API that takes a URL
+and returns the page.
 
-class AcmeReader:
-    manifest = ProviderManifest(
-        "acme_reader", "1",
-        rendering=True,        # it runs a browser
-        paid=True,             # joins only with allow_paid_fallbacks
-        cost_bounded=False,    # True if it refuses calls that could pass max_cost_usd
-    )
+<Steps>
 
-    def available(self, configured):
-        return bool(load_key())          # unavailable = skipped, not failed
+1. **Lay out the package.**
 
-    async def acquire(self, request, services):
-        body = await fetch_somehow(request.url, timeout=request.policy.timeout_seconds)
-        return {"url": final_url, "content": body, "raw": body.encode(),
-                "content_type": "text/html", "http_status": 200, "headers": {},
-                "cost_usd": 0.002}
-```
+   ```
+   frankensurf-plugin-example/
+     pyproject.toml
+     src/frankensurf_plugin_example/__init__.py
+   ```
 
-Raise `WebFailure(code, message)` with a [failure code](/docs/reference/errors/)
-on failure, for example `BLOCKED` or `CAPTCHA`, so Core can climb and cool down
-correctly. Never put a key in a message.
+2. **Write the provider.** A manifest and an `acquire` method that makes the call
+   and returns the page:
+
+   ```python
+   import os
+
+   import httpx
+
+   from frankensurf.providers import ProviderManifest
+   from frankensurf.runtime import WebFailure
+
+
+   class ExampleFetch:
+       manifest = ProviderManifest(
+           "example_fetch", "0.1.0",  # must match the entry point name
+           rendering=True,            # the service runs a browser
+           paid=True,                 # only with allow_paid_fallbacks / --paid
+           remote=True,               # fetches from its own network
+       )
+
+       def available(self, configured):
+           # Unavailable means skipped, never failed.
+           return bool(os.environ.get("EXAMPLE_API_KEY"))
+
+       async def acquire(self, request, services):
+           if not self.available(None):   # named explicitly, it runs anyway
+               raise WebFailure("PROVIDER_UNAVAILABLE", "set EXAMPLE_API_KEY first")
+           async with httpx.AsyncClient(timeout=request.policy.unblocker_timeout_seconds) as client:
+               response = await client.post(os.environ["EXAMPLE_API_URL"], json={"url": request.url},
+                                            headers={"Authorization": "Bearer " + os.environ["EXAMPLE_API_KEY"]})
+           body = response.json()
+           if body["status"] == 403:
+               raise WebFailure("BLOCKED", "page answered 403", 403)
+           return {"url": body["url"], "content": body["html"], "content_type": "text/html",
+                   "http_status": body["status"], "cost_usd": 0.001}
+   ```
+
+   The example in the repository also maps timeouts, the service's own errors
+   (`402` is `BUDGET_EXHAUSTED`, `429` is `RATE_LIMITED`) and the page's status
+   to [failure codes](/docs/reference/errors/).
+
+3. **Declare the entry point** in `pyproject.toml`. Its name is the plugin ID:
+
+   ```toml
+   [project]
+   name = "frankensurf-plugin-example"
+   version = "0.1.0"
+   dependencies = ["frankensurf>=0.34", "httpx>=0.28,<1"]
+
+   [project.entry-points."frankensurf.plugins.provider"]
+   example_fetch = "frankensurf_plugin_example:ExampleFetch"
+   ```
+
+4. **Install it into Frankensurf's own environment.** That depends on how you
+   installed Frankensurf:
+
+   ```bash
+   pip install -e ./frankensurf-plugin-example                        # pip or a venv
+   uv tool install frankensurf --with-editable ./frankensurf-plugin-example   # uv tool
+   pipx inject frankensurf -e ./frankensurf-plugin-example            # pipx
+   ```
+
+   Then `frankensurf plugins` lists it as turned away, with the command that
+   trusts it:
+
+   ```json
+   "rejected": [{"kind": "provider", "id": "example_fetch", "code": "PLUGIN_NOT_TRUSTED",
+                 "distribution": "frankensurf-plugin-example",
+                 "hint": "installed but not trusted yet: frankensurf plugins trust provider example_fetch frankensurf-plugin-example"}]
+   ```
+
+5. **Trust it, then use it.**
+
+   ```bash
+   frankensurf plugins trust provider example_fetch frankensurf-plugin-example
+   frankensurf plugins                     # now under "loaded"
+   export EXAMPLE_API_URL=https://your-service.example/read EXAMPLE_API_KEY=...
+   frankensurf read https://example.com --provider example_fetch --paid
+   ```
+
+</Steps>
+
+From Python, name it the same way: `policy_overrides={"provider": "example_fetch",
+"allow_paid_fallbacks": True}`.
+
+## Where it runs on its own
+
+A trusted provider joins every automatic read, after the bundled tools. To have
+it tried when a page comes back incomplete, put it on the completeness ladder,
+for example `completeness_ladder=("jina_reader", "example_fetch", "scrapling",
+...)`. Paid tools are tried cheapest likely success first, from costs measured
+for the built-in ones; a paid plugin has none, so it comes after them (its
+`cost_usd` still goes on every bill), and Frankensurf learns which wall vendors
+it gets past from your reads.
+
+## The rules a plugin follows
+
+- **Return the page, raise the failure.** Return what you got and let Core judge
+  it: challenge pages, empty shells and results that never loaded are caught
+  for you. Raise `WebFailure(code, message)` when the page or the tool fails, so
+  Core can climb and cool down correctly.
+- **Never put a key in a message or a result.** Read keys from the environment.
+  An error's text can carry a URL with a token in it: report its type instead.
+- **Keep state inside methods or the class.** Frankensurf copies a plugin for
+  each session; it turns away one whose methods read mutable module-level
+  values (`PLUGIN_BINDING_UNSAFE`).
+- **Report cost.** `cost_usd` per read, or `None` when you don't know, which
+  stops a read that has a spending cap.
+- **Use Core's fetch when you fetch the site yourself.** `services.http(url,
+  policy)` applies the user's proxy, pacing and private-network guard.
 
 The manifest flags decide where it can run:
 
@@ -53,7 +154,8 @@ The manifest flags decide where it can run:
 | --- | --- |
 | `rendering` | Can satisfy `render=True`. |
 | `requires_local_browser` | Off when `allow_local_browser=False`. |
-| `paid` | Needs `allow_paid_fallbacks=True`. |
+| `paid` | Needs `allow_paid_fallbacks=True` (`--paid`). |
+| `remote` | Fetches from its own network; tried when walls block this machine's address. |
 | `cost_bounded` | Refuses a call whose worst case could pass the remaining cap. |
 | `authentication` | Identity-only; never in the public route. |
 | `route_scope_required` | Runs only through a route seed or when named. |
@@ -62,33 +164,39 @@ The manifest flags decide where it can run:
 Plugins with heavy or clashing dependencies can run in their own process; see
 `provider_worker.py` and `experimental.py` for how the stealth browsers do it.
 
-## Installing a third-party plugin
+## The trust file
 
-Publish it as a Python package with an entry point in the right group, install
-it into Frankensurf's environment, then trust it explicitly in
+`frankensurf plugins trust` and its siblings edit
 `~/.config/frankensurf/plugins.json`:
+
+```bash
+frankensurf plugins                                   # what loaded, what was turned away and why
+frankensurf plugins trust KIND ID DISTRIBUTION        # KIND: provider, search or adapter
+frankensurf plugins untrust KIND ID
+frankensurf plugins disable KIND ID                   # also turns off a bundled plugin
+frankensurf plugins enable KIND ID
+```
 
 ```json
 {
   "schema": "frankensurf.plugin-policy/v1",
-  "trusted": {
-    "provider": {"acme_reader": "frankensurf-acme"},
-    "search": {},
-    "adapter": {}
-  },
-  "disabled": {"provider": [], "search": [], "adapter": []}
+  "trusted": {"provider": {"example_fetch": "frankensurf-plugin-example"}, "search": {}, "adapter": {}},
+  "disabled": {"provider": ["zenrows"], "search": [], "adapter": []}
 }
 ```
 
-Each trusted ID is bound to one exact distribution. A plugin cannot replace a
-bundled one. `disabled` turns off any plugin, bundled or not. The catalogue is
-frozen when a `Runtime` starts, and nothing is installed or downloaded during
-an operation. `Runtime.inspect_plugins()` shows what loaded and what was
-rejected.
+Each trusted ID is bound to one exact distribution, so another package can't
+claim it. A plugin cannot replace a bundled one. The file must be yours and
+private (the command writes it `0600` in a `0700` directory); a loose file is
+refused, not half-read. The catalogue is read once when a `Runtime` starts, and
+nothing is installed or downloaded during an operation.
+`Runtime.inspect_plugins()` shows the same as `frankensurf plugins`.
 
-<Aside type="note">
-  Plugin code is trusted local code, not a sandbox. Only trust packages you
-  would run yourself.
+<Aside type="caution">
+  Plugin code is trusted local code, not a sandbox: it runs with your
+  permissions. Only trust packages you would run yourself. Third-party plugins
+  need Linux, macOS or WSL, where the trust file's owner and permissions can
+  be checked.
 </Aside>
 
 ## Contributing one upstream
