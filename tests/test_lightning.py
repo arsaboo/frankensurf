@@ -197,3 +197,33 @@ async def test_by_default_a_slow_read_races_two_tools_and_a_quick_one_none(tmp_p
         quick = await web.read(SEARCH, policy_overrides={**POLICY, "hedge_after_seconds": 0.5})
     assert quick["receipt"]["method"] == "quick_main" and ("start", "reader") not in log
     assert WebPolicy().hedge_after_seconds == 3.0 and WebPolicy().hedge_racers == 2
+
+
+async def test_a_racing_tool_is_left_to_its_racer(tmp_path, install):
+    # The main read walls slowly and would climb to the racers' tools: it skips them.
+    log = []
+    install(tool("wall", SHELL, 0.4, log, failure="BLOCKED"), tool("reader", SHELL, 0.6, log, failure="BLOCKED"),
+            tool("stealth", SHELL, 0.6, log, failure="BLOCKED"), tool("late", RESULTS, 0, log))
+    async with Runtime(tmp_path) as web:
+        result = await web.read(SEARCH, policy_overrides={**POLICY, "hedge_after_seconds": 0.1})
+    starts = [name for kind, name in log if kind == "start"]
+    assert starts.count("reader") == 1 and starts.count("stealth") <= 1
+    assert result["receipt"]["method"] == "late"
+    assert result["receipt"]["routing"]["left_to_racers"] == ["reader", "stealth"]
+
+
+async def test_a_slow_completeness_step_is_cut_off_and_the_page_in_hand_stands(tmp_path, install):
+    log = []
+    install(tool("first", SHELL, 0, log), tool("reader", RESULTS, 30, log))
+    async with Runtime(tmp_path) as web:
+        started = asyncio.get_running_loop().time()
+        result = await web.read(SEARCH, policy_overrides={
+            **POLICY, "hedge_after_seconds": 0, "completeness_ladder": ["reader"],
+            "completeness_step_timeout_seconds": 0.5})
+        elapsed = asyncio.get_running_loop().time() - started
+    record = result["receipt"]["completeness"]
+    assert elapsed < 5 and result["receipt"]["method"] == "first"
+    assert record["cut_off"] is True and record["escalations"][-1]["failure"] == "TIMEOUT"
+    assert ("cancelled", "reader") in log
+    with pytest.raises(ValueError):
+        WebPolicy(completeness_step_timeout_seconds=0)

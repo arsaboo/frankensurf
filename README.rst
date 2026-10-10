@@ -56,7 +56,8 @@ Plus paid fallbacks (Firecrawl, Zyte, …)   95.3%           3.0 s     $1.06
 =========================================  ==============  ========  =============
 
 To allow paid tools, set their keys (for example ``FIRECRAWL_API_KEY``) and pass
-``allow_paid_fallbacks``. See
+``--paid`` (``--max-cost USD`` caps a read; from Python, ``allow_paid_fallbacks``
+and ``max_cost_usd``). See
 `Paid tools and budgets <https://frankensurf.dev/docs/blocked/paid-tools/>`_.
 
 Use it
@@ -169,6 +170,11 @@ against 11.3 s, when a read climbs several tools. Medians are over pages read;
 cost is per 1,000 pages read right. ZenRows is left out (its plan ran out of
 credits), as is Scrapfly.
 
+Re-run with v0.34 the next morning: 95.3% again with paid fallbacks (median
+3.0 s), free tools 84.0% with a median of 4.4 s. The free median depends on
+Jina Reader's cache: the first run came an hour after other runs had read the
+same pages through it, and its first read of a page takes about 6 s.
+
 Earlier fresh sets, same method: 152 sites on 6 October (v0.16) 89.5% against
 Firecrawl's 80.3%; 139 sites on 9 October (v0.26) 88.5% against 74.1%. See
 `Benchmarks <https://frankensurf.dev/docs/more/benchmarks/>`_.
@@ -205,7 +211,9 @@ From a clone::
 
 The product design is in ``SPEC.rst``; contributor rules are in ``AGENTS.md``.
 New tools are plugins, never branches in Core; see
-`Writing a plugin <https://frankensurf.dev/docs/more/plugins/>`_. The
+`Writing a plugin <https://frankensurf.dev/docs/more/plugins/>`_ for building,
+installing and trusting your own (``frankensurf plugins``), with a working
+example in ``examples/frankensurf-plugin-example``. The
 website and docs live in ``site/``.
 
 Licence

@@ -34,6 +34,9 @@ from .identity import IdentityRegistry, IdentityFailure
 _PLUGIN_ID = re.compile(r"[a-z][a-z0-9_.-]{0,127}")
 _PLUGIN_VERSION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+:-]{0,191}")
 _STAGE_IMAGE_EVIDENCE = ContextVar("frankensurf_stage_image_evidence", default=False)
+# Tools racing the read already running for this URL: (url, set of tool ids). The
+# main read's plan skips them so one tool never reads the same page twice at once.
+_RACE_CLAIMED = ContextVar("frankensurf_race_claimed", default=None)
 
 
 def _valid_plugin_id(value):
@@ -158,6 +161,10 @@ class WebPolicy:
     try_harder: bool = False
     retry_of_trace: str | None = None
     completeness_deadline_seconds: float = 150.0
+    # Once a read holds a page, one extra tool trying to complete it gets this
+    # long before it is cut off (and the climb's deadline cuts off a running
+    # tool too). Measured: only Zyte ever passed 45 s, mostly timing out.
+    completeness_step_timeout_seconds: float = 45.0
     # Hosted unblockers render through residential proxies and need longer than
     # an ordinary provider attempt.
     unblocker_timeout_seconds: float = 90.0
@@ -423,6 +430,8 @@ class WebPolicy:
                  "real_browser_wait_seconds must be finite and nonnegative")
         _require(_is_number(self.completeness_deadline_seconds, positive=True),
                  "completeness_deadline_seconds must be positive and finite")
+        _require(_is_number(self.completeness_step_timeout_seconds, positive=True),
+                 "completeness_step_timeout_seconds must be positive and finite")
         _require(_is_number(self.handoff_timeout_seconds, positive=True),
                  "handoff_timeout_seconds must be positive and finite")
         _require(_is_int(self.pdf_max_pages, 1), "pdf_max_pages must be a positive integer")
@@ -4189,9 +4198,14 @@ class Runtime:
             if racers:
                 return await self._lightning(url, policy, provider, adapter, policy_overrides,
                                              workload_assertions, effective, racers)
-        main = asyncio.ensure_future(self._read_unpaced(
-            url, policy, provider, adapter, policy_overrides=policy_overrides,
-            workload_assertions=workload_assertions))
+        claimed = set()
+        token = _RACE_CLAIMED.set((url, claimed))
+        try:
+            main = asyncio.ensure_future(self._read_unpaced(
+                url, policy, provider, adapter, policy_overrides=policy_overrides,
+                workload_assertions=workload_assertions))
+        finally:
+            _RACE_CLAIMED.reset(token)
         racers = (self._lightning_tools(url, effective, adapter, count=effective.hedge_racers)
                   if effective.hedge_after_seconds and automatic else [])
         if not racers:
@@ -4199,6 +4213,7 @@ class Runtime:
         done, _ = await asyncio.wait({main}, timeout=effective.hedge_after_seconds)
         if done:
             return main.result()
+        claimed.update(racers)
         return await self._race(url, policy, adapter, policy_overrides, workload_assertions, effective,
                                 main, racers, lightning=False, after_seconds=effective.hedge_after_seconds)
 
@@ -4414,9 +4429,21 @@ class Runtime:
                     group.append(queue.pop(0))
             tasks = [asyncio.create_task(run_step(identifier, pause + index * 0.5))
                      for index, identifier in enumerate(group)]
+            # A step is cut off at its own limit or the climb's deadline, whichever
+            # comes first; the best page so far stands.
+            limit = min(deadline - time.monotonic(),
+                        effective.completeness_step_timeout_seconds + pause + 0.5 * len(group))
             try:
-                for next_done in asyncio.as_completed(tasks):
-                    identifier, step = await next_done
+                for next_done in asyncio.as_completed(tasks, timeout=max(limit, 0.1)):
+                    try:
+                        identifier, step = await next_done
+                    except asyncio.TimeoutError:
+                        for identifier, task in zip(group, tasks):
+                            if not task.done():
+                                steps.append({"provider": identifier, "status": "failed", "failure": "TIMEOUT",
+                                              "complete": False, "cut_off": True})
+                        record["cut_off"] = True
+                        break
                     if judge(identifier, step):
                         finished = True
                         break
@@ -5571,6 +5598,15 @@ class Runtime:
                 exhausted_candidates = set()
                 for candidate, retry_index in provider_plan:
                     if candidate in exhausted_candidates:
+                        continue
+                    claim = _RACE_CLAIMED.get()
+                    if (claim is not None and claim[0] == url and candidate in claim[1]
+                            and any(item not in claim[1] for item in order[plan_state["position"] + 1:])):
+                        # A racer is reading this page with this tool: leave it to the racer.
+                        left = receipt.setdefault("routing", {}).setdefault("left_to_racers", [])
+                        if candidate not in left:
+                            left.append(candidate)
+                        exhausted_candidates.add(candidate)
                         continue
                     attempt_started = time.monotonic()
                     attempt_final_url = None

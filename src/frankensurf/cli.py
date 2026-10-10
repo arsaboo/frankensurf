@@ -28,6 +28,8 @@ _POLICY_ARGUMENTS = {
     "handoff": "allow_handoff",
     "lightning": "lightning",
     "real_browser": "allow_real_browser",
+    "paid": "allow_paid_fallbacks",
+    "max_cost": "max_cost_usd",
     "profile": "profile",
     "expect": "expect_terms",
     "card_images": "card_images",
@@ -232,6 +234,15 @@ async def run(args):
         from .egress import check
         result = {"connections": await check(),
                   "note": "direct is this machine; the rest come from FRANKENSURF_EGRESS"}
+    elif args.operation == "plugins":
+        from . import plugin_admin
+        if args.urls in ([], ["list"]):
+            result = plugin_admin.status()
+        else:
+            action, kind, plugin_id, *rest = args.urls
+            result = {"trust_file": str(plugin_admin.default_plugin_policy_path()),
+                      "policy": plugin_admin.change(action, kind, plugin_id, *rest),
+                      "note": "takes effect when the next Runtime starts; check with: frankensurf plugins"}
     elif args.operation == "skill":
         from . import skill
         if args.urls and args.urls[0] == "show":
@@ -343,13 +354,21 @@ def build_parser():
     from .adapters import DEFAULT_ADAPTERS
     from .providers import DEFAULT_PROVIDERS
     provider_ids = [item["id"] for item in DEFAULT_PROVIDERS.inspect()]
+    try:
+        # Third-party providers the owner trusts can be named too.
+        from .plugin_catalog import build_plugin_catalog
+        provider_ids += [item["id"] for item in build_plugin_catalog().inspect()["plugins"]
+                         if item["kind"] == "provider" and item["source"] == "entry_point"
+                         and item["id"] not in provider_ids]
+    except Exception:
+        pass
     parser = argparse.ArgumentParser(description="Free local evidence-first web runtime")
     parser.add_argument("operation", choices=["read", "extract", "paginate", "batch", "trace",
         "search", "images", "do", "import", "repair", "repair-promote", "watch", "watch-sites",
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
         "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
-        "egress"])
+        "egress", "plugins"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
@@ -415,6 +434,11 @@ def build_parser():
         help="profile-login: seconds to wait for the window to close")
     parser.add_argument("--handoff", action="store_true", default=None,
         help="If every automatic route fails, open the page for you to clear, then resume")
+    parser.add_argument("--paid", action="store_true", default=None,
+        help="Allow paid tools whose keys are set (Firecrawl, Zyte, ...) once a site walls the free"
+             " ones, cheapest likely success first")
+    parser.add_argument("--max-cost", type=float, metavar="USD",
+        help="Most this operation may spend on paid tools, in US dollars")
     parser.add_argument("--lightning", action="store_true", default=None,
         help="Start the read and two other tools at once and keep the first complete page"
              " (faster; up to three requests to the site at once)")
@@ -535,6 +559,13 @@ def parse_args(argv=None):
     elif args.operation == "egress":
         if args.urls != ["check"]:
             parser.error("egress takes: check")
+    elif args.operation == "plugins":
+        usage = ("plugins takes: [list] | trust KIND ID DISTRIBUTION | untrust KIND ID | "
+                 "disable KIND ID | enable KIND ID  (KIND: provider, search or adapter)")
+        if args.urls not in ([], ["list"]) and not (
+                (len(args.urls) == 4 and args.urls[0] == "trust")
+                or (len(args.urls) == 3 and args.urls[0] in ("untrust", "disable", "enable"))):
+            parser.error(usage)
     elif args.operation == "setup":
         if args.urls:
             parser.error("setup takes no arguments (add --no-stealth to skip the stealth providers)")

@@ -349,3 +349,37 @@ v0.32 missed, and lost none; lightning gained three and lost Blibli. The free
 median is from two different VMs with four reads at a time, where racers add
 browsers to a four-core machine. `articles-108-azure-v0.33.jsonl`: 103 read and
 the article present on 101 (v0.32: 100).
+
+## v0.34: slow completeness steps cut off, racers' tools left to them (11 October)
+
+The slowest paid reads in the v0.33 run had their page within 3 seconds, then
+waited for a tool trying to complete it: Zyte timed out after 90 s on New World,
+The Woks of Life and MVNRepository. The climb's deadline was checked only
+between steps. v0.34 cuts a step off after `completeness_step_timeout_seconds`
+(45; across every trace from both days only Zyte ever passed 45 s, 8 of its 143
+pages and 12 failures) and at the deadline; the best page so far stands. The
+main read also leaves a racer's tool to the racer instead of reading the page
+with it twice (3 of 43 hard reads did in the v0.33 A/B).
+
+`toolbench-heldout6-v0.34.jsonl`: set 6 again from home the next morning, fresh
+state, the same two arms.
+
+| Arm | Sites read | Median (read) | p90 (read) | Over 45 s | Cost |
+|---|---|---|---|---|---|
+| Paid fallbacks, v0.33 (10 Oct) | 143/150 | 3.0 s | 25.9 s | 8 | $0.152 |
+| Paid fallbacks, v0.34 (11 Oct) | 143/150 | 3.0 s | 25.9 s | 7 | $0.175 |
+| Free, v0.33 (10 Oct) | 127/150 | 3.3 s | 18.1 s | 4 | $0 |
+| Free, v0.34 (11 Oct) | 126/150 | 4.4 s | 19.0 s | 2 | $0 |
+
+- The worst reads came down: New World 108 to 43 s, The Woks of Life 93 to
+  21 s, MVNRepository 93 to 25 s. p90 did not move: the reads around it are
+  climbs over several tools that each finish well inside 45 s (Danawa still
+  took 105 s across six tools).
+- The free median rose because of Jina Reader's cache, not the change. Reads
+  that never raced or climbed took the same time on both days (median change
+  0.03 s). Jina's median read went from 0.6 s to 5.1 s in the free arm: its
+  first read of a URL took a median 5.8 s that morning and later reads 2.8 s,
+  and on 10 October the VM runs had read the same URLs through Jina an hour
+  before. The paid arm, which mostly reached Jina second, saw 0.8 s.
+- Free lost Briscoes NZ (results missing) and gained nothing; paid read the same
+  143 sites.

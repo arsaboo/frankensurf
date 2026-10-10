@@ -89,7 +89,10 @@ first complete page and keeps the most complete one it saw. A search page that
 passes only narrowly (fewer than `completeness_borderline_items`, 20, item
 links and few prices) also gets one read from the strongest allowed tool, a
 paid one when allowed. `completeness_max_extra_reads` (default 5) and
-`completeness_deadline_seconds` (default 150) bound the extra work, and
+`completeness_deadline_seconds` (default 150) bound the extra work; each extra
+tool gets `completeness_step_timeout_seconds` (default 45) before it is cut off
+and the best page so far stands (`receipt.completeness.cut_off`). Measured on
+the held-out sets, only Zyte ever ran past 45 seconds, mostly to time out.
 `receipt.completeness` lists every step.
 
 Climbing also stops when two browsers read the same page as the first read

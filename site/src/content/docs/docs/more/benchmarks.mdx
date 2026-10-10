@@ -42,6 +42,13 @@ credits. The same set read from a fresh cloud VM (a data-centre address) with
 v0.33: free tools 82.7% (v0.32: 78.7%), [lightning mode](/docs/read/lightning/)
 84.0% at a 1.6 s median.
 
+Re-run with v0.34 the next morning: with paid fallbacks 95.3% again (median
+3.0 s, p90 25.9 s; the three reads that took 90 seconds or more now take 21 to
+43); free tools 84.0%, median 4.4 s. The free median moves with Jina Reader's
+cache: its first read of a page took a median 5.8 s that morning, and the
+first run above came an hour after other runs had read the same pages through
+it.
+
 v0.33 against v0.32 on 40 sites of the v0.30 set below (10 October), one read at a time, both
 versions on every site: free tools read 37 against 35 (median 3.9 s against
 6.5 s); with paid fallbacks 37 against 36 (median 3.6 s against 5.1 s, $1.32
