@@ -93,6 +93,13 @@ h1 em.horror { display: inline-block; font-size: 1.04em; line-height: 0.95; padd
 @keyframes sheen { 50% { background-position: 100% 0; } }
 .sub { margin: 24px 0 0; max-width: 440px; font-size: 18px; line-height: 1.55; color: var(--muted); }
 .actions { margin-top: 34px; display: flex; gap: 12px; flex-wrap: wrap; }
+.proof { margin-top: 26px; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; padding: 9px 16px; border: 1px solid var(--line-2); border-radius: 999px; font: 14px var(--mono); color: var(--fg-2); text-decoration: none; background: rgba(7, 9, 11, 0.6); backdrop-filter: blur(6px); }
+.proof b { font-size: 17px; font-weight: 600; color: var(--accent); }
+.proof span { color: var(--dim); }
+.proof .claim { color: var(--fg-2); }
+.proof .arrow { color: var(--accent); }
+.proof:hover { border-color: var(--accent); }
+@media (max-width: 600px) { .proof { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; border-radius: 14px; padding: 12px 16px; } .proof .arrow { display: none; } }
 .hint { position: absolute; z-index: 2; right: 28px; bottom: 130px; margin: 0; font: 12px var(--mono); color: var(--dim); }
 .hint kbd { font: inherit; color: var(--muted); border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; background: rgba(0, 0, 0, 0.4); }
 @media (max-width: 760px) {
@@ -285,6 +292,18 @@ h2 { margin: 0; font-weight: 600; font-size: clamp(34px, 4.6vw, 58px); line-heig
 @media (max-width: 600px) { .bento { grid-template-columns: minmax(0, 1fr); padding: 8px; gap: 8px; } }
 
 /* stats + bars */
+.rank { margin-top: 20px; padding: 14px 24px 12px; }
+.rank-row { display: grid; grid-template-columns: minmax(150px, 240px) minmax(0, 1fr) 64px; gap: 18px; align-items: center; padding-block: 9px; border-bottom: 1px solid var(--line); }
+.rank-row .lbl { font-size: 14px; color: var(--fg-2); }
+.rank-row .val { font: 13px var(--mono); color: var(--dim); text-align: right; font-variant-numeric: tabular-nums; }
+.rank-track { display: block; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.rank-track i { display: block; height: 100%; border-radius: 4px; width: 0; background: rgba(255, 255, 255, 0.32); transition: width 1.2s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: calc(var(--i, 0) * 60ms); }
+.rank-row.us .lbl, .rank-row.us .val { color: var(--accent); font-weight: 600; }
+.rank-row.us .rank-track i { background: var(--accent); }
+[data-reveal].in .rank-track i { width: var(--w); }
+.rank .bars-src { display: inline-block; margin-top: 12px; }
+.sec-h3 { margin: 56px 0 0; font-size: clamp(24px, 3vw, 34px); font-weight: 600; letter-spacing: -0.03em; }
+@media (max-width: 760px) { .rank-row { grid-template-columns: minmax(0, 1fr) 64px; gap: 6px 10px; } .rank-row .rank-track { grid-column: 1 / -1; grid-row: 2; } }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .stat { padding: 34px 24px 30px 0; display: flex; flex-direction: column; gap: 6px; }
 .stat + .stat { padding-left: 24px; border-left: 1px solid var(--line); }
@@ -344,7 +363,7 @@ footer { max-width: 1180px; margin: 0 auto; padding: 100px 24px 56px; display: f
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .mini-rungs i, .track2 i { width: var(--w); }
+  .mini-rungs i, .track2 i, .rank-track i { width: var(--w); }
   .nav-shell::before { background: linear-gradient(110deg, rgba(154, 240, 176, 0.35), rgba(255, 255, 255, 0.1) 55%, rgba(255, 211, 107, 0.3)); }
   .window { transform: none; }
   .hint { display: none; }
@@ -417,7 +436,7 @@ section[id], main[id] { scroll-margin-top: 100px; }
 html[data-motion="reduced"] {
   scroll-behavior: auto;
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .mini-rungs i, .track2 i { width: var(--w); }
+  .mini-rungs i, .track2 i, .rank-track i { width: var(--w); }
   .nav-shell::before { background: linear-gradient(110deg, rgba(154, 240, 176, 0.35), rgba(255, 255, 255, 0.1) 55%, rgba(255, 211, 107, 0.3)); }
   .window { transform: none; }
   .hint { display: none; }

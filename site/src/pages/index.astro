@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import StitchedWave from "../assets/stitched-wave.svg";
 import stitchedWaveMint from "../assets/stitched-wave-mint.svg?url";
-import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, ledger, rungs } from "../data/site";
+import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs } from "../data/site";
 
 const repo = "https://github.com/yail259/frankensurf";
 const half = Math.ceil(marquee.length / 2);
@@ -15,6 +15,12 @@ const gap = (f: { today: number; target: number }) => {
   return Math.abs(d) < 0.05 ? "even" : d > 0 ? `−${d.toFixed(1)} pts` : `+${(-d).toFixed(1)} pts`;
 };
 const pct = ([v, n]: [number, number]) => (v / n * 100).toFixed(1);
+// Every tool on its own, and Frankensurf with and without paid tools, ranked.
+const ranked = [
+  { name: "Frankensurf", all: usVersus.all, us: true },
+  { name: "Frankensurf, free tools only", all: usFree, us: true },
+  ...versus.map((t) => ({ name: `${t.name} Only`, all: t.all, us: false })),
+].sort((a, b) => b.all[0] / b.all[1] - a.all[0] / a.all[1]);
 const kindLabel = { oss: "Open source", managed: "Managed", standard: "Open standard" };
 // Unblockers patch: a short wall across the read's path, with the middle course knocked out.
 const bricks = [2, 19, 45, 62].flatMap((y, row) =>
@@ -27,7 +33,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
   <title>Frankensurf</title>
   <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon-stitched-wave.svg" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <meta name="description" content="One call that gets your agent through any site, on any model. Stitched from the best browsing tools on the web." />
+  <meta name="description" content="28 web scrapers and browsers stitched into one free, open-source tool for AI agents. 96% of 150 sites picked blind; Firecrawl alone 85%." />
   <script is:inline>
     if (matchMedia("(prefers-reduced-motion: reduce)").matches || new URLSearchParams(location.search).get("motion") === "reduced") document.documentElement.dataset.motion = "reduced";
   </script>
@@ -62,11 +68,12 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
     <canvas id="surf" aria-label="ASCII art: Frankenstein's monster surfing a barreling wave"></canvas>
     <div class="hero-copy">
       <h1>Every site.<br />Every agent.<br /><em class="horror">One call.</em></h1>
-      <p class="sub">The right browsing tool for every page. Your agent finishes the task.</p>
+      <p class="sub">28 web scrapers and browsers, stitched into one free, open-source tool for AI agents.</p>
       <div class="actions">
         <a class="btn primary" href={repo}>Star on GitHub <span aria-hidden="true">→</span></a>
         <a class="btn" href="#router">See it route</a>
       </div>
+      <a class="proof" href="#targets"><span class="claim"><b>96%</b> of 150 sites picked blind</span><span>Firecrawl alone 85% · Zyte alone 86%</span><span class="arrow" aria-hidden="true">↓</span></a>
     </div>
     <p class="hint" aria-hidden="true"><kbd>click</kbd> strike lightning · <kbd>move</kbd> over the water</p>
   </section>
@@ -93,6 +100,66 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
         <div class="seg" data-sites role="group" aria-label="Page type"></div>
         <div class="summary" data-summary role="status"></div>
       </div>
+    </div>
+  </section>
+
+  <section class="container sec" id="targets">
+    <div class="sec-head" data-reveal>
+      <h2>96% of sites. <em class="horror">Picked blind.</em></h2>
+      <p class="sec-sub">150 sites picked before any was read and read once: every tool on its own, then Frankensurf, the same day, the same content checks (11 October 2026). Frankensurf read 17 sites Firecrawl missed; Firecrawl read none it missed. With no paid tools at all, it matches the best paid tool on its own. Its median read took 2.9 s against Firecrawl's 4.6 s; its slowest tenth still takes longer, 26 s against 11 s.</p>
+    </div>
+    <div class="panel rank" data-reveal role="list" aria-label="Share of 150 sites read right, each tool on its own and Frankensurf">
+      {ranked.map((r, i) => (
+        <div class:list={["rank-row", { us: r.us }]} role="listitem">
+          <span class="lbl">{r.name}</span>
+          <span class="rank-track" aria-hidden="true"><i style={`--w:${pct(r.all)}%;--i:${i}`}></i></span>
+          <span class="val">{pct(r.all)}%</span>
+        </div>
+      ))}
+      <a class="bars-src" href={sources.bench.url}>Sites read right, of 150 · raw rows and script ↗</a>
+    </div>
+    <h3 class="sec-h3" data-reveal>A quarter of the <em class="horror">dead ends.</em></h3>
+    <div class="stats" data-reveal>
+      {stats.map((s) => <div class="stat"><span class="v">{s.value}</span><span class="l">{s.label}</span><span class="n">{s.note}</span></div>)}
+    </div>
+    <div class="panel bars" data-reveal>
+      <div class="bars-key"><span class="kt">Firecrawl Only</span><span class="kg">Frankensurf</span><a class="bars-src" href={sources.bench.url}>Share of 150 sites failed · source ↗</a></div>
+      {failures.map((f) => (
+        <div class="bar-row">
+          <span class="lbl">{f.label}</span>
+          <div class="track2">
+            <div class="t"><i style={`--w:${f.today / maxFail * 100}%`}></i><span>{f.today.toFixed(1)}%</span></div>
+            <div class="g"><i style={`--w:${f.target / maxFail * 100}%`}></i><span>{f.target.toFixed(1)}%</span></div>
+          </div>
+          <span class:list={["cut", { worse: f.target > f.today + 0.05 }]}>{gap(f)}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container sec" id="versus">
+    <div class="sec-head" data-reveal>
+      <h2>Stronger <em class="horror">stitched.</em></h2>
+      <p class="sec-sub">Measured 11 October 2026. Frankensurf against each of its own providers used on its own, on the same 150 sites picked before any was read, the same day.</p>
+    </div>
+    <div class="panel vs" data-versus data-reveal>
+      <div class="vs-tabs" role="tablist" aria-label="Frankensurf compared with one provider on its own">
+        {versus.map((t, i) => <button type="button" role="tab" id={`vs-tab-${i}`} aria-controls={`vs-${i}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}><img src={`/logos/${t.logo}`} alt="" width="20" height="20" loading="lazy" /><span>{t.name} Only</span><i></i></button>)}
+      </div>
+      {versus.map((t, i) => (
+        <div class="vs-slide" role="tabpanel" id={`vs-${i}`} aria-labelledby={`vs-tab-${i}`} hidden={i !== 0}>
+          <div class="vs-score">
+            <div class="vs-side us"><span class="vs-v">{pct(usVersus.all)}%</span><span class="vs-n"><img class="fs" src={stitchedWaveMint} alt="" width="20" height="20" />Frankensurf</span></div>
+            <span class="vs-mid" aria-hidden="true">vs</span>
+            <div class="vs-side"><span class="vs-v">{pct(t.all)}%</span><span class="vs-n"><img src={`/logos/${t.logo}`} alt="" width="20" height="20" loading="lazy" />{t.name} Only</span></div>
+          </div>
+          <p class="vs-cap">of 150 fresh sites read right</p>
+          <dl class="vs-rows">
+            <div><dt>Of sites any tool could read</dt><dd class:list={{ lose: t.unseen > usVersus.unseen }}>{usVersus.unseen.toFixed(1)}% vs {t.unseen.toFixed(1)}%</dd></div>
+            <div><dt>Cost per 1,000 pages read</dt><dd>{usVersus.cost} vs {t.cost}</dd></div>
+          </dl>
+        </div>
+      ))}
     </div>
   </section>
 
@@ -244,55 +311,6 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
               </details>
             ))}
           </div>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <section class="container sec" id="targets">
-    <div class="sec-head" data-reveal>
-      <h2>A quarter of the <em class="horror">dead ends.</em></h2>
-      <p class="sec-sub">Measured 11 October 2026 on 150 sites picked before any was read and read once: every tool alone, then Frankensurf, the same day, the same content checks. Frankensurf read 17 sites Firecrawl missed; Firecrawl read none it missed. Its median read took 2.9 s against 4.6 s; its slowest tenth still takes longer, 26 s against 11 s.</p>
-    </div>
-    <div class="stats" data-reveal>
-      {stats.map((s) => <div class="stat"><span class="v">{s.value}</span><span class="l">{s.label}</span><span class="n">{s.note}</span></div>)}
-    </div>
-    <div class="panel bars" data-reveal>
-      <div class="bars-key"><span class="kt">Firecrawl Only</span><span class="kg">Frankensurf</span><a class="bars-src" href={sources.bench.url}>Share of 150 sites failed · source ↗</a></div>
-      {failures.map((f) => (
-        <div class="bar-row">
-          <span class="lbl">{f.label}</span>
-          <div class="track2">
-            <div class="t"><i style={`--w:${f.today / maxFail * 100}%`}></i><span>{f.today.toFixed(1)}%</span></div>
-            <div class="g"><i style={`--w:${f.target / maxFail * 100}%`}></i><span>{f.target.toFixed(1)}%</span></div>
-          </div>
-          <span class:list={["cut", { worse: f.target > f.today + 0.05 }]}>{gap(f)}</span>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <section class="container sec" id="versus">
-    <div class="sec-head" data-reveal>
-      <h2>Stronger <em class="horror">stitched.</em></h2>
-      <p class="sec-sub">Measured 11 October 2026. Frankensurf against each of its own providers used on its own, on the same 150 sites picked before any was read, the same day.</p>
-    </div>
-    <div class="panel vs" data-versus data-reveal>
-      <div class="vs-tabs" role="tablist" aria-label="Frankensurf compared with one provider on its own">
-        {versus.map((t, i) => <button type="button" role="tab" id={`vs-tab-${i}`} aria-controls={`vs-${i}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}><img src={`/logos/${t.logo}`} alt="" width="20" height="20" loading="lazy" /><span>{t.name} Only</span><i></i></button>)}
-      </div>
-      {versus.map((t, i) => (
-        <div class="vs-slide" role="tabpanel" id={`vs-${i}`} aria-labelledby={`vs-tab-${i}`} hidden={i !== 0}>
-          <div class="vs-score">
-            <div class="vs-side us"><span class="vs-v">{pct(usVersus.all)}%</span><span class="vs-n"><img class="fs" src={stitchedWaveMint} alt="" width="20" height="20" />Frankensurf</span></div>
-            <span class="vs-mid" aria-hidden="true">vs</span>
-            <div class="vs-side"><span class="vs-v">{pct(t.all)}%</span><span class="vs-n"><img src={`/logos/${t.logo}`} alt="" width="20" height="20" loading="lazy" />{t.name} Only</span></div>
-          </div>
-          <p class="vs-cap">of 150 fresh sites read right</p>
-          <dl class="vs-rows">
-            <div><dt>Of sites any tool could read</dt><dd class:list={{ lose: t.unseen > usVersus.unseen }}>{usVersus.unseen.toFixed(1)}% vs {t.unseen.toFixed(1)}%</dd></div>
-            <div><dt>Cost per 1,000 pages read</dt><dd>{usVersus.cost} vs {t.cost}</dd></div>
-          </dl>
         </div>
       ))}
     </div>
