@@ -59,7 +59,8 @@ HELDOUT = {"heldout": Path(__file__).with_name("toolbench-heldout.json"),
            "heldout3": Path(__file__).with_name("toolbench-heldout3.json"),
            "heldout4": Path(__file__).with_name("toolbench-heldout4.json"),
            "heldout5": Path(__file__).with_name("toolbench-heldout5.json"),
-           "heldout6": Path(__file__).with_name("toolbench-heldout6.json")}
+           "heldout6": Path(__file__).with_name("toolbench-heldout6.json"),
+           "heldout7": Path(__file__).with_name("toolbench-heldout7.json")}
 COMMON = {"origin_cooldown_seconds": 0, "freshness": "now", "lightning": False, "allow_real_browser": False}
 ARMS = {
     "http": {"provider": "http"},
@@ -299,8 +300,7 @@ def main(argv=None):
     parser.add_argument("--workers", type=int, default=3)
     parser.add_argument("--gap", type=float, default=2.0, help="seconds between arms on one URL")
     parser.add_argument("--arms", nargs="*", default=list(ARMS))
-    parser.add_argument("--only-set", nargs="*", choices=["main", "heldout", "heldout2", "heldout3", "heldout4", "heldout5",
-                                                         "heldout6"])
+    parser.add_argument("--only-set", nargs="*", choices=["main", *HELDOUT])
     parser.add_argument("--label", default="run")
     parser.add_argument("--resume", type=Path, help="rows file to continue; finished (arm, URL) pairs are skipped")
     parser.add_argument("--sample", type=int, help="read only this many cases, spread evenly over the set")

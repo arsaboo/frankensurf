@@ -1217,6 +1217,10 @@ def _image_urls(structured: object, soup: BeautifulSoup | None, url: str) -> lis
             found.append(element.get("src") or element.get("data-src") or "")
     normalized = []
     for image in found:
+        # Structured data nests images in many shapes (an ImageObject whose url
+        # is itself an object, a list): only plain strings are image URLs.
+        if not isinstance(image, str) or not image:
+            continue
         absolute = urljoin(url, image)
         if image and urlparse(absolute).scheme in {"http", "https"} and absolute not in normalized:
             normalized.append(absolute)

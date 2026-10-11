@@ -31,7 +31,7 @@ def test_heldout_sites_are_not_in_the_tuned_corpus_or_seeds():
     seeds = json.loads((SCRIPTS.parent / "src/frankensurf/bundled_route_seeds.json").read_text())["recipes"]
     seeded = {recipe["origin"].split("//")[1].removeprefix("www.") for recipe in seeds}
     cases = toolbench.heldout()
-    assert {case["set"] for case in cases} == {"heldout", "heldout2", "heldout3", "heldout4", "heldout5", "heldout6"}
+    assert {case["set"] for case in cases} == {"heldout", "heldout2", "heldout3", "heldout4", "heldout5", "heldout6", "heldout7"}
     assert len({case["site"] for case in cases}) == len(cases)
     for case in cases:
         host = case["url"].split("//")[1].split("/")[0].removeprefix("www.")

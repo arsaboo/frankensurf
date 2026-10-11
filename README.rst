@@ -21,8 +21,8 @@ Website and docs: https://frankensurf.dev ·
 Try it
 ------
 
-Python 3.12 or newer, on Linux or Windows through WSL (macOS should work but
-isn't tested yet)::
+Python 3.12 or newer, on Linux, macOS, or Windows through WSL (each release is
+installed from PyPI on fresh Ubuntu 24.04 and macOS machines and checked)::
 
   pip install "frankensurf[mcp]"
   frankensurf setup        # Chromium + the free stealth browsers, a few minutes
@@ -174,6 +174,11 @@ Re-run with v0.34 the next morning: 95.3% again with paid fallbacks (median
 3.0 s), free tools 84.0% with a median of 4.4 s. The free median depends on
 Jina Reader's cache: the first run came an hour after other runs had read the
 same pages through it, and its first read of a page takes about 6 s.
+
+Then once more on 150 sites never read before (held-out set 7, 11 October):
+96.0% with paid fallbacks (median 2.9 s), free tools 88.0%, Firecrawl alone
+84.7%. Frankensurf read 17 sites Firecrawl missed and Firecrawl none it missed
+(``benchmarks/2026-10-11/``).
 
 Earlier fresh sets, same method: 152 sites on 6 October (v0.16) 89.5% against
 Firecrawl's 80.3%; 139 sites on 9 October (v0.26) 88.5% against 74.1%. See

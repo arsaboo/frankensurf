@@ -1,0 +1,81 @@
+# What a new user does, on fresh machines: install from PyPI, set up, read, start
+# the MCP server. Nothing from this checkout is installed; it only supplies the
+# small MCP check script. Push a branch named install-check/<anything>, or run it
+# by hand with a version.
+name: Install check
+
+on:
+  push:
+    branches: ["install-check/**"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "frankensurf version on PyPI (empty: latest)"
+        required: false
+
+jobs:
+  pip:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, python: "3.12"}
+          - {os: ubuntu-latest, python: "3.13"}
+          - {os: macos-latest, python: "3.12"}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    env:
+      SPEC: frankensurf[mcp]${{ inputs.version && format('=={0}', inputs.version) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ matrix.python }}"}
+      - name: pip install
+        run: |
+          python -m venv /tmp/fs && /tmp/fs/bin/pip install -q --upgrade pip
+          # A branch named install-check/checkout-* tests this checkout before a release.
+          if [[ "$GITHUB_REF_NAME" == *checkout* ]]; then /tmp/fs/bin/pip install ".[mcp]"; else /tmp/fs/bin/pip install "$SPEC"; fi
+          /tmp/fs/bin/pip show frankensurf | head -2
+      - name: frankensurf setup
+        run: |
+          /tmp/fs/bin/frankensurf setup | tee /tmp/setup.json
+          /tmp/fs/bin/python -c "import json,sys; w=json.load(open('/tmp/setup.json'))['works_here']; print(w); sys.exit(0 if all(v is True for v in w.values()) else 1)"
+      - name: Read a plain page
+        run: /tmp/fs/bin/frankensurf read https://example.com --explain
+      - name: Each browser tool on its own
+        run: |
+          for tool in local camoufox scrapling patchright; do
+            /tmp/fs/bin/frankensurf read https://news.ycombinator.com/ --provider "$tool" \
+              | /tmp/fs/bin/python -c "import json,sys; r=json.load(sys.stdin)['receipt']; f=r.get('failure') or {}; print('$tool', r['status'], f.get('code') or '', (f.get('message') or '')[:300])"
+          done
+      - name: Read a script-heavy page
+        run: /tmp/fs/bin/frankensurf read "https://news.ycombinator.com/" --explain | head -20
+      - name: MCP server answers initialize and lists its tools
+        run: /tmp/fs/bin/python scripts/install_check_mcp.py /tmp/fs/bin/frankensurf-mcp
+      - name: plugins and egress check
+        run: |
+          /tmp/fs/bin/frankensurf plugins | head -5
+          /tmp/fs/bin/frankensurf egress check
+
+  tool-installs:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      SPEC: frankensurf[mcp]${{ inputs.version && format('=={0}', inputs.version) || '' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: uv tool install
+        run: |
+          pip install -q uv
+          uv tool install --python 3.12 "$SPEC"
+          frankensurf read https://example.com --explain
+      - name: pipx install
+        run: |
+          pip install -q pipx
+          pipx install --python python3.12 "$SPEC" --suffix=-pipx
+          frankensurf-pipx read https://example.com --explain

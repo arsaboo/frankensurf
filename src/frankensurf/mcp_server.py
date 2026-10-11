@@ -7,6 +7,12 @@ from . import skill as _skill
 # The agent skill doubles as the server's instructions, so every MCP client
 # learns which tool and option fits, and how to read a receipt.
 server = FastMCP("FrankenSurf", instructions=_skill.body())
+try:
+    # Clients see FrankenSurf's version in initialize, not the MCP library's.
+    from importlib.metadata import version as _package_version
+    server._mcp_server.version = _package_version("frankensurf")
+except Exception:
+    pass
 
 
 def runtime():

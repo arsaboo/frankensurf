@@ -30,6 +30,25 @@ def _patchright_disabled_features():
     return "--disable-features="+",".join(features)
 
 
+# Kernel switches that forbid the unprivileged user namespaces Chrome's sandbox
+# needs: Ubuntu 23.10+ (AppArmor) and older Debian. Value 1 restricts, 0 allows.
+_USERNS_SWITCHES = (("/proc/sys/kernel/apparmor_restrict_unprivileged_userns", "1"),
+                    ("/proc/sys/kernel/unprivileged_userns_clone", "0"))
+
+
+def _sandbox_possible():
+    """False where the kernel forbids Chrome's sandbox; Chrome then aborts at
+    launch ("No usable sandbox!") rather than read anything."""
+    for path, forbidden in _USERNS_SWITCHES:
+        try:
+            with open(path) as handle:
+                if handle.read().strip() == forbidden:
+                    return False
+        except OSError:
+            continue
+    return True
+
+
 def _scrapling_safety(session, implicit_feature_arg=None):
     # The upstream defaults ignore TLS errors and disable several browser safety
     # features. Restore those protections for our anonymous temporary profile.
@@ -44,7 +63,10 @@ def _scrapling_safety(session, implicit_feature_arg=None):
     ignored.extend(["--password-store=basic","--use-mock-keychain","--disable-background-networking",
                     implicit_feature_arg or _patchright_disabled_features()])
     session._browser_options["ignore_default_args"]=list(dict.fromkeys(ignored))
-    session._browser_options["chromium_sandbox"] = True
+    # The sandbox stays on wherever the kernel allows it. Where it forbids it (a
+    # stock Ubuntu 24.04 server), Chrome cannot start sandboxed at all, so run it
+    # like the bundled local Chromium does.
+    session._browser_options["chromium_sandbox"] = _sandbox_possible()
     session._context_options.update(ignore_https_errors=False, permissions=[], service_workers="block")
 
 
@@ -137,6 +159,26 @@ _SHADOW_SCRIPT = r"""() => {
   collect(document);
   return out.length ? out.join('\n') : null;
 }"""
+
+
+def _camoufox_mac_properties():
+    """Camoufox 0.5 looks for properties.json beside an explicit executable, but
+    the macOS app bundle keeps it in Contents/Resources, so every launch failed
+    there. Look in the bundle too; this process only, nothing on disk changes."""
+    import camoufox.utils as utils
+    original = utils._load_properties
+    if getattr(original, "_bundle_aware", False):
+        return
+
+    def load(path=None):
+        if path is not None:
+            executable = Path(path)
+            resources = executable.parent.parent / "Resources"
+            if not (executable.parent / "properties.json").exists() and (resources / "properties.json").exists():
+                path = resources / executable.name
+        return original(path)
+    load._bundle_aware = True
+    utils._load_properties = load
 
 
 def _camoufox_binaries(version):
@@ -409,6 +451,8 @@ async def acquire(request):
         from camoufox.addons import DefaultAddons
         binaries=_camoufox_binaries("152.0.4-beta.31")
         if len(binaries)!=1:return {"status":"failed","failure":"PROVIDER_UNAVAILABLE"}
+        if sys.platform=="darwin":
+            _camoufox_mac_properties()
         async with AsyncCamoufox(headless=request.get("public_browser_headless",True), geoip=False, humanize=False,
                 executable_path=str(binaries[0]),exclude_addons=[DefaultAddons.UBO],
                 **({"proxy": _browser_proxy(request["proxy"])} if request.get("proxy") else {})) as browser:
@@ -547,6 +591,11 @@ async def acquire(request):
     return {"status":"failed","failure":"PROVIDER_DOWN"}
 
 
+def _debug_traceback():
+    import traceback
+    traceback.print_exc(file=sys.__stderr__)
+
+
 def main():
     global _REPORT_STAGES, _PROTOCOL
     # Keep a private handle on the protocol pipe and point fd 1 (and
@@ -561,9 +610,14 @@ def main():
         request=json.loads(sys.stdin.buffer.read(16*1024*1024))
         _REPORT_STAGES = request.get("report_stages") is True
         result=asyncio.run(acquire(request))
-    except (ImportError,FileNotFoundError):result={"status":"failed","failure":"PROVIDER_UNAVAILABLE"}
+    except (ImportError,FileNotFoundError):
+        _debug_traceback()
+        result={"status":"failed","failure":"PROVIDER_UNAVAILABLE"}
     except Exception as exc:
-        # Do not emit exception text: library errors can contain sensitive context.
+        # Do not emit exception text in the result: library errors can contain
+        # sensitive context. The traceback goes to stderr, which the runtime
+        # discards unless its owner sets FRANKENSURF_DEBUG_WORKERS=1.
+        _debug_traceback()
         failure="TIMEOUT" if "timeout" in type(exc).__name__.lower() else "PROVIDER_DOWN"
         result=_failed(failure,stage=_CURRENT_STAGE)
     _PROTOCOL.write(json.dumps(result,ensure_ascii=False))

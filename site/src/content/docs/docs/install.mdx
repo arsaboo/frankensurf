@@ -60,10 +60,12 @@ system:
 
 </Steps>
 
-<Aside type="caution">
-  macOS isn't part of our test runs yet. The core install is plain Python and
-  Playwright, so it should behave as on Linux; please
-  [open an issue](https://github.com/yail259/frankensurf/issues) if it doesn't.
+<Aside type="note">
+  Each release is installed from PyPI on a fresh macOS machine (Apple silicon)
+  and checked: setup, every browser, a read and the MCP server. `frankensurf
+  setup` ends with `works_here`, which browsers started and read a page on your
+  machine; please [open an issue](https://github.com/yail259/frankensurf/issues)
+  if one doesn't.
 </Aside>
 
 </TabItem>
