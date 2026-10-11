@@ -307,3 +307,22 @@ async def test_public_provider_cannot_omit_requested_content_readiness(tmp_path,
             content_ready_selector="#ready", content_ready_timeout_seconds=2))
     assert result["receipt"]["failure"]["code"] == "PROVIDER_DOWN"
     assert result["receipt"]["status"] == "failed"
+
+
+def test_scrapling_runs_unsandboxed_only_where_the_kernel_forbids_the_sandbox(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+    from frankensurf import provider_worker
+    restricted, allowed = tmp_path / "restrict", tmp_path / "clone"
+    monkeypatch.setattr(provider_worker, "_USERNS_SWITCHES", ((str(restricted), "1"), (str(allowed), "0")))
+
+    def sandbox():
+        session = SimpleNamespace(_browser_options={"args": []}, _context_options={})
+        provider_worker._scrapling_safety(session, "--disable-features=x")
+        return session._browser_options["chromium_sandbox"]
+    assert sandbox() is True                      # neither switch exists: keep the sandbox
+    restricted.write_text("0"); allowed.write_text("1")
+    assert sandbox() is True                      # both allow it
+    restricted.write_text("1")
+    assert sandbox() is False                     # Ubuntu 23.10+ AppArmor restriction
+    restricted.write_text("0"); allowed.write_text("0")
+    assert sandbox() is False                     # older Debian switch

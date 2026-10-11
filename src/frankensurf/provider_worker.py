@@ -30,6 +30,25 @@ def _patchright_disabled_features():
     return "--disable-features="+",".join(features)
 
 
+# Kernel switches that forbid the unprivileged user namespaces Chrome's sandbox
+# needs: Ubuntu 23.10+ (AppArmor) and older Debian. Value 1 restricts, 0 allows.
+_USERNS_SWITCHES = (("/proc/sys/kernel/apparmor_restrict_unprivileged_userns", "1"),
+                    ("/proc/sys/kernel/unprivileged_userns_clone", "0"))
+
+
+def _sandbox_possible():
+    """False where the kernel forbids Chrome's sandbox; Chrome then aborts at
+    launch ("No usable sandbox!") rather than read anything."""
+    for path, forbidden in _USERNS_SWITCHES:
+        try:
+            with open(path) as handle:
+                if handle.read().strip() == forbidden:
+                    return False
+        except OSError:
+            continue
+    return True
+
+
 def _scrapling_safety(session, implicit_feature_arg=None):
     # The upstream defaults ignore TLS errors and disable several browser safety
     # features. Restore those protections for our anonymous temporary profile.
@@ -44,7 +63,10 @@ def _scrapling_safety(session, implicit_feature_arg=None):
     ignored.extend(["--password-store=basic","--use-mock-keychain","--disable-background-networking",
                     implicit_feature_arg or _patchright_disabled_features()])
     session._browser_options["ignore_default_args"]=list(dict.fromkeys(ignored))
-    session._browser_options["chromium_sandbox"] = True
+    # The sandbox stays on wherever the kernel allows it. Where it forbids it (a
+    # stock Ubuntu 24.04 server), Chrome cannot start sandboxed at all, so run it
+    # like the bundled local Chromium does.
+    session._browser_options["chromium_sandbox"] = _sandbox_possible()
     session._context_options.update(ignore_https_errors=False, permissions=[], service_workers="block")
 
 

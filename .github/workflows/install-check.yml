@@ -55,6 +55,11 @@ jobs:
         run: |
           /tmp/fs/bin/frankensurf plugins | head -5
           /tmp/fs/bin/frankensurf egress check
+      - name: Where the Camoufox build keeps its files
+        if: runner.os == 'macOS'
+        run: |
+          find ~/Library/Caches/camoufox -maxdepth 6 -name 'properties.json' -o -maxdepth 6 -name 'camoufox' -type f | head
+          ls ~/Library/Caches/camoufox/browsers/official/*/Camoufox.app/Contents/ ~/Library/Caches/camoufox/browsers/official/*/Camoufox.app/Contents/Resources | head -40
       - name: Stealth workers from this checkout, with their errors shown
         env: {FRANKENSURF_DEBUG_WORKERS: "1"}
         run: |
