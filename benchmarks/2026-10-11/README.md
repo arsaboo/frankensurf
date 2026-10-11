@@ -78,7 +78,10 @@ credits; it was turned off in the trust file), as is Scrapfly.
 
 With the rows above: 146 sites read by at least one tool; FrankenSurf with paid
 fallbacks 144 (98.6% of them), Zyte 129, Firecrawl 127. FrankenSurf free (132)
-read more than any tool alone.
+matched the best tools alone: 16 sites only it read against 11 only Firecrawl
+read (exact binomial p = 0.44), 13 against 10 for Zyte (p = 0.68). With paid
+fallbacks the gap is clear: 17 against 0 for Firecrawl (p < 0.0001), 16 against
+1 for Zyte (p = 0.0003); on set 6, 15 against 0 and 16 against 2.
 
 ## Set 7 from a cloud VM with v0.35
 

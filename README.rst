@@ -55,7 +55,9 @@ Free tools only (``frankensurf setup``)    88.0%           3.6 s     $0
 Plus paid fallbacks (Firecrawl, Zyte, …)   96.0%           2.9 s     $0.98
 =========================================  ==============  ========  =============
 
-The free tools alone read more sites than any paid tool on its own.
+With no paid tools at all, it reads as many sites as the best paid tool on its
+own (88.0% against Zyte's 86.0% and Firecrawl's 84.7%; at 150 sites that gap
+is within the noise).
 
 To allow paid tools, set their keys (for example ``FIRECRAWL_API_KEY``) and pass
 ``--paid`` (``--max-cost USD`` caps a read; from Python, ``allow_paid_fallbacks``
