@@ -300,8 +300,7 @@ def main(argv=None):
     parser.add_argument("--workers", type=int, default=3)
     parser.add_argument("--gap", type=float, default=2.0, help="seconds between arms on one URL")
     parser.add_argument("--arms", nargs="*", default=list(ARMS))
-    parser.add_argument("--only-set", nargs="*", choices=["main", "heldout", "heldout2", "heldout3", "heldout4", "heldout5",
-                                                         "heldout6"])
+    parser.add_argument("--only-set", nargs="*", choices=["main", *HELDOUT])
     parser.add_argument("--label", default="run")
     parser.add_argument("--resume", type=Path, help="rows file to continue; finished (arm, URL) pairs are skipped")
     parser.add_argument("--sample", type=int, help="read only this many cases, spread evenly over the set")
