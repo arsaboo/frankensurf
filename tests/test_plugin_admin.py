@@ -91,6 +91,7 @@ def test_trust_file_edits_round_trip_and_refuse_bad_input(tmp_path):
     policy = load_plugin_policy(trust)
     assert policy.trusted_distribution("search", "my_search") == "my-search-pkg"
     assert policy.is_disabled("provider", "zenrows")
+    assert "provider zenrows" in plugin_admin.status(trust, entry_points=[])["disabled"]
     plugin_admin.change("enable", "provider", "zenrows", path=trust)
     plugin_admin.change("untrust", "search", "my_search", path=trust)
     policy = load_plugin_policy(trust)

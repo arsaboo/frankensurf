@@ -251,8 +251,8 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
 
   <section class="container sec" id="targets">
     <div class="sec-head" data-reveal>
-      <h2>A third of the <em class="horror">dead ends.</em></h2>
-      <p class="sec-sub">Measured 10 October 2026 with v0.33 on 150 sites picked before any was read: every tool alone, then Frankensurf, the same day, the same content checks. Frankensurf read 18 sites Firecrawl missed; Firecrawl read none it missed. Its median read took 3.0 s against 4.8 s; its slowest tenth still takes longer, 26 s against 11 s.</p>
+      <h2>A quarter of the <em class="horror">dead ends.</em></h2>
+      <p class="sec-sub">Measured 11 October 2026 on 150 sites picked before any was read and read once: every tool alone, then Frankensurf, the same day, the same content checks. Frankensurf read 17 sites Firecrawl missed; Firecrawl read none it missed. Its median read took 2.9 s against 4.6 s; its slowest tenth still takes longer, 26 s against 11 s.</p>
     </div>
     <div class="stats" data-reveal>
       {stats.map((s) => <div class="stat"><span class="v">{s.value}</span><span class="l">{s.label}</span><span class="n">{s.note}</span></div>)}
@@ -275,7 +275,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
   <section class="container sec" id="versus">
     <div class="sec-head" data-reveal>
       <h2>Stronger <em class="horror">stitched.</em></h2>
-      <p class="sec-sub">Measured 10 October 2026. Frankensurf against each of its own providers used on its own, on the same 150 sites picked before any was read, the same day.</p>
+      <p class="sec-sub">Measured 11 October 2026. Frankensurf against each of its own providers used on its own, on the same 150 sites picked before any was read, the same day.</p>
     </div>
     <div class="panel vs" data-versus data-reveal>
       <div class="vs-tabs" role="tablist" aria-label="Frankensurf compared with one provider on its own">

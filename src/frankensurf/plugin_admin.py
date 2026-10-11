@@ -48,6 +48,8 @@ def status(path=None, *, entry_points=None):
         for item in view["rejected"]]
     return {"trust_file": str(path), "trust_file_exists": path.exists(), "loaded": loaded,
             "rejected": rejected,
+            # Turned off in the trust file (frankensurf plugins enable KIND ID turns one back on).
+            "disabled": sorted(f'{item["kind"]} {item["id"]}' for item in view["plugins"] if not item["enabled"]),
             "bundled": sorted(item["id"] for item in view["plugins"]
                               if item["source"] != "entry_point" and item["kind"] == "provider")}
 

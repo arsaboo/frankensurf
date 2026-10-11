@@ -15,18 +15,29 @@ empty app shell counts as a failure.
 The fairest test: lists of sites picked before any of their pages was read,
 used once. Nothing was tuned on them.
 
-**Newest: 150 more sites, 11 October 2026, read once (held-out set 7).** The
-candidates proposed for set 6 that set 6 did not take, never read before.
+**Newest: 150 more sites, 11 October 2026, read once (held-out set 7), every
+tool alone.** The candidates proposed for set 6 that set 6 did not take, never
+read before. Read from a home connection; Firecrawl, Zyte and Jina Reader fetch
+from their own networks.
 
 | Tool | Sites read | Median | p90 | Cost per 1k pages |
 | --- | --- | --- | --- | --- |
+| Patchright only | 38.7% | 4.1 s | 8.3 s | free |
+| Headless Chromium only | 40.7% | 2.7 s | 6.8 s | free |
+| Plain HTTP only | 48.7% | 1.2 s | 3.3 s | free |
+| Camoufox only | 68.7% | 10.9 s | 15.7 s | free |
+| Scrapling only | 68.7% | 8.5 s | 19.2 s | free |
+| Jina Reader only | 73.3% | 1.5 s | 10.2 s | free |
 | Firecrawl only | 84.7% | 4.6 s | 10.6 s | $4.28 |
+| Zyte only | 86.0% | 10.7 s | 31.3 s | not reported |
 | Frankensurf, free tools only | 88.0% | 3.6 s | 21.3 s | $0 |
 | **Frankensurf, with paid fallbacks** | **96.0%** | 2.9 s | 25.7 s | $0.98 |
 
-Frankensurf with paid fallbacks read 17 sites Firecrawl missed, and Firecrawl
-none it missed. From a fresh cloud VM (v0.34, before the Scrapling fix in
-v0.35): free 80.0%, lightning 81.3% at a 1.5 s median. Rows:
+The free tools alone read more than any paid tool on its own. With paid
+fallbacks, Frankensurf read 17 sites Firecrawl missed and Firecrawl none it
+missed; of the 146 sites any tool read, it got 98.6%. From a fresh cloud VM
+(v0.35): free tools 82.0%, [lightning mode](/docs/read/lightning/) 84.0% at a
+1.2 s median. Rows:
 [`benchmarks/2026-10-11/`](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-11).
 
 **150 sites, 10 October 2026 (v0.33), every tool alone.** Held-out

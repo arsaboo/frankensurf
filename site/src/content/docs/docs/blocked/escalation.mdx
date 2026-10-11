@@ -150,9 +150,12 @@ climbing:
 ### When the URL is wrong
 
 A URL can simply be wrong: a guessed search path, a product that moved, a
-typo. When a public read ends `NOT_FOUND`, Frankensurf searches the site itself
-for what the URL asked for: its query (`?q=air+fryer` is "air fryer") or the
-words of its last path segment (`/p/brass-desk-lamp-123` is "brass desk lamp").
+typo, a search address the site no longer honours. When a public read ends
+`NOT_FOUND`, or lands on search results that ignore the query (`off_query`),
+Frankensurf searches the site itself for what the URL asked for: its query
+(`?q=air+fryer` is "air fryer", in any of the usual parameter names), the words
+of its last path segment (`/p/brass-desk-lamp-123` is "brass desk lamp"), or the
+one query value that is plain words.
 It reads the site's home page, finds its search (schema.org `SearchAction`, the
 search form, or the search box itself), and reads the results. They stand only
 when they are complete and mention those words:

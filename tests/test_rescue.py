@@ -99,8 +99,38 @@ async def test_a_rescue_never_follows_a_search_on_another_site_and_keeps_its_cos
     assert "search_url" not in receipt["rescue"] and receipt["cost_usd"] == 0
 
 
+async def test_a_search_page_that_ignores_its_query_is_rescued_too(tmp_path, install):
+    home = HOME.replace("action='/search'", "action='/find'").replace("name='q'", "name='term'")
+
+    class Plugin:
+        manifest = ProviderManifest("http", "1")
+
+        def available(self, configured):
+            return True
+
+        async def acquire(self, request, services):
+            pages = {"https://shop.example.com/": home,
+                     "https://shop.example.com/search?q=brass+desk+lamp": OFF,
+                     "https://shop.example.com/find?term=brass+desk+lamp": RESULTS}
+            if request.url not in pages:
+                raise WebFailure("NOT_FOUND", "fixture 404", 404)
+            return {"url": request.url, "content": pages[request.url], "content_type": "text/html",
+                    "http_status": 200}
+    install(Plugin())
+    url = "https://shop.example.com/search?q=brass+desk+lamp"
+    async with Runtime(tmp_path) as web:
+        result = await web.read(url, policy_overrides=QUIET)
+    receipt = result["receipt"]
+    assert "Brass desk lamp 3" in result["text"]
+    assert receipt["rescued"]["after"] == "off_query" and receipt["rescued"]["via"] == "form"
+    assert "ignored its search" in receipt["next_step"]["how"]
+
+
 def test_url_words():
     from frankensurf.completeness import url_words
     assert url_words("https://www.seat61.com/trains-and-routes/london-to-paris-by-train.htm") == "london paris train"
     assert url_words("https://shop.example/search?q=air+fryer&page=2") == "air fryer"
     assert url_words("https://x.example/en/products/123456") == ""
+    assert url_words("https://www.shop.example/productsearch.aspx?t=probiotic") == "probiotic"
+    assert url_words("https://www.shop.example/busqueda-generica?busqueda=quijote") == "quijote"
+    assert url_words("https://x.example/list?sort=price&view=grid") == ""

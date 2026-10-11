@@ -59,3 +59,55 @@ With both fixed, every browser started and read a page on all three machines.
 `frankensurf setup` now ends with `works_here`: which browsers started and read
 a page on this machine. `FRANKENSURF_DEBUG_WORKERS=1` shows a browser worker's
 own error when one fails.
+
+## Set 7, every tool alone (11 October, evening)
+
+`toolbench-heldout7-alone.jsonl`: each tool on its own on the same 150 sites,
+from home, four reads at a time. ZenRows is left out (its plan is out of
+credits; it was turned off in the trust file), as is Scrapfly.
+
+| Tool | Sites read | Median (read) | p90 (read) |
+|---|---|---|---|
+| Patchright | 58/150 (38.7%) | 4.1 s | 8.3 s |
+| Headless Chromium | 61/150 (40.7%) | 2.7 s | 6.8 s |
+| Plain HTTP | 73/150 (48.7%) | 1.2 s | 3.3 s |
+| Camoufox | 103/150 (68.7%) | 10.9 s | 15.7 s |
+| Scrapling | 103/150 (68.7%) | 8.5 s | 19.2 s |
+| Jina Reader | 110/150 (73.3%) | 1.5 s | 10.2 s |
+| Zyte | 129/150 (86.0%) | 10.7 s | 31.3 s |
+
+With the rows above: 146 sites read by at least one tool; FrankenSurf with paid
+fallbacks 144 (98.6% of them), Zyte 129, Firecrawl 127. FrankenSurf free (132)
+read more than any tool alone.
+
+## Set 7 from a cloud VM with v0.35
+
+`toolbench-heldout7-free-azure-v0.35.jsonl`, `toolbench-heldout7-lightning-azure-v0.35.jsonl`:
+the same VM workflow, now with Scrapling working (it served 6 free reads and 4
+lightning reads; on v0.34 it served none). Free 123/150 (82.0%, v0.34: 120),
+lightning 126/150 (84.0%, v0.34: 122) at a 1.2 s median.
+`articles-108-azure-v0.35.jsonl`: 102 read, the article present on 99 (v0.34:
+101).
+
+## The paid misses, set 6 (v0.34) and set 7
+
+Thirteen misses across the two sets, by cause:
+
+- **No tool can read them:** libraries-io (search needs a login), listennotes
+  (every tool walled), pricespy-nz (results never render for any tool),
+  trendyol (every tool, Firecrawl included, got the home page).
+- **The URL is wrong, and the site's own search fixes it:** adairs and
+  autodoc-uk ended on Bright Data's refusal text, which was taken for a page and
+  stopped the rescue (fixed in v0.35; adairs is now rescued). vitacost's rescue
+  searched for "productsearch": the query was in `t=`, which was not read as a
+  query (fixed: a path word that only says "search" is skipped, and one query
+  value that is plain words is used). indiegogo and casadellibro redirected the
+  search to a page that ignores the query (flagged `off_query`); the rescue now
+  runs on such pages too, and indiegogo is read through its own search
+  (casadellibro's own search ignores the query as well, and stays flagged).
+- **Site sends bots elsewhere:** westelm and blibli (the home page); ebuyer (no
+  search the rescue could use).
+- **The benchmark's count:** lidl-de had the results with the word twice, not
+  three times.
+
+These fixes were found from set 7's misses, so set 7 is not re-run to count them.

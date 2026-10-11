@@ -27,7 +27,10 @@ from urllib.parse import parse_qs, unquote, urljoin, urlparse
 QUERY_KEYS = frozenset({"q", "query", "k", "s", "st", "ss", "search", "searchterm", "keyword",
                         "keywords", "text", "term", "searchtext", "find_desc", "d", "field-keywords",
                         "kw", "_nkw", "search_string", "search_key", "search_query", "searchquery",
-                        "words", "freetext", "sw", "ntt", "qs", "wd", "searchkeyword", "searchkeywords"})
+                        "words", "freetext", "sw", "ntt", "qs", "wd", "searchkeyword", "searchkeywords",
+                        # "Search" in other languages, as sites name the box.
+                        "busqueda", "buscar", "suche", "suchbegriff", "recherche", "zoekterm", "zoeken",
+                        "ricerca", "cerca", "pesquisa", "busca", "szukaj", "sok", "haku", "hledat"})
 
 
 def _query_key(key: str) -> bool:
@@ -98,20 +101,35 @@ _URL_FILLER = frozenset({"html", "htm", "php", "aspx", "jsp", "index", "default"
                          "gb", "ca", "nz", "de", "fr", "es", "it", "nl", "dp", "view", "listing", "listings"})
 
 
+# Query values that set how results are shown, never what is searched for.
+_OPTION_VALUES = frozenset({"true", "false", "yes", "no", "asc", "desc", "ascending", "descending", "price",
+                            "relevance", "newest", "oldest", "popular", "rating", "grid", "list", "all", "any",
+                            "default", "best", "date", "name", "score", "featured", "json", "html"})
+_PLAIN_WORDS = re.compile(r"[^\W\d_]{3,}(?:[ +][^\W\d_]{2,}){0,5}")
+
+
 def url_words(url: str) -> str:
     """What a URL asks for, in plain words: its search query, or the words of its
-    last meaningful path segment (/p/brass-desk-lamp-123 is "brass desk lamp")."""
+    last meaningful path segment (/p/brass-desk-lamp-123 is "brass desk lamp"),
+    or else the one query value that is plain words (?t=probiotic)."""
     parsed = urlparse(url)
-    values = [value for key, items in parse_qs(parsed.query).items() if _query_key(key) for value in items]
+    query = parse_qs(parsed.query)
+    values = [value for key, items in query.items() if _query_key(key) for value in items]
     if not values:
         for segment in reversed([unquote(part) for part in parsed.path.split("/") if part]):
+            # A script named for search (productsearch.aspx) says nothing about the query.
             words = [word for word in _WORD.findall(segment.lower())
                      if len(word) >= 3 and not word.isdigit() and word not in _PATH_GENERIC
-                     and word not in _URL_FILLER and word not in _STOPWORDS]
+                     and word not in _URL_FILLER and word not in _STOPWORDS and "search" not in word]
             if words:
                 values = [" ".join(words[:6])]
                 break
-    return " ".join(" ".join(values).split())[:80]
+    if not values:
+        plain = [value for items in query.values() for value in items
+                 if _PLAIN_WORDS.fullmatch(value.strip()) and value.strip().lower() not in _OPTION_VALUES]
+        if len(plain) == 1:
+            values = plain
+    return " ".join(" ".join(values).replace("+", " ").split())[:80]
 
 
 def query_terms(url: str, expect_terms=()) -> list[str]:
