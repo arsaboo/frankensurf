@@ -33,14 +33,15 @@ jobs:
       - name: pip install
         run: |
           python -m venv /tmp/fs && /tmp/fs/bin/pip install -q --upgrade pip
-          /tmp/fs/bin/pip install "$SPEC"
+          # A branch named install-check/checkout-* tests this checkout before a release.
+          if [[ "$GITHUB_REF_NAME" == *checkout* ]]; then /tmp/fs/bin/pip install ".[mcp]"; else /tmp/fs/bin/pip install "$SPEC"; fi
           /tmp/fs/bin/pip show frankensurf | head -2
       - name: frankensurf setup
-        run: /tmp/fs/bin/frankensurf setup | tee /tmp/setup.json
+        run: |
+          /tmp/fs/bin/frankensurf setup | tee /tmp/setup.json
+          /tmp/fs/bin/python -c "import json,sys; w=json.load(open('/tmp/setup.json'))['works_here']; print(w); sys.exit(0 if all(v is True for v in w.values()) else 1)"
       - name: Read a plain page
         run: /tmp/fs/bin/frankensurf read https://example.com --explain
-      - name: Stealth browsers started directly, with full errors
-        run: ~/.local/share/frankensurf/provider-venv/bin/python scripts/install_check_stealth.py
       - name: Each browser tool on its own
         run: |
           for tool in local camoufox scrapling patchright; do
@@ -55,20 +56,6 @@ jobs:
         run: |
           /tmp/fs/bin/frankensurf plugins | head -5
           /tmp/fs/bin/frankensurf egress check
-      - name: Where the Camoufox build keeps its files
-        if: runner.os == 'macOS'
-        run: |
-          find ~/Library/Caches/camoufox -maxdepth 6 -name 'properties.json' -o -maxdepth 6 -name 'camoufox' -type f | head
-          ls ~/Library/Caches/camoufox/browsers/official/*/Camoufox.app/Contents/ ~/Library/Caches/camoufox/browsers/official/*/Camoufox.app/Contents/Resources | head -40
-      - name: Stealth workers from this checkout, with their errors shown
-        env: {FRANKENSURF_DEBUG_WORKERS: "1"}
-        run: |
-          /tmp/fs/bin/pip install -q --no-deps .
-          for tool in scrapling camoufox; do
-            echo "--- $tool"
-            /tmp/fs/bin/frankensurf read https://news.ycombinator.com/ --provider "$tool" > /tmp/out.json || true
-            /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/out.json'))['receipt']; print('$tool', r['status'], (r.get('failure') or {}).get('code'))"
-          done
 
   tool-installs:
     strategy:

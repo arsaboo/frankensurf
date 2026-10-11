@@ -326,3 +326,30 @@ def test_scrapling_runs_unsandboxed_only_where_the_kernel_forbids_the_sandbox(tm
     assert sandbox() is False                     # Ubuntu 23.10+ AppArmor restriction
     restricted.write_text("0"); allowed.write_text("0")
     assert sandbox() is False                     # older Debian switch
+
+
+def test_camoufox_finds_its_properties_inside_a_macos_app_bundle(tmp_path, monkeypatch):
+    import sys
+    import types
+    from frankensurf import provider_worker
+    seen = []
+    fake = types.ModuleType("camoufox.utils")
+
+    def original(path=None):
+        seen.append(path)
+        return {}
+    fake._load_properties = original
+    monkeypatch.setitem(sys.modules, "camoufox", types.ModuleType("camoufox"))
+    monkeypatch.setitem(sys.modules, "camoufox.utils", fake)
+    bundle = tmp_path / "Camoufox.app" / "Contents"
+    (bundle / "MacOS").mkdir(parents=True)
+    (bundle / "Resources").mkdir()
+    (bundle / "Resources" / "properties.json").write_text("[]")
+    provider_worker._camoufox_mac_properties()
+    provider_worker._camoufox_mac_properties()  # once is enough
+    fake._load_properties(bundle / "MacOS" / "camoufox")
+    fake._load_properties(None)
+    assert seen == [bundle / "Resources" / "camoufox", None]
+    (bundle / "MacOS" / "properties.json").write_text("[]")
+    fake._load_properties(str(bundle / "MacOS" / "camoufox"))
+    assert seen[-1] == str(bundle / "MacOS" / "camoufox")  # beside the binary: unchanged

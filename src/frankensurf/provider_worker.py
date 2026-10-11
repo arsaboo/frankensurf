@@ -161,6 +161,26 @@ _SHADOW_SCRIPT = r"""() => {
 }"""
 
 
+def _camoufox_mac_properties():
+    """Camoufox 0.5 looks for properties.json beside an explicit executable, but
+    the macOS app bundle keeps it in Contents/Resources, so every launch failed
+    there. Look in the bundle too; this process only, nothing on disk changes."""
+    import camoufox.utils as utils
+    original = utils._load_properties
+    if getattr(original, "_bundle_aware", False):
+        return
+
+    def load(path=None):
+        if path is not None:
+            executable = Path(path)
+            resources = executable.parent.parent / "Resources"
+            if not (executable.parent / "properties.json").exists() and (resources / "properties.json").exists():
+                path = resources / executable.name
+        return original(path)
+    load._bundle_aware = True
+    utils._load_properties = load
+
+
 def _camoufox_binaries(version):
     """The pinned Camoufox build, wherever this platform caches it."""
     import os
@@ -431,6 +451,8 @@ async def acquire(request):
         from camoufox.addons import DefaultAddons
         binaries=_camoufox_binaries("152.0.4-beta.31")
         if len(binaries)!=1:return {"status":"failed","failure":"PROVIDER_UNAVAILABLE"}
+        if sys.platform=="darwin":
+            _camoufox_mac_properties()
         async with AsyncCamoufox(headless=request.get("public_browser_headless",True), geoip=False, humanize=False,
                 executable_path=str(binaries[0]),exclude_addons=[DefaultAddons.UBO],
                 **({"proxy": _browser_proxy(request["proxy"])} if request.get("proxy") else {})) as browser:

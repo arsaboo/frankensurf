@@ -181,6 +181,28 @@ def _setup(args):
     return result
 
 
+async def _browsers_work(result, *, url="https://example.com/"):
+    """After setup: does each browser actually start and read a page on this
+    machine? "Installed" is not "works": a browser can be present and still
+    refuse to launch here."""
+    import sys
+    import tempfile
+    from .runtime import Runtime
+    stealth = result.get("stealth_providers")
+    tools = ["local"] + [tool for tool in ("camoufox", "scrapling", "patchright")
+                         if isinstance(stealth, dict) and stealth.get(tool) is True]
+    works = {}
+    print("Checking that each browser starts and reads a page", file=sys.stderr, flush=True)
+    with tempfile.TemporaryDirectory() as state:
+        async with Runtime(state) as web:
+            for tool in tools:
+                read = await web.read(url, policy_overrides={"provider": tool, "freshness": "now"})
+                receipt = read.get("receipt") or {}
+                works[tool] = (True if receipt.get("status") == "observed"
+                               else (receipt.get("failure") or {}).get("code") or "failed")
+    return works
+
+
 def _explain(result):
     """A short human trail of one read: each tool tried, what happened, and the page."""
     receipt = result.get("receipt") or {}
@@ -230,6 +252,11 @@ async def run(args):
         result = await _profile_op(args)
     elif args.operation == "setup":
         result = _setup(args)
+        result["works_here"] = await _browsers_work(result)
+        if any(value is not True for value in result["works_here"].values()):
+            result["if_a_browser_does_not_work"] = (
+                "the others still read; FRANKENSURF_DEBUG_WORKERS=1 frankensurf read URL --provider TOOL "
+                "shows why, and https://github.com/yail259/frankensurf/issues takes the report")
     elif args.operation == "egress":
         from .egress import check
         result = {"connections": await check(),
