@@ -1,0 +1,906 @@
+{
+ "schema": "frankensurf.toolbench-heldout/v1",
+ "note": "Seventh held-out set, 11 October 2026: the candidates proposed for set 6 (from general knowledge, by agents without web access, before any page was read) that set 6 did not take, never read since; 827 hosts and their brands already read are excluded. Same rules: 800+ characters and the expect pattern at least 3 times. Some URLs may be dead or wrong; that counts against every arm alike. Use once.",
+ "cases": [
+  {
+   "site": "carexpert-au",
+   "wall": "cars",
+   "url": "https://www.carexpert.com.au/toyota",
+   "expect": "toyota"
+  },
+  {
+   "site": "adverts-ie",
+   "wall": "classifieds",
+   "url": "https://www.adverts.ie/for-sale/q_bike/",
+   "expect": "bike"
+  },
+  {
+   "site": "archlinux",
+   "wall": "dev",
+   "url": "https://archlinux.org/packages/?q=nginx",
+   "expect": "nginx"
+  },
+  {
+   "site": "iceland-uk",
+   "wall": "food",
+   "url": "https://www.iceland.co.uk/search?q=pasta",
+   "expect": "pasta"
+  },
+  {
+   "site": "beyondblue-au",
+   "wall": "gov",
+   "url": "https://www.beyondblue.org.au/mental-health/anxiety",
+   "expect": "anxiety"
+  },
+  {
+   "site": "duunitori-fi",
+   "wall": "jobs",
+   "url": "https://duunitori.fi/tyopaikat?haku=sairaanhoitaja",
+   "expect": "sairaanhoitaja"
+  },
+  {
+   "site": "allocine-fr",
+   "wall": "media",
+   "url": "https://www.allocine.fr/rechercher/?q=batman",
+   "expect": "batman"
+  },
+  {
+   "site": "arabnews",
+   "wall": "news",
+   "url": "https://www.arabnews.com/saudiarabia",
+   "expect": "saudi"
+  },
+  {
+   "site": "otodom",
+   "wall": "property",
+   "url": "https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa",
+   "expect": "warszaw"
+  },
+  {
+   "site": "scorptec",
+   "wall": "retail_au",
+   "url": "https://www.scorptec.com.au/search/go?w=ssd",
+   "expect": "ssd"
+  },
+  {
+   "site": "castorama",
+   "wall": "retail_eu",
+   "url": "https://www.castorama.fr/search?term=perceuse",
+   "expect": "perceuse"
+  },
+  {
+   "site": "hepsiburada",
+   "wall": "retail_other",
+   "url": "https://www.hepsiburada.com/ara?q=ssd",
+   "expect": "ssd"
+  },
+  {
+   "site": "liveauctioneers",
+   "wall": "retail_us",
+   "url": "https://www.liveauctioneers.com/search/?keyword=watch",
+   "expect": "watch"
+  },
+  {
+   "site": "gofundme",
+   "wall": "social",
+   "url": "https://www.gofundme.com/s?q=dog",
+   "expect": "dog"
+  },
+  {
+   "site": "makemytrip",
+   "wall": "travel",
+   "url": "https://www.makemytrip.com/hotels/goa-hotels.html",
+   "expect": "goa"
+  },
+  {
+   "site": "otomoto-pl",
+   "wall": "cars",
+   "url": "https://www.otomoto.pl/osobowe/toyota",
+   "expect": "toyota"
+  },
+  {
+   "site": "shpock",
+   "wall": "classifieds",
+   "url": "https://www.shpock.com/en-gb/results?q=bike",
+   "expect": "bike"
+  },
+  {
+   "site": "chocolatey",
+   "wall": "dev",
+   "url": "https://community.chocolatey.org/packages?q=git",
+   "expect": "git"
+  },
+  {
+   "site": "waitrose",
+   "wall": "food",
+   "url": "https://www.waitrose.com/ecom/shop/search?searchTerm=coffee",
+   "expect": "coffee"
+  },
+  {
+   "site": "stats-nz",
+   "wall": "gov",
+   "url": "https://www.stats.govt.nz/topics/population",
+   "expect": "population"
+  },
+  {
+   "site": "tecnoempleo-es",
+   "wall": "jobs",
+   "url": "https://www.tecnoempleo.com/ofertas-trabajo/?te=python",
+   "expect": "python"
+  },
+  {
+   "site": "filmaffinity-es",
+   "wall": "media",
+   "url": "https://www.filmaffinity.com/es/search.php?stext=batman",
+   "expect": "batman"
+  },
+  {
+   "site": "thehill",
+   "wall": "news",
+   "url": "https://thehill.com/homenews/senate/",
+   "expect": "senate"
+  },
+  {
+   "site": "ingatlan",
+   "wall": "property",
+   "url": "https://ingatlan.com/lista/kiado+lakas+budapest",
+   "expect": "budapest"
+  },
+  {
+   "site": "staticice",
+   "wall": "retail_au",
+   "url": "https://www.staticice.com.au/cgi-bin/search.cgi?q=monitor",
+   "expect": "monitor"
+  },
+  {
+   "site": "laredoute",
+   "wall": "retail_eu",
+   "url": "https://www.laredoute.fr/psrch/psrch.aspx?kwrd=lampe",
+   "expect": "lampe"
+  },
+  {
+   "site": "zap-il",
+   "wall": "retail_other",
+   "url": "https://www.zap.co.il/search.aspx?keyword=ssd",
+   "expect": "ssd"
+  },
+  {
+   "site": "grainger",
+   "wall": "retail_us",
+   "url": "https://www.grainger.com/search?searchQuery=gloves",
+   "expect": "glove"
+  },
+  {
+   "site": "indiegogo",
+   "wall": "social",
+   "url": "https://www.indiegogo.com/explore/all?q=backpack",
+   "expect": "backpack"
+  },
+  {
+   "site": "goibibo",
+   "wall": "travel",
+   "url": "https://www.goibibo.com/hotels/hotels-in-jaipur-ct/",
+   "expect": "jaipur"
+  },
+  {
+   "site": "autovit-ro",
+   "wall": "cars",
+   "url": "https://www.autovit.ro/autoturisme/dacia",
+   "expect": "dacia"
+  },
+  {
+   "site": "fril",
+   "wall": "classifieds",
+   "url": "https://fril.jp/s?query=iphone",
+   "expect": "iphone"
+  },
+  {
+   "site": "wordpress-plugins",
+   "wall": "dev",
+   "url": "https://wordpress.org/plugins/search/seo/",
+   "expect": "seo"
+  },
+  {
+   "site": "asda",
+   "wall": "food",
+   "url": "https://groceries.asda.com/search/cheese",
+   "expect": "cheese"
+  },
+  {
+   "site": "teara-nz",
+   "wall": "gov",
+   "url": "https://teara.govt.nz/en/kiwi",
+   "expect": "kiwi"
+  },
+  {
+   "site": "vagas-br",
+   "wall": "jobs",
+   "url": "https://www.vagas.com.br/vagas-de-programador",
+   "expect": "programador"
+  },
+  {
+   "site": "csfd-cz",
+   "wall": "media",
+   "url": "https://www.csfd.cz/hledat/?q=batman",
+   "expect": "batman"
+  },
+  {
+   "site": "foxnews",
+   "wall": "news",
+   "url": "https://www.foxnews.com/category/sports/nfl",
+   "expect": "nfl"
+  },
+  {
+   "site": "hemnet",
+   "wall": "property",
+   "url": "https://www.hemnet.se/bostader",
+   "expect": "rum"
+  },
+  {
+   "site": "priceme-nz",
+   "wall": "retail_au",
+   "url": "https://www.priceme.co.nz/search.aspx?q=headphones",
+   "expect": "headphone"
+  },
+  {
+   "site": "casadellibro",
+   "wall": "retail_eu",
+   "url": "https://www.casadellibro.com/busqueda-generica?busqueda=quijote",
+   "expect": "quijote"
+  },
+  {
+   "site": "extra-sa",
+   "wall": "retail_other",
+   "url": "https://www.extra.com/en-sa/search/?text=laptop",
+   "expect": "laptop"
+  },
+  {
+   "site": "zoro",
+   "wall": "retail_us",
+   "url": "https://www.zoro.com/search?q=drill",
+   "expect": "drill"
+  },
+  {
+   "site": "justgiving-uk",
+   "wall": "social",
+   "url": "https://www.justgiving.com/search?q=marathon",
+   "expect": "marathon"
+  },
+  {
+   "site": "travelocity",
+   "wall": "travel",
+   "url": "https://www.travelocity.com/Hotel-Search?destination=Chicago",
+   "expect": "chicago"
+  },
+  {
+   "site": "lacentrale-fr",
+   "wall": "cars",
+   "url": "https://www.lacentrale.fr/listing?makesModelsCommercialNames=PEUGEOT",
+   "expect": "peugeot"
+  },
+  {
+   "site": "ruten",
+   "wall": "classifieds",
+   "url": "https://www.ruten.com.tw/find/?q=iphone",
+   "expect": "iphone"
+  },
+  {
+   "site": "greasyfork",
+   "wall": "dev",
+   "url": "https://greasyfork.org/en/scripts?q=youtube",
+   "expect": "youtube"
+  },
+  {
+   "site": "carrefour-fr",
+   "wall": "food",
+   "url": "https://www.carrefour.fr/s?q=fromage",
+   "expect": "fromage"
+  },
+  {
+   "site": "citizensinformation-ie",
+   "wall": "gov",
+   "url": "https://www.citizensinformation.ie/en/housing/",
+   "expect": "housing"
+  },
+  {
+   "site": "computrabajo-co",
+   "wall": "jobs",
+   "url": "https://co.computrabajo.com/trabajo-de-contador",
+   "expect": "contador"
+  },
+  {
+   "site": "listennotes",
+   "wall": "media",
+   "url": "https://www.listennotes.com/search/?q=history",
+   "expect": "history"
+  },
+  {
+   "site": "sky-news",
+   "wall": "news",
+   "url": "https://news.sky.com/climate",
+   "expect": "climate"
+  },
+  {
+   "site": "bayut",
+   "wall": "property",
+   "url": "https://www.bayut.com/to-rent/apartments/dubai/",
+   "expect": "dubai"
+  },
+  {
+   "site": "pricespy-nz",
+   "wall": "retail_au",
+   "url": "https://pricespy.co.nz/search?search=vacuum",
+   "expect": "vacuum"
+  },
+  {
+   "site": "todocoleccion",
+   "wall": "retail_eu",
+   "url": "https://www.todocoleccion.net/buscador?bu=reloj",
+   "expect": "reloj"
+  },
+  {
+   "site": "konga",
+   "wall": "retail_other",
+   "url": "https://www.konga.com/search?search=laptop",
+   "expect": "laptop"
+  },
+  {
+   "site": "adafruit",
+   "wall": "retail_us",
+   "url": "https://www.adafruit.com/search?q=sensor",
+   "expect": "sensor"
+  },
+  {
+   "site": "wikihow",
+   "wall": "social",
+   "url": "https://www.wikihow.com/wikiHowTo?search=bake+bread",
+   "expect": "bread"
+  },
+  {
+   "site": "redbus",
+   "wall": "travel",
+   "url": "https://www.redbus.in/bus-tickets/bangalore-to-chennai",
+   "expect": "chennai"
+  },
+  {
+   "site": "bilbasen-dk",
+   "wall": "cars",
+   "url": "https://www.bilbasen.dk/brugt/bil/vw",
+   "expect": "vw"
+  },
+  {
+   "site": "thredup",
+   "wall": "classifieds",
+   "url": "https://www.thredup.com/women/dresses",
+   "expect": "dress"
+  },
+  {
+   "site": "godot-assets",
+   "wall": "dev",
+   "url": "https://godotengine.org/asset-library/asset?filter=shader",
+   "expect": "shader"
+  },
+  {
+   "site": "lidl-de",
+   "wall": "food",
+   "url": "https://www.lidl.de/q/search?q=kaffee",
+   "expect": "kaffee"
+  },
+  {
+   "site": "rijksoverheid-nl",
+   "wall": "gov",
+   "url": "https://www.rijksoverheid.nl/onderwerpen/huurwoning",
+   "expect": "huur"
+  },
+  {
+   "site": "bumeran-ar",
+   "wall": "jobs",
+   "url": "https://www.bumeran.com.ar/empleos-busqueda-contador.html",
+   "expect": "contador"
+  },
+  {
+   "site": "artic",
+   "wall": "media",
+   "url": "https://www.artic.edu/collection?q=monet",
+   "expect": "monet"
+  },
+  {
+   "site": "dailymail",
+   "wall": "news",
+   "url": "https://www.dailymail.co.uk/home/search.html?sel=site&searchPhrase=tesla",
+   "expect": "tesla"
+  },
+  {
+   "site": "propertyfinder-ae",
+   "wall": "property",
+   "url": "https://www.propertyfinder.ae/en/rent/dubai/apartments-for-rent.html",
+   "expect": "dubai"
+  },
+  {
+   "site": "digidirect",
+   "wall": "retail_au",
+   "url": "https://www.digidirect.com.au/catalogsearch/result/?q=tripod",
+   "expect": "tripod"
+  },
+  {
+   "site": "ibs-it",
+   "wall": "retail_eu",
+   "url": "https://www.ibs.it/search/?ts=as&query=camilleri",
+   "expect": "camilleri"
+  },
+  {
+   "site": "loot-za",
+   "wall": "retail_other",
+   "url": "https://www.loot.co.za/search?terms=laptop",
+   "expect": "laptop"
+  },
+  {
+   "site": "thriftbooks",
+   "wall": "retail_us",
+   "url": "https://www.thriftbooks.com/browse/?b.search=history",
+   "expect": "history"
+  },
+  {
+   "site": "fandom-starwars",
+   "wall": "social",
+   "url": "https://starwars.fandom.com/wiki/Special:Search?query=lightsaber",
+   "expect": "lightsaber"
+  },
+  {
+   "site": "hometogo",
+   "wall": "travel",
+   "url": "https://www.hometogo.com/lake-tahoe/",
+   "expect": "tahoe"
+  },
+  {
+   "site": "nettiauto-fi",
+   "wall": "cars",
+   "url": "https://www.nettiauto.com/toyota",
+   "expect": "toyota"
+  },
+  {
+   "site": "kufar",
+   "wall": "classifieds",
+   "url": "https://www.kufar.by/l?query=iphone",
+   "expect": "iphone"
+  },
+  {
+   "site": "postgresql-docs",
+   "wall": "dev",
+   "url": "https://www.postgresql.org/search/?q=vacuum",
+   "expect": "vacuum"
+  },
+  {
+   "site": "loblaws",
+   "wall": "food",
+   "url": "https://www.loblaws.ca/search?search-bar=cheese",
+   "expect": "cheese"
+  },
+  {
+   "site": "destatis-de",
+   "wall": "gov",
+   "url": "https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Bevoelkerung/_inhalt.html",
+   "expect": "bevölkerung"
+  },
+  {
+   "site": "bayt-ae",
+   "wall": "jobs",
+   "url": "https://www.bayt.com/en/uae/jobs/accountant-jobs/",
+   "expect": "accountant"
+  },
+  {
+   "site": "sciencemuseumgroup",
+   "wall": "media",
+   "url": "https://collection.sciencemuseumgroup.org.uk/search?q=telescope",
+   "expect": "telescope"
+  },
+  {
+   "site": "france24",
+   "wall": "news",
+   "url": "https://www.france24.com/en/tag/climate-change/",
+   "expect": "climate"
+  },
+  {
+   "site": "zameen",
+   "wall": "property",
+   "url": "https://www.zameen.com/Homes/Lahore-1-1.html",
+   "expect": "lahore"
+  },
+  {
+   "site": "camerapro",
+   "wall": "retail_au",
+   "url": "https://www.camerapro.com.au/catalogsearch/result/?q=lens",
+   "expect": "lens"
+  },
+  {
+   "site": "albert-heijn",
+   "wall": "retail_eu",
+   "url": "https://www.ah.nl/zoeken?query=kaas",
+   "expect": "kaas"
+  },
+  {
+   "site": "incredible-za",
+   "wall": "retail_other",
+   "url": "https://www.incredible.co.za/catalogsearch/result/?q=laptop",
+   "expect": "laptop"
+  },
+  {
+   "site": "abebooks",
+   "wall": "retail_us",
+   "url": "https://www.abebooks.com/servlet/SearchResults?kn=python",
+   "expect": "python"
+  },
+  {
+   "site": "unsplash",
+   "wall": "social",
+   "url": "https://unsplash.com/s/photos/mountain",
+   "expect": "mountain"
+  },
+  {
+   "site": "japan-guide",
+   "wall": "travel",
+   "url": "https://www.japan-guide.com/e/e2158.html",
+   "expect": "kyoto"
+  },
+  {
+   "site": "carwale-in",
+   "wall": "cars",
+   "url": "https://www.carwale.com/maruti-suzuki-cars/",
+   "expect": "maruti"
+  },
+  {
+   "site": "qiita",
+   "wall": "dev",
+   "url": "https://qiita.com/search?q=python",
+   "expect": "python"
+  },
+  {
+   "site": "bigbasket",
+   "wall": "food",
+   "url": "https://www.bigbasket.com/ps/?q=rice",
+   "expect": "rice"
+  },
+  {
+   "site": "vie-publique-fr",
+   "wall": "gov",
+   "url": "https://www.vie-publique.fr/recherche?search_api_fulltext=retraite",
+   "expect": "retraite"
+  },
+  {
+   "site": "jobberman-ng",
+   "wall": "jobs",
+   "url": "https://www.jobberman.com/jobs?q=accountant",
+   "expect": "accountant"
+  },
+  {
+   "site": "europeana",
+   "wall": "media",
+   "url": "https://www.europeana.eu/en/search?query=windmill",
+   "expect": "windmill"
+  },
+  {
+   "site": "allafrica",
+   "wall": "news",
+   "url": "https://allafrica.com/nigeria/",
+   "expect": "nigeria"
+  },
+  {
+   "site": "nobroker",
+   "wall": "property",
+   "url": "https://www.nobroker.in/flats-for-rent-in-bangalore_bangalore",
+   "expect": "bangalore"
+  },
+  {
+   "site": "torpedo7-nz",
+   "wall": "retail_au",
+   "url": "https://www.torpedo7.co.nz/search?q=tent",
+   "expect": "tent"
+  },
+  {
+   "site": "kruidvat",
+   "wall": "retail_eu",
+   "url": "https://www.kruidvat.nl/search?q=shampoo",
+   "expect": "shampoo"
+  },
+  {
+   "site": "kabum",
+   "wall": "retail_other",
+   "url": "https://www.kabum.com.br/busca/ssd",
+   "expect": "ssd"
+  },
+  {
+   "site": "powells",
+   "wall": "retail_us",
+   "url": "https://www.powells.com/searchresults?keyword=gardening",
+   "expect": "garden"
+  },
+  {
+   "site": "freesound",
+   "wall": "social",
+   "url": "https://freesound.org/search/?q=rain",
+   "expect": "rain"
+  },
+  {
+   "site": "fodors",
+   "wall": "travel",
+   "url": "https://www.fodors.com/world/europe/italy/rome",
+   "expect": "rome"
+  },
+  {
+   "site": "carlist-my",
+   "wall": "cars",
+   "url": "https://www.carlist.my/cars-for-sale/perodua/malaysia",
+   "expect": "perodua"
+  },
+  {
+   "site": "habr",
+   "wall": "dev",
+   "url": "https://habr.com/ru/search/?q=python",
+   "expect": "python"
+  },
+  {
+   "site": "fairprice",
+   "wall": "food",
+   "url": "https://www.fairprice.com.sg/search?query=noodle",
+   "expect": "noodle"
+  },
+  {
+   "site": "unicef",
+   "wall": "gov",
+   "url": "https://www.unicef.org/immunization",
+   "expect": "immuniz"
+  },
+  {
+   "site": "shine-in",
+   "wall": "jobs",
+   "url": "https://www.shine.com/job-search/python-jobs",
+   "expect": "python"
+  },
+  {
+   "site": "ultimate-guitar",
+   "wall": "media",
+   "url": "https://www.ultimate-guitar.com/search.php?search_type=title&value=wonderwall",
+   "expect": "wonderwall"
+  },
+  {
+   "site": "jpost",
+   "wall": "news",
+   "url": "https://www.jpost.com/israel-news",
+   "expect": "israel"
+  },
+  {
+   "site": "property24",
+   "wall": "property",
+   "url": "https://www.property24.com/to-rent/cape-town/western-cape/432",
+   "expect": "cape"
+  },
+  {
+   "site": "princesspolly",
+   "wall": "retail_au",
+   "url": "https://www.princesspolly.com.au/search?q=dress",
+   "expect": "dress"
+  },
+  {
+   "site": "clasohlson-se",
+   "wall": "retail_eu",
+   "url": "https://www.clasohlson.com/se/search?text=lampa",
+   "expect": "lamp"
+  },
+  {
+   "site": "cyberpuerta",
+   "wall": "retail_other",
+   "url": "https://www.cyberpuerta.mx/index.php?cl=search&searchparam=ssd",
+   "expect": "ssd"
+  },
+  {
+   "site": "vitacost",
+   "wall": "retail_us",
+   "url": "https://www.vitacost.com/productsearch.aspx?t=probiotic",
+   "expect": "probiotic"
+  },
+  {
+   "site": "wikimedia-commons",
+   "wall": "social",
+   "url": "https://commons.wikimedia.org/w/index.php?search=lighthouse&title=Special:MediaSearch&type=image",
+   "expect": "lighthouse"
+  },
+  {
+   "site": "ricksteves",
+   "wall": "travel",
+   "url": "https://www.ricksteves.com/europe/france/paris",
+   "expect": "paris"
+  },
+  {
+   "site": "webmotors-br",
+   "wall": "cars",
+   "url": "https://www.webmotors.com.br/carros/estoque/toyota",
+   "expect": "toyota"
+  },
+  {
+   "site": "pytorch-forums",
+   "wall": "dev",
+   "url": "https://discuss.pytorch.org/search?q=cuda",
+   "expect": "cuda"
+  },
+  {
+   "site": "happycow-london",
+   "wall": "food",
+   "url": "https://www.happycow.net/europe/england/london/",
+   "expect": "vegan"
+  },
+  {
+   "site": "worldbank",
+   "wall": "gov",
+   "url": "https://www.worldbank.org/en/topic/poverty",
+   "expect": "poverty"
+  },
+  {
+   "site": "jobstreet-sg",
+   "wall": "jobs",
+   "url": "https://sg.jobstreet.com/python-jobs",
+   "expect": "python"
+  },
+  {
+   "site": "eventim-de",
+   "wall": "media",
+   "url": "https://www.eventim.de/search/?searchterm=musical",
+   "expect": "musical"
+  },
+  {
+   "site": "nbcnews",
+   "wall": "news",
+   "url": "https://www.nbcnews.com/health",
+   "expect": "health"
+  },
+  {
+   "site": "vivareal",
+   "wall": "property",
+   "url": "https://www.vivareal.com.br/aluguel/sp/sao-paulo/",
+   "expect": "aluguel"
+  },
+  {
+   "site": "glassons-nz",
+   "wall": "retail_au",
+   "url": "https://www.glassons.com/search?q=jeans",
+   "expect": "jean"
+  },
+  {
+   "site": "adlibris",
+   "wall": "retail_eu",
+   "url": "https://www.adlibris.com/se/sok?q=lindgren",
+   "expect": "lindgren"
+  },
+  {
+   "site": "fravega",
+   "wall": "retail_other",
+   "url": "https://www.fravega.com/l/?keyword=notebook",
+   "expect": "notebook"
+  },
+  {
+   "site": "iherb",
+   "wall": "retail_us",
+   "url": "https://www.iherb.com/search?kw=protein",
+   "expect": "protein"
+  },
+  {
+   "site": "gutefrage-de",
+   "wall": "social",
+   "url": "https://www.gutefrage.net/tag/fahrrad/1",
+   "expect": "fahrrad"
+  },
+  {
+   "site": "frommers",
+   "wall": "travel",
+   "url": "https://www.frommers.com/destinations/barcelona",
+   "expect": "barcelona"
+  },
+  {
+   "site": "parkers-uk",
+   "wall": "cars",
+   "url": "https://www.parkers.co.uk/toyota/",
+   "expect": "toyota"
+  },
+  {
+   "site": "jsr",
+   "wall": "dev",
+   "url": "https://jsr.io/packages?search=http",
+   "expect": "http"
+  },
+  {
+   "site": "michelin-guide",
+   "wall": "food",
+   "url": "https://guide.michelin.com/en/restaurants",
+   "expect": "restaurant"
+  },
+  {
+   "site": "un-climate",
+   "wall": "gov",
+   "url": "https://www.un.org/en/climatechange",
+   "expect": "climate"
+  },
+  {
+   "site": "saramin-kr",
+   "wall": "jobs",
+   "url": "https://www.saramin.co.kr/zf_user/search/recruit?searchword=python",
+   "expect": "python"
+  },
+  {
+   "site": "telegraph",
+   "wall": "news",
+   "url": "https://www.telegraph.co.uk/football/",
+   "expect": "football"
+  },
+  {
+   "site": "zonaprop",
+   "wall": "property",
+   "url": "https://www.zonaprop.com.ar/departamentos-alquiler-capital-federal.html",
+   "expect": "departamento"
+  },
+  {
+   "site": "bargainchemist-nz",
+   "wall": "retail_au",
+   "url": "https://www.bargainchemist.co.nz/search?q=sunscreen",
+   "expect": "sunscreen"
+  },
+  {
+   "site": "netonnet",
+   "wall": "retail_eu",
+   "url": "https://www.netonnet.se/search?query=kaffebryggare",
+   "expect": "kaffebryggare"
+  },
+  {
+   "site": "alkosto",
+   "wall": "retail_other",
+   "url": "https://www.alkosto.com/search/?text=televisor",
+   "expect": "televisor"
+  },
+  {
+   "site": "slickdeals",
+   "wall": "retail_us",
+   "url": "https://slickdeals.net/newsearch.php?q=laptop",
+   "expect": "laptop"
+  },
+  {
+   "site": "hackster",
+   "wall": "social",
+   "url": "https://www.hackster.io/search?q=arduino",
+   "expect": "arduino"
+  },
+  {
+   "site": "roughguides",
+   "wall": "travel",
+   "url": "https://www.roughguides.com/portugal/",
+   "expect": "portugal"
+  },
+  {
+   "site": "mathworks-answers",
+   "wall": "dev",
+   "url": "https://www.mathworks.com/matlabcentral/answers/?term=fft",
+   "expect": "fft"
+  },
+  {
+   "site": "amnesty",
+   "wall": "gov",
+   "url": "https://www.amnesty.org/en/what-we-do/death-penalty/",
+   "expect": "death"
+  },
+  {
+   "site": "itviec-vn",
+   "wall": "jobs",
+   "url": "https://itviec.com/it-jobs/python",
+   "expect": "python"
+  },
+  {
+   "site": "corriere",
+   "wall": "news",
+   "url": "https://www.corriere.it/economia/",
+   "expect": "economia"
+  },
+  {
+   "site": "99-co",
+   "wall": "property",
+   "url": "https://www.99.co/singapore/rent",
+   "expect": "rent"
+  }
+ ]
+}
