@@ -40,6 +40,12 @@ jobs:
         run: /tmp/fs/bin/frankensurf setup
       - name: Read a plain page
         run: /tmp/fs/bin/frankensurf read https://example.com --explain
+      - name: Each browser tool on its own
+        run: |
+          for tool in local camoufox scrapling patchright; do
+            /tmp/fs/bin/frankensurf read https://news.ycombinator.com/ --provider "$tool" \
+              | /tmp/fs/bin/python -c "import json,sys; r=json.load(sys.stdin)['receipt']; f=r.get('failure') or {}; print('$tool', r['status'], f.get('code') or '', (f.get('message') or '')[:300])"
+          done
       - name: Read a script-heavy page
         run: /tmp/fs/bin/frankensurf read "https://news.ycombinator.com/" --explain | head -20
       - name: MCP server answers initialize and lists its tools
