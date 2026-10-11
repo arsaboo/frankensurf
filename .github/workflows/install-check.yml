@@ -28,7 +28,6 @@ jobs:
       SPEC: frankensurf[mcp]${{ inputs.version && format('=={0}', inputs.version) || '' }}
     steps:
       - uses: actions/checkout@v4
-        with: {sparse-checkout: scripts/install_check_mcp.py, sparse-checkout-cone-mode: false}
       - uses: actions/setup-python@v5
         with: {python-version: "${{ matrix.python }}"}
       - name: pip install
@@ -37,9 +36,11 @@ jobs:
           /tmp/fs/bin/pip install "$SPEC"
           /tmp/fs/bin/pip show frankensurf | head -2
       - name: frankensurf setup
-        run: /tmp/fs/bin/frankensurf setup
+        run: /tmp/fs/bin/frankensurf setup | tee /tmp/setup.json
       - name: Read a plain page
         run: /tmp/fs/bin/frankensurf read https://example.com --explain
+      - name: Stealth browsers started directly, with full errors
+        run: ~/.local/share/frankensurf/provider-venv/bin/python scripts/install_check_stealth.py
       - name: Each browser tool on its own
         run: |
           for tool in local camoufox scrapling patchright; do
