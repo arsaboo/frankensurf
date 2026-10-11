@@ -3339,8 +3339,13 @@ class Runtime:
         site's own search from its home page); the results stand only when they
         are complete and mention those words."""
         receipt = result.get("receipt") or {}
-        if ((receipt.get("failure") or {}).get("code") != "NOT_FOUND" or not isinstance(url, str)
-                or provider or adapter):
+        # Not found, or a search page whose results ignore what it asked for (the
+        # site took no notice of the URL's query): either way the URL is wrong.
+        after = ("NOT_FOUND" if (receipt.get("failure") or {}).get("code") == "NOT_FOUND"
+                 else "off_query" if (receipt.get("status") == "observed"
+                                      and "off_query" in ((receipt.get("quality") or {}).get("flags") or ()))
+                 else None)
+        if after is None or not isinstance(url, str) or provider or adapter:
             return result
         from .routes import request_policy
         try:
@@ -3382,7 +3387,8 @@ class Runtime:
             target, via = await self._probe_search(home, words, effective), "search box"
         # The site's own search only: its host, a subdomain or its parent, never another site.
         target_host = urlparse(target or "").hostname
-        if (not target or target.split("#")[0] == url.split("#")[0]
+        landed = (receipt.get("final_url") or url).split("#")[0]
+        if (not target or target.split("#")[0] in (url.split("#")[0], landed)
                 or not (_same_site(target_host, parsed.hostname) or _same_site(parsed.hostname, target_host))):
             return give_up()
         found = await self.read(target, inner_policy, module=False, policy_overrides=inner)
@@ -3393,13 +3399,15 @@ class Runtime:
         if found_receipt.get("status") != "observed" or not verdict.get("complete") or verdict.get("off_query"):
             return give_up()
         found_receipt["cost_usd"] = _total_cost(costs)
-        found_receipt["rescued"] = {"from": url, "after": "NOT_FOUND", "query": words, "via": via,
+        found_receipt["rescued"] = {"from": url, "after": after, "query": words, "via": via,
                                     "search_url": target, "home_trace_id": record["home_trace_id"],
                                     "trace_id": receipt.get("trace_id")}
         found_receipt["next_step"] = {
             "reason": "rescued",
-            "how": ("The URL asked for answered not found, so these are the site's own search results for "
-                    f"'{words}'. Pick the page you meant from them, or read it directly.")}
+            "how": (("The URL asked for answered not found" if after == "NOT_FOUND"
+                     else "The URL asked for showed results that ignored its search")
+                    + f", so these are the site's own search results for '{words}'. "
+                    "Pick the page you meant from them, or read it directly.")}
         self._annotate_trace(found_receipt, "rescued")
         if adapter is None:
             self._grade(target, found, effective)
