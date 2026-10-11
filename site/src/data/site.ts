@@ -229,6 +229,8 @@ export const failures: { label: string; today: number; target: number; src: Sour
 // "<Tool> Only" (Frankensurf against that provider used on its own), never as a
 // rival (owner, 6 Oct 2026).
 export const usVersus = { all: [144, 150], unseen: 98.6, cost: "$0.98" };
+// The same router with no paid tools at all, on the same sites.
+export const usFree: [number, number] = [132, 150];
 export const versus: { name: string; logo: string; all: [number, number]; unseen: number; cost: string }[] = [
   { name: "Zyte", logo: "zyte.png", all: [129, 150], unseen: 88.4, cost: "not reported" },
   { name: "Firecrawl", logo: "firecrawl.png", all: [127, 150], unseen: 87.0, cost: "$4.28" },
