@@ -21,6 +21,12 @@ def _no_hosted_network(monkeypatch, tmp_path):
 
 
 @pytest.fixture(autouse=True)
+def _no_owner_plugin_policy(monkeypatch, tmp_path):
+    """The owner's own trust file (a disabled plugin, say) never changes a test."""
+    monkeypatch.setenv("FRANKENSURF_PLUGINS", str(tmp_path / "no-plugin-policy" / "plugins.json"))
+
+
+@pytest.fixture(autouse=True)
 def _no_origin_pacing(monkeypatch):
     """Fake transports need no politeness; tests/test_origin_pacing.py enables it."""
     monkeypatch.setattr(Runtime, "pacing_enabled", False)

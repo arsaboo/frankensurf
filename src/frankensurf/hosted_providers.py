@@ -407,7 +407,17 @@ class BrightDataUnlockerProvider(_Keyed):
         error = _service_status(status, "Bright Data")
         if error:
             raise error
-        return _page(request.url, _decode(raw), headers.get("content-type", "text/html"), status)
+        text = _decode(raw)
+        # Bright Data refuses some sites (for example until a KYC form is filed)
+        # with HTTP 200 and its own short message, flagged in a header: the tool
+        # declined, the site was never read.
+        refusal = headers.get("x-brd-error") or headers.get("x-luminati-error")
+        if not refusal and len(text) < 2000:
+            match = re.match(r"\s*\w[\w ]{0,40} Failed \((\w+)\)", text)
+            refusal = match.group(1) if match else None
+        if refusal:
+            raise _failure("PROVIDER_UNAVAILABLE", "Bright Data declined this site (" + str(refusal)[:60] + ")")
+        return _page(request.url, text, headers.get("content-type", "text/html"), status)
 
 
 class _SearchTransport(_Keyed):

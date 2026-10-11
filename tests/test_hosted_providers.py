@@ -144,6 +144,23 @@ async def test_brightdata_needs_key_and_zone(tmp_path, monkeypatch, api):
     assert json.loads(calls[-1].content) == {"zone": "unlocker1", "url": URL, "format": "raw"}
 
 
+async def test_brightdata_refusal_is_not_a_page(tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "brightdata_api_key")
+    key(monkeypatch, "brightdata_zone", "unlocker1")
+    routes["https://api.brightdata.com/request"] = lambda request: httpx.Response(
+        200, text="Residential Failed (bad_endpoint): Requested site is not available for immediate "
+                  "residential (no KYC) access mode in accordance with robots.txt.",
+        headers={"content-type": "text/plain"})
+    by_body = await read(tmp_path / "a", URL, provider="brightdata_unlocker", allow_paid_fallbacks=True)
+    routes["https://api.brightdata.com/request"] = lambda request: httpx.Response(
+        200, text="", headers={"content-type": "text/html", "x-brd-error": "Target site blocked"})
+    by_header = await read(tmp_path / "b", URL, provider="brightdata_unlocker", allow_paid_fallbacks=True)
+    for result in (by_body, by_header):
+        assert result["receipt"]["failure"]["code"] == "PROVIDER_UNAVAILABLE"
+    assert "bad_endpoint" in by_body["receipt"]["failure"]["message"]
+
+
 async def test_unblockers_join_default_routing_only_with_key_and_paid_grant(tmp_path, monkeypatch):
     from frankensurf.runtime import WebPolicy
     async with Runtime(tmp_path) as web:

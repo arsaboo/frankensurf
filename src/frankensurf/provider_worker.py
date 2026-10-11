@@ -547,6 +547,11 @@ async def acquire(request):
     return {"status":"failed","failure":"PROVIDER_DOWN"}
 
 
+def _debug_traceback():
+    import traceback
+    traceback.print_exc(file=sys.__stderr__)
+
+
 def main():
     global _REPORT_STAGES, _PROTOCOL
     # Keep a private handle on the protocol pipe and point fd 1 (and
@@ -561,9 +566,14 @@ def main():
         request=json.loads(sys.stdin.buffer.read(16*1024*1024))
         _REPORT_STAGES = request.get("report_stages") is True
         result=asyncio.run(acquire(request))
-    except (ImportError,FileNotFoundError):result={"status":"failed","failure":"PROVIDER_UNAVAILABLE"}
+    except (ImportError,FileNotFoundError):
+        _debug_traceback()
+        result={"status":"failed","failure":"PROVIDER_UNAVAILABLE"}
     except Exception as exc:
-        # Do not emit exception text: library errors can contain sensitive context.
+        # Do not emit exception text in the result: library errors can contain
+        # sensitive context. The traceback goes to stderr, which the runtime
+        # discards unless its owner sets FRANKENSURF_DEBUG_WORKERS=1.
+        _debug_traceback()
         failure="TIMEOUT" if "timeout" in type(exc).__name__.lower() else "PROVIDER_DOWN"
         result=_failed(failure,stage=_CURRENT_STAGE)
     _PROTOCOL.write(json.dumps(result,ensure_ascii=False))

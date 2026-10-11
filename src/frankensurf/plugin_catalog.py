@@ -1440,7 +1440,9 @@ class _EntryCandidate:
 
 
 def default_plugin_policy_path():
-    return Path.home() / ".config/frankensurf/plugins.json"
+    """The owner's trust file: FRANKENSURF_PLUGINS, else ~/.config/frankensurf/plugins.json."""
+    configured = os.environ.get("FRANKENSURF_PLUGINS")
+    return Path(configured).expanduser() if configured else Path.home() / ".config/frankensurf/plugins.json"
 
 
 def _canonical_distribution(value):

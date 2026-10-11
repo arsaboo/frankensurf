@@ -119,7 +119,9 @@ async def _packet(url, policy, provider):
     try:
         process = await asyncio.create_subprocess_exec(str(executable), str(Path(__file__).with_name("provider_worker.py")),
             stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.DEVNULL, env=env, start_new_session=True)
+            # The worker's errors stay private unless the owner asks to see them.
+            stderr=None if os.environ.get("FRANKENSURF_DEBUG_WORKERS") == "1" else asyncio.subprocess.DEVNULL,
+            env=env, start_new_session=True)
     except OSError:
         raise WebFailure("PROVIDER_UNAVAILABLE", "Optional public provider interpreter could not be started") from None
     maximum = policy.max_bytes*2 + 12*1024*1024

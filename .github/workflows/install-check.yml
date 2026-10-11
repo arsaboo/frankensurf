@@ -55,6 +55,15 @@ jobs:
         run: |
           /tmp/fs/bin/frankensurf plugins | head -5
           /tmp/fs/bin/frankensurf egress check
+      - name: Stealth workers from this checkout, with their errors shown
+        env: {FRANKENSURF_DEBUG_WORKERS: "1"}
+        run: |
+          /tmp/fs/bin/pip install -q --no-deps .
+          for tool in scrapling camoufox; do
+            echo "--- $tool"
+            /tmp/fs/bin/frankensurf read https://news.ycombinator.com/ --provider "$tool" > /tmp/out.json || true
+            /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/out.json'))['receipt']; print('$tool', r['status'], (r.get('failure') or {}).get('code'))"
+          done
 
   tool-installs:
     strategy:
