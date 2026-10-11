@@ -161,7 +161,9 @@ def _setup(args):
     import sys
     say = lambda message: print(message, file=sys.stderr, flush=True)
     say("Downloading Chromium for JavaScript pages")
-    chromium = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"]).returncode == 0
+    # Download progress goes to stderr: stdout is the JSON result, for scripts.
+    chromium = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"],
+                              stdout=sys.stderr).returncode == 0
     stealth = "skipped (--no-stealth)"
     if not args.no_stealth:
         from .experimental import install_free_providers
