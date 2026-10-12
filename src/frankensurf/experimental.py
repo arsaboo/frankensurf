@@ -47,7 +47,15 @@ def install_free_providers(log=print):
         log(label)
         # Each step on its own: a browser that won't download on this platform
         # leaves the others working.
-        error = _run_step(command, log, verify=_camoufox_ready if "camoufox" in command else None)
+        camoufox = "camoufox" in command
+        error = _run_step(command, log, verify=_camoufox_installed if camoufox else None)
+        if error and camoufox:
+            # The release list needs the rate-limited GitHub API; the pinned
+            # build's download link does not.
+            log("  trying the pinned build's direct download")
+            direct = _run_step([str(target), "-c", _CAMOUFOX_DIRECT, CAMOUFOX_BROWSER.split("/")[1]], log,
+                               verify=_camoufox_installed, attempts=1)
+            error = None if direct is None else f"{error}; direct download: {direct}"
         if error:
             errors[label] = error
             log(f"  failed: {error}")
@@ -55,6 +63,44 @@ def install_free_providers(log=print):
     if errors:
         result["errors"] = errors
     return result
+
+
+# Run by the provider environment's Python: what `camoufox fetch` does for one
+# known build, without asking the GitHub API which builds exist.
+_CAMOUFOX_DIRECT = """
+import os, shutil, sys, tempfile
+import orjson
+from camoufox.multiversion import BROWSERS_DIR
+from camoufox.pkgman import OS_NAME, RepoConfig, unzip, webdl
+version = sys.argv[1]
+repo = RepoConfig.get_default()
+url = ("https://github.com/daijro/camoufox/releases/download/font-bundle-v1/camoufox-"
+       + version + "-" + repo.get_os_name() + "." + repo.get_arch() + ".zip")
+build = BROWSERS_DIR / "official" / (version + "-direct")
+shutil.rmtree(build, ignore_errors=True)
+build.mkdir(parents=True)
+with tempfile.NamedTemporaryFile() as archive:
+    webdl(url, buffer=archive)
+    unzip(archive, str(build))
+number, _, label = version.partition("-")
+(build / "version.json").write_bytes(orjson.dumps({"version": number, "build": label}))
+if OS_NAME != "win":
+    os.system("chmod -R 755 '" + str(build) + "'")
+"""
+
+
+def _camoufox_installed():
+    """_camoufox_ready, after dropping a direct-download build that a regular
+    install has since duplicated: the worker only runs one unambiguous build."""
+    import shutil
+    from .provider_worker import _camoufox_binaries
+    builds = _camoufox_binaries(CAMOUFOX_BROWSER.split("/")[1])
+    roots = [next(path for path in build.parents if path.parent.name == "official") for build in builds]
+    if len(roots) > 1:
+        for root in roots:
+            if root.name.endswith("-direct"):
+                shutil.rmtree(root, ignore_errors=True)
+    return _camoufox_ready()
 
 
 def _camoufox_ready():
@@ -68,7 +114,7 @@ def _camoufox_ready():
 _FETCH_HINT = " (GitHub rate limit? set GITHUB_TOKEN to any token and run setup again)"
 
 
-def _run_step(command, log, verify=None, attempts=3, pause=10):
+def _run_step(command, log, verify=None, attempts=2, pause=5):
     """Run one install command; None when it worked, else a short reason.
 
     With `verify`, a zero exit status is not trusted: the check must pass too,
@@ -84,7 +130,9 @@ def _run_step(command, log, verify=None, attempts=3, pause=10):
         failed = done.returncode != 0 or (verify is not None and not verify())
         if not failed:
             return None
-        error = (" | ".join(lines[-3:])[:400] or f"exit {done.returncode}") + (_FETCH_HINT if verify else "")
+        # The first error line says why; the last lines say what was left undone.
+        detail = list(dict.fromkeys([line for line in lines if "error" in line.lower()][:1] + lines[-2:]))
+        error = (" | ".join(detail)[:400] or f"exit {done.returncode}") + (_FETCH_HINT if verify else "")
         if attempt < attempts and verify:
             log(f"  not installed (attempt {attempt}); trying again in {pause * attempt}s")
             time.sleep(pause * attempt)
