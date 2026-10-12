@@ -6117,14 +6117,17 @@ class Runtime:
                      engine_config: dict | None = None, policy: WebPolicy | None = None, *,
                      site: str | None = None, exclude_domains: list[str] | None = None,
                      recency: str | None = None, region: str | None = None,
-                     vertical: str = "web", mode: str = "fallback") -> dict:
+                     vertical: str | None = None, mode: str = "fallback") -> dict:
         """Search through installed sources; an explicit source never falls back.
 
         site, exclude_domains, recency (day, week, month, year) and region
         (en-AU) go to every source, natively where it can, and every result
         list is filtered afterwards. vertical picks the kind of source for
         automatic fallback: web, news, reference, discussions, qa, code,
-        papers or books.
+        papers, books or site. Left out (None) it is inferred from the query
+        (search_checks.infer_vertical; receipt.search_routing.vertical_inferred
+        says what and why); an explicit vertical always wins, and an explicit
+        source is never re-routed (its vertical is web).
 
         mode="merge" asks every eligible source in the vertical at once (up
         to search_merge_sources) and fuses their lists by reciprocal rank:
@@ -6137,12 +6140,19 @@ class Runtime:
                                              region=region, vertical=vertical)
         from .search import MAX_EXCLUDE_OPERATORS, REGISTRY, VERTICALS, filter_results, normalize_options
         from .search_checks import (accepted, annotate, check_results, enrich_dates, good_count,
-                                    merge_results, query_kinds)
+                                    infer_vertical, merge_results, query_kinds)
         from .search_plugins import SearchRequest, SearchServices
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise ValueError("Invalid search query")
         if not 1 <= limit <= 100:
             raise ValueError("Search limit must be 1..100")
+        vertical_inferred = None
+        if vertical is None:
+            if source is None:
+                guess, reason = infer_vertical(query, recency)
+                vertical, vertical_inferred = guess, {"vertical": guess, "reason": reason}
+            else:
+                vertical = "web"
         if vertical not in VERTICALS:
             raise ValueError("vertical must be one of: " + ", ".join(VERTICALS))
         options = normalize_options(site, exclude_domains, recency, region)
@@ -6585,6 +6595,8 @@ class Runtime:
             "candidates": candidates, "automatic_fallback": source is None,
             "benchmark_earned_order": False,
             "source_timeout_seconds": policy.search_source_timeout_seconds}
+        if vertical_inferred:
+            receipt["search_routing"]["vertical_inferred"] = vertical_inferred
         from . import local_search
         if (source is None and (engine_config or {}).get("base_url") in (None, local_search.URL)
                 and any(item["source"] == "searxng" and item["status"] == "failed"
@@ -6640,6 +6652,12 @@ class Runtime:
     async def _search_merged(self, query, limit, engine_config, policy, **options):
         """Every eligible source at once, fused by reciprocal rank (k=60)."""
         from .search import VERTICALS, normalize_options
+        from .search_checks import infer_vertical
+        asked = options["vertical"]
+        inferred = None
+        if asked is None:
+            guess, reason = infer_vertical(query, options["recency"])
+            options["vertical"], inferred = guess, {"vertical": guess, "reason": reason}
         if options["vertical"] not in VERTICALS:
             raise ValueError("vertical must be one of: " + ", ".join(VERTICALS))
         normalize_options(options["site"], options["exclude_domains"], options["recency"], options["region"])
@@ -6647,7 +6665,8 @@ class Runtime:
         started = time.monotonic()
         sources = self.searches.candidates(policy, vertical=options["vertical"])[:policy.search_merge_sources]
         if not sources:
-            return await self.search(query, None, limit, engine_config, policy, **options)
+            # Nothing to merge: the single-source ladder decides, and infers by itself.
+            return await self.search(query, None, limit, engine_config, policy, **{**options, "vertical": asked})
 
         async def one(identifier):
             try:
@@ -6691,7 +6710,8 @@ class Runtime:
                                      "trace_id": (answer.get("receipt") or {}).get("trace_id")}
                                     for identifier, answer in answers],
                    "search_routing": {"selection_basis": "merge", "vertical": options["vertical"],
-                                      "candidates": sources, "automatic_fallback": False}}
+                                      "candidates": sources, "automatic_fallback": False,
+                                      **({"vertical_inferred": inferred} if inferred else {})}}
         return {"query": query, "source": None, "results": results, "receipt": receipt,
                 "query_attribution": None, "coverage": "returned-results" if observed else "unknown",
                 "upstream_failures": []}

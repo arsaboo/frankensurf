@@ -573,6 +573,117 @@ def query_kinds(query: str, *, vertical=None, recency=None) -> frozenset:
     return frozenset(kinds)
 
 
+# --- which vertical a plain query belongs to
+
+_LANGS = (r"(?:python|rust|golang|go|javascript|typescript|node\.js|nodejs|java|ruby|php|c\+\+|c#|swift|"
+          r"kotlin)")
+_LANG_LIB = re.compile(r"(?<![\w.+#])" + _LANGS + r"\s+(?:libraries|library|packages?|crates?|modules?|gems?|"
+                       r"frameworks?|sdks?)\b", re.I)
+# Languages whose name is only a language, and those whose name is also a word (python, rust,
+# go, java, ruby, swift): the second kind only counts beside an error word or after "in".
+_LANG_SURE = re.compile(r"(?<![\w.+#])(?:javascript|typescript|golang|node\.js|nodejs|php|c\+\+|c#|kotlin)"
+                        r"(?![\w+#]|\.\w)", re.I)
+_LANG_AMBIGUOUS = re.compile(r"(?<![\w.+#])(?:python|rust|go|java|ruby|swift)(?![\w+#]|\.\w)", re.I)
+_IN_LANG = re.compile(r"\bin\s+(?:python|rust|go|java|ruby|swift)\b", re.I)
+_DISCOVERY = re.compile(r"\b(?:library|libraries|framework|frameworks|sdk|sdks)\s+for\b", re.I)
+_NOT_SOFTWARE = frozenset({"public", "school", "university", "city", "county", "national", "local", "digital",
+                           "state", "college", "town"})
+_PLATFORM = re.compile(r"(?<![\w.])(?:github|gitlab|bitbucket|codeberg|npm|pypi|crates?|cargo|repo|repos|"
+                       r"repositor(?:y|ies)|source\s+code)(?![\w.])", re.I)
+_PAPERS = re.compile(r"\b(?:papers?\s+(?:on|about)|research\s+on|arxiv|preprints?|survey\s+of)\b", re.I)
+_ANNOUNCE = re.compile(r"\b(?:announce[sd]?|announcements?|press\s+releases?|launch(?:es|ed)?)\b", re.I)
+_NEWS_WORD = re.compile(r"\b(?:news|headlines?|latest\s+on)\b", re.I)
+_WINDOW_PHRASE = re.compile(r"\b(?:this\s+week|today|tonight)\b", re.I)
+_QA_TRIGGER = re.compile(r"\b(?:how\s+to|how\s+do\s+(?:i|you|we)|how\s+can\s+i|errors?|exceptions?|tracebacks?|"
+                         r"fix(?:ing|es)?|stack\s*trace|segfault|not\s+working|fail(?:s|ed)?\s+(?:to|with)|"
+                         r"cannot\s+(?:read|find|resolve)|is\s+not\s+(?:defined|a\s+function))\b", re.I)
+_QA_STRONG = re.compile(r"\b(?:errors?|exceptions?|tracebacks?|stack\s*trace|segfault|cannot\s+(?:read|find|resolve)|"
+                        r"is\s+not\s+(?:defined|a\s+function))\b", re.I)
+_EXCEPTION_CLASS = re.compile(r"\b[A-Z]\w*(?:Error|Exception)\b")
+# Code-shaped tokens: snake_case, camelCase, call(), ::, --flag, a file extension, a dotted name,
+# an error code, a backtick, and a few words that only mean one thing.
+_CODEISH = re.compile(r"[a-z0-9]_[a-z0-9]|[a-z][A-Z]|\(\)|::|(?<!\s)--?[a-z]{2}|\b\w+\.(?:py|js|ts|rs|go|rb|php|"
+                      r"java|kt|swift|cpp|h|cs|json|ya?ml|toml|sh|sql|css|html)\b|\b[a-z]+\.[a-z]+\.[a-z]+\b|"
+                      r"\b(?:E\d{4}|ERR_\w+|0x[0-9a-f]+)\b|`|\bnull\b|\bundefined\b|\bnpm\b|\bgit\b|\bdocker\b|"
+                      r"\bsql\b|\bcss\b|\bhtml\b|\bapi\b|\bcompile[dr]?\b|\bsyntax\b|\bruntime\b|\bpip\b")
+_REF_LEAD = re.compile(r"^\W*(?:who(?:'s|\s+is|\s+was|\s+are|\s+were|m)?|whose|what\s+(?:is|was|are|were)|"
+                       r"what\s+year|what\s+date|when\s+(?:was|did|is|were)|how\s+(?:tall|long|many|much|old|far|"
+                       r"big|high|deep|wide|heavy))\b", re.I)
+_REF_PHRASE = re.compile(r"\b(?:capital\s+of|population\s+of|currency\s+(?:of|in)|what\s+currency|"
+                         r"(?:founded|invented|wrote|painted|composed|discovered))\b", re.I)
+_OPINION = frozenset({"best", "top", "vs", "versus", "review", "reviews", "cheap", "cheapest", "buy", "deals",
+                      "deal", "recommend", "recommended", "alternatives", "alternative", "tutorial", "course",
+                      "courses", "coupon", "discount"})
+_FIRST_PERSON = re.compile(r"\b(?:i|i'm|i've|my|we|our)\b", re.I)
+
+
+def _discovery(text):
+    """"library for ...", "framework for ...", "sdk for ...", unless it is a public library."""
+    found = _DISCOVERY.search(text)
+    if not found:
+        return False
+    before = text[:found.start()].split()
+    return not (before and before[-1].lower() in _NOT_SOFTWARE)
+
+
+def _is_codeish(text, strong):
+    """Code-shaped tokens, a language that is only a language, or an ambiguous name
+    (python, rust) beside an error word or after "in"."""
+    return bool(_CODEISH.search(text) or _LANG_SURE.search(text) or _EXCEPTION_CLASS.search(text)
+                or (_LANG_AMBIGUOUS.search(text) and (strong or _IN_LANG.search(text))))
+
+
+def infer_vertical(query: str, recency=None) -> tuple[str, str]:
+    """Which vertical a plain query belongs to, as (vertical, reason). Generic and
+    deterministic: sentence shape and common words only, no site or company lists. A
+    query that matches nothing stays "web". The order is the tie-breaking:
+
+    1. qa: an error or a how-to together with code-shaped tokens or a language name.
+       Stack Overflow holds the answered version of that question, and with no specialist
+       race for qa the ladder climbs on to the web engines when its set is weak, so a
+       miss costs one rung. A how-to without code ("how to boil an egg") stays web:
+       Stack Exchange would only be a detour. A discovery phrase ("library for ...",
+       "python library") is code even beside a how-to.
+    2. papers, 3. code (platform words, language libraries, discovery phrases).
+    4. announcement phrasing stays web: it is already handled as windowed web plus
+       paid parallel.
+    5. news, 6. reference (fact questions, unless they ask for opinions or buying advice
+       and a bare past-tense verb about the speaker ("I wrote") is not a fact question).
+
+    recency only matters for "latest <Entity>" with a day or week window."""
+    text = str(query or "").strip()
+    if not text:
+        return "web", "empty query"
+    discovery, lang_lib = _discovery(text), _LANG_LIB.search(text)
+    if ((_QA_TRIGGER.search(text) or _EXCEPTION_CLASS.search(text))
+            and _is_codeish(text, bool(_QA_STRONG.search(text) or _EXCEPTION_CLASS.search(text)))
+            and not (discovery or lang_lib)):
+        return "qa", "error or how-to question with code tokens"
+    if _PAPERS.search(text):
+        return "papers", "asks for papers or research"
+    if platform := _PLATFORM.search(text):
+        return "code", "platform word: " + " ".join(platform.group(0).lower().split())
+    if lang_lib:
+        return "code", "language library: " + " ".join(lang_lib.group(0).lower().split())
+    if discovery:
+        return "code", "library, framework or sdk for a need"
+    if _ANNOUNCE.search(text):
+        return "web", "announcement phrasing stays windowed web"
+    if _NEWS_WORD.search(text):
+        return "news", "news words"
+    named = entities(text)
+    if named and _WINDOW_PHRASE.search(text):
+        return "news", "entity with a today or this-week window"
+    if named and re.search(r"\blatest\b", text, re.I) and recency in ("day", "week"):
+        return "news", "latest entity with a day or week window"
+    words = {word.lower() for word in _WORD.findall(text)}
+    lead = _REF_LEAD.search(text)
+    if ((lead or _REF_PHRASE.search(text)) and not words & _OPINION
+            and not (_FIRST_PERSON.search(text) and not lead)):
+        return "reference", "fact question"
+    return "web", "no vertical signal"
+
+
 @dataclass(frozen=True)
 class QueryContext:
     """What ranking needs to know about a query, worked out once."""

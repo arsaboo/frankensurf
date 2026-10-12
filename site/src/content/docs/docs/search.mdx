@@ -108,11 +108,14 @@ many results had no date to check.
 
 ## Kinds of search
 
-`vertical` picks the kind of source. Automatic fallback stays inside it.
+`vertical` picks the kind of source. Automatic fallback stays inside it. Leave
+it out and FrankenSurf infers it from the query, so `fastify github repo` gets
+the code treatment and `who wrote Hamlet` the reference one. An explicit
+`vertical` always wins.
 
 | `vertical` | Source | Notes |
 | --- | --- | --- |
-| `web` (default) | SearXNG, DuckDuckGo, Bing, plus paid sources when allowed | |
+| `web` (the fallback) | SearXNG, DuckDuckGo, Bing, plus paid sources when allowed | |
 | `news` | Bing News RSS | Publisher in `extra.publisher`, dates on every item |
 | `reference` | Wikipedia API | In the `region` language (`de` searches de.wikipedia.org). Question words are dropped (`who wrote War and Peace` searches for *War and Peace*), the article titled for the topic comes first, disambiguation pages are dropped, and titles with a qualifier such as `(film)` or `(1956 film)` go last unless the query asks for that kind of thing |
 | `discussions` | Hacker News (Algolia API) | `extra.points`, `extra.comments`, `extra.discussion_url` |
@@ -122,6 +125,29 @@ many results had no date to check.
 | `books` | Open Library | |
 
 All of these are official, keyless public APIs.
+
+### Inferred verticals
+
+When no `vertical` is given, the query's wording picks one. The rules are
+deterministic and use common words and sentence shape only, never lists of
+sites or companies. A query that matches nothing is `web`. Rules are checked in
+this order and the first match wins.
+
+| Inferred | Signals | Example |
+| --- | --- | --- |
+| `qa` | An error or how-to (*how to*, *how do I*, *error*, *exception*, *fix*, *fails with*) together with code-shaped tokens (`snake_case`, `call()`, file extensions, error codes) or a language name | `how to reverse a list in python` |
+| `papers` | *papers on*, *paper on*, *research on*, *arxiv*, *preprint*, *survey of* | `papers on retrieval augmented generation` |
+| `code` | Platform words (*github*, *gitlab*, *repo*, *repository*, *crate*, *npm*, *pypi*, *source code*); *library for*, *framework for*, *sdk for*; a language beside *library*, *package*, *crate*, *module* or *framework* | `python library for image processing` |
+| `web` | Announcement phrasing (*announces*, *announcement*, *press release*, *launch*) stays windowed web, not news | `Anthropic announces new model` |
+| `news` | *news*, *headlines*, *latest on*; an entity with *today* or *this week* | `openai news` |
+| `reference` | Fact questions: *who*, *what is*, *what year*, *when was*, *how tall*, *how many*, *capital of*, *population of*, *currency of*, *wrote*, *invented*, *founded*, *painted*, *composed*, *discovered*; not when the query asks for *best*, *vs*, *review* or buying advice | `who wrote Hamlet` |
+
+A how-to with no code in it (`how to boil an egg`) stays `web`, as do words that
+are only sometimes about software (`Python the snake`, `Go to market strategy`,
+`package delivery tracking`). An explicit `source` is never re-routed. The
+receipt says what was picked and why:
+`receipt.search_routing.vertical_inferred` is `{"vertical": "code", "reason": "platform word: github"}`.
+It is absent when you passed a `vertical` yourself. `mode="merge"` infers the same way.
 
 A vertical with its own specialist source (`code`, `reference`, `papers`, `news`)
 does not wait for it to fail. When the local SearXNG is reachable, the
@@ -299,7 +325,7 @@ results = await web.search("film camera repair sydney", mode="merge")
 | `source` | automatic | One source only, by name (see the tables above). |
 | `limit` | `10` | Number of results. |
 | `site`, `exclude_domains`, `recency`, `region` | none | See above. |
-| `vertical` | `web` | The kind of source. |
+| `vertical` | inferred | The kind of source. Inferred from the query when left out; an explicit value always wins. |
 | `mode` | `fallback` | `merge` to ask every eligible source at once. |
 | `search_source_prefer` | none | Try these sources first. |
 | `search_source_allow` | all | Only these sources may run. |

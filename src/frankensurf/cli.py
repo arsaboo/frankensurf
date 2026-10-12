@@ -605,9 +605,9 @@ def build_parser():
     parser.add_argument("--recency", choices=["day", "week", "month", "year"],
         help="search: only results from the last day, week, month or year")
     parser.add_argument("--region", help="search: region and language, like en-AU")
-    parser.add_argument("--vertical", default="web",
+    parser.add_argument("--vertical", default=None,
         choices=["web", "news", "reference", "discussions", "qa", "code", "papers", "books", "site"],
-        help="search: the kind of source (default web)")
+        help="search: the kind of source (default: inferred from the query)")
     parser.add_argument("--mode", default="fallback", choices=["fallback", "merge"],
         help="search: merge asks every eligible source at once and fuses the results")
     parser.add_argument("--source", choices=search_sources,
