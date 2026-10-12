@@ -1158,6 +1158,12 @@ def _wrong_entity(named, cased, item) -> bool:
     corporate suffixes and freshness words don't make a new name."""
     if len(named) != 1 or len(named[0]) != 1:
         return False
+    # The entity as written: "GE Aerospace" keeps "GE" out of `named` (short word) but is a
+    # two-word name, not a single common word, and its own words are never a different entity.
+    written = [str(w) for w in (cased[0] if cased else [])]
+    own = {named[0][0]} | {w.lower() for w in written}
+    if len([w for w in written if w.lower() not in _CONNECTORS]) > 1:
+        return False
     host = (urlparse(str(item.get("url") or "")).hostname or "").lower()
     if _entity_domain(named, cased, host):
         return False
@@ -1177,6 +1183,7 @@ def _wrong_entity(named, cased, item) -> bool:
         if mixed and previous:
             token = previous.group(1)
             if (token[:1].isupper() and token.lower() not in _SAFE_NEIGHBOURS
+                    and token.lower() not in own
                     and not token.lower().endswith(("'s", "\u2019s"))):
                 continue
         return False

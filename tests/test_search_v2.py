@@ -323,6 +323,34 @@ def test_the_entitys_own_domain_is_never_the_wrong_entity_and_longer_names_are_u
         "https://x.example/2026/10/a"][0] is True
 
 
+def test_a_multi_word_entity_is_never_the_wrong_entity():
+    rows = [row("https://www.newindianexpress.com/2026/10/ge-tejas",
+                "GE Aerospace ships four more engines for Tejas Mk-1A to HAL"),
+            row("https://m4snews.com/2026/10/ge-niskayuna",
+                "GE Aerospace commits $225M to modernize Niskayuna research center"),
+            row("https://www.reuters.com/business/aerospace-defense/ge-9x-2026-10-08/",
+                "GE Aerospace says GE9X mid-seal issue won't delay Boeing 777X entry into service")]
+    for url, (passed, reasons) in verdicts("news about GE Aerospace past month", rows, recency="month").items():
+        assert "wrong_entity" not in reasons, url
+    arm = "https://news.example.com/2026/10/12/arm"
+    assert "wrong_entity" not in verdicts("Arm Holdings latest announcement",
+                                          [row(arm, "Arm Holdings shares rise after chip announcement")],
+                                          recency="month")[arm][1]
+
+
+def test_the_single_word_guard_still_tells_snap_from_oh_snap():
+    ok, bad = "https://news.example.com/2026/10/12/snap", "https://news.example.com/2026/10/12/pizza"
+    got = verdicts("Snap latest announcement",
+                   [row(ok, "Snap Inc. launches new Spectacles"), row(bad, "Oh Snap Pizza opens a new shop")],
+                   recency="month")
+    assert got[ok] == (True, []) and "wrong_entity" not in got[ok][1]
+    assert got[bad][0] is False and "wrong_entity" in got[bad][1]
+    block = "https://news.example.com/2026/10/12/auction"
+    assert "wrong_entity" in verdicts("Block latest announcement",
+                                      [row(block, "The Block 2026 auction results announced")],
+                                      recency="month")[block][1]
+
+
 def test_a_wrong_entity_result_does_not_count_toward_a_good_set():
     shows = [row("https://show%d.test/the-block-%d" % (n, n), "The Block episode %d" % n) for n in range(4)]
     assert check_results("Block latest announcement", shows, recency="month")["verdict"] == "empty"
