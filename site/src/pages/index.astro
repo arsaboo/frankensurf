@@ -23,6 +23,36 @@ const ranked = [
   { name: "Frankensurf, free tools only", all: usFree, us: true },
   ...versus.map((t) => ({ name: `${t.name} Only`, all: t.all, us: false })),
 ].sort((a, b) => b.all[0] / b.all[1] - a.all[0] / a.all[1]);
+// The router as a snake: tools in ladder order along one winding path.
+const snakeTools = [
+  { id: "http", name: "Plain HTTP" }, { id: "jina", name: "Jina Reader" }, { id: "local", name: "Local browser" },
+  { id: "camoufox", name: "Camoufox" }, { id: "scrapling", name: "Scrapling" }, { id: "hosted", name: "Hosted browsers", paid: true },
+  { id: "firecrawl", name: "Firecrawl", paid: true }, { id: "zyte", name: "Zyte", paid: true }, { id: "you", name: "You", human: true },
+];
+const snakeLayout = (name: string, perRow: number, cols: number[], rowGap: number, top: number, nw: number, nh: number,
+                     turnL: number, turnR: number, w: number) => {
+  const rows = Math.ceil(snakeTools.length / perRow);
+  const r = rowGap / 2;
+  const y = (i: number) => top + i * rowGap;
+  const nodes = snakeTools.map((t, i) => {
+    const row = Math.floor(i / perRow), k = i % perRow;
+    return { ...t, x: row % 2 ? cols[perRow - 1 - k] : cols[k], y: y(row) };
+  });
+  const start: [number, number] = [14, y(0)];
+  let d = `M ${start[0]} ${y(0)}`;
+  for (let row = 0; row < rows - 1; row++) {
+    const right = row % 2 === 0;
+    d += ` H ${right ? turnR : turnL} A ${r} ${r} 0 0 ${right ? 1 : 0} ${right ? turnR : turnL} ${y(row + 1)}`;
+  }
+  const lastRight = (rows - 1) % 2 === 0;
+  const end: [number, number] = [lastRight ? w - 14 : 14, y(rows - 1)];
+  d += ` H ${end[0]}`;
+  return { name, w, h: y(rows - 1) + nh / 2 + 40, nodes, d, start, end, nw, nh };
+};
+const snakeLayouts = [
+  snakeLayout("wide", 3, [215, 560, 905], 150, 64, 230, 54, 78, 1050, 1130),
+  snakeLayout("narrow", 2, [130, 300], 96, 60, 158, 48, 50, 380, 430),
+];
 const kindLabel = { oss: "Open source", managed: "Managed", standard: "Open standard" };
 // Unblockers patch: a short wall across the read's path, with the middle course knocked out.
 const bricks = [2, 19, 45, 62].flatMap((y, row) =>
@@ -78,6 +108,17 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
       <a class="proof" href="#targets"><span class="claim"><b>96%</b> of 150 sites picked blind</span><span>Firecrawl alone 85% · Zyte alone 86%</span><span class="arrow" aria-hidden="true">↓</span></a>
     </div>
     <p class="hint" aria-hidden="true"><kbd>click</kbd> strike lightning · <kbd>move</kbd> over the water</p>
+  </section>
+
+  <section class="marquee-sec" aria-label="Tools Frankensurf is built on">
+    <div class="marquee">
+      {[loop(rowA), loop(rowB)].map((row, r) => (
+        <div class:list={["track", { rev: r === 1 }]}>{row.map((t) => {
+          const Tag = t.href ? "a" : "span";
+          return <Tag class:list={["logo", { "logo-repeat": t.repeat }]} href={t.href} aria-hidden={t.repeat ? "true" : undefined} tabindex={t.repeat && t.href ? -1 : undefined}><img src={`/logos/${t.logo}`} alt="" width="22" height="22" loading="lazy" />{t.name}</Tag>;
+        })}</div>
+      ))}
+    </div>
   </section>
 
   <section class="container window-wrap" id="router">
@@ -165,16 +206,6 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
     </div>
   </section>
 
-  <section class="marquee-sec" aria-label="Tools Frankensurf is built on">
-    <div class="marquee">
-      {[loop(rowA), loop(rowB)].map((row, r) => (
-        <div class:list={["track", { rev: r === 1 }]}>{row.map((t) => {
-          const Tag = t.href ? "a" : "span";
-          return <Tag class:list={["logo", { "logo-repeat": t.repeat }]} href={t.href} aria-hidden={t.repeat ? "true" : undefined} tabindex={t.repeat && t.href ? -1 : undefined}><img src={`/logos/${t.logo}`} alt="" width="22" height="22" loading="lazy" />{t.name}</Tag>;
-        })}</div>
-      ))}
-    </div>
-  </section>
 
   <section class="container sec" id="problem">
     <div class="sec-head" data-reveal>
@@ -205,6 +236,30 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
     <div class="sec-head" data-reveal>
       <h2>Capability first. Cost <em class="horror">aware.</em></h2>
     </div>
+    <figure class="snake" data-snake data-reveal>
+      {snakeLayouts.map((L) => (
+        <svg class:list={["snake-svg", L.name]} viewBox={`0 0 ${L.w} ${L.h}`} role="img" aria-label="How Frankensurf routes a read: the request travels a path of tools in order, cheapest first. Plain HTTP, Jina Reader, a local browser, Camoufox and Scrapling are free; hosted browsers, Firecrawl and Zyte are paid and only used if you allow them; the last stop is you, for a CAPTCHA or 2FA. Each read stops at the first tool that returns the real page.">
+          <path class="snake-path" d={L.d} />
+          <path class="snake-trail" d={L.d} />
+          <text class="snake-end" x={L.start[0]} y={L.start[1] - 26}>read(url)</text>
+          <circle class="snake-start" cx={L.start[0]} cy={L.start[1]} r="5" />
+          <text class="snake-end" x={L.end[0]} y={L.end[1] - 26} text-anchor="end">the page</text>
+          <path class="snake-arrow" d={`M ${L.end[0] - 9} ${L.end[1] - 6} L ${L.end[0]} ${L.end[1]} L ${L.end[0] - 9} ${L.end[1] + 6}`} />
+          <circle class="snake-dot" r="7" cx={L.start[0]} cy={L.start[1]} />
+          {L.nodes.map((n) => (
+            <g class:list={["snake-node", { paid: n.paid, human: n.human }]} data-tool={n.id} transform={`translate(${n.x} ${n.y})`}>
+              <rect x={-L.nw / 2} y={-L.nh / 2} width={L.nw} height={L.nh} rx="12" />
+              <text class="snake-name" x={-L.nw / 2 + 14} y="5">{n.name}</text>
+              <text class="snake-cost" x={L.nw / 2 - 14} y="5" text-anchor="end">{n.human ? "opt-in" : n.paid ? "paid" : "free"}</text>
+              <text class="snake-note" x="0" y={L.nh / 2 + 18} text-anchor="middle"></text>
+            </g>
+          ))}
+        </svg>
+      ))}
+      <figcaption class="snake-caption" aria-live="off"><code data-snake-url>read("walmart.com/search?q=air+fryer")</code><span data-snake-result>→ the page via Camoufox · 3 tried · free</span></figcaption>
+      <p class="snake-legend"><span class="lg-free">free</span><span class="lg-paid">paid, only if you allow it</span><span class="lg-you">you, only if you allow it</span></p>
+    </figure>
+
     <div class="how">
       <div class="panel" data-spot data-reveal>
         <div class="mini-rungs">
@@ -350,6 +405,117 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
 <footer><span class="footer-brand"><img src={stitchedWaveMint} width="28" height="18" alt="" loading="lazy" />FRANKENSURF</span><span class="horror">It's alive.</span></footer>
 
 <script>
+  // The snake plays reads in turn: a dot travels the path, stopping at each tool
+  // the read tries (red with the reason, or green where it gets the page), the
+  // path behind it lights up, and the caption gives the receipt. Only while on
+  // screen; with reduced motion it shows one finished read.
+  (() => {
+    const fig = document.querySelector<HTMLElement>("[data-snake]");
+    if (!fig) return;
+    const reads = [
+      { url: "docs.python.org/3/library/asyncio.html", steps: [["http", "ok", "markdown served"]], result: "the page via plain HTTP · 1 tried · free" },
+      { url: "app.example.com/dashboard", steps: [["http", "fail", "empty JS shell"], ["jina", "ok", "rendered"]], result: "the page via Jina Reader · 2 tried · free" },
+      { url: "walmart.com/search?q=air+fryer", steps: [["http", "fail", "CAPTCHA"], ["local", "fail", "CAPTCHA"], ["camoufox", "ok", "107 results"]], result: "the page via Camoufox · 3 tried · free" },
+      { url: "crunchbase.com/organization/…", steps: [["http", "fail", "blocked"], ["local", "fail", "blocked"], ["camoufox", "fail", "blocked"], ["scrapling", "fail", "blocked"], ["firecrawl", "ok", "got through"]], result: "the page via Firecrawl · 5 tried · $0.004" },
+      { url: "mybank.example/statements", steps: [["local", "fail", "2FA prompt"], ["you", "ok", "you approve it"]], result: "the page, after you cleared 2FA · read carries on" },
+    ];
+    const urlEl = fig.querySelector<HTMLElement>("[data-snake-url]")!;
+    const resultEl = fig.querySelector<HTMLElement>("[data-snake-result]")!;
+    const visible = () => [...fig.querySelectorAll<SVGSVGElement>(".snake-svg")].find((svg) => svg.getBoundingClientRect().width > 0);
+    const geometry = new Map<SVGSVGElement, { path: SVGPathElement; total: number; at: Record<string, number> }>();
+    const measure = (svg: SVGSVGElement) => {
+      if (geometry.has(svg)) return geometry.get(svg)!;
+      const path = svg.querySelector<SVGPathElement>(".snake-path")!;
+      const total = path.getTotalLength();
+      const at: Record<string, number> = {};
+      svg.querySelectorAll<SVGGElement>(".snake-node").forEach((node) => {
+        const [x, y] = node.getAttribute("transform")!.match(/[\d.]+/g)!.map(Number);
+        let best = 0, bestD = Infinity;
+        for (let l = 0; l <= total; l += 2) {
+          const p = path.getPointAtLength(l);
+          const d = (p.x - x) ** 2 + (p.y - y) ** 2;
+          if (d < bestD) { bestD = d; best = l; }
+        }
+        at[node.dataset.tool!] = best;
+      });
+      const g = { path, total, at };
+      geometry.set(svg, g);
+      return g;
+    };
+    const reset = (svg: SVGSVGElement) => {
+      svg.querySelectorAll<SVGGElement>(".snake-node").forEach((n) => { n.classList.remove("trying", "fail", "ok"); n.querySelector(".snake-note")!.textContent = ""; });
+      const trail = svg.querySelector<SVGPathElement>(".snake-trail")!;
+      const { total } = measure(svg);
+      trail.style.strokeDasharray = `${total}`;
+      trail.style.strokeDashoffset = `${total}`;
+    };
+    const mark = (svg: SVGSVGElement, tool: string, outcome: string, note: string) => {
+      const node = svg.querySelector<SVGGElement>(`[data-tool="${tool}"]`)!;
+      node.classList.remove("trying");
+      node.classList.add(outcome);
+      node.querySelector(".snake-note")!.textContent = (outcome === "ok" ? "✓ " : "✗ ") + note;
+    };
+    const finished = () => {
+      const svg = visible(); if (!svg) return;
+      const read = reads[2];
+      reset(svg);
+      const { total, at } = measure(svg);
+      const last = read.steps[read.steps.length - 1][0];
+      read.steps.forEach(([t, o, n]) => mark(svg, t, o, n));
+      const trail = svg.querySelector<SVGPathElement>(".snake-trail")!;
+      trail.style.strokeDashoffset = `${total - at[last]}`;
+      const dot = svg.querySelector<SVGCircleElement>(".snake-dot")!;
+      const p = measure(svg).path.getPointAtLength(at[last]);
+      dot.setAttribute("cx", String(p.x)); dot.setAttribute("cy", String(p.y));
+      urlEl.textContent = `read("${read.url}")`; resultEl.textContent = `→ ${read.result}`;
+    };
+    if (document.documentElement.dataset.motion === "reduced") { requestAnimationFrame(finished); return; }
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    let running = false, onScreen = false;
+    const travel = (svg: SVGSVGElement, from: number, to: number) => new Promise<void>((done) => {
+      const { path, total } = measure(svg);
+      const dot = svg.querySelector<SVGCircleElement>(".snake-dot")!;
+      const trail = svg.querySelector<SVGPathElement>(".snake-trail")!;
+      const t0 = performance.now(), ms = Math.max(250, Math.abs(to - from) / 0.9);
+      const frame = (now: number) => {
+        const k = Math.min(1, (now - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2;
+        const l = from + (to - from) * e, p = path.getPointAtLength(l);
+        dot.setAttribute("cx", String(p.x)); dot.setAttribute("cy", String(p.y));
+        trail.style.strokeDashoffset = `${total - l}`;
+        if (k < 1) requestAnimationFrame(frame); else done();
+      };
+      requestAnimationFrame(frame);
+    });
+    const play = async () => {
+      if (running) return;
+      running = true;
+      for (let i = 0; onScreen; i = (i + 1) % reads.length) {
+        const svg = visible(); if (!svg) break;
+        const read = reads[i];
+        reset(svg);
+        const { at } = measure(svg);
+        urlEl.textContent = `read("${read.url}")`; resultEl.textContent = "";
+        let here = 0;
+        for (const [tool, outcome, note] of read.steps) {
+          await travel(svg, here, at[tool]);
+          here = at[tool];
+          const node = svg.querySelector<SVGGElement>(`[data-tool="${tool}"]`)!;
+          node.classList.add("trying");
+          await sleep(450);
+          mark(svg, tool, outcome, note);
+          await sleep(outcome === "ok" ? 300 : 500);
+        }
+        resultEl.textContent = `→ ${read.result}`;
+        await sleep(2400);
+      }
+      running = false;
+    };
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (onScreen) play();
+    }, { threshold: 0.3 }).observe(fig);
+  })();
+
   // Live star count on the GitHub buttons. GitHub's public API, cached for the
   // visit; if it can't be reached the buttons simply show no count.
   // The count appears from SHOW_FROM stars up, so a brand-new repo shows the star alone.
