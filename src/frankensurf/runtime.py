@@ -6139,7 +6139,7 @@ class Runtime:
                                              exclude_domains=exclude_domains, recency=recency,
                                              region=region, vertical=vertical)
         from .search import MAX_EXCLUDE_OPERATORS, REGISTRY, VERTICALS, filter_results, normalize_options
-        from .search_checks import (accepted, annotate, canonical_url, check_results, demote_off_topic,
+        from .search_checks import (accepted, annotate, anchored_answer, canonical_url, check_results, demote_off_topic,
                                     demote_unconfirmed_repos, enrich_dates, good_count, infer_vertical,
                                     merge_results, query_context, query_kinds, REPO_UNWANTED)
         from .search_plugins import SearchRequest, SearchServices
@@ -6486,7 +6486,8 @@ class Runtime:
                             date_reads["latency_ms"] += round((time.monotonic() - read_started) * 1000)
                             costs.append(_measured_cost(found["cost_usd"]))
                         kept = accepted(items, report) if ladder else annotate(items, report)
-                        rungs[identifier] = {"report": report, "kept": kept, "dropped": dropped}
+                        rungs[identifier] = {"report": report, "kept": kept, "dropped": dropped,
+                                             "annotated": annotate(items, report)}
                         attempt.update(count=len(response["results"]), passed=report["passed"],
                                        check=report["verdict"])
                         if len(kept) > best_count:
@@ -6535,8 +6536,17 @@ class Runtime:
                                     "cost_usd": None if paid else 0, "raced": identifier in hedged})
         if stopped is None:
             stopped = "source_cap" if ladder and len(order) > policy.search_max_sources else "exhausted"
-        pool = [(name, rung["kept"]) for name, rung in rungs.items()]
-        if winner in rungs:
+        everyone = [(name, rung["kept"]) for name, rung in rungs.items()]
+        # A paid source answered: the answer is anchored on its results (search_checks.anchored_answer),
+        # and the other sources' passing results are only what fills the slots its failures leave.
+        anchor_id = None
+        if ladder and policy.allow_paid_fallbacks:
+            answered = [name for name in order if name in paid_ids and (rungs.get(name) or {}).get("annotated")]
+            anchor_id = paid_parallel if paid_parallel in answered else answered[0] if answered else None
+        pool = [item for item in everyone if item[0] != anchor_id]
+        if anchor_id is not None:
+            final = merge_results(pool, windowed=bool(recency)) if len(pool) > 1 else pool[0][1] if pool else []
+        elif winner in rungs:
             final = rungs[winner]["kept"]
         elif len(pool) > 1:
             final = merge_results(pool, windowed=bool(recency))
@@ -6548,14 +6558,20 @@ class Runtime:
             # the answer when any verified ones exist; the agent still sees them apart.
             everything = merge_results(pool, windowed=True) if len(pool) > 1 else final
             verified = [item for item in everything if (item.get("check") or {}).get("in_window") is True]
-            if verified:
+            if verified or (anchor_id is not None and any(
+                    (item.get("check") or {}).get("in_window") is True
+                    for item in rungs[anchor_id]["annotated"] if item["check"]["passed"])):
                 held = [item for item in everything if (item.get("check") or {}).get("in_window") is not True]
                 final = verified
-        if ladder and pool:
+        unwanted = {}
+        if ladder and everyone:
             # A repository the code source showed to be a fork, archived, in another language or too
             # small is not wanted when a web engine returns its page too.
-            unwanted = {canonical_url(verdict["url"]) for rung in rungs.values()
-                        for verdict in rung["report"]["results"] if set(verdict["reasons"]) & REPO_UNWANTED}
+            for rung in rungs.values():
+                for verdict in rung["report"]["results"]:
+                    hit = [reason for reason in verdict["reasons"] if reason in REPO_UNWANTED]
+                    if hit:
+                        unwanted.setdefault(canonical_url(verdict["url"]), hit[0])
             if unwanted:
                 final = [item for item in final if canonical_url(item.get("url") or "") not in unwanted]
                 held = [item for item in held if canonical_url(item.get("url") or "") not in unwanted]
@@ -6579,9 +6595,13 @@ class Runtime:
                 final = demote_unconfirmed_repos(final, {key for key, names in origin.items() if any(
                     verticals.get(name) == "code" for name in names)},
                     need=query_context(query, vertical=vertical).need)
+        anchor_receipt = None
+        if anchor_id is not None:
+            final, anchor_receipt = anchored_answer(query, anchor_id, rungs[anchor_id]["annotated"], final,
+                                                    limit=limit, vertical=vertical, unwanted=unwanted)
         final = final[:limit]
         if winner is None and final:
-            winner = "merged" if len(pool) > 1 else pool[0][0]
+            winner = "merged" if len(everyone) > 1 else everyone[0][0]
 
         if last_bundle is None:
             failure = planning_failure or WebFailure("SEARCH_UNAVAILABLE", "Search sources were exhausted")
@@ -6668,7 +6688,8 @@ class Runtime:
         receipt["search_ladder"] = {"enabled": ladder, "query_type": qtype, "order": order,
             "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes,
             **({"first_rung": first_rung} if first_rung else {}),
-            **({"paid_parallel": paid_parallel} if paid_parallel else {})}
+            **({"paid_parallel": paid_parallel} if paid_parallel else {}),
+            **({"anchor": anchor_receipt} if anchor_receipt else {})}
         receipt["search_checks"] = {"verdict": verdict, "need": need, "passed": passed,
             "reasons": reasons, "unknown_dates": unknown,
             "results": [{"url": item["url"],

@@ -1526,6 +1526,102 @@ def merge_results(groups, *, windowed=False, limit=None) -> list[dict]:
     return merged[:limit] if limit else merged
 
 
+# --- the answer when a paid source answered: anchored on its results
+
+def anchor_reasons(item: dict, ctx: QueryContext) -> list[str]:
+    """Extra hard failures for a code query when the answer is anchored on a paid source. In
+    ranking they are demotions (see _code_adjustment); here they remove the result. An
+    organisation's or user's page (one path segment on a code forge), or a project's front page on
+    any other site, when the query asks for the repository (github, repo, repository): "homepage".
+    A demo, example, sample, template, starter, boilerplate, tutorial, benchmark or awesome
+    repository unless the query asks for that kind: "example_repo"."""
+    if not ctx.code:
+        return []
+    url = str(item.get("url") or "")
+    parts = _repo_parts(item)
+    if parts:
+        if _EXAMPLE_TOKENS & set(re.split(r"[-_.\s]+", parts[1].lower())) and not ctx.words & _EXAMPLE_TOKENS:
+            return ["example_repo"]
+        return []
+    if ctx.repo and len([part for part in urlparse(url).path.split("/") if part]) <= 1:
+        return ["homepage"]
+    return []
+
+
+def is_canonical(query: str, item: dict, ctx: QueryContext, vertical=None) -> bool:
+    """Whether a result is the canonical answer to a lookup: for a code name lookup the
+    repository of the project's name; for a reference question the article titled for its topic."""
+    if ctx.code and ctx.lookup and ctx.names:
+        url = str(item.get("url") or "")
+        host = (urlparse(url).hostname or "").lower()
+        return _repo_parts(item) is not None and _canonical(ctx, url, host, item) >= 3.0
+    return vertical == "reference" and topic_matches(query, item.get("title"))
+
+
+def anchored_answer(query: str, source: str, anchored, others, *, limit: int, vertical=None,
+                    unwanted=None) -> tuple[list, dict]:
+    """The answer when a paid source answered. anchored is its annotated result list in its own
+    order (every result with its check); the first `limit` stay where they are unless they fail:
+    a failed check (off_query, out_of_window, wrong_entity, homepage and the other kinds,
+    stock_blurb, challenge_page, not_article, duplicate), a repository the code source showed to be
+    unwanted (unwanted maps canonical URL to its reason), or an anchor_reasons failure. A result
+    that merely ranks lower stays. others is the passing results of the other sources, best
+    first. They fill the removed slots in order; a canonical result (see is_canonical) the paid set
+    lacks goes first, into a removed slot, else the last slot of a full set (or after a short one);
+    a short set is then filled the same way. Returns (results, receipt) where the receipt is
+    {"source", "kept", "replaced": [{"url", "reason"}], "filled"}."""
+    ctx = query_context(query, vertical=vertical)
+    unwanted = unwanted or {}
+
+    def failure(item):
+        check = item.get("check") or {}
+        reasons = list(check.get("reasons") or [])
+        if reasons:
+            return reasons[0]
+        if check.get("passed") is False:
+            return "failed"
+        reason = unwanted.get(canonical_url(item.get("url") or ""))
+        if reason:
+            return reason
+        found = anchor_reasons(item, ctx)
+        return found[0] if found else None
+
+    slots, replaced = [], []
+    for item in list(anchored)[:limit]:
+        reason = failure(item)
+        if reason:
+            slots.append(None)
+            replaced.append({"url": item.get("url"), "reason": reason})
+        else:
+            slots.append(item)
+    kept = [item for item in slots if item is not None]
+    taken = {canonical_url(item.get("url") or "") for item in kept}
+    fills = [item for item in others if canonical_url(item.get("url") or "") not in taken and not failure(item)]
+    filled = 0
+    canonical = next((item for item in fills if is_canonical(query, item, ctx, vertical)), None)
+    if canonical is not None:
+        fills.remove(canonical)
+        holes = [index for index, item in enumerate(slots) if item is None]
+        if holes:
+            slots[holes[0]] = canonical
+        elif len(slots) >= limit and slots:
+            replaced.append({"url": slots[-1].get("url"), "reason": "displaced_by_canonical"})
+            kept.remove(slots[-1])
+            slots[-1] = canonical
+        else:
+            slots.append(canonical)
+        filled += 1
+    for index, item in enumerate(slots):
+        if item is None and fills:
+            slots[index] = fills.pop(0)
+            filled += 1
+    final = [item for item in slots if item is not None]
+    while len(final) < limit and fills:
+        final.append(fills.pop(0))
+        filled += 1
+    return final, {"source": source, "kept": len(kept), "replaced": replaced, "filled": filled}
+
+
 def good_count(items, need: int, windowed: bool, weigh_undated: bool = True) -> int:
     """counted() over annotated results: dated passing ones in full, undated ones
     at most half the quota."""

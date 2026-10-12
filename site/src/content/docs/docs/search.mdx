@@ -298,6 +298,22 @@ relevance; a canonical free result, or one with a verified date against an undat
 paid one, can still lead. Results that fail the checks never count, whoever
 returned them. Without paid sources the ordering is unchanged.
 
+#### The answer starts from the paid source
+
+When a paid source answered, the answer starts from its results, in its own order.
+Each stays in place unless our checks fail it: off the query, outside the window,
+the wrong entity, a home page, listing or non-article, a stock blurb, a challenge
+page, or, for a code query, an organisation page or a project website when the
+repository was asked for, or a demo, example, template or similar repository that
+was not. A result that only ranks lower stays. The slots a failure leaves are
+filled, in order, by the best passing results of the other sources (a short paid
+set is filled the same way). For a name lookup or a reference question, a free
+canonical result the paid set lacks (the project's own repository, the article
+titled for the topic) takes a removed slot, or the last one. If no paid source
+answered, or paid is not allowed, the merge above applies unchanged.
+`receipt.search_ladder.anchor` records the source, how many results were kept,
+which were replaced and why, and how many slots the other sources filled.
+
 ### Paid search in parallel
 
 With `allow_paid_fallbacks`, a news (`vertical="news"`), announcement
