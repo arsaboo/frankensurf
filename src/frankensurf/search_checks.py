@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qsl, unquote, urlparse
 
 from .completeness import _STOPWORDS, _WORD
-from .search import RECENCY, parse_date
+from .search import RECENCY, github_parts, parse_date
 
 # Words that say how fresh or what kind of page, never what the query is about.
 _QUERY_FILLER = frozenset({
@@ -354,6 +354,10 @@ def _asks_specific(terms, windowed, query="", named=()):
         return False
     if {word.lower() for word in _WORD.findall(_OPERATOR.sub(" ", str(query or "")))} & _NEWSY:
         return True
+    if _FACT_LEAD.search(str(query or "")):
+        # A question wants the page that answers it, which may well be a topic page or an index
+        # entry (an encyclopedia's /topic/<name>), not a list of items.
+        return False
     if named:
         bare = {_stem(word) for phrase in named for word in phrase}
         if terms and set(terms) <= bare:
@@ -601,9 +605,18 @@ def query_context(query: str, *, recency=None, vertical=None) -> QueryContext:
     named = tuple(phrase for phrase, _ in runs)
     cased = tuple(tokens for _, tokens in runs)
     words = _query_words(query)
+    terms = tuple(key_terms(query))
+    names = _joined_names(named, cased, raw_terms(query))
+    if vertical == "code" or words & _CODE_WORDS:
+        found = github_parts(query)
+        if found["name_lookup"]:
+            # A project by name ("httpx python github"): the project is the topic, the language
+            # and the platform are not, and the repository carrying its name is canonical.
+            terms = tuple(_stem(word) if len(word) > 2 else word for word in found["terms"])
+            names = names | {word.replace("-", "") for word in found["terms"]} | {"".join(found["terms"]).replace("-", "")}
     return QueryContext(
-        terms=tuple(key_terms(query)), named=named, cased=cased,
-        names=_joined_names(named, cased, raw_terms(query)),
+        terms=terms, named=named, cased=cased,
+        names=frozenset(name for name in names if len(name) >= 2),
         announce=bool(recency) or bool(words & _ANNOUNCE_WORDS) or vertical == "news",
         papers=vertical == "papers" or bool(words & _PAPER_WORDS),
         asks=frozenset(name for name, group in _ASKS.items() if words & group))
@@ -757,7 +770,8 @@ def _wrong_entity(named, cased, item) -> bool:
     mixed = any(word[:1].islower() and word.lower() not in _SAFE_NEIGHBOURS for word in words)
     for match in found:
         before = title[:match.start()]
-        if re.fullmatch(r"\W*(?:The|A|An)\s+", before):
+        # "The Block" anywhere in the title, or "A Block" / "An Arm" opening it.
+        if re.search(r"(?:^|\W)The\s+$", before) or re.fullmatch(r"\W*(?:A|An)\s+", before):
             continue
         previous = re.search(r"([^\W\d_][\w'\u2019.-]*)\s+$", before)
         if mixed and previous:

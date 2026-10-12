@@ -1699,7 +1699,7 @@ def _navigation_failure(message):
 # Verticals with a specialist source: it is raced against SearXNG in the first rung.
 _RACE_VERTICALS = frozenset({"code", "reference", "papers", "news"})
 # After the first racer of a first rung answers, the others get this long to join the merge.
-_RACE_GRACE_SECONDS = 4.0
+_RACE_GRACE_SECONDS = 5.0
 
 
 def _search_query_type(vertical, options):
@@ -6132,7 +6132,7 @@ class Runtime:
             return await self._search_merged(query, limit, engine_config, policy, site=site,
                                              exclude_domains=exclude_domains, recency=recency,
                                              region=region, vertical=vertical)
-        from .search import MAX_EXCLUDE_OPERATORS, VERTICALS, filter_results, normalize_options
+        from .search import MAX_EXCLUDE_OPERATORS, REGISTRY, VERTICALS, filter_results, normalize_options
         from .search_checks import (accepted, annotate, check_results, enrich_dates, good_count,
                                     merge_results, query_kinds)
         from .search_plugins import SearchRequest, SearchServices
@@ -6149,6 +6149,9 @@ class Runtime:
         # Ask for a few more when results will be filtered, then trim; a long exclude
         # list is mostly enforced on the results, so ask for more still.
         fetch_limit = min(100, limit + 10) if options else limit
+        if not options and source is None and policy.search_ladder:
+            # The checks drop some of what a source returns; a few more candidates keep the answer full.
+            fetch_limit = min(100, limit + 5)
         if len(options.get("exclude_domains", ())) > policy.search_exclude_operators:
             fetch_limit = min(100, 2 * limit + 10)
         started = time.monotonic()
@@ -6209,6 +6212,9 @@ class Runtime:
         qtype = _search_query_type(vertical, options)
         order, order_notes = self._search_order(candidates, qtype, policy, source)
         paid_ids = {item["id"] for item in self.searches.inspect() if item["paid"]}
+        # A last-resort source (bing_rss) is asked only when the others are spent: it never
+        # races, and it never fills.
+        last_resort = {item for item in order if REGISTRY.get(item, {}).get("last_resort")}
         now = datetime.now(timezone.utc)
         engine_extra = ({"max_exclude_operators": policy.search_exclude_operators}
                         if options.get("exclude_domains")
@@ -6314,7 +6320,7 @@ class Runtime:
             if fill_searxng and "searxng" in queue:
                 queue.remove("searxng")
                 queue.insert(0, "searxng")
-            return (fill_left > 0 and queue and queue[0] not in paid_ids
+            return (fill_left > 0 and queue and queue[0] not in paid_ids and queue[0] not in last_resort
                     and deadline - time.monotonic() > 3 and short_of_limit())
         deadline = started + policy.search_max_seconds
         running, leftover = {}, []
@@ -6355,9 +6361,9 @@ class Runtime:
                     break
                 # Smart lightning for search: a free source with no answer yet gets the
                 # next free one started beside it. Paid sources only ever run alone.
-                hedge = bool(ladder and policy.search_hedge_after_seconds > 0 and queue
+                hedge = bool(ladder and policy.search_hedge_after_seconds > 0 and queue and not race_open
                              and len(running) < policy.search_hedge_racers and queue[0] not in paid_ids
-                             and policy.search_hedge_after_seconds < remaining)
+                             and queue[0] not in last_resort and policy.search_hedge_after_seconds < remaining)
                 wait = remaining
                 if race_open and race_deadline is not None:
                     wait = max(0.0, min(wait, race_deadline - time.monotonic()))
@@ -6394,7 +6400,12 @@ class Runtime:
                             "cost_usd": _measured_cost(cost), "latency_ms": outcome["latency_ms"],
                             **({"raced": True} if identifier in hedged else {})})
                         planning_failure = exc
-                        if source is not None or exc.code in policy.search_terminal_failures:
+                        terminal = exc.code in policy.search_terminal_failures
+                        if identifier == paid_parallel and (running or rungs):
+                            # The paid source that started beside the free ones hit the cost cap or
+                            # a policy wall: it is dropped, and the free answers go on.
+                            terminal = False
+                        if source is not None or terminal:
                             finish, stopped = True, stopped or "terminal"
                         continue
                     bundle = outcome["bundle"]

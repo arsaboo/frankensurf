@@ -232,16 +232,13 @@ _GH_LANGUAGES = {"python": "python", "javascript": "javascript", "js": "javascri
                  "shell": "shell", "bash": "shell"}
 
 
-def github_query(query: str) -> str:
-    """The GitHub repository-search q for a query: the project name or the need, without the platform
-    words (github, repo, library, package, crate, source code) and filler that GitHub would otherwise
-    match literally and so return forks and demos of the wrong thing.
-
-    A name lookup ("fastify github repo", one or two words left, nothing that asks for something to
-    be done) searches repository names (in:name). A need ("python library for image processing")
-    keeps the topic words and turns a language word into a language: qualifier. Results are sorted
-    by stars either way (build_search); the router's ranking puts the repository named for the
-    project first."""
+def github_parts(query: str) -> dict:
+    """A query for a repository, taken apart: the project or topic words (terms), the languages
+    named (languages), any GitHub qualifiers already in the query, and whether it is a name lookup
+    ("fastify github repo": one or two words left and nothing that asks for something to be done)
+    rather than a need ("python library for image processing"). The platform words (github, repo,
+    library, package, crate, source code) and filler are left out: GitHub would match them literally
+    and so return forks and demos of the wrong thing."""
     text = re.sub(r"(?i)\b(?:source code|open[- ]source)\b", " ", str(query))
     tokens = [token.strip(".,;!?()[]{}\"'") for token in text.split()]
     tokens = [token for token in tokens if token]
@@ -270,13 +267,24 @@ def github_query(query: str) -> str:
         terms, languages = [languages[0]], []
     if not terms:
         terms = [token.lower() for token in tokens if token not in qualifiers] or [str(query).strip()]
-    name_lookup = not need and len(terms) <= 2
-    parts = [" ".join(terms)]
-    if name_lookup:
-        parts.append("in:name")
-    if languages:
-        parts.append("language:" + languages[0])
-    return " ".join(parts + qualifiers)
+    return {"terms": terms, "languages": languages, "qualifiers": qualifiers, "platform": platform,
+            "name_lookup": not need and len(terms) <= 2}
+
+
+def github_query(query: str) -> str:
+    """The GitHub repository-search q for a query (see github_parts). A name lookup searches
+    repository names (in:name). A need keeps the topic words, looks in names and descriptions
+    (not READMEs, which mention everything) and turns a language word into a language: qualifier.
+    Results are sorted by stars either way (build_search); the router's ranking puts the
+    repository named for the project first."""
+    found = github_parts(query)
+    words = " ".join(found["terms"])
+    if not found["name_lookup"] and 2 <= len(found["terms"]) <= 3:
+        words = '"' + words + '"'  # a short topic is a phrase: "image processing", not image ... processing
+    parts = [words, "in:name" if found["name_lookup"] else "in:name,description"]
+    if found["languages"]:
+        parts.append("language:" + found["languages"][0])
+    return " ".join(parts + found["qualifiers"])
 
 
 # --- Wikipedia: the topic of the question, and the article that is about it
