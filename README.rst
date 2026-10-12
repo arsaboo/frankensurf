@@ -67,24 +67,10 @@ and ``max_cost_usd``). See
 Search
 ------
 
-``search`` gets the same treatment: every result is checked (about the query,
-inside the date window, an actual item rather than a homepage), and when one
-source's results fail, the next is tried. On 120 queries written before any
-was run (12 October 2026, v0.39.0):
-
-=========================  =======================  ======================  ===========
-Search                     Right result in top 5    Right results (of 5)    Cost per 1k
-=========================  =======================  ======================  ===========
-Exa only                   100%                     4.7                     $9.50
-**Frankensurf, free**      **100%**                 **4.4**                 **$0**
-Firecrawl search only      99.2%                    3.5                     $11.40
-SearXNG only               82.5%                    2.9                     $0
-=========================  =======================  ======================  ===========
-
-Free, it answers as many queries as Exa, and 96% of what it returns is right
-(Exa 94%, Firecrawl's search 71%). Exa still returns slightly more right results
-per query, within the noise. Details:
-`benchmarks/2026-10-12-search <benchmarks/2026-10-12-search/README.md>`_.
+``search`` uses free sources first and checks every result for topic and date;
+Exa and Firecrawl's search join only when you allow paid tools. On blind,
+independently judged queries it is not yet as good as Exa, so no comparison is
+claimed here (`benchmarks/2026-10-12-search <benchmarks/2026-10-12-search/README.md>`_).
 
 Use it
 ------

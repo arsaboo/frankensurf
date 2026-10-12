@@ -1,0 +1,952 @@
+[
+ {
+  "query_id": "blind5-news-05",
+  "query": "news about Embraer past month",
+  "window": "the last 31 days",
+  "url": "https://seekingalpha.com/article/4950699-embraer-the-best-time-to-buy-is-probably-now",
+  "title": "Embraer: The Best Time To Buy Is Probably Now",
+  "snippet": "Embraer is entering its strongest seasonal stretch with deliveries, backlog, and guidance all moving in the right direction. Read more on EMBJ stock here.",
+  "date_shown": "2026-09-29",
+  "id": "r0004"
+ },
+ {
+  "query_id": "blind5-howto-08",
+  "query": "how to use docker volumes",
+  "window": "none",
+  "url": "https://oneuptime.com/blog/post/2026-02-02-docker-volumes-persistent-data/view",
+  "title": "How to Use Docker Volumes for Persistent Data",
+  "snippet": "How to Use Docker Volumes for Persistent Data A comprehensive guide to Docker volumes covering creation, management, and best practices for persisting data across container lifecycles, with practical ",
+  "date_shown": "2026-10-09",
+  "id": "r0010"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://www.nature.com/articles/s41612-026-01562-x",
+  "title": "Deep-learning climate emulator ACE2 reveals a global decrease in 15th-century tropical cyclone frequency under El Niño-like sea surface temperatures | npj Clima",
+  "snippet": "# Deep-learning climate emulator ACE2 reveals a global decrease in 15th-century tropical cyclone frequency under El Niño-like sea surface temperatures | npj Climate and Atmospheric Science\n...\n0T22\n..",
+  "date_shown": "2026-10-10",
+  "id": "r0016"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://www.britannica.com/science/ocean/Major-subdivisions-of-the-oceans",
+  "title": "Ocean - Atlantic, Pacific, Indian | Britannica",
+  "snippet": "Britannica Editors\n\n Sep. 25, 2026 • History\n\n Table of Contents \n\nIf the volume of an ocean is divided by its surface area, the mean depth is obtained. Even without including its marginal seas, the P",
+  "date_shown": "1999-07-26",
+  "id": "r0022"
+ },
+ {
+  "query_id": "blind5-news-19",
+  "query": "news about Infosys past month",
+  "window": "the last 31 days",
+  "url": "https://www.financialexpress.com/business/industry-it-sector-q2fy27-infosys-hcl-tech-wipro-tech-mahindra-results-interim-dividend-dates-4356310/",
+  "title": "IT sector Q2FY27: Infosys, HCL Tech, Wipro, Tech Mahindra results, interim dividend dates",
+  "snippet": "HCL Tech, Wipro, Infosys, Tech Mahindra and Persistent Systems are set to announce their Q2 FY27 results in October, with some companies also considering dividend payouts.",
+  "date_shown": "2026-10-07",
+  "id": "r0028"
+ },
+ {
+  "query_id": "blind5-paper-11",
+  "query": "recent papers on vision transformers efficiency",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s00371-026-04713-6",
+  "title": "MoR-ST: content-adaptive recursive computation for efficient vision transformers | The Visual Computer | Springer Nature Link",
+  "snippet": "# MoR-ST: content-adaptive recursive computation for efficient vision transformers\n* Research\n*\nPublished: 03 September 2026\n* Volume 42, article number 509 (2026)\n* Cite this article\n\nSave article\n..",
+  "date_shown": "2026-09-03",
+  "id": "r0034"
+ },
+ {
+  "query_id": "blind5-paper-10",
+  "query": "recent papers on federated learning privacy",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.09659",
+  "title": "[2609.09659] Cascading Gradient Inversion via LT-Code Inspired Peeling in Federated Learning",
+  "snippet": "[2609.09659] Cascading Gradient Inversion via LT-Code Inspired Peeling in Federated Learning\n...\n**arXiv:2609.09659** (cs)\n[Submitted on 9 Sep 2026]\n# Title:Cascading Gradient Inversion via LT-Code In",
+  "date_shown": "2026-09-09",
+  "id": "r0040"
+ },
+ {
+  "query_id": "blind5-code-02",
+  "query": "tokio github repository",
+  "window": "none",
+  "url": "https://github.com/tokio-rs/tokio/tree/tokio-1.39.0",
+  "title": "GitHub - tokio-rs/tokio at tokio-1.39.0 · GitHub",
+  "snippet": "GitHub - tokio-rs/tokio at tokio-1.39.0 · GitHub\n...\n| Name | Name | Last commit message | Last commit date |\n| --- | --- | --- | --- |\n| .circleci | .circleci | | |\n| .github | .github | | |\n| benche",
+  "date_shown": "2016-09-09",
+  "id": "r0046"
+ },
+ {
+  "query_id": "blind5-code-09",
+  "query": "python library for image processing",
+  "window": "none",
+  "url": "https://github.com/bnmnetp/cImage",
+  "title": "bnmnetp/cImage",
+  "snippet": "A simple image processing library for Python educators.",
+  "date_shown": "2023-02-07",
+  "id": "r0052"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://www.geeksforgeeks.org/go-language/how-to-parse-json-in-golang/",
+  "title": "How to Parse JSON in Golang? - GeeksforGeeks",
+  "snippet": "Golang provides multiple APIs to work with JSON including to and from built-in and custom data types using the encoding/json package. To parse JSON, we use the Unmarshal () function in package encodin",
+  "date_shown": "2026-10-03",
+  "id": "r0058"
+ },
+ {
+  "query_id": "blind5-paper-20",
+  "query": "recent papers on low resource machine translation",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/10.1609/aaai.v40i46.41251",
+  "title": "Improving low-resource translation with dictionary-guided fine-tuning and RL | Proceedings of the Fortieth AAAI Conference on Artificial Intelligence and Thirty",
+  "snippet": "Improving low-resource translation with dictionary-guided fine-tuning and RL | Proceedings of the Fortieth AAAI Conference on Artificial Intelligence and Thirty-Eighth Conference on Innovative Applica",
+  "date_shown": "2026-06-23",
+  "id": "r0064"
+ },
+ {
+  "query_id": "blind5-paper-04",
+  "query": "recent papers on offline reinforcement learning",
+  "window": "the last 366 days",
+  "url": "https://github.com/NeuroDong/RL-Survey/tree/main/Offline-RL/ICLR2026",
+  "title": "RL-Survey/Offline-RL/ICLR2026 at main · NeuroDong/RL-Survey",
+  "snippet": "This report is based on 40 offline reinforcement learning papers accepted at ICLR 2026, providing an in-depth analysis of the latest development trends.",
+  "date_shown": "2026-10-09",
+  "id": "r0070"
+ },
+ {
+  "query_id": "blind5-announcement-20",
+  "query": "Roku official announcement",
+  "window": "the last 31 days",
+  "url": "https://support.roku.com/article/roku-new-os-features",
+  "title": "Roku New OS features | Official Roku Support",
+  "snippet": "Explore the newest Roku OS features, including Roku Labs experimental apps, Roku Subscription bundles, smarter search and weather on Roku Voice.",
+  "date_shown": "2026-10-08",
+  "id": "r0076"
+ },
+ {
+  "query_id": "blind5-howto-13",
+  "query": "how to configure tailwind css dark mode",
+  "window": "none",
+  "url": "https://www.tailwindready.com/blog/tailwind-css-dark-mode",
+  "title": "Tailwind CSS Dark Mode: Complete Setup Guide 2026",
+  "snippet": "Set up Tailwind CSS dark mode with the class or media strategy, the dark: prefix, theme state in React and Next.js, and component examples.",
+  "date_shown": "2026-10-09",
+  "id": "r0082"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://github.com/Pabloo22/job_shop_lib",
+  "title": "Pabloo22/job_shop_lib",
+  "snippet": "A modular Python library for creating, solving, and visualizing job shop scheduling problems.",
+  "date_shown": "2026-10-08",
+  "id": "r0088"
+ },
+ {
+  "query_id": "blind5-news-18",
+  "query": "news about Baidu past month",
+  "window": "the last 31 days",
+  "url": "https://readisi.com/baidu-seo/baidu-webmaster-recap-ai-traffic-dashboards-live-and-often-empty/",
+  "title": "Baidu Webmaster Recap: AI Traffic Dashboards Are Live — and a Lot of Them Are Still Empty – International Search Insights",
+  "snippet": "Baidu Webmaster Recap: AI Traffic Dashboards Are Live — and a Lot of Them Are Still Empty – International Search Insights\n\n# Baidu Webmaster Recap: AI Traffic Dashboards Are Live — and a Lot of Them A",
+  "date_shown": "2026-10-04",
+  "id": "r0094"
+ },
+ {
+  "query_id": "blind5-code-19",
+  "query": "polars github repository",
+  "window": "none",
+  "url": "https://github.com/lmmx/octopolars",
+  "title": "lmmx/octopolars",
+  "snippet": "Pull, filter, and walk a GitHub user's repositories with Polars.",
+  "date_shown": "2026-10-05",
+  "id": "r0100"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://go.dev/blog/json",
+  "title": "JSON and Go - The Go Programming Language",
+  "snippet": "To encode JSON data we use the `Marshal` function.\n...\nusing `json\n...\nstructures that can be represented as valid JSON will be\n...\nThe json package only accesses the exported fields of struct types (",
+  "date_shown": "2011-01-25",
+  "id": "r0106"
+ },
+ {
+  "query_id": "blind5-howto-08",
+  "query": "how to use docker volumes",
+  "window": "none",
+  "url": "https://docs.docker.com/get-started/docker-concepts/running-containers/sharing-local-files/",
+  "title": "Sharing local files with containers",
+  "snippet": "Docker offers two primary storage options for persisting data and sharing files between the host machine and containers: volumes and bind mounts.\n...\nIf you want to ensure that data generated or modif",
+  "date_shown": "none",
+  "id": "r0112"
+ },
+ {
+  "query_id": "blind5-howto-13",
+  "query": "how to configure tailwind css dark mode",
+  "window": "none",
+  "url": "https://tailwindcss.com/docs/dark-mode",
+  "title": "Dark mode - Core concepts - Tailwind CSS",
+  "snippet": "To build three-way theme toggles that support light mode, dark mode, and your system theme, use a custom dark mode selector and the window.matchMedia () API to detect the system theme and update the h",
+  "date_shown": "2026-10-12",
+  "id": "r0118"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://www.britannica.com/place/Pacific-Ocean",
+  "title": "Pacific Ocean | Depth, Temperature, Animals, Location, Map, & Facts | Britannica",
+  "snippet": "Of the three major oceans, the Pacific is by far the largest, occupying about one-third of the surface of the globe. Its area, excluding the South China Sea, encompasses about 62.5 million square mile",
+  "date_shown": "1999-07-26",
+  "id": "r0124"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.wardsauto.com/news/unifor-polls-stellantis-workers-on-potential-strike-with-brampton-plant-on/832580/",
+  "title": "Unifor polls Stellantis workers on potential strike with Brampton plant on the block | WardsAuto",
+  "snippet": "Unifor polls Stellantis workers on potential strike with Brampton plant on the block | WardsAuto\n\n# Unifor polls Stellantis workers on potential strike with Brampton plant on the block \n\nThe union rep",
+  "date_shown": "2026-10-09",
+  "id": "r0130"
+ },
+ {
+  "query_id": "blind5-code-01",
+  "query": "fastify github repo",
+  "window": "none",
+  "url": "https://github.com/vsDizzy/gql-fastify-bug",
+  "title": "vsDizzy/gql-fastify-bug",
+  "snippet": "Minimal repo for https://github.com/nestjs/graphql/issues/347",
+  "date_shown": "2019-08-15",
+  "id": "r0136"
+ },
+ {
+  "query_id": "blind5-fact-01",
+  "query": "who founded Samsung",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Samsung",
+  "title": "Samsung",
+  "snippet": "of 2024,[update] Samsung has the world's fifth-highest brand value. Founded in 1938 by Lee Byung-chul as a trading company, Samsung diversified into various",
+  "date_shown": "none",
+  "id": "r0142"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/full/10.1145/3834764",
+  "title": "A Survey of Graph Transformers: Architectures, Theories and ...",
+  "snippet": "Graph Transformers (GTs) have demonstrated a strong capability in modeling graph structures by addressing the intrinsic limitations of graph neural networks (GNNs), such as over-smoothing and over-squ",
+  "date_shown": "2026-10-11",
+  "id": "r0148"
+ },
+ {
+  "query_id": "blind5-paper-20",
+  "query": "recent papers on low resource machine translation",
+  "window": "the last 366 days",
+  "url": "https://www.alphaxiv.org/abs/2607.22376",
+  "title": "A Factorial Study of Synthetic Data Generation for Low-Resource Machine Translation using Grammar Books | alphaXiv",
+  "snippet": "A Factorial Study of Synthetic Data Generation for Low-Resource Machine Translation using Grammar Books | alphaXiv\n...\n# A Factorial Study of Synthetic Data Generation for Low-Resource Machine Transla",
+  "date_shown": "2026-09-10",
+  "id": "r0154"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s44163-026-01262-8",
+  "title": "Advances in artificial intelligence for climate science methods ...",
+  "snippet": "Purpose To synthesize recent advances in artificial intelligence (AI) (machine learning (ML)/deep learning (DL)) for climate science across climate modeling, extreme-weather analysis, renewable-energy",
+  "date_shown": "2026-10-11",
+  "id": "r0160"
+ },
+ {
+  "query_id": "blind5-announcement-13",
+  "query": "Autodesk press release this month",
+  "window": "the last 31 days",
+  "url": "https://adsknews.autodesk.com/en/news/autodesk-forma-ai-aec-connected-workflows-2026/",
+  "title": "Autodesk Forma expands connected workflows for AEC",
+  "snippet": "Autodesk Forma expands connected workflows for AEC\n\n# How Autodesk Forma and AI are advancing a more connected future for AEC\n\n 15 SEP 2026 \n\n Amy Bunszel \n\n## Key takeaways\n...\nAutodesk is expanding ",
+  "date_shown": "2026-09-15",
+  "id": "r0166"
+ },
+ {
+  "query_id": "blind5-announcement-11",
+  "query": "CrowdStrike latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-anthropic-critical-infrastructure-defense-program/",
+  "title": "CrowdStrike and Anthropic Give Critical Infrastructure Defenders the AI Advantage",
+  "snippet": "CrowdStrike and Anthropic Give Critical Infrastructure Defenders the AI Advantage\n\n## CrowdStrike joins Anthropic’s Critical Infrastructure Defense Program, bringing deep cybersecurity expertise in pr",
+  "date_shown": "2026-10-08",
+  "id": "r0172"
+ },
+ {
+  "query_id": "blind5-news-12",
+  "query": "news about Vale past month",
+  "window": "the last 31 days",
+  "url": "https://uk.finance.yahoo.com/news/vale-vale-outperforms-broader-market-210004161.html",
+  "title": "VALE S.A. (VALE) Outperforms Broader Market: What You Need to Know",
+  "snippet": "VALE S.A. (VALE) closed the most recent trading day at $14.15, moving +2.83% from the previous trading session.",
+  "date_shown": "2026-10-05",
+  "id": "r0178"
+ },
+ {
+  "query_id": "blind5-paper-13",
+  "query": "recent papers on recommender systems with llms",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.18148",
+  "title": "[2609.18148] LIGE-GR: A Smooth Leap from Ranking to Generative Recommendation in the LLM Era",
+  "snippet": "[2609.18148] LIGE-GR: A Smooth Leap from Ranking to Generative Recommendation in the LLM Era\n\n [Submitted on 16 Sep 2026]\n\n# Title: LIGE-GR: A Smooth Leap from Ranking to Generative Recommendation in ",
+  "date_shown": "2026-09-16",
+  "id": "r0184"
+ },
+ {
+  "query_id": "blind5-fact-01",
+  "query": "who founded Samsung",
+  "window": "none",
+  "url": "https://www.hoamfoundation.org/eng/hoam/hoam_intro.asp",
+  "title": "Ho-Am Lee Byung-Chull - HOAM",
+  "snippet": "Ho-Am Lee ... ung-Chull - HOAM\n\n “Perhaps the greatest happiness in ... world comes from realizing one's purpose in life. I have been fortunate enough to dedicate my entire life to business and have u",
+  "date_shown": "none",
+  "id": "r0190"
+ },
+ {
+  "query_id": "blind5-paper-11",
+  "query": "recent papers on vision transformers efficiency",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2608.05217",
+  "title": "A Survey of Adversarial Efficiency Degradation for Vision Transformer ...",
+  "snippet": "This survey examines a recent class of adversarial efficiency degradation attacks that target these mechanisms to increase computation without necessarily degrading accuracy.",
+  "date_shown": "2026-08-07",
+  "id": "r0196"
+ },
+ {
+  "query_id": "blind5-code-19",
+  "query": "polars github repository",
+  "window": "none",
+  "url": "https://github.com/pola-rs/polars/releases",
+  "title": "Releases · pola-rs/polars",
+  "snippet": "Releases · pola-rs/polars · GitHub\n\n## Python Polars 2.0.0",
+  "date_shown": "none",
+  "id": "r0202"
+ },
+ {
+  "query_id": "blind5-code-09",
+  "query": "python library for image processing",
+  "window": "none",
+  "url": "https://github.com/opencv/opencv-python?tab=readme-ov-file",
+  "title": "opencv/opencv-python",
+  "snippet": "GitHub - opencv/opencv-python: Automated CI toolchain to produce precompiled opencv-python, opencv-python-headless, opencv-contrib-python and opencv-contrib-python-headless packages. · GitHub\n...\nPre-",
+  "date_shown": "2016-04-08",
+  "id": "r0208"
+ },
+ {
+  "query_id": "blind5-code-08",
+  "query": "rust crate for serialization",
+  "window": "none",
+  "url": "https://crates.io/crates/serde_json",
+  "title": "serde_json",
+  "snippet": "# serde_json\n\nA JSON serialization file format\n...\n- json\n- serde\n- serialization\n...\n## README\n\n Serde JSON   \n Serde is a framework for ser ializing and de serializing Rust data structures efficient",
+  "date_shown": "none",
+  "id": "r0214"
+ },
+ {
+  "query_id": "blind5-announcement-12",
+  "query": "what did Fortinet announce this month",
+  "window": "the last 31 days",
+  "url": "https://calgary.tech/2026/09/16/fortinet-cybersecurity-innovation-hub-calgary/",
+  "title": "Fortinet Opens $30-Million Cybersecurity Innovation Hub in Downtown ...",
+  "snippet": "Global cybersecurity company Fortinet has opened a new innovation hub in downtown Calgary, marking a major expansion of its Canadian footprint. Representing a $30 million investment, the eight-storey,",
+  "date_shown": "2026-09-16",
+  "id": "r0220"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.lg.com/global/newsroom/news/corporate/lg-electronics-releases-preliminary-earnings-for-third-quarter-2026/",
+  "title": "LG Electronics Releases Preliminary Earnings for Third-Quarter 2026 | LG Global Newsroom",
+  "snippet": "LG Electronics Releases Preliminary Earnings for Third-Quarter 2026 | LG Global Newsroom\n\n# LG Electronics Releases Preliminary Earnings for Third-Quarter 2026\n\n Corporate 07/10/2026 \n\n- extension : z",
+  "date_shown": "2026-10-07",
+  "id": "r0226"
+ },
+ {
+  "query_id": "blind5-news-12",
+  "query": "news about Vale past month",
+  "window": "the last 31 days",
+  "url": "https://www.cbc.ca/news/canada/sudbury/vale-base-metals-layoffs-9.7371417",
+  "title": "Vale Base Metals makes workforce changes in Sudbury | CBC News",
+  "snippet": "Vale Base Metals makes workforce changes in Sudbury | CBC News\n\n# Vale Base Metals makes workforce changes in Sudbury\n\nUSW Local 6500 says numbers reported publicly suggest roughly 100 positions may h",
+  "date_shown": "2026-10-07",
+  "id": "r0232"
+ },
+ {
+  "query_id": "blind5-announcement-12",
+  "query": "what did Fortinet announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.el-fondo.com/en/news/fortinet-acquires-virtue-ai-to-protect-autonomous-ai",
+  "title": "Fortinet acquires Virtue AI for AI security - el-fondo.com",
+  "snippet": "Fortinet announced the acquisition of Virtue AI on 17 September 2026 to expand its protection of runtime artificial intelligence and automated validation for autonomous systems. The purchase integrate",
+  "date_shown": "2026-10-10",
+  "id": "r0238"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://zetcode.com/matplotlib/subplots/",
+  "title": "Matplotlib Subplots",
+  "snippet": "# Matplotlib Subplots\n\n last modified February 25, 2025 \n\n Matplotlib is a powerful Python library for creating static, animated, and interactive visualizations. Subplots allow you to display multiple",
+  "date_shown": "none",
+  "id": "r0244"
+ },
+ {
+  "query_id": "blind5-paper-20",
+  "query": "recent papers on low resource machine translation",
+  "window": "the last 366 days",
+  "url": "https://aclanthology.org/2024.sigul-1.20/",
+  "title": "Investigating Neural Machine Translation for Low-Resource Languages ...",
+  "snippet": "Abstract Machine Translation has made impressive progress in recent years offering close to human-level performance on many languages, but studies have primarily focused on high-resource languages wit",
+  "date_shown": "2026-10-11",
+  "id": "r0250"
+ },
+ {
+  "query_id": "blind5-paper-01",
+  "query": "recent papers on large language model agents for software engineering",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2604.08224",
+  "title": "Externalization in LLM Agents: A Unified Review of Memory, Skills ...",
+  "snippet": "Large language model (LLM) agents are increasingly built less by changing model weights than by reorganizing the runtime around them. Capabilities that earlier systems expected the model to recover in",
+  "date_shown": "2026-10-11",
+  "id": "r0256"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/War_and_Peace_%281956_film%29",
+  "title": "War and Peace (1956 film)",
+  "snippet": "War and Peace (Italian: Guerra e pace) is a 1956 epic historical drama film based on the 1869 novel by Leo Tolstoy. It was directed and co-written by",
+  "date_shown": "2006-01-25",
+  "id": "r0262"
+ },
+ {
+  "query_id": "blind5-announcement-20",
+  "query": "Roku official announcement",
+  "window": "the last 31 days",
+  "url": "https://newsroom.roku.com/news/2026/10/roku-greenlights-new-limited-series-scarlett-holmes-starring/teq-mjyo-1791231649",
+  "title": "Roku Greenlights New Limited Series \"Scarlett Holmes\" Starring Lucy Hale | Roku",
+  "snippet": "Roku Greenlights New Limited Series \"Scarlett Holmes\" Starring Lucy Hale | Roku\n\n# Roku Greenlights New Limited Series \"Scarlett Holmes\" Starring Lucy Hale \n\nOctober 6, 2026 at 9:00 AM\n\nProduced by Ja",
+  "date_shown": "2026-10-06",
+  "id": "r0268"
+ },
+ {
+  "query_id": "blind5-paper-18",
+  "query": "recent papers on embodied ai",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2602.04411",
+  "title": "[2602.04411] Self-evolving Embodied AI - arXiv.org",
+  "snippet": "Specifically, we present the definition, framework, components, and mechanisms of self-evolving embodied AI, systematically review state-of-the-art works for realized components, discuss practical app",
+  "date_shown": "2026-09-24",
+  "id": "r0274"
+ },
+ {
+  "query_id": "blind5-howto-08",
+  "query": "how to use docker volumes",
+  "window": "none",
+  "url": "https://docs.docker.com/engine/storage/volumes",
+  "title": "Volumes",
+  "snippet": "Volumes are persistent data stores for containers, created and managed by\nDocker. You can create a volume explicitly using the `docker volume create`\ncommand, or Docker can create a volume during cont",
+  "date_shown": "none",
+  "id": "r0280"
+ },
+ {
+  "query_id": "blind5-howto-12",
+  "query": "how to use redis as a cache",
+  "window": "none",
+  "url": "https://redis.io/docs/latest/develop/use-cases/cache-aside/redis-py/",
+  "title": "",
+  "snippet": "This guide shows you how to implement a Redis cache-aside layer in Python with `redis-py`. It includes a small local web server built with the Python standard library so you can see cache hits, misses",
+  "date_shown": "none",
+  "id": "r0286"
+ },
+ {
+  "query_id": "blind5-fact-01",
+  "query": "who founded Samsung",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Lee_family_%28Samsung_Group%29",
+  "title": "Lee family (Samsung Group)",
+  "snippet": "as the Lee Samsung family, is a wealthy South Korean business family. The family rose to prominence with Lee Byung-chul, who started Samsung as a small",
+  "date_shown": "2026-01-19",
+  "id": "r0292"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://oceanservice.noaa.gov/facts/biggestocean.html",
+  "title": "What is the largest ocean basin on Earth?",
+  "snippet": "## The Pacific Ocean is the largest and deepest of the world ocean basins.\n\n The 'Ring of Fire' is defined by a nearly continuous series of oceanic trenches, island arcs, and volcanic mountain ranges ",
+  "date_shown": "none",
+  "id": "r0298"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.cnbc.com/2026/09/30/stellantis-guidance-turnaround-plan.html",
+  "title": "Stellantis CEO reconfirms 2026 guidance as shares hit new low",
+  "snippet": "Stellantis CEO reconfirms 2026 guidance as shares hit new low\n\n# Stellantis CEO reconfirms 2026 guidance, says turnaround plan continues as automaker's shares hit new low\n\nPublished Wed, Sep 30 2026 1",
+  "date_shown": "2026-09-30",
+  "id": "r0304"
+ },
+ {
+  "query_id": "blind5-news-05",
+  "query": "news about Embraer past month",
+  "window": "the last 31 days",
+  "url": "https://aviationnews.eu/news/2026/10/embraer-achieves-record-third-quarter-deliveries-powered-by-production-leveling-success/",
+  "title": "Embraer Achieves Record Third-Quarter Deliveries Powered by Production Leveling Success",
+  "snippet": "Embraer delivered 66 aircraft in the third quarter of 2026, marking the best third-quarter delivery performance in the Brazilian manufacturer’s history as production ...",
+  "date_shown": "2026-09-30",
+  "id": "r0310"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.msn.com/en-us/news/other/stellantis-is-grading-its-quality-fix-on-three-month-old-cars-the-41-billion-bill-is-for-older-ones/ar-AA2dD8w1",
+  "title": "Stellantis Is Grading Its Quality Fix on Three-Month-Old Cars. The €4.1 Billion Bill Is for Older Ones.",
+  "snippet": "Stellantis booked €4.1 billion in 2025 to cover defects in vehicles it had already shipped, and €3.3 billion of that was for North America. The company disclosed the charge in its annual report on ...",
+  "date_shown": "2026-10-05",
+  "id": "r0316"
+ },
+ {
+  "query_id": "blind5-code-08",
+  "query": "rust crate for serialization",
+  "window": "none",
+  "url": "https://docs.rs/serde",
+  "title": "serde - Rust",
+  "snippet": "Serde is a framework for serializing and deserializing Rust data structures efficiently and generically.\n\nThe Serde ecosystem consists of data structures that know how to serialize and deserialize the",
+  "date_shown": "none",
+  "id": "r0322"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://pubs.aip.org/aip/acp/article/3418/1/080020/3397328/Deep-learning-for-weather-prediction-and-climate",
+  "title": "Deep learning for weather prediction and climate modeling",
+  "snippet": "This study examines cutting-edge deep learning (DL) methods, such as transformer-based models, recurrent neural networks (RNNs), and convolutional neural networks (CNNs), applied to tasks like long-te",
+  "date_shown": "2026-08-22",
+  "id": "r0328"
+ },
+ {
+  "query_id": "blind5-paper-13",
+  "query": "recent papers on recommender systems with llms",
+  "window": "the last 366 days",
+  "url": "https://www.sciencedirect.com/science/article/pii/S0020025525012010",
+  "title": "Exploring prompt engineering with instructive shots to enhance LLMs as ...",
+  "snippet": "Recommender systems (RSs) stand out as one of the most significant achievements of machine learning in the industry, delivering personalized content to a wide range of users across various fields such",
+  "date_shown": "2026-09-20",
+  "id": "r0334"
+ },
+ {
+  "query_id": "blind5-code-01",
+  "query": "fastify github repo",
+  "window": "none",
+  "url": "https://github.com/fastify/fastify/",
+  "title": "fastify/fastify",
+  "snippet": "# fastify/fastify\n\nFast and low overhead web framework, for Node.js\n\n- Stars: 37246\n- Forks: 3059\n- Watchers: 37246\n- Open issues: 182\n- License: MIT License\n- Homepage: https://www.fastify.dev\n- Defa",
+  "date_shown": "none",
+  "id": "r0340"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.ideal-investisseur.fr/en/stock-news/stellantis-stock-gains-over-2-leading-cac-40-despite-ubs/26856.html",
+  "title": "Stellantis stock gains over 2% leading CAC 40 despite UBS",
+  "snippet": "The multi-brand automaker is regaining ground in mid-afternoon trading, in a Paris market showing significant gains. This recovery occurs while the stock remains far from its levels a year ago and ...",
+  "date_shown": "2026-10-09",
+  "id": "r0346"
+ },
+ {
+  "query_id": "blind5-howto-06",
+  "query": "how to create a python package with pyproject.toml",
+  "window": "none",
+  "url": "https://realpython.com/python-pyproject-toml/",
+  "title": "How to Manage Python Projects With pyproject.toml",
+  "snippet": "Learn how to manage Python projects with the pyproject.toml configuration file. In this tutorial, you'll explore key use cases of the pyproject.toml file, including configuring your build, installing ",
+  "date_shown": "2026-10-10",
+  "id": "r0352"
+ },
+ {
+  "query_id": "blind5-code-09",
+  "query": "python library for image processing",
+  "window": "none",
+  "url": "https://pillow.readthedocs.io/en/stable/",
+  "title": "Pillow ¶",
+  "snippet": "- Reference`Image` module`ImageChops` (“channel operations”) module`ImageCms` module`ImageColor` module`ImageDraw` module`ImageEnhance` module`ImageFile` module`ImageFilter` module`ImageFont` module`I",
+  "date_shown": "none",
+  "id": "r0358"
+ },
+ {
+  "query_id": "blind5-announcement-18",
+  "query": "Klarna press release this month",
+  "window": "the last 31 days",
+  "url": "https://www.pubt.io/view/F83CDAC5331C933CCA0B9A388579181C4789613C",
+  "title": "Klarna Group plc (via Public) / Wayfair and Klarna deepen ties with more flexible payment options across U.S. and Canada",
+  "snippet": "Klarna Group plc (via Public) / Wayfair and Klarna deepen ties with more flexible payment options across U.S. and Canada\n...\n10/06/2026 | Press release | Distributed by Public on 10/06/2026 06:47\n\n# W",
+  "date_shown": "2026-10-06",
+  "id": "r0364"
+ },
+ {
+  "query_id": "blind5-paper-08",
+  "query": "recent papers on 3d gaussian splatting",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/full/10.1145/3838715",
+  "title": "High-Fidelity Gaussian Splatting from MVS Clouds: An Iterative Spatial Decomposition Framework | ACM Transactions on Multimedia Computing, Communications, and A",
+  "snippet": "# High-Fidelity Gaussian Splatting from MVS Clouds: An Iterative Spatial Decomposition Framework | ACM Transactions on Multimedia Computing, Communications, and Applications",
+  "date_shown": "2026-09-07",
+  "id": "r0370"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://news.jkn.co.kr/editions/english/post/999948",
+  "title": "LG Electronics Shares Jump 2.63% After Nvidia Partnership Announcement ...",
+  "snippet": "LG Electronics has officially joined Nvidia's partner program, sparking significant market interest in its AI data center cooling solutions business. Shares initially surged over 5% during intraday tr",
+  "date_shown": "2026-09-28",
+  "id": "r0376"
+ },
+ {
+  "query_id": "blind5-announcement-11",
+  "query": "CrowdStrike latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.crowdstrike.com/en-us/platform/",
+  "title": "The CrowdStrike Falcon® Platform | Unified Agentic Security",
+  "snippet": "CrowdStrike combines deep adversary intelligence with unified visibility across endpoint, identity, SaaS, cloud, and AI systems. Real-time signals power AI-driven protection that stops attacks before ",
+  "date_shown": "2026-10-11",
+  "id": "r0382"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/World%27s_Smallest_Violin",
+  "title": "World's Smallest Violin",
+  "snippet": "\" World's Smallest Violin\" is a song recorded by the American pop band AJR. It was released on March 26, 2021, as the 11th track from the band's fourth",
+  "date_shown": "2022-09-05",
+  "id": "r0388"
+ },
+ {
+  "query_id": "blind5-code-01",
+  "query": "fastify github repo",
+  "window": "none",
+  "url": "https://github.com/tHBp/fastify-swagger-398",
+  "title": "tHBp/fastify-swagger-398",
+  "snippet": "Reproduction repo for https://github.com/fastify/fastify-swagger/issues/398",
+  "date_shown": "2021-04-09",
+  "id": "r0394"
+ },
+ {
+  "query_id": "blind5-paper-01",
+  "query": "recent papers on large language model agents for software engineering",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2601.09822",
+  "title": "[2601.09822] LLM-Based Agentic Systems for Software Engineering ...",
+  "snippet": "Despite recent advancements in Large Language Models (LLMs), complex Software Engineering (SE) tasks require more collaborative and specialized approaches. This concept paper systematically reviews th",
+  "date_shown": "2026-09-27",
+  "id": "r0400"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.vedp.org/LG-Electronics-Isle-of-Wight-County",
+  "title": "LG Electronics Selects Isle of Wight County for New Chiller Assembly ...",
+  "snippet": "RICHMOND, VA — Governor Abigail Spanberger announced today that LG Electronics will establish a new HVAC systems assembly facility in Isle of Wight County — creating 164 new jobs for Virginians throug",
+  "date_shown": "2026-09-29",
+  "id": "r0406"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://www.python-httpx.org/",
+  "title": "HTTPX",
+  "snippet": "# HTTPX \n\n \n\nA next-generation HTTP client for Python.\n\nHTTPX is a fully featured HTTP client for Python 3, which provides sync and async APIs, and support for both HTTP/1.1 and HTTP/2.\n\nInstall HTTPX",
+  "date_shown": "none",
+  "id": "r0412"
+ },
+ {
+  "query_id": "blind5-fact-05",
+  "query": "what is the deepest lake in the world",
+  "window": "none",
+  "url": "https://geology.com/records/deepest-lake.shtml",
+  "title": "Deepest Lake in the World - Deepest Lake in the United States",
+  "snippet": "Lake Baikal in southern Russia is the world's deepest lake. It is an estimated 5,387 feet deep (1,642 meters), and its bottom is approximately 3,893 feet (1,187 meters) below sea level. Lake Baikal is",
+  "date_shown": "none",
+  "id": "r0418"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/abs/10.1145/3834764",
+  "title": "A Survey of Graph Transformers: Architectures, Theories and Applications | ACM Computing Surveys",
+  "snippet": "A Survey of Graph Transformers: Architectures, Theories and Applications | ACM Computing Surveys\n\n# A Survey of Graph Transformers: Architectures, Theories and Applications\n...\nACM Computing Surveys, ",
+  "date_shown": "2026-08-22",
+  "id": "r0424"
+ },
+ {
+  "query_id": "blind5-announcement-12",
+  "query": "what did Fortinet announce this month",
+  "window": "the last 31 days",
+  "url": "https://cxovoice.com/fortinet-and-aramco-sign-mou-to-boost-saudi-industrial-cybersecurity/",
+  "title": "Fortinet and Aramco Sign MoU to Boost Saudi Industrial Cybersecurity",
+  "snippet": "Fortinet, an American cybersecurity company driving the convergence of networking and security, has announced that it has signed a Memorandum of Understanding (MoU) with Aramco. The proposed collabora",
+  "date_shown": "2026-10-06",
+  "id": "r0430"
+ },
+ {
+  "query_id": "blind5-howto-12",
+  "query": "how to use redis as a cache",
+  "window": "none",
+  "url": "https://redis.io/tutorials/howtos/solutions/microservices/caching/",
+  "title": "How to use Redis for Query Caching",
+  "snippet": "To implement query caching with Redis, use the cache-aside pattern: hash your query parameters to form a cache key, check Redis first, return cached data on a hit, or query the primary database on a m",
+  "date_shown": "2026-10-09",
+  "id": "r0436"
+ },
+ {
+  "query_id": "blind5-howto-13",
+  "query": "how to configure tailwind css dark mode",
+  "window": "none",
+  "url": "https://v3.tailwindcss.com/docs/dark-mode",
+  "title": "Dark Mode - Tailwind CSS",
+  "snippet": "Using Tailwind CSS to style your site in dark mode. Now that dark mode is a first-class feature of many operating systems, it’s becoming more and more common to design a dark version of your website t",
+  "date_shown": "2026-10-10",
+  "id": "r0442"
+ },
+ {
+  "query_id": "blind5-howto-19",
+  "query": "how to set up a postgres connection pool",
+  "window": "none",
+  "url": "https://www.compilenrun.com/docs/database/postgresql/postgresql-best-practices/postgresql-connection-pooling/",
+  "title": "PostgreSQL Connection Pooling - Compile N Run",
+  "snippet": "Set up PgBouncer on your development machine and connect to a PostgreSQL database through it. Compare the performance of your application with and without connection pooling by running a benchmark.",
+  "date_shown": "2026-10-08",
+  "id": "r0448"
+ },
+ {
+  "query_id": "blind5-news-14",
+  "query": "news about Emirates airline past month",
+  "window": "the last 31 days",
+  "url": "https://www.khaleejtimes.com/business/emirates-rules-out-job-cuts-says-hiring-continues-despite-regional-turmoil",
+  "title": "Emirates rules out job cuts, says hiring continues despite regional turmoil",
+  "snippet": "Emirates has not implemented any job cuts and has continued hiring throughout the recent regional turbulence, a senior official said on Tuesday. “We never stopped or froze hiring. We are continuing to",
+  "date_shown": "2026-09-15",
+  "id": "r0454"
+ },
+ {
+  "query_id": "blind5-fact-11",
+  "query": "who invented the light bulb",
+  "window": "none",
+  "url": "https://www.nps.gov/edis/faqs.htm",
+  "title": "Frequently Asked Questions - Thomas Edison National Historical Park (U.S. National Park Service)",
+  "snippet": "Menlo Park, New Jersey, is where Edison built a laboratory in 1876. (Menlo Park is now part of Edison, New Jersey.) There he developed the electric light system and invented the first phonograph. News",
+  "date_shown": "none",
+  "id": "r0460"
+ },
+ {
+  "query_id": "blind5-paper-20",
+  "query": "recent papers on low resource machine translation",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2601.19871",
+  "title": "[2601.19871] Reflective Translation: Improving Low-Resource Machine ...",
+  "snippet": "Low-resource languages such as isiZulu and isiXhosa face persistent challenges in machine translation due to limited parallel data and linguistic resources. Recent advances in large language models su",
+  "date_shown": "2026-06-30",
+  "id": "r0466"
+ },
+ {
+  "query_id": "blind5-announcement-16",
+  "query": "Block latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.realestate.com.au/news/the-block-2026-every-room-reveal-from-the-block-mount-eliza/",
+  "title": "The Block 2026: Every room reveal from The Block Mount Eliza",
+  "snippet": "The Block is back for 2026 and this year heads to Victoria's Mornington Peninsula. See every room reveal of the season here.",
+  "date_shown": "2026-10-12",
+  "id": "r0472"
+ },
+ {
+  "query_id": "blind5-paper-20",
+  "query": "recent papers on low resource machine translation",
+  "window": "the last 366 days",
+  "url": "https://www.mdpi.com/2227-7080/14/8/518",
+  "title": "Bridging the AI Language Divide: A Systematic Review of NMT and ... - MDPI",
+  "snippet": "This study presents a comprehensive systematic review of machine translation for low-resource languages, focusing on advances in neural machine translation (NMT) and large language models (LLMs) betwe",
+  "date_shown": "2026-10-11",
+  "id": "r0478"
+ },
+ {
+  "query_id": "blind5-code-10",
+  "query": "go library for configuration files",
+  "window": "none",
+  "url": "https://github.com/linehk/go-forum",
+  "title": "linehk/go-forum",
+  "snippet": "go-forum is a simple forum web application that uses the database/sql and http packages in the standard library, with toml as the configuration file format and MySQL as the database.",
+  "date_shown": "2025-11-20",
+  "id": "r0484"
+ },
+ {
+  "query_id": "blind5-code-20",
+  "query": "typescript testing framework",
+  "window": "none",
+  "url": "https://github.com/igniteram/protractor-cucumber-typescript",
+  "title": "igniteram/protractor-cucumber-typescript",
+  "snippet": "e2e kickstarter test framework which consists of protractor, cucumber frameworks using typescript lang!",
+  "date_shown": "2023-03-03",
+  "id": "r0490"
+ },
+ {
+  "query_id": "blind5-fact-05",
+  "query": "what is the deepest lake in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/List_of_lakes_by_depth",
+  "title": "List of lakes by depth",
+  "snippet": "lists the world's deepest lakes . This list contains all lakes whose maximum depth is reliably known to exceed 400 metres (1,300 ft). Geologically, the Caspian",
+  "date_shown": "2006-10-10",
+  "id": "r0496"
+ },
+ {
+  "query_id": "blind5-paper-01",
+  "query": "recent papers on large language model agents for software engineering",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/10.1145/3744916.3773202",
+  "title": "Unified Software Engineering Agent as AI Software Engineer | Proceedings of the 2026 IEEE/ACM 48th International Conference on Software Engineering",
+  "snippet": "The growth of Large Language Model (LLM) technology has raised expectations for automated coding. However, software engineering is more than coding and is concerned with activities including maintenan",
+  "date_shown": "2026-09-11",
+  "id": "r0502"
+ },
+ {
+  "query_id": "blind5-news-08",
+  "query": "news about Renault past month",
+  "window": "the last 31 days",
+  "url": "https://en.shiftdelete.net/renault-e-space-concept-debuts-as-a-modern-electric-mpv/",
+  "title": "Renault E-Space Concept Debuts as a Modern Electric MPV",
+  "snippet": "Renault unveils the E-Space concept at the 2026 Paris Motor Show, bringing the iconic MPV design back as a fully electric family vehicle with a flat floor.",
+  "date_shown": "2026-10-12",
+  "id": "r0508"
+ },
+ {
+  "query_id": "blind5-fact-05",
+  "query": "what is the deepest lake in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Lake_Peigneur",
+  "title": "Lake Peigneur",
+  "snippet": "near the northernmost tip of Vermilion Bay. With a maximum depth of 200 feet (60 meters), it is the deepest lake in Louisiana. Its name comes from the French",
+  "date_shown": "2004-11-27",
+  "id": "r0514"
+ },
+ {
+  "query_id": "blind5-howto-08",
+  "query": "how to use docker volumes",
+  "window": "none",
+  "url": "https://docs.docker.com/get-started/docker-concepts/running-containers/persisting-container-data",
+  "title": "Persisting container data",
+  "snippet": "### Container volumes\n\nVolumes are a storage mechanism that provide the ability to persist data beyond the lifecycle of an individual container. Think of it like providing a shortcut or symlink from i",
+  "date_shown": "none",
+  "id": "r0520"
+ },
+ {
+  "query_id": "blind5-news-18",
+  "query": "news about Baidu past month",
+  "window": "the last 31 days",
+  "url": "https://diesignal.com/articles/baidu-s-15-year-ai-chip-bet-faces-its-public-market-test-5ad9e459",
+  "title": "Baidu's 15-Year AI Chip Bet Faces Its Public Market Test — Die Signal",
+  "snippet": "Baidu's 15-Year AI Chip Bet Faces Its Public Market Test — Die Signal\n\n# Baidu's 15-Year AI Chip Bet Faces Its Public Market Test\n\nBaidu's 15-year in-house AI chip program now faces public market scru",
+  "date_shown": "2026-09-29",
+  "id": "r0526"
+ },
+ {
+  "query_id": "blind5-howto-17",
+  "query": "how to use regex lookahead",
+  "window": "none",
+  "url": "https://docs.python.org/3/howto/regex.html",
+  "title": "Regular expression HOWTO — Python 3.15.0 documentation",
+  "snippet": "### Lookahead assertions¶\n\nAnother zero-width assertion is the lookahead assertion. Lookahead assertions are available in both positive and negative form, and look like this:\n\n`(?=...)`\n: Positive loo",
+  "date_shown": "none",
+  "id": "r0532"
+ },
+ {
+  "query_id": "blind5-fact-08",
+  "query": "who composed the Moonlight Sonata",
+  "window": "none",
+  "url": "https://www.udiscovermusic.com/classical-features/beethoven-moonlight-piano-sonata/",
+  "title": "Beethoven’s ‘Moonlight’ Piano Sonata: Masterpiece Guide",
+  "snippet": "14 in C sharp ... ever written for the ... , plus more on the work’\n...\nBeethoven composed the sonata in 1801 and dedicated it to one of his pupils, Countess Giulietta Guicciardi – once thought to hav",
+  "date_shown": "2024-08-02",
+  "id": "r0538"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://www.w3schools.com/python/matplotlib_subplot.asp",
+  "title": "Matplotlib Subplot - W3Schools",
+  "snippet": "With the subplot() function you can draw multiple plots in one figure.",
+  "date_shown": "2026-10-11",
+  "id": "r0544"
+ },
+ {
+  "query_id": "blind5-fact-15",
+  "query": "who developed the theory of relativity",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/General_relativity",
+  "title": "General relativity",
+  "snippet": "General relativity , also known as the general theory of relativity , and as Einstein's theory of gravity, is the geometric theory of gravitation published",
+  "date_shown": "none",
+  "id": "r0550"
+ },
+ {
+  "query_id": "blind5-fact-16",
+  "query": "what is the freezing point of water in fahrenheit",
+  "window": "none",
+  "url": "https://www.smithsonianmag.com/science-nature/at-what-temperature-does-water-freeze-1120813/",
+  "title": "At What Temperature Does Water Freeze?",
+  "snippet": "## The answer is far more complicated than it first appears—water doesn’t always turn to ice at 32 degrees Fahrenheit\n\n \n\n Sarah Zielinski \n\nNovember 30, 2011\n\n Water crystallizes into ice at 32 degre",
+  "date_shown": "2011-11-30",
+  "id": "r0556"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.prnewswire.com/news-releases/stellantis-reports-q3-sales-302896446.html",
+  "title": "Stellantis Reports Q3 Sales",
+  "snippet": "Third quarter total sales remain steady versus Q3 2025 2026 year-to-date total sales up 3% versus the first three quarters of 2025 Focused ...",
+  "date_shown": "2026-10-01",
+  "id": "r0562"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.39739",
+  "title": "[2609.39739] Stable Transformers for Graph Generation",
+  "snippet": "Graph generative models increasingly rely on Graph Transformers (GT) to capture complex dependencies among nodes and edges. While deeper architectures should provide greater expressive capacity and a ",
+  "date_shown": "2026-10-05",
+  "id": "r0568"
+ }
+]
