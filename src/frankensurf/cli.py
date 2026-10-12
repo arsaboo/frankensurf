@@ -219,6 +219,8 @@ def _setup(args):
     # Download progress goes to stderr: stdout is the JSON result, for scripts.
     chromium = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"],
                               stdout=sys.stderr).returncode == 0
+    from .browser_install import clear_quarantine
+    clear_quarantine(log=say)
     stealth = "skipped (--no-stealth)"
     if not args.no_stealth:
         from .experimental import install_free_providers
@@ -248,7 +250,7 @@ async def _browsers_work(result, *, url="https://example.com/"):
     import tempfile
     from .runtime import Runtime
     stealth = result.get("stealth_providers")
-    tools = ["local"] + [tool for tool in ("camoufox", "scrapling", "patchright")
+    tools = ["local"] + [tool for tool in ("camoufox", "scrapling", "patchright", "nodriver")
                          if isinstance(stealth, dict) and stealth.get(tool) is True]
     works = {}
     print("Checking that each browser starts and reads a page", file=sys.stderr, flush=True)
