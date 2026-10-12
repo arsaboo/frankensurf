@@ -60,6 +60,5 @@ jobs:
         if: always()
         run: |
           rm -rf ~/Library/Caches/camoufox
-          ~/.local/share/frankensurf/provider-venv/bin/python -m camoufox fetch official/152.0.4-beta.31 2>&1 | tr '' '
-' | grep -v 'Downloading addon' | tail -40; echo "exit ${PIPESTATUS[0]}"
+          ~/.local/share/frankensurf/provider-venv/bin/python -m camoufox fetch official/152.0.4-beta.31 2>&1 | tr '\r' '\n' | grep -v 'Downloading addon' | tail -40; echo "exit ${PIPESTATUS[0]}"
           ~/.local/share/frankensurf/provider-venv/bin/pip list 2>/dev/null | grep -i 'camoufox\|playwright\|platformdirs\|requests\|rich\|click'
