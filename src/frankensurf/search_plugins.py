@@ -873,7 +873,7 @@ class HostedSearchPlugin:
         from .hosted_providers import search_url
         url = search_url(self._transport, request.query, request.limit,
                          {key: value for key, value in (request.config or {}).items()
-                          if key in ("site", "exclude_domains", "recency", "region")})
+                          if key in ("site", "exclude_domains", "recency", "region", "category")})
         acquisition = await services.read(url, request.policy, adapter="json")
         receipt = acquisition["receipt"]
         receipt["operation"] = "search"

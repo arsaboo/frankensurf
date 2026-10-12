@@ -1829,6 +1829,10 @@ def _wall_priors():
     return _load_priors()["vendors"]
 
 
+# The kind of page each inferred vertical wants, in the terms paid search APIs sort their index by.
+PAID_SEARCH_CATEGORY = {"news": "news", "papers": "research paper", "code": "github"}
+
+
 def _paid_priors():
     """Bundled paid-tool facts: {tool: {"overall": [wins, tries], "cost_usd": float | None}}."""
     return _load_priors().get("paid", {})
@@ -6287,6 +6291,9 @@ class Runtime:
                             source_timeout))
                 config = {**((engine_config or {}) if source is not None or identifier == "searxng" else {}),
                           **options, **engine_extra} or None
+                if identifier in paid_ids and vertical in PAID_SEARCH_CATEGORY and not options.get("site"):
+                    # A paid index that sorts pages by kind is asked for the kind this query wants.
+                    config = {**(config or {}), "category": PAID_SEARCH_CATEGORY[vertical]}
                 bundle, manifest = await self.searches.search(identifier,
                     SearchRequest(query, fetch_limit, attempt_policy, config), services)
             except ValueError:
