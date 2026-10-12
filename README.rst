@@ -31,7 +31,8 @@ installed from PyPI on fresh Ubuntu 24.04 and macOS machines and checked)::
 Like ``playwright install``: ``frankensurf install search chromium`` installs just
 those, ``--with-deps`` adds the browsers' system libraries on Linux (it asks for
 sudo), ``frankensurf install --list`` shows what is installed where, and
-``frankensurf uninstall all`` removes it again. No Docker needed.
+``frankensurf uninstall all`` removes it again. No Docker needed. (Crawl4AI is
+Linux and WSL only for now; on macOS a plain install skips it.)
 
 No account or key needed. The read climbs until it gets the real page::
 
