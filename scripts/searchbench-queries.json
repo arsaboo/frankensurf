@@ -1,6 +1,6 @@
 {
  "schema": "frankensurf.searchbench-queries/v1",
- "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once.",
+ "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once. Set blind2 (30 queries, new companies, varied phrasing) was written on 12 Oct 2026 before the announcement-precision change was measured, and run once.",
  "shuffle_seed": 20261012,
  "queries": [
   {
@@ -1987,6 +1987,346 @@
    "entity_terms": [
     "wikipedia"
    ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-01",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Nintendo latest announcement",
+   "entity_terms": [
+    "nintendo"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-02",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "what did Sony announce this month",
+   "entity_terms": [
+    "sony"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-03",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Qualcomm press release this month",
+   "entity_terms": [
+    "qualcomm"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-04",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Arm Holdings newest product launch",
+   "entity_terms": [
+    "arm"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-05",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Siemens official announcement",
+   "entity_terms": [
+    "siemens"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-06",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "SAP latest announcement",
+   "entity_terms": [
+    "sap"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-07",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "what did Cisco announce this month",
+   "entity_terms": [
+    "cisco"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-08",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Dell Technologies press release this month",
+   "entity_terms": [
+    "dell"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-09",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "HashiCorp newest product launch",
+   "entity_terms": [
+    "hashicorp"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-10",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Vercel official announcement",
+   "entity_terms": [
+    "vercel"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-11",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Hugging Face latest announcement",
+   "entity_terms": [
+    "hugging face|huggingface"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-12",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "what did Mistral AI announce this month",
+   "entity_terms": [
+    "mistral"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-13",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Unity Technologies press release this month",
+   "entity_terms": [
+    "unity"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-14",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Zoom newest product launch",
+   "entity_terms": [
+    "zoom"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-15",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Slack official announcement",
+   "entity_terms": [
+    "slack"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-16",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Figma latest announcement",
+   "entity_terms": [
+    "figma"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-17",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "what did Notion announce this month",
+   "entity_terms": [
+    "notion"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-18",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Shopify press release this month",
+   "entity_terms": [
+    "shopify"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-19",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Spotify newest product launch",
+   "entity_terms": [
+    "spotify"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-ann-20",
+   "set": "blind2",
+   "category": "announcement",
+   "query": "Netflix official announcement",
+   "entity_terms": [
+    "netflix"
+   ],
+   "recency": "month",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-01",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Volkswagen this week",
+   "entity_terms": [
+    "volkswagen"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-02",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Ford this week",
+   "entity_terms": [
+    "ford"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-03",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about BYD past month",
+   "entity_terms": [
+    "byd"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-04",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Rivian past month",
+   "entity_terms": [
+    "rivian"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-05",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Moderna past month",
+   "entity_terms": [
+    "moderna"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-06",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Johnson & Johnson past month",
+   "entity_terms": [
+    "johnson"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-07",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Visa past month",
+   "entity_terms": [
+    "visa"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-08",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about JPMorgan this week",
+   "entity_terms": [
+    "jpmorgan|jp morgan"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-09",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Ryanair past month",
+   "entity_terms": [
+    "ryanair"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "blind2-news-10",
+   "set": "blind2",
+   "category": "news",
+   "query": "news about Lego past month",
+   "entity_terms": [
+    "lego"
+   ],
+   "recency": "month",
+   "vertical": "news",
    "needs_specific": true
   }
  ]
