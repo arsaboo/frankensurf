@@ -9,10 +9,12 @@ const half = Math.ceil(marquee.length / 2);
 const rowA = marquee.slice(0, half), rowB = marquee.slice(half);
 // Marquee rows repeat for the loop; the repeats are hidden from assistive tech and the tab order.
 const loop = (row: typeof marquee) => [...row, ...row].map((t, i) => ({ ...t, repeat: i >= row.length, href: docsFor[t.name] }));
-const maxFail = Math.max(...failures.map((f) => Math.max(f.today, f.target)));
+// The category chart shows the share read right (higher is better): today = Firecrawl alone,
+// target = Frankensurf; site.ts keeps the measured failure shares.
+const readRight = failures.map((f) => ({ ...f, today: 100 - f.today, target: 100 - f.target }));
 const gap = (f: { today: number; target: number }) => {
-  const d = f.today - f.target;
-  return Math.abs(d) < 0.05 ? "even" : d > 0 ? `−${d.toFixed(1)} pts` : `+${(-d).toFixed(1)} pts`;
+  const d = f.target - f.today;
+  return Math.abs(d) < 0.05 ? "even" : d > 0 ? `+${d.toFixed(1)} pts` : `−${(-d).toFixed(1)} pts`;
 };
 const pct = ([v, n]: [number, number]) => (v / n * 100).toFixed(1);
 // Every tool on its own, and Frankensurf with and without paid tools, ranked.
@@ -67,10 +69,10 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
   <section class="hero" id="top">
     <canvas id="surf" aria-label="ASCII art: Frankenstein's monster surfing a barreling wave"></canvas>
     <div class="hero-copy">
-      <h1>Every site.<br />Every agent.<br /><em class="horror">One call.</em></h1>
-      <p class="sub">28 web scrapers and browsers, stitched into one free, open-source tool for AI agents.</p>
+      <h1>The <em class="horror">last</em> web tool<br />you&rsquo;ll need.</h1>
+      <p class="sub">Because we stitched together the best ones out there: 28 web scrapers and browsers in one free, open-source tool for AI agents.</p>
       <div class="actions">
-        <a class="btn primary" href={repo}>Star on GitHub <span aria-hidden="true">→</span></a>
+        <a class="btn primary" href={repo}><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg>Star on GitHub<span class="stars" data-stars hidden></span></a>
         <a class="btn" href="#router">See it route</a>
       </div>
       <a class="proof" href="#targets"><span class="claim"><b>96%</b> of 150 sites picked blind</span><span>Firecrawl alone 85% · Zyte alone 86%</span><span class="arrow" aria-hidden="true">↓</span></a>
@@ -105,7 +107,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
 
   <section class="container sec" id="targets">
     <div class="sec-head" data-reveal>
-      <h2>96% of sites. <em class="horror">Picked blind.</em></h2>
+      <h2>96% of sites. Picked <em class="horror">blind.</em></h2>
       <p class="sec-sub">150 sites picked before any was read and read once: every tool on its own, then Frankensurf, the same day, the same content checks (11 October 2026). Frankensurf read 17 sites Firecrawl missed; Firecrawl read none it missed. With no paid tools at all, it matches the best paid tool on its own. Its median read took 2.9 s against Firecrawl's 4.6 s; its slowest tenth still takes longer, 26 s against 11 s.</p>
     </div>
     <div class="panel rank" data-reveal role="list" aria-label="Share of 150 sites read right, each tool on its own and Frankensurf">
@@ -118,20 +120,20 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
       ))}
       <a class="bars-src" href={sources.bench.url}>Sites read right, of 150 · raw rows and script ↗</a>
     </div>
-    <h3 class="sec-h3" data-reveal>A quarter of the <em class="horror">dead ends.</em></h3>
+    <h3 class="sec-h3" data-reveal>Ahead or level in every category.</h3>
     <div class="stats" data-reveal>
       {stats.map((s) => <div class="stat"><span class="v">{s.value}</span><span class="l">{s.label}</span><span class="n">{s.note}</span></div>)}
     </div>
     <div class="panel bars" data-reveal>
-      <div class="bars-key"><span class="kt">Firecrawl Only</span><span class="kg">Frankensurf</span><a class="bars-src" href={sources.bench.url}>Share of 150 sites failed · source ↗</a></div>
-      {failures.map((f) => (
+      <div class="bars-key"><span class="kt">Firecrawl Only</span><span class="kg">Frankensurf</span><a class="bars-src" href={sources.bench.url}>Share of 150 sites read right · source ↗</a></div>
+      {readRight.map((f) => (
         <div class="bar-row">
           <span class="lbl">{f.label}</span>
           <div class="track2">
-            <div class="t"><i style={`--w:${f.today / maxFail * 100}%`}></i><span>{f.today.toFixed(1)}%</span></div>
-            <div class="g"><i style={`--w:${f.target / maxFail * 100}%`}></i><span>{f.target.toFixed(1)}%</span></div>
+            <div class="t"><i style={`--w:${f.today}%`}></i><span>{f.today.toFixed(1)}%</span></div>
+            <div class="g"><i style={`--w:${f.target}%`}></i><span>{f.target.toFixed(1)}%</span></div>
           </div>
-          <span class:list={["cut", { worse: f.target > f.today + 0.05 }]}>{gap(f)}</span>
+          <span class:list={["cut", { worse: f.target < f.today - 0.05 }]}>{gap(f)}</span>
         </div>
       ))}
     </div>
@@ -176,7 +178,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
 
   <section class="container sec" id="problem">
     <div class="sec-head" data-reveal>
-      <h2>Every tool breaks somewhere.</h2>
+      <h2>Every tool <em class="horror">breaks</em> somewhere.</h2>
     </div>
     <div class="panel" data-reveal>
       <div class="matrix" role="region" aria-label="Tool capability comparison" tabindex="0">
@@ -201,7 +203,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
 
   <section class="container sec" id="how">
     <div class="sec-head" data-reveal>
-      <h2>Capability first. Cost aware.</h2>
+      <h2>Capability first. Cost <em class="horror">aware.</em></h2>
     </div>
     <div class="how">
       <div class="panel" data-spot data-reveal>
@@ -337,7 +339,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
       <h2><em class="horror">Ride</em> the whole web.</h2>
       <p>Open source.</p>
       <div class="cta-row">
-        <a class="btn primary big" href={repo}>View on GitHub <span aria-hidden="true">→</span></a>
+        <a class="btn primary big" href={repo}><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg>Star on GitHub<span class="stars" data-stars hidden></span></a>
         <div class="cmd"><span class="p">$</span><span>git clone {repo}.git</span><button class="copy" type="button" data-copy={`git clone ${repo}.git`}>Copy</button></div>
       </div>
     </div>
@@ -348,6 +350,28 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
 <footer><span class="footer-brand"><img src={stitchedWaveMint} width="28" height="18" alt="" loading="lazy" />FRANKENSURF</span><span class="horror">It's alive.</span></footer>
 
 <script>
+  // Live star count on the GitHub buttons. GitHub's public API, cached for the
+  // visit; if it can't be reached the buttons simply show no count.
+  // The count appears from SHOW_FROM stars up, so a brand-new repo shows the star alone.
+  const SHOW_FROM = 10;
+  (async () => {
+    const show = (n: number) => n >= SHOW_FROM && document.querySelectorAll<HTMLElement>("[data-stars]").forEach((el) => {
+      el.textContent = n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n);
+      el.hidden = false;
+    });
+    let cached: string | null = null;
+    try { cached = sessionStorage.getItem("fs-stars"); } catch {}
+    if (cached !== null) return show(Number(cached));
+    try {
+      const response = await fetch("https://api.github.com/repos/yail259/frankensurf", { headers: { Accept: "application/vnd.github+json" } });
+      if (!response.ok) return;
+      const n = (await response.json()).stargazers_count;
+      if (typeof n !== "number") return;
+      try { sessionStorage.setItem("fs-stars", String(n)); } catch {}
+      show(n);
+    } catch {}
+  })();
+
   import { mountSurf } from "../scripts/surf";
   import { mountNav } from "../scripts/nav";
   import { mountPage } from "../scripts/page";
