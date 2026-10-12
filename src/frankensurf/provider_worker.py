@@ -197,6 +197,13 @@ def _camoufox_binaries(version):
     return found
 
 
+def _launch_timeout(request):
+    """Playwright's launch timeout, longer for the first launch after install
+    (macOS Gatekeeper verifies a new app bundle then)."""
+    seconds = request.get("launch_timeout_seconds")
+    return {"timeout": float(seconds) * 1000} if isinstance(seconds, (int, float)) and seconds > 0 else {}
+
+
 def _browser_proxy(settings):
     return {key: settings[key] for key in ("server", "username", "password") if key in settings}
 
@@ -455,6 +462,7 @@ async def acquire(request):
             _camoufox_mac_properties()
         async with AsyncCamoufox(headless=request.get("public_browser_headless",True), geoip=False, humanize=False,
                 executable_path=str(binaries[0]),exclude_addons=[DefaultAddons.UBO],
+                **_launch_timeout(request),
                 **({"proxy": _browser_proxy(request["proxy"])} if request.get("proxy") else {})) as browser:
             context=await browser.new_context(ignore_https_errors=False, permissions=[])
             page=await context.new_page()
@@ -560,6 +568,7 @@ async def acquire(request):
         from patchright.async_api import async_playwright as patchright
         async with patchright() as playwright:
             browser = await playwright.chromium.launch(headless=request.get("public_browser_headless", True),
+                **_launch_timeout(request),
                 **({"proxy": _browser_proxy(request["proxy"])} if request.get("proxy") else {}))
             try:
                 context = await browser.new_context(**(request.get("profile_context") or {}))

@@ -482,7 +482,8 @@ def test_entity_in_title_url_or_domain_is_on_query(query, title, url):
 def test_multi_word_entity_needs_every_word_not_any_one():
     assert passes("Hugging Face models", item("https://a.test/x/1", "Face cream models"))["on_query"] is False
     assert passes("Hugging Face models", item("https://a.test/x/1", "Hugging puppies"))["on_query"] is False
-    assert passes("Arm Holdings earnings", item("https://a.test/x/1", "Arm wrestling earnings"))["on_query"] is False
+    # "Arm" alone in the snippet is not the company, even next to another query term's absence.
+    assert passes("Arm Holdings earnings", item("https://a.test/x/1", "Wrestling", "Arm wrestling tips"))["on_query"] is False
 
 
 def test_a_generic_company_word_alone_in_unrelated_text_is_not_on_query():
@@ -518,3 +519,135 @@ def test_failing_homepages_and_wrong_company_results_leave_a_weak_set():
     report = check_results("Nintendo latest announcement", junk, now=NOW)
     assert report["verdict"] == "weak" and report["passed"] == 1
     assert report["reasons"] == {"homepage": 2, "off_query": 2}
+
+
+# --- entity aliases: acronyms, expansions, corporate suffixes, domains --------
+
+def on_query(query, url, title="", snippet=""):
+    return passes(query, item(url, title, snippet))["on_query"]
+
+
+@pytest.mark.parametrize("query,title", [
+    ("Amazon Web Services latest announcement", "AWS announces a new region"),
+    ("International Business Machines latest announcement", "IBM unveils a quantum chip"),
+    ("General Electric latest announcement", "GE reports quarterly earnings"),
+])
+def test_an_entitys_initials_in_the_title_match_the_entity(query, title):
+    assert on_query(query, "https://a.test/x/1", title) is True
+
+
+@pytest.mark.parametrize("query,title", [
+    ("General Electric latest announcement", "ge reports quarterly earnings"),
+    ("General Electric latest announcement", "Why ge is a common prefix"),
+    ("Amazon Web Services latest announcement", "AWSOME news"),
+    ("Amazon Web Services latest announcement", "Awsome Wonderful Stories announcement"),
+])
+def test_acronyms_need_the_whole_token_and_two_letter_ones_need_uppercase(query, title):
+    assert on_query(query, "https://a.test/x/1", title) is False
+
+
+def test_an_acronym_in_the_url_or_domain_matches_in_any_case():
+    query = "International Business Machines latest announcement"
+    assert on_query(query, "https://www.ibm.com/new/announcements-2026", "Quantum chip") is True
+    assert on_query(query, "https://a.test/news/ibm-quantum-chip", "Quantum chip") is True
+    assert on_query(query, "https://a.test/news/ibmx-quantum-chip", "Quantum chip") is False
+    # A two-letter acronym counts as a domain label only, not as a path word.
+    assert on_query("General Electric announcement", "https://ge.com/news/2026/jet", "Jet engine") is True
+    assert on_query("General Electric announcement", "https://a.test/ge/news/2026", "Jet engine") is False
+
+
+def test_a_snippet_mention_of_an_acronym_does_not_count():
+    assert on_query("Amazon Web Services announcement", "https://a.test/x/1", "Cloud news", "AWS did a thing") is False
+
+
+@pytest.mark.parametrize("query,title,url", [
+    ("AWS latest announcement", "Amazon Web Services launches a new region", "https://a.test/x/1"),
+    ("IBM latest announcement", "International Business Machines unveils a chip", "https://a.test/x/1"),
+    ("AMD latest announcement", "Advanced Micro Devices, Inc. reports results", "https://a.test/x/1"),
+    ("NASA latest announcement", "National Aeronautics and Space Administration picks a lander", "https://a.test/x/1"),
+    ("AWS latest announcement", "Cloud region opens", "https://aws.amazon.com/about-aws/whats-new/2026/10/region"),
+    ("AMD latest announcement", "New GPUs", "https://www.amd.com/en/newsroom/2026/gpus.html"),
+])
+def test_an_all_caps_query_entity_matches_words_that_spell_it_and_acronym_domains(query, title, url):
+    assert on_query(query, url, title) is True
+
+
+@pytest.mark.parametrize("query,title", [
+    ("AWS latest announcement", "Amazon Web launches a new region"),
+    ("AWS latest announcement", "Amazon web services launches a region"),
+    ("AWS latest announcement", "Amazon Cloud Services launches"),
+    ("IBM latest announcement", "Intel Brings Chips announcement"),
+])
+def test_expansion_needs_capitalised_words_with_the_right_initials(query, title):
+    assert on_query(query, "https://a.test/x/1", title) is False
+
+
+@pytest.mark.parametrize("query,title,url", [
+    ("Arm Holdings latest announcement", "Arm unveils a new core", "https://a.test/x/1"),
+    ("Arm Holdings latest announcement", "New core", "https://www.arm.com/company/news/2026/core"),
+    ("Arm Holdings latest announcement", "New core", "https://arm.com/newsroom/2026/core"),
+    ("Mistral AI latest announcement", "Mistral releases a new model", "https://a.test/x/1"),
+    ("Mistral AI latest announcement", "New model", "https://mistral.ai/news/2026/model"),
+    ("Unity Technologies latest announcement", "New engine", "https://unity.com/news/2026/engine"),
+    ("Unity Technologies latest announcement", "Unity ships an engine update", "https://a.test/x/1"),
+])
+def test_an_entity_goes_by_its_name_without_corporate_suffixes_and_by_its_domain(query, title, url):
+    assert on_query(query, url, title) is True
+
+
+@pytest.mark.parametrize("query,title,url,snippet", [
+    ("Arm Holdings latest announcement", "Alarm systems announce a launch", "https://a.test/alarm-launch", ""),
+    ("Arm Holdings latest announcement", "Harm reduction announcement", "https://a.test/x/1", ""),
+    ("Arm Holdings latest announcement", "Armed forces announcement", "https://a.test/armed-forces", ""),
+    ("Arm Holdings latest announcement", "Shoulder injuries", "https://a.test/x/1", "Your arm has bones."),
+    ("Arm Holdings latest announcement", "Recovery", "https://farm.com/news/2026/x", ""),
+    ("Mistral AI latest announcement", "Cooking", "https://a.test/x/1", "A mistral recipe"),
+    ("Unity Technologies latest announcement", "Cooking", "https://community.com/x/1", ""),
+])
+def test_dropping_corporate_suffixes_keeps_whole_word_and_snippet_protection(query, title, url, snippet):
+    assert on_query(query, url, title, snippet) is False
+
+
+def test_a_lone_core_word_in_a_snippet_needs_another_query_term():
+    query = "Arm Holdings latest announcement"
+    assert on_query(query, "https://a.test/x/1", "Chip news", "Arm posted an announcement") is True
+    assert on_query(query, "https://a.test/x/1", "Chip news", "Arm posted a thing") is False
+
+
+def test_a_domain_equal_to_the_entity_run_together_matches():
+    assert on_query("Hugging Face news", "https://huggingface.co/blog/2026/new", "A post") is True
+    assert on_query("Hugging Face news", "https://hugging.co/blog/2026/new", "A post") is False
+    assert on_query("Mistral AI news", "https://www.mistralai.com/news/2026/model", "A post") is True
+    assert on_query("Bank of America news", "https://www.bankofamerica.com/news/2026/x", "A post") is True
+
+
+def test_connector_acronyms_match_in_their_written_form():
+    query = "Bank of America layoffs"
+    assert on_query(query, "https://a.test/x/1", "BofA announces layoffs") is True
+    assert on_query(query, "https://a.test/x/1", "BoA announces layoffs") is True
+    assert on_query(query, "https://a.test/x/1", "BOA announces layoffs") is True
+    assert on_query(query, "https://a.test/x/1", "Bofa constrictors announce layoffs") is False
+
+
+def test_aliases_do_not_change_entity_extraction():
+    assert entities("Amazon Web Services latest announcement") == [["amazon", "web", "services"]]
+    assert entities("AWS latest announcement") == [["aws"]]
+    assert entities("Mistral AI news") == [["mistral"]]
+
+
+def test_the_aws_row_is_on_query_in_both_directions_in_a_result_set():
+    rows = [item("https://a.test/n/1", "AWS launches a region"),
+            item("https://b.test/n/2", "Amazon Web Services adds a tool"),
+            item("https://c.test/n/3", "Azure launches a region")]
+    for query in ("Amazon Web Services latest announcement", "AWS latest announcement"):
+        report = check_results(query, rows, now=NOW)
+        assert [row["on_query"] for row in report["results"]] == [True, True, False]
+
+
+def test_url_dates_with_month_names_and_compact_stamps():
+    from frankensurf.search_checks import _url_date
+    assert _url_date("https://n.test/news/us/en/2026/sep/0915-maker-unveils-truck").strftime("%Y-%m-%d") == "2026-09-15"
+    assert _url_date("https://n.test/2026/september/").strftime("%Y-%m-%d") == "2026-09-30"
+    assert _url_date("https://w.test/news/business-wire/20261006057924/co-announces").strftime("%Y-%m-%d") == "2026-10-06"
+    assert _url_date("https://w.test/product/12345678") is None
+    assert _url_date("https://w.test/sku/20261399") is None

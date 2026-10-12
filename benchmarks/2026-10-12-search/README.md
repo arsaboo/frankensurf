@@ -80,3 +80,34 @@ Each arm was run once (`--set blind2`).
 Rows: `blind2-rows-old.jsonl` (v0.37.0) and `blind2-rows-new.jsonl`.
 The stricter homepage and company-name checks in v0.38 were added after this
 run and are not part of these numbers.
+
+## Blind set 3 (60 queries, 10 per kind)
+
+Written at 16:46 AEDT before v0.39 was measured, with entities in no other set,
+and run once. "v0.39 candidate" is v0.38 plus entity aliases and acronyms, the
+cost-cap and PDF changes, and the macOS install changes.
+
+| Arm | hit@5 | precision@5 | announcement precision | paper precision | cost |
+|---|---|---|---|---|---|
+| v0.38.0 (free) | 96.7% | 89.0% | 62.0% | 72.0% | $0 |
+| v0.39 candidate (free) | 96.7% | 89.4% | 64.5% | 72.0% | $0 |
+| v0.39 candidate, paid allowed | 96.7% | 90.7% | 72.2% | 72.0% | $0.015 |
+| Exa Only | 100% | 94.7% | 100% | 92.0% | $0.57 |
+
+The candidate did not beat v0.38 here (0 queries either way). Announcement
+precision on these companies was far below blind set 2's 93%, and arXiv
+returned off-topic papers. Two causes, found on this set and fixed after it:
+
+1. Undated results filled the top five: URLs dated as `/2026/sep/0915-...` or
+   `20261006...` were not read as dates, and pages without date metadata stayed in.
+   v0.39 reads both URL forms, and in a windowed search, when any result's date is
+   verified, unverified ones leave `results` for `unverified_results`.
+2. arXiv was sorted by date, so any new paper mentioning the words ranked first.
+   v0.39 sorts by relevance within the date window, with the topic as a phrase first.
+
+**These fixes were found on blind set 3, so blind set 3 cannot measure them.**
+On the dev set after the fixes: announcement precision 100% (8 queries, 4.0
+results each on average, down from 5), paper 97.8%, news 98.8%, hit@5 100% in
+all three. A further claim needs a new blind set.
+
+Rows: `blind3-rows.jsonl` (`frankensurf_v038` is v0.38.0).

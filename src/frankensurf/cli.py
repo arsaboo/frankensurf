@@ -219,6 +219,8 @@ def _setup(args):
     # Download progress goes to stderr: stdout is the JSON result, for scripts.
     chromium = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"],
                               stdout=sys.stderr).returncode == 0
+    from .browser_install import clear_quarantine
+    clear_quarantine(log=say)
     stealth = "skipped (--no-stealth)"
     if not args.no_stealth:
         from .experimental import install_free_providers
@@ -248,7 +250,7 @@ async def _browsers_work(result, *, url="https://example.com/"):
     import tempfile
     from .runtime import Runtime
     stealth = result.get("stealth_providers")
-    tools = ["local"] + [tool for tool in ("camoufox", "scrapling", "patchright")
+    tools = ["local"] + [tool for tool in ("camoufox", "scrapling", "patchright", "nodriver")
                          if isinstance(stealth, dict) and stealth.get(tool) is True]
     works = {}
     print("Checking that each browser starts and reads a page", file=sys.stderr, flush=True)
@@ -285,6 +287,11 @@ def _explain(result):
                   + ((f", complete ({links} results)" if links >= 10 else ", complete") if done.get("complete") else "")
                   + (", free" if cost == 0 else f", cost ${cost:.4f}" if isinstance(cost, (int, float)) else ""),
                   "", text[:400] + ("…" if len(text) > 400 else "")]
+        if (receipt.get("pdf") or {}).get("note"):
+            lines.append("\n! " + receipt["pdf"]["note"])
+        if receipt.get("budget"):
+            budget = receipt["budget"]
+            lines.append(f"\n! Cost cap exceeded: spent ${budget['spent_usd']:.4f} of ${budget['cap_usd']:.4f}; the page was kept.")
         if done.get("off_query"):
             lines.append("\n! These results don't mention the query: the search URL may be wrong.")
     else:

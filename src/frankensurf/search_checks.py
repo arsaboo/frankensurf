@@ -82,6 +82,10 @@ _UNIT_DAYS = {"second": 0, "sec": 0, "minute": 0, "min": 0, "hour": 0, "hr": 0, 
               "wk": 7, "month": 30, "mo": 30, "year": 365, "yr": 365}
 _URL_DATE = re.compile(r"(?<!\d)((?:19|20)\d\d)([/-])(\d{1,2})\2(\d{1,2})(?!\d)")
 _URL_MONTH = re.compile(r"/((?:19|20)\d\d)/(0[1-9]|1[0-2])(?:/|$)")
+# /2026/sep/0915-title and /2026/september/ (a month name, then maybe MMDD).
+_URL_MONTH_NAME = re.compile(r"/((?:19|20)\d\d)/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*(?:/(?:(\d\d)(\d\d)(?!\d))?|$)", re.I)
+# A compact stamp opening a path segment: 20261006 or 20261006057924.
+_URL_STAMP = re.compile(r"/((?:19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?:\d{6})?(?!\d)")
 
 
 def _stem(word):
@@ -207,6 +211,13 @@ def _url_date(url):
         if match := _URL_MONTH.search(path):
             year, month = int(match[1]), int(match[2])
             return _day_end(year, month, calendar.monthrange(year, month)[1])
+        if match := _URL_MONTH_NAME.search(path):
+            year, month = int(match[1]), _month_number(match[2])
+            if match[3] and int(match[3]) == month:
+                return _day_end(year, month, int(match[4]))
+            return _day_end(year, month, calendar.monthrange(year, month)[1])
+        if match := _URL_STAMP.search(path):
+            return _day_end(int(match[1]), int(match[2]), int(match[3]))
     except ValueError:
         return None
     return None
@@ -253,6 +264,14 @@ _GENERIC_CAPS = frozenset({
     "configure", "run", "write", "read", "buy", "download", "guide", "tutorial", "review", "reviews", "list",
     "tips", "ideas", "why", "is", "does", "do", "can", "should", "the", "a", "an", "show", "give", "tell"})
 _CONNECTORS = frozenset({"of", "the", "de", "la"})
+_SPELLING_CONNECTORS = _CONNECTORS | {"and"}
+
+
+# Words that make a company name formal without naming it: "Arm Holdings" is Arm.
+_CORPORATE_SUFFIXES = frozenset({"inc", "corp", "corporation", "ltd", "llc", "holdings", "group", "technologies",
+                                 "labs", "ai", "co", "plc", "se", "ag"})
+# Second-level labels under a country TLD (example.co.uk): the name is one label further left.
+_SECOND_LEVEL = frozenset({"co", "com", "org", "net", "gov", "edu", "ac", "or", "ne"})
 
 
 def entities(query: str) -> list[list[str]]:
@@ -260,12 +279,18 @@ def entities(query: str) -> list[list[str]]:
     Arm Holdings, Nintendo), each as its words lowercased, minus filler words and
     generic capitalised openers (Best, Install). A query written all in lowercase
     or in Title Case throughout names none."""
+    return [phrase for phrase, _ in _entity_runs(query)]
+
+
+def _entity_runs(query: str) -> list[tuple[list[str], list[str]]]:
+    """Each entity as (its significant words lowercased, every word of its run as
+    written, connectors and short words included: the raw material for aliases)."""
     words = _WORD.findall(_OPERATOR.sub(" ", str(query or "")))
     meaningful = [w for w in words if w.lower() not in _STOPWORDS and w.lower() not in _QUERY_FILLER
                   and w.lower() not in _GENERIC_CAPS and not _YEAR.fullmatch(w) and (len(w) >= 3 or not w.isascii())]
     if len(meaningful) >= 3 and all(w[:1].isupper() or w[:1].isdigit() for w in meaningful):
         return []
-    runs, run = [], []
+    runs, run, full = [], [], []
     for position, word in enumerate(words):
         low = word.lower()
         capital = word[:1].isupper() or (bool(run) and word[:1].isdigit())
@@ -273,17 +298,20 @@ def entities(query: str) -> list[list[str]]:
             capital = False
         if capital and low not in _QUERY_FILLER and low not in _STOPWORDS:
             run.append(word)
+            full.append(word)
         elif run and low in _CONNECTORS and position + 1 < len(words) and words[position + 1][:1].isupper():
+            full.append(word)
             continue
         else:
-            runs.append(run)
-            run = []
-    runs.append(run)
-    found = []
-    for run in runs:
+            runs.append((run, full))
+            run, full = [], []
+    runs.append((run, full))
+    found, seen = [], []
+    for run, full in runs:
         phrase = [w.lower() for w in run if (len(w) >= 3 or not w.isascii()) and not _YEAR.fullmatch(w)]
-        if phrase and phrase not in found:
-            found.append(phrase)
+        if phrase and phrase not in seen:
+            seen.append(phrase)
+            found.append((phrase, full))
     return found
 
 
@@ -332,29 +360,122 @@ def _domain_names(host, words):
     return False
 
 
-def _on_query(terms, named, item):
+def _core_words(tokens):
+    """An entity's words without connectors and corporate suffixes (Arm Holdings
+    gives Arm); the suffixes stay when nothing else would."""
+    significant = [t for t in tokens if t.lower() not in _CONNECTORS]
+    return [t for t in significant if t.lower() not in _CORPORATE_SUFFIXES] or significant
+
+
+def _acronyms(tokens):
+    """Exact spellings an entity's initials can take: AWS for Amazon Web Services,
+    IBM, GE; with a connector between its words also BoA, BofA and BOA for Bank of
+    America. Two letters at least, and two words at least."""
+    words = [t for t in tokens if t.lower() not in _CORPORATE_SUFFIXES]
+    core = [t for t in words if t.lower() not in _CONNECTORS]
+    if len(core) < 2:
+        return set()
+    found = {"".join(t[0] for t in core).upper()}
+    if len(core) < len(words):
+        found.add("".join(t[0].lower() if t.lower() in _CONNECTORS else t[0].upper() for t in words))
+        found.add("".join(t.lower() if t.lower() in _CONNECTORS else t[0].upper() for t in words))
+        found.add("".join(t[0] for t in words).upper())
+    return {a for a in found if len(a) >= 2 and a.isascii()}
+
+
+def _expands(acronym, title):
+    """Whether the title has capitalised words whose initials spell the acronym
+    (Amazon Web Services for AWS); connectors may sit between them."""
+    tokens = _WORD.findall(title)
+    size = len(acronym)
+    for start in range(len(tokens)):
+        initials, position = "", start
+        while position < len(tokens) and len(initials) < size:
+            token = tokens[position]
+            if token[:1].isupper() or token[:1].isdigit():
+                initials += token[0].upper()
+            elif not (initials and token.lower() in _SPELLING_CONNECTORS):
+                break
+            position += 1
+        if initials == acronym:
+            return True
+    return False
+
+
+def _registrable_label(host):
+    """The name label of a host: huggingface in huggingface.co, bbc in news.bbc.co.uk."""
+    labels = host.removeprefix("www.").split(".")
+    if len(labels) < 2:
+        return ""
+    if len(labels) >= 3 and len(labels[-1]) == 2 and labels[-2] in _SECOND_LEVEL:
+        return labels[-3]
+    return labels[-2]
+
+
+def _alias_match(tokens, title, url, host):
+    """An acronym of the entity in the title (uppercase, whole token) or URL (any
+    case; two-letter ones only as a host label), or the registrable domain being
+    the entity run together, with or without its corporate suffixes."""
+    low_url = unquote(url).lower()
+    labels = host.removeprefix("www.").split(".")
+    for acronym in _acronyms(tokens):
+        if re.search(r"(?<![^\W_])" + re.escape(acronym) + r"(?![^\W_])", title):
+            return True
+        if len(acronym) == 2:
+            if acronym.lower() in labels:
+                return True
+        elif _has(acronym.lower(), low_url):
+            return True
+    label = _registrable_label(host).replace("-", "")
+    if label:
+        joined = {"".join(t.lower() for t in tokens if t.lower() not in _CONNECTORS),
+                  "".join(t.lower() for t in _core_words(tokens)), "".join(t.lower() for t in tokens)}
+        return label in joined
+    return False
+
+
+def _on_query(terms, named, item, cased=()):
     """Whether a result is about the query. Terms match whole words (light
     stemming), never inside other words. When the query names something, the
     result must too: all of an entity's words in the title or URL, or its domain
     (a snippet-only mention only counts for a multi-word name, or alongside
-    another query term). Without a named entity any key term will do."""
+    another query term). The entity also goes by aliases: its words minus
+    corporate suffixes (Arm for Arm Holdings), its acronym (AWS for Amazon Web
+    Services), the registrable domain, and, for an all-caps query entity
+    (AWS), the capitalised words that spell it in the title. Without a named
+    entity any key term will do."""
     if not terms:
         return True
     url = str(item.get("url") or "")
-    head = (str(item.get("title") or "") + " " + unquote(url)).lower()
+    title = str(item.get("title") or "")
+    head = (title + " " + unquote(url)).lower()
     snippet = str(item.get("snippet") or "").lower()
     if not named:
         return any(_has(term, head) or _has(term, snippet) for term in terms)
     host = (urlparse(url).hostname or "").lower()
     named_terms = {_stem(word) for phrase in named for word in phrase}
     others = [term for term in terms if term not in named_terms]
-    for phrase in named:
+    for index, phrase in enumerate(named):
+        tokens = cased[index] if index < len(cased) else []
         stems = [_stem(word) for word in phrase]
         if all(_has(stem, head) for stem in stems) or _domain_names(host, phrase):
             return True
-        if all(_has(stem, snippet) or _has(stem, head) for stem in stems) and (
-                len(phrase) > 1 or any(_has(term, head) or _has(term, snippet) for term in others)):
-            return True
+        if tokens:
+            if _alias_match(tokens, title, url, host):
+                return True
+            if len(tokens) == 1 and 2 <= len(tokens[0]) <= 6 and tokens[0].isupper() and tokens[0].isalpha() \
+                    and _expands(tokens[0], title):
+                return True
+        candidates = [stems]
+        core = [_stem(w.lower()) for w in _core_words(tokens) if w.lower() in phrase] if tokens else []
+        if core and core != stems:
+            candidates.append(core)
+            if all(_has(stem, head) for stem in core):
+                return True
+        for stems in candidates:
+            if all(_has(stem, snippet) or _has(stem, head) for stem in stems) and (
+                    len(stems) > 1 or any(_has(term, head) or _has(term, snippet) for term in others)):
+                return True
     return False
 
 
@@ -370,7 +491,8 @@ def _names_the_entity(url, named):
     return slug in ["".join(phrase) for phrase in named]
 
 
-def check_result(item: dict, terms, *, since=None, until=None, specific=True, now=None, named=()) -> dict:
+def check_result(item: dict, terms, *, since=None, until=None, specific=True, now=None, named=(),
+                 cased=()) -> dict:
     """One result's verdict: passed, the reasons it did not, and the check fields."""
     now = now or datetime.now(timezone.utc)
     url, title = str(item.get("url") or ""), str(item.get("title") or "")
@@ -381,7 +503,7 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
         in_window = not ((since is not None and when < since) or (until is not None and when > until))
         if not in_window:
             reasons.append("out_of_window")
-    on_query = _on_query(terms, named, item)
+    on_query = _on_query(terms, named, item, cased)
     if not on_query:
         reasons.append("off_query")
     kind = url_kind(url)
@@ -413,11 +535,14 @@ def check_results(query: str, results, *, limit: int = 10, recency=None, since=N
     now = now or datetime.now(timezone.utc)
     since, until = window_bounds(recency, since, until, now)
     terms = key_terms(query)
-    named = entities(query)
+    runs = _entity_runs(query)
+    named = [phrase for phrase, _ in runs]
+    cased = [tokens for _, tokens in runs]
     specific = _asks_specific(terms, bool(recency or since or until), query, named)
     verdicts, seen, counts = [], set(), {}
     for item in results:
-        verdict = check_result(item, terms, since=since, until=until, specific=specific, now=now, named=named)
+        verdict = check_result(item, terms, since=since, until=until, specific=specific, now=now, named=named,
+                               cased=cased)
         key = canonical_url(verdict["url"])
         if key in seen:
             verdict["reasons"].append("duplicate")

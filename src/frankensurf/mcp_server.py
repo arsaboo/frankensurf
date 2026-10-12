@@ -64,6 +64,9 @@ async def read(url: str, provider: str | None = None, render: bool | None = None
     allow_archive=True lets a walled page come from the Internet Archive's latest
     stored copy as the last resort; receipt.archived says when it was taken. Not
     live: don't use it for prices or stock.
+    A PDF cut short by pdf_max_pages or the cost cap says so in structured.truncated
+    and receipt.pdf. A paid page that cost more than max_cost_usd is still returned,
+    with receipt.budget.exceeded true (strict_cost_cap=True fails it instead).
     profile names a stored FrankenSurf login (see the profiles tool); the session
     itself never reaches the agent.
     try_harder_than takes the trace_id of an earlier read whose page wasn't what

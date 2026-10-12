@@ -1,6 +1,6 @@
 {
  "schema": "frankensurf.searchbench-queries/v1",
- "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once. Set blind2 (30 queries, new companies, varied phrasing) was written on 12 Oct 2026 before the announcement-precision change was measured, and run once.",
+ "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once. Set blind2 (30 queries, new companies, varied phrasing) was written on 12 Oct 2026 before the announcement-precision change was measured, and run once. Set blind3 (60 queries, 10 per kind, entities in no other set) was written at 16:46 AEDT on 12 Oct 2026, before v0.39 was measured, and run once.",
  "shuffle_seed": 20261012,
  "queries": [
   {
@@ -2328,6 +2328,684 @@
    "recency": "month",
    "vertical": "news",
    "needs_specific": true
+  },
+  {
+   "id": "blind3-announcement-01",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "General Motors latest announcement",
+   "entity_terms": [
+    "general motors|gm"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-02",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "what did Hewlett Packard Enterprise announce this month",
+   "entity_terms": [
+    "hewlett packard enterprise|hpe"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-03",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "Palantir press release this month",
+   "entity_terms": [
+    "palantir"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-04",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "Broadcom newest product launch",
+   "entity_terms": [
+    "broadcom"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-05",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "Airbnb official announcement",
+   "entity_terms": [
+    "airbnb"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-06",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "Datadog latest announcement",
+   "entity_terms": [
+    "datadog"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-07",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "what did GitLab announce this month",
+   "entity_terms": [
+    "gitlab"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-08",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "Twilio press release this month",
+   "entity_terms": [
+    "twilio"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-09",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "Rakuten newest product launch",
+   "entity_terms": [
+    "rakuten"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-announcement-10",
+   "set": "blind3",
+   "category": "announcement",
+   "query": "Honda official announcement",
+   "entity_terms": [
+    "honda"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind3-news-01",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Siemens Energy past month",
+   "entity_terms": [
+    "siemens energy"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-02",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Maersk past month",
+   "entity_terms": [
+    "maersk"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-03",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Nestle past month",
+   "entity_terms": [
+    "nestl*"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-04",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Unilever past month",
+   "entity_terms": [
+    "unilever"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-05",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Lufthansa this week",
+   "entity_terms": [
+    "lufthansa"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-06",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Hyundai this week",
+   "entity_terms": [
+    "hyundai"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-07",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Sony this week",
+   "entity_terms": [
+    "sony"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-08",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Goldman Sachs this week",
+   "entity_terms": [
+    "goldman sachs"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-09",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Novo Nordisk past month",
+   "entity_terms": [
+    "novo nordisk"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-news-10",
+   "set": "blind3",
+   "category": "news",
+   "query": "news about Ikea past month",
+   "entity_terms": [
+    "ikea"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind3-howto-01",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to read a parquet file with polars",
+   "entity_terms": [
+    "parquet",
+    "polars"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-02",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to debounce a function in javascript",
+   "entity_terms": [
+    "debounce"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-03",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to create a virtual environment with uv",
+   "entity_terms": [
+    "uv",
+    "virtual|venv"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-04",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to add a foreign key in postgresql",
+   "entity_terms": [
+    "foreign key",
+    "postgres*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-05",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to set up eslint flat config",
+   "entity_terms": [
+    "eslint",
+    "flat config"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-06",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to rebase a branch onto main in git",
+   "entity_terms": [
+    "rebase"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-07",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to use async await in rust with tokio",
+   "entity_terms": [
+    "tokio"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-08",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to deploy a docker container to fly.io",
+   "entity_terms": [
+    "fly"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-09",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to write a systemd service file",
+   "entity_terms": [
+    "systemd",
+    "service"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-howto-10",
+   "set": "blind3",
+   "category": "howto",
+   "query": "how to profile python code with cprofile",
+   "entity_terms": [
+    "cprofile"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind3-code-01",
+   "set": "blind3",
+   "category": "code",
+   "query": "fastapi github repo",
+   "entity_terms": [
+    "fastapi"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-02",
+   "set": "blind3",
+   "category": "code",
+   "query": "htmx github repository",
+   "entity_terms": [
+    "htmx"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-03",
+   "set": "blind3",
+   "category": "code",
+   "query": "python library for fuzzy string matching",
+   "entity_terms": [
+    "fuzz*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-04",
+   "set": "blind3",
+   "category": "code",
+   "query": "rust crate for command line argument parsing",
+   "entity_terms": [
+    "clap|argument|cli"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-05",
+   "set": "blind3",
+   "category": "code",
+   "query": "duckdb source code",
+   "entity_terms": [
+    "duckdb"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-06",
+   "set": "blind3",
+   "category": "code",
+   "query": "go library for structured logging",
+   "entity_terms": [
+    "log*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-07",
+   "set": "blind3",
+   "category": "code",
+   "query": "javascript library for date formatting",
+   "entity_terms": [
+    "date"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-08",
+   "set": "blind3",
+   "category": "code",
+   "query": "tauri github repo",
+   "entity_terms": [
+    "tauri"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-09",
+   "set": "blind3",
+   "category": "code",
+   "query": "python package for reading excel files",
+   "entity_terms": [
+    "excel|xlsx"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-code-10",
+   "set": "blind3",
+   "category": "code",
+   "query": "ollama github repository",
+   "entity_terms": [
+    "ollama"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind3-paper-01",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on state space models",
+   "entity_terms": [
+    "state space"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-02",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on vision language models",
+   "entity_terms": [
+    "vision",
+    "language"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-03",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on protein structure prediction",
+   "entity_terms": [
+    "protein"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-04",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on reinforcement learning from human feedback",
+   "entity_terms": [
+    "human feedback|rlhf"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-05",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on graph neural networks",
+   "entity_terms": [
+    "graph",
+    "neural"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-06",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on text to video generation",
+   "entity_terms": [
+    "video"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-07",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on quantization of large language models",
+   "entity_terms": [
+    "quantiz*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-08",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on federated learning",
+   "entity_terms": [
+    "federated"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-09",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on code generation benchmarks",
+   "entity_terms": [
+    "code",
+    "benchmark*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-paper-10",
+   "set": "blind3",
+   "category": "paper",
+   "query": "recent papers on model interpretability",
+   "entity_terms": [
+    "interpretab*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind3-fact-01",
+   "set": "blind3",
+   "category": "fact",
+   "query": "who founded Nvidia",
+   "entity_terms": [
+    "nvidia"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-02",
+   "set": "blind3",
+   "category": "fact",
+   "query": "what is the capital of Kazakhstan",
+   "entity_terms": [
+    "kazakhstan"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-03",
+   "set": "blind3",
+   "category": "fact",
+   "query": "who wrote the novel Middlemarch",
+   "entity_terms": [
+    "middlemarch"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-04",
+   "set": "blind3",
+   "category": "fact",
+   "query": "when was the Golden Gate Bridge built",
+   "entity_terms": [
+    "golden gate"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-05",
+   "set": "blind3",
+   "category": "fact",
+   "query": "what is the tallest mountain in Africa",
+   "entity_terms": [
+    "kilimanjaro|africa"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-06",
+   "set": "blind3",
+   "category": "fact",
+   "query": "who invented the World Wide Web",
+   "entity_terms": [
+    "world wide web"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-07",
+   "set": "blind3",
+   "category": "fact",
+   "query": "what language is spoken in Brazil",
+   "entity_terms": [
+    "brazil"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-08",
+   "set": "blind3",
+   "category": "fact",
+   "query": "who painted Girl with a Pearl Earring",
+   "entity_terms": [
+    "pearl earring"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-09",
+   "set": "blind3",
+   "category": "fact",
+   "query": "how long is the Danube river",
+   "entity_terms": [
+    "danube"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind3-fact-10",
+   "set": "blind3",
+   "category": "fact",
+   "query": "what year did the Berlin Wall fall",
+   "entity_terms": [
+    "berlin wall"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
   }
  ]
 }

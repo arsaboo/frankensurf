@@ -19,7 +19,7 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## Use it
 
-It joins the default route by itself once set up. To use it on its own:
+It is optional: `frankensurf setup` doesn't install it and reports it as `not installed (optional)`. Until you install it, the default route skips it, and pinning it fails with `PROVIDER_UNAVAILABLE`. Once installed it joins the default route by itself, and `setup` checks it in `works_here`. To use it on its own:
 
 <Tabs syncKey="lang">
 <TabItem label="Python">

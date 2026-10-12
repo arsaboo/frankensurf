@@ -358,7 +358,7 @@ async def test_firecrawl_pdf_cost_is_base_credit_plus_pages_when_credits_are_not
     assert reported["receipt"]["cost_usd"] == round(20 * 0.0038, 6)
 
 
-async def test_overspend_is_recorded_honestly_and_stops_the_paid_climb(tmp_path, monkeypatch, api):
+async def test_overspend_keeps_the_paid_page_flags_it_and_stops_the_paid_climb(tmp_path, monkeypatch, api):
     calls, routes = api
     key(monkeypatch, "firecrawl_api_key")
     key(monkeypatch, "zenrows_api_key")
@@ -369,9 +369,66 @@ async def test_overspend_is_recorded_honestly_and_stops_the_paid_climb(tmp_path,
     result = await read(tmp_path, URL, provider_candidates=("firecrawl", "zenrows"),
                         allow_paid_fallbacks=True, max_cost_usd=0.01)
     receipt = result["receipt"]
-    assert receipt["status"] == "failed"
-    assert receipt["cost_usd"] == round(31 * 0.0038, 6) > 0.01
+    spent = round(31 * 0.0038, 6)
+    assert receipt["status"] == "observed" and result["title"] == "Item one"
+    assert receipt["cost_usd"] == spent > 0.01
     assert receipt["cost_budget_satisfied"] is False
+    assert receipt["budget"] == {"cap_usd": 0.01, "spent_usd": spent, "exceeded": True}
     first = receipt["attempts"][0]
-    assert first["provider"] == "firecrawl" and first["cost_usd"] == round(31 * 0.0038, 6)
+    assert first["provider"] == "firecrawl" and first["cost_usd"] == spent
     assert [call.url.host for call in calls] == ["api.firecrawl.dev"]
+
+
+async def test_strict_cost_cap_discards_the_overspent_page(tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    key(monkeypatch, "zenrows_api_key")
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(30)
+    routes["https://api.zenrows.com/v1/"] = lambda request: httpx.Response(
+        200, text=HTML, headers={"content-type": "text/html", "x-request-cost": "0.001"})
+    result = await read(tmp_path, URL, provider_candidates=("firecrawl", "zenrows"),
+                        allow_paid_fallbacks=True, max_cost_usd=0.01, strict_cost_cap=True)
+    receipt = result["receipt"]
+    assert receipt["status"] == "failed" and receipt["failure"]["code"] == "BUDGET_EXHAUSTED"
+    assert receipt["cost_budget_satisfied"] is False and "budget" not in receipt
+    assert not result.get("text")
+    assert [call.url.host for call in calls] == ["api.firecrawl.dev"]
+
+
+def test_strict_cost_cap_is_validated():
+    assert WebPolicy().strict_cost_cap is False
+    with pytest.raises(ValueError):
+        WebPolicy(strict_cost_cap="yes")
+
+
+async def test_firecrawl_pdf_truncation_uses_total_pages_when_reported(tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(10, totalPages=48)
+    result = await read(tmp_path, PDF_URL, provider="firecrawl", allow_paid_fallbacks=True,
+                        pdf_max_pages=10)
+    receipt = result["receipt"]
+    assert result["structured"]["pdf"] == {"pages": 10, "pages_total": 48, "truncated": True}
+    assert receipt["pdf"] == {"pages_read": 10, "pages_total": 48, "truncated": True,
+                              "note": "PDF truncated: read 10 of 48 pages; raise pdf_max_pages or the cost cap"}
+    # The whole document was parsed: not truncated, no note.
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(8, totalPages=8)
+    whole = await read(tmp_path / "b", PDF_URL, provider="firecrawl", allow_paid_fallbacks=True,
+                       pdf_max_pages=10)
+    assert whole["receipt"]["pdf"] == {"pages_read": 8, "pages_total": 8, "truncated": False}
+    assert whole["structured"]["pdf"]["truncated"] is False
+
+
+async def test_firecrawl_pdf_truncation_is_inferred_from_the_page_limit_without_total_pages(
+        tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(10)
+    capped = await read(tmp_path / "a", PDF_URL, provider="firecrawl", allow_paid_fallbacks=True,
+                        pdf_max_pages=10)
+    assert capped["structured"]["pdf"] == {"pages": 10, "pages_total": None, "truncated": True}
+    assert "may be truncated" in capped["receipt"]["pdf"]["note"]
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(4)
+    short = await read(tmp_path / "b", PDF_URL, provider="firecrawl", allow_paid_fallbacks=True,
+                       pdf_max_pages=10)
+    assert short["structured"]["pdf"]["truncated"] is False and "note" not in short["receipt"]["pdf"]

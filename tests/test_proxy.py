@@ -150,7 +150,7 @@ def test_camoufox_falls_back_to_the_pinned_direct_download(monkeypatch, tmp_path
 
     def run(command, **kwargs):
         if "-c" in command:
-            assert command[-1] == "152.0.4-beta.31"
+            assert command[-2] == "152.0.4-beta.31"
             _mac_build(tmp_path, "152.0.4-beta.31-direct")
         return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
     monkeypatch.setattr(subprocess, "run", run)

@@ -219,6 +219,10 @@ class WebPolicy:
     # draft module comes back too, ready to save.
     auto_items: bool = False
     max_cost_usd: float | None = None
+    # A paid call that bills more than the cap (a PDF with more pages than
+    # estimated) still returns its valid content, with receipt.budget saying
+    # the cap was exceeded. True discards it and fails with BUDGET_EXHAUSTED.
+    strict_cost_cap: bool = False
     search_source_candidates: tuple[str, ...] | None = None
     search_source_allow: tuple[str, ...] | None = None
     search_source_prefer: tuple[str, ...] = ()
@@ -240,6 +244,7 @@ class WebPolicy:
     # most half of search_good_results. The allowance is per source's result set; a
     # whole search reads at most twice as many. 0 turns it off.
     search_date_reads: int = 6
+    search_hold_undated: bool = True
     search_date_read_timeout_seconds: float = 5.0
     # When the source being tried has no answer after this many seconds, the next
     # free source starts beside it (up to search_hedge_racers at once); the first
@@ -404,6 +409,7 @@ class WebPolicy:
 
     def _validate_capture_and_pacing(self):
         _require(type(self.allow_archive) is bool, "allow_archive must be a boolean")
+        _require(type(self.strict_cost_cap) is bool, "strict_cost_cap must be a boolean")
         _require(type(self.block_private_network) is bool, "block_private_network must be a boolean")
         _require(type(self.main_content) is bool, "main_content must be a boolean")
         from .interactions import ACTIONS as _ACTIONS
@@ -417,6 +423,7 @@ class WebPolicy:
                  "search_merge_sources must be an integer from 1 to 10")
         _require(type(self.search_ladder) is bool, "search_ladder must be a boolean")
         _require(type(self.search_learned_routing) is bool, "search_learned_routing must be a boolean")
+        _require(isinstance(self.search_hold_undated, bool), "search_hold_undated must be a boolean")
         _require(_is_int(self.search_date_reads, 0) and self.search_date_reads <= 20,
                  "search_date_reads must be an integer from 0 to 20")
         _require(_is_number(self.search_date_read_timeout_seconds, positive=True),
@@ -772,6 +779,13 @@ def _remaining_cost_policy(policy, costs, *, paid):
     if paid and (remaining < 0 or (remaining == 0 and spent > 0)):
         raise WebFailure("BUDGET_EXHAUSTED", "Aggregate acquisition cost cap is exhausted")
     return replace(policy, max_cost_usd=max(0, remaining))
+
+
+def _budget_receipt(cap, spent, status):
+    """receipt.budget for an observed result that cost more than its cap, else None."""
+    if status == "observed" and spent is not None and spent > cap:
+        return {"cap_usd": cap, "spent_usd": spent, "exceeded": True}
+    return None
 
 
 class WebFailure(Exception):
@@ -1420,11 +1434,38 @@ def _strip_json_prefix(text: str) -> str:
     return text
 
 
-def _pdf_text(raw: bytes, max_pages: int) -> str:
-    """Text of a PDF via pypdf, pages separated by form feeds. Title comes first."""
+def _with_pdf_info(structured, pdf):
+    """Add pages, pages_total and truncated to a PDF's structured data."""
+    fields = {key: pdf[key] for key in ("pages", "pages_total", "truncated")}
+    if structured is None:
+        return {"format": "pdf", **fields}
+    if isinstance(structured, dict):
+        if structured.get("format") == "pdf":
+            return {**structured, **fields}
+        return {**structured, "pdf": fields}
+    return structured
+
+
+def _pdf_note(read: int, total: int | None, paid: bool) -> str:
+    """The one line that says a PDF was cut short, and what to raise."""
+    lever = "pdf_max_pages or the cost cap" if paid else "pdf_max_pages"
+    if total is not None:
+        return f"PDF truncated: read {read} of {total} pages; raise {lever}"
+    return f"PDF may be truncated: read {read} pages, the page limit; raise {lever}"
+
+
+def _pdf_info(read: int, total: int | None, truncated: bool, paid: bool) -> dict:
+    return {"pages": read, "pages_total": total, "truncated": truncated,
+            **({"note": _pdf_note(read, total, paid)} if truncated else {})}
+
+
+def _pdf_read(raw: bytes, max_pages: int) -> tuple[str, dict]:
+    """Text of a PDF via pypdf, pages separated by form feeds, with the title first,
+    and what was read: {"pages", "pages_total", "truncated"[, "note"]}."""
     from pypdf import PdfReader
     try:
         reader = PdfReader(io.BytesIO(raw))
+        total = len(reader.pages)
         pages = []
         for page in reader.pages[:max_pages]:
             try:
@@ -1435,7 +1476,12 @@ def _pdf_text(raw: bytes, max_pages: int) -> str:
     except Exception as exc:
         raise WebFailure("SCHEMA_CHANGED", "PDF could not be read") from exc
     text = "\f".join(pages).strip()
-    return ("Title: " + title + "\n\n" if title else "") + text
+    return (("Title: " + title + "\n\n" if title else "") + text,
+            _pdf_info(len(pages), total, total > len(pages), paid=False))
+
+
+def _pdf_text(raw: bytes, max_pages: int) -> str:
+    return _pdf_read(raw, max_pages)[0]
 
 
 def _ndjson_records(content: str):
@@ -4898,6 +4944,8 @@ class Runtime:
         if budget_cap is not None:
             receipt.update(max_cost_usd=budget_cap,
                 cost_budget_satisfied=receipt["cost_usd"] is not None and receipt["cost_usd"] <= budget_cap)
+            if over := _budget_receipt(budget_cap, receipt["cost_usd"], receipt["status"]):
+                receipt["budget"] = over
         # Individual acquisitions already recorded their own routing observations.
         self._save_trace(result, record_observations=False)
         return result
@@ -5019,7 +5067,8 @@ class Runtime:
                 and isinstance(response.get("raw"), (bytes, bytearray))
                 and response["raw"][:5] == b"%PDF-"):
             # Raw PDF bytes are not text; stitch in pypdf for that.
-            response["content"] = _pdf_text(bytes(response["raw"]), policy.pdf_max_pages)
+            response["content"], response["pdf"] = _pdf_read(
+                bytes(response["raw"]), policy.pdf_max_pages)
         try:
             parsed = parse_content(
                 response["content"],
@@ -5074,8 +5123,15 @@ class Runtime:
 
     def _record_observation(self, result, receipt, response, parsed, policy, identity_capture):
         """Copy an accepted response into the result; return the evidence to commit."""
+        pdf = response.get("pdf")
+        if pdf:
+            # Say a PDF was cut short wherever the agent looks (receipt, structured).
+            parsed = {**parsed, "structured": _with_pdf_info(parsed.get("structured"), pdf)}
+            receipt["pdf"] = {"pages_read": pdf["pages"], "pages_total": pdf["pages_total"],
+                              "truncated": pdf["truncated"],
+                              **({"note": pdf["note"]} if pdf.get("note") else {})}
         result.update({k:v for k,v in response.items()
-            if k not in {"raw", "screenshot", "http_status",
+            if k not in {"raw", "screenshot", "http_status", "pdf",
                          "url", "navigation_data",
                          "identity_private_image_sources",
                          "visible_snapshot"}})
@@ -5482,7 +5538,11 @@ class Runtime:
             raise WebFailure("PROVIDER_UNAVAILABLE", "Acquisition configuration changed; retry with its current version")
         if attempt_policy.max_cost_usd is not None and (
                 attempt_cost is None or attempt_cost > attempt_policy.max_cost_usd):
-            raise WebFailure("BUDGET_EXHAUSTED", "Acquisition cost cannot satisfy the remaining aggregate cap")
+            # A known overspend on a valid page keeps the page; the receipt says
+            # so and nothing more is spent. An unknown cost, or strict_cost_cap,
+            # refuses it.
+            if attempt_cost is None or attempt_policy.strict_cost_cap:
+                raise WebFailure("BUDGET_EXHAUSTED", "Acquisition cost cannot satisfy the remaining aggregate cap")
 
     def _observed_attempt(self, response, policy, candidate, candidate_version,
                           candidate_binding_id, attempt_started, _recipe,
@@ -5884,6 +5944,8 @@ class Runtime:
             aggregate_cost = _total_cost([*_prior_costs, receipt["cost_usd"]])
             receipt.update(max_cost_usd=policy.max_cost_usd,
                 cost_budget_satisfied=aggregate_cost is not None and aggregate_cost <= policy.max_cost_usd)
+            if over := _budget_receipt(policy.max_cost_usd, aggregate_cost, receipt["status"]):
+                receipt["budget"] = over
         if receipt["status"] == "failed":
             result["_repair_input"] = {
                 "policy": asdict(policy),
@@ -6301,6 +6363,15 @@ class Runtime:
             final = merge_results(pool, windowed=bool(recency))
         else:
             final = pool[0][1] if pool else []
+        held = []
+        if ladder and recency and policy.search_hold_undated:
+            # In a windowed search, results whose date could not be verified stay out of
+            # the answer when any verified ones exist; the agent still sees them apart.
+            everything = merge_results(pool, windowed=True) if len(pool) > 1 else final
+            verified = [item for item in everything if (item.get("check") or {}).get("in_window") is True]
+            if verified:
+                held = [item for item in everything if (item.get("check") or {}).get("in_window") is not True]
+                final = verified
         final = final[:limit]
         if winner is None and final:
             winner = "merged" if len(pool) > 1 else pool[0][0]
@@ -6360,6 +6431,8 @@ class Runtime:
                     filtered[key] += value
             receipt["search_options"] = {**options, "filtered": filtered}
         response["results"] = final
+        if held:
+            response["unverified_results"] = held[:limit]
         receipt["search_routing"] = {"selection_basis": basis, "vertical": vertical,
             "candidates": candidates, "automatic_fallback": source is None,
             "benchmark_earned_order": False,
@@ -6397,6 +6470,8 @@ class Runtime:
             receipt.update(max_cost_usd=policy.max_cost_usd,
                 cost_budget_satisfied=receipt["cost_usd"] is not None
                 and receipt["cost_usd"] <= policy.max_cost_usd)
+            if over := _budget_receipt(policy.max_cost_usd, receipt["cost_usd"], receipt.get("status")):
+                receipt["budget"] = over
         response["receipt"] = receipt
         response["results"] = [{**item, "receipt": copy.deepcopy(receipt)}
                                for item in response["results"]]
