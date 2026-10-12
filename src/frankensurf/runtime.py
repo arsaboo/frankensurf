@@ -233,6 +233,14 @@ class WebPolicy:
     # weak sets up with it. False keeps the first answer.
     search_ladder: bool = True
     search_good_results: int = 3
+    # A windowed automatic search (recency) reads the pages of up to this many
+    # undated results that would make the top, over plain http with a short
+    # timeout and no paid tools, to find their publication date; results then
+    # provably outside the window drop out, and ones still undated count for at
+    # most half of search_good_results. The allowance is per source's result set; a
+    # whole search reads at most twice as many. 0 turns it off.
+    search_date_reads: int = 6
+    search_date_read_timeout_seconds: float = 5.0
     # When the source being tried has no answer after this many seconds, the next
     # free source starts beside it (up to search_hedge_racers at once); the first
     # set that passes wins and the rest are cancelled. 0 turns it off.
@@ -409,6 +417,10 @@ class WebPolicy:
                  "search_merge_sources must be an integer from 1 to 10")
         _require(type(self.search_ladder) is bool, "search_ladder must be a boolean")
         _require(type(self.search_learned_routing) is bool, "search_learned_routing must be a boolean")
+        _require(_is_int(self.search_date_reads, 0) and self.search_date_reads <= 20,
+                 "search_date_reads must be an integer from 0 to 20")
+        _require(_is_number(self.search_date_read_timeout_seconds, positive=True),
+                 "search_date_read_timeout_seconds must be positive and finite")
         _require(_is_int(self.search_good_results, 1) and self.search_good_results <= 100,
                  "search_good_results must be an integer from 1 to 100")
         _require(_is_number(self.search_hedge_after_seconds),
@@ -5702,7 +5714,8 @@ class Runtime:
                             candidate,
                             ProviderRequest(
                                 url, attempt_policy,
-                                "extract" if adapter else "read"),
+                                "extract" if adapter else "read",
+                                plan_state.get("pdf_bytes")),
                             self._provider_services(
                                 identity_binding=identity_binding),
                             _evidence_preparer=(
@@ -5815,6 +5828,10 @@ class Runtime:
                             candidate, candidate_version, candidate_binding_id,
                             attempt_started, attempt_cost, cost_reported, receipt,
                             attempts, attempt_costs, _recipe, resolved)
+                        if isinstance(response, dict) and "pdf" in (
+                                response.get("content_type") or "").lower():
+                            # Paid tools bill PDFs per page; remember how big this one is.
+                            plan_state["pdf_bytes"] = len(response.get("raw") or b"")
                         vendor = getattr(exc, "wall_vendor", None)
                         if vendor and not plan_state.get("vendor") and not resolved:
                             plan_state["vendor"] = vendor
@@ -6028,7 +6045,8 @@ class Runtime:
                                              exclude_domains=exclude_domains, recency=recency,
                                              region=region, vertical=vertical)
         from .search import MAX_EXCLUDE_OPERATORS, VERTICALS, filter_results, normalize_options
-        from .search_checks import accepted, annotate, check_results, merge_results
+        from .search_checks import (accepted, annotate, check_results, enrich_dates, good_count,
+                                    merge_results)
         from .search_plugins import SearchRequest, SearchServices
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise ValueError("Invalid search query")
@@ -6050,6 +6068,12 @@ class Runtime:
         try:
             require_action(policy, "READ_PUBLIC")
             candidates = self.searches.candidates(policy, explicit=source, vertical=vertical)
+            if (source is None and policy.search_ladder and vertical not in (None, "web")
+                    and policy.search_source_candidates is None):
+                # A vertical's own sources climb first; the general web engines are
+                # the rungs after them, so one slow or rate-limited API is not a dead end.
+                candidates += [identifier for identifier in self.searches.candidates(policy, vertical="web")
+                               if identifier not in candidates]
         except WebFailure as exc:
             candidates, planning_failure = [], exc
         else:
@@ -6074,6 +6098,26 @@ class Runtime:
         services = SearchServices(read=self.read)
         # The ladder climbs only on an automatic search; an explicit source is asked once.
         ladder = source is None and policy.search_ladder
+        # Date enrichment: undated results are read for their publication date, so a
+        # windowed search can tell which are in the window (search_checks.enrich_dates).
+        enrich = bool(ladder and recency and policy.search_date_reads > 0)
+        date_reads = {"tried": 0, "dated": 0, "dropped": 0, "latency_ms": 0, "cost_usd": 0.0}
+        date_memo = {}
+        # Cheap and polite: plain http, one short try, no paid tool, no signed-in identity;
+        # the read path's per-origin pacing still applies.
+        date_policy = replace(
+            policy, provider="http", provider_candidates=None, allow_paid_fallbacks=False,
+            allow_real_browser=False, lightning=False, identity=None, profile=None,
+            timeout_seconds=min(policy.timeout_seconds, policy.search_date_read_timeout_seconds),
+            content_ready_timeout_seconds=min(policy.content_ready_timeout_seconds,
+                                              policy.search_date_read_timeout_seconds),
+            provider_max_attempts_per_candidate=1, rescue_not_found=False, max_pages=1,
+            interact_on_escalation=False, warm_up_on_wall=False, use_egress_pool=False,
+            completeness_escalation=False, allow_handoff=False, try_harder=False) if enrich else None
+
+        async def date_read(url):
+            return await self.read(url, date_policy)
+
         qtype = _search_query_type(vertical, options)
         order, order_notes = self._search_order(candidates, qtype, policy, source)
         paid_ids = {item["id"] for item in self.searches.inspect() if item["paid"]}
@@ -6201,7 +6245,21 @@ class Runtime:
                         items, dropped = (filter_results(response["results"], options, now)
                                           if options else (response["results"], {}))
                         report = check_results(query, items, limit=limit, recency=recency, now=now,
-                                               min_good=policy.search_good_results)
+                                               min_good=policy.search_good_results, weigh_undated=enrich)
+                        # N pages per source's result set, 2N for the whole search.
+                        spare = min(policy.search_date_reads, 2 * policy.search_date_reads - date_reads["tried"])
+                        if enrich and spare > 0 and deadline - time.monotonic() > 2:
+                            read_started = time.monotonic()
+                            items, report, found = await enrich_dates(
+                                query, items, report, date_read, limit=limit, budget=spare, memo=date_memo,
+                                timeout=policy.search_date_read_timeout_seconds,
+                                gap=policy.origin_min_interval_seconds, recency=recency, now=now,
+                                min_good=policy.search_good_results)
+                            for key in ("tried", "dated", "dropped"):
+                                date_reads[key] += found[key]
+                            date_reads["cost_usd"] += found["cost_usd"]
+                            date_reads["latency_ms"] += round((time.monotonic() - read_started) * 1000)
+                            costs.append(_measured_cost(found["cost_usd"]))
                         kept = accepted(items, report) if ladder else annotate(items, report)
                         rungs[identifier] = {"report": report, "kept": kept, "dropped": dropped}
                         attempt.update(count=len(response["results"]), passed=report["passed"],
@@ -6212,8 +6270,9 @@ class Runtime:
                             winner, stopped, finish = identifier, "first_answer", True
                         elif report["verdict"] == "good":
                             winner, stopped, finish = identifier, "good", True
-                        elif len(rungs) > 1 and len(merge_results(
-                                [(name, rung["kept"]) for name, rung in rungs.items()])) >= report["need"]:
+                        elif len(rungs) > 1 and good_count(merge_results(
+                                [(name, rung["kept"]) for name, rung in rungs.items()]),
+                                report["need"], bool(recency), enrich) >= report["need"]:
                             # No source is good alone; together their passing results are.
                             winner, stopped, finish = "merged", "good", True
                     if source is not None or failure in policy.search_terminal_failures:
@@ -6314,8 +6373,9 @@ class Runtime:
             for reason, count in rung["report"]["reasons"].items():
                 reasons[reason] = reasons.get(reason, 0) + count
         passed = sum(1 for item in final if item["check"]["passed"])
+        weighed = good_count(final, need, bool(recency), enrich)
         verdict = (rungs[winner]["report"]["verdict"] if winner in rungs
-                   else None if not rungs else "good" if passed >= need else "weak" if passed else "empty")
+                   else None if not rungs else "good" if weighed >= need else "weak" if passed else "empty")
         receipt["search_ladder"] = {"enabled": ladder, "query_type": qtype, "order": order,
             "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes}
         receipt["search_checks"] = {"verdict": verdict, "need": need, "passed": passed,
@@ -6326,6 +6386,8 @@ class Runtime:
                          **{key: item["check"][key] for key in
                             ("in_window", "on_query", "published", "date_source", "kind")}}
                         for item in final]}
+        if enrich:
+            receipt["search_checks"]["date_reads"] = {**date_reads, "cost_usd": round(date_reads["cost_usd"], 6)}
         if ladder and policy.search_learned_routing:
             self._learn_search(qtype, [(item["source"], item["source"] in rungs
                                         and rungs[item["source"]]["report"]["verdict"] == "good",

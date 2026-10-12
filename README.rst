@@ -121,7 +121,9 @@ conditional requests. Running on a server? Run Steel beside it
 set ``FRANKENSURF_PROXY`` to a proxy you bring.
 
 Agents learn the tools from a bundled skill: the MCP server sends it as its
-instructions, and ``frankensurf skill install`` adds it to ``~/.claude/skills``.
+instructions, and ``frankensurf skill install`` adds it to ``~/.claude/skills``
+(``frankensurf skill uninstall`` removes it). ``frankensurf setup`` asks before
+installing it and never does in scripts or CI; ``--install-skill`` says yes in advance.
 
 Reading many pages from one site? Let Frankensurf learn it first::
 

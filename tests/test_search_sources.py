@@ -227,7 +227,7 @@ async def test_site_watch_site_option_and_vertical_routing(tmp_path):
         result = await web.search("release", vertical="site", site="example.com")
         assert result["source"] == "site_watch"
         assert [item["title"] for item in result["results"]] == ["Release 2", "Release 1"]
-        assert result["receipt"]["search_routing"]["candidates"] == ["site_watch"]
+        assert result["receipt"]["search_routing"]["candidates"][0] == "site_watch"  # web engines are later rungs
 
 
 async def test_site_watch_probes_conventional_feeds_then_stops_at_first_hit(tmp_path):

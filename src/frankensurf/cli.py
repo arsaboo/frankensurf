@@ -155,11 +155,66 @@ def _module_op(args):
     return {"deleted": rest[0]}
 
 
+def _interactive():
+    """A person is at this terminal: stdin, stdout and stderr are all terminals, and this is not CI."""
+    import os
+    import sys
+    return (all(getattr(stream, "isatty", lambda: False)() for stream in (sys.stdin, sys.stdout, sys.stderr))
+            and not os.environ.get("CI"))
+
+
+def _ask_yes_no(question):
+    """Yes/no on stderr (stdout stays JSON); anything but y/yes, or no answer, is No."""
+    import sys
+    print(f"{question} [y/N] ", end="", file=sys.stderr, flush=True)
+    try:
+        return input().strip().lower() in ("y", "yes")
+    except EOFError:
+        return False
+
+
+def _skill_plan(args):
+    """Decide, before the long downloads, whether setup writes the skill into an agent's
+    config. Only the user's yes does: --install-skill, or a "y" at an interactive prompt.
+    Returns (install?, report): the report is what setup's JSON says about the skill."""
+    from . import skill
+    path = skill.path_for(args.skill_dir)
+    now = skill.installed(args.skill_dir)
+    report = {"path": str(path), "bundled_version": skill.bundled_version(),
+              "install_with": "frankensurf setup --install-skill (or: frankensurf skill install)",
+              "uninstall_with": "frankensurf skill uninstall" + (f" --skill-dir {args.skill_dir}" if args.skill_dir else "")}
+    if now:
+        report["installed_version"] = now["version"] or "unknown"
+        if now["current"]:
+            report["status"] = "up to date"
+            return False, report
+    if args.no_install_skill:
+        report["status"] = "left as is (--no-install-skill)" if now else "not installed (--no-install-skill)"
+        return False, report
+    if args.install_skill:
+        return True, report
+    if _interactive() and (now or args.skill_dir or skill.default_folder().parent.is_dir()):
+        if now:
+            question = (f"A FrankenSurf skill is installed at {path} (version {report['installed_version']}); "
+                        f"this is {report['bundled_version']}. Overwrite it?")
+        else:
+            question = (f"Install the FrankenSurf skill for Claude Code (teaches agents the tools) "
+                        f"into {path}?")
+        if _ask_yes_no(question):
+            return True, report
+        report["status"] = "declined"
+        return False, report
+    report["status"] = ("available, not installed: pass --install-skill to " + ("update it" if now else "install it")
+                        + " (setup only writes there with your say-so)")
+    return False, report
+
+
 def _setup(args):
     """frankensurf setup: Chromium for JavaScript pages, plus the free stealth providers."""
     import subprocess
     import sys
     say = lambda message: print(message, file=sys.stderr, flush=True)
+    install_skill, skill_report = _skill_plan(args)
     say("Downloading Chromium for JavaScript pages")
     # Download progress goes to stderr: stdout is the JSON result, for scripts.
     chromium = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"],
@@ -173,11 +228,13 @@ def _setup(args):
             stealth = {"error": str(error)[:300]}
     result = {"chromium": chromium, "stealth_providers": stealth,
               "next": "frankensurf read https://news.ycombinator.com --explain"}
-    from pathlib import Path
-    if (Path.home() / ".claude").is_dir():
-        # Claude Code is here: teach its agents the tools (frankensurf skill install for other folders).
+    if install_skill:
         from . import skill
-        result["skill"] = str(skill.install())
+        existed = skill.installed(args.skill_dir)
+        skill_report["path"] = str(skill.install(args.skill_dir))
+        skill_report["status"] = "updated" if existed else "installed"
+        skill_report["installed_version"] = skill_report["bundled_version"]
+    result["skill"] = skill_report
     if sys.platform.startswith("linux"):
         result["if_chromium_will_not_start"] = "sudo $(which python) -m playwright install-deps chromium"
     return result
@@ -277,8 +334,16 @@ async def run(args):
         if args.urls and args.urls[0] == "show":
             print(skill.text())
             return
-        result = {"installed": str(skill.install(args.skill_dir)),
-                  "note": "Agents that load skills from this folder now know how to use FrankenSurf"}
+        if args.urls and args.urls[0] == "uninstall":
+            removed = skill.uninstall(args.skill_dir)
+            result = {"removed": str(removed) if removed else None,
+                      "note": "Removed the FrankenSurf skill" if removed else
+                              f"No FrankenSurf skill at {skill.path_for(args.skill_dir)}"}
+        else:
+            result = {"installed": str(skill.install(args.skill_dir)),
+                      "version": skill.bundled_version(),
+                      "uninstall_with": "frankensurf skill uninstall",
+                      "note": "Agents that load skills from this folder now know how to use FrankenSurf"}
     elif args.operation == "module" and args.urls[0] == "discover":
         async with Runtime(state_dir=args.state) as web:
             result = await web.discover_module(args.urls[1], save=args.save, query=args.query)
@@ -406,7 +471,11 @@ def build_parser():
     parser.add_argument("--query", help="module discover: from a home page, search this and draft from the results")
     parser.add_argument("--since", help="watch-sites: only pages published since this ISO date (first poll)")
     parser.add_argument("--read-new", action="store_true", help="watch-sites: also read the new pages' main text")
-    parser.add_argument("--skill-dir", help="skill install: the skills folder (default ~/.claude/skills)")
+    parser.add_argument("--skill-dir", help="setup, skill install/uninstall: the skills folder (default ~/.claude/skills)")
+    parser.add_argument("--install-skill", action="store_true",
+        help="setup: install the agent skill into the skills folder without asking")
+    parser.add_argument("--no-install-skill", action="store_true",
+        help="setup: do not install the agent skill, and do not ask")
     parser.add_argument("--save", action="store_true",
         help="module discover: save the best drafted module")
     parser.add_argument("--module", metavar="ID",
@@ -583,8 +652,8 @@ def parse_args(argv=None):
             parser.error("module takes: list | show ID | add FILE | enable ID | disable ID | rm ID"
                          " | repair TRACE_ID FILE | discover URL [--save]")
     elif args.operation == "skill":
-        if args.urls not in ([], ["install"], ["show"]):
-            parser.error("skill takes: install [--skill-dir DIR] | show")
+        if args.urls not in ([], ["install"], ["uninstall"], ["show"]):
+            parser.error("skill takes: install [--skill-dir DIR] | uninstall [--skill-dir DIR] | show")
     elif args.operation == "egress":
         if args.urls != ["check"]:
             parser.error("egress takes: check")
@@ -598,6 +667,8 @@ def parse_args(argv=None):
     elif args.operation == "setup":
         if args.urls:
             parser.error("setup takes no arguments (add --no-stealth to skip the stealth providers)")
+        if args.install_skill and args.no_install_skill:
+            parser.error("--install-skill and --no-install-skill contradict each other")
     elif args.operation == "read-template":
         if len(args.urls) != 2:
             parser.error("read-template takes MODULE_ID TEMPLATE (and --param NAME=VALUE)")
@@ -615,6 +686,10 @@ def parse_args(argv=None):
             parser.error("do requires --intent-file, --identity, --grant-action and --action-origin")
     elif len(args.urls) != 1:
         parser.error(f"{args.operation} requires exactly one URL, trace ID or registration ID")
+    if (args.install_skill or args.no_install_skill) and args.operation != "setup":
+        parser.error("--install-skill and --no-install-skill are supported only for setup")
+    if args.skill_dir and args.operation not in ("setup", "skill"):
+        parser.error("--skill-dir is supported only for setup and skill")
     if args.identity and args.operation not in _WEB_OPERATIONS:
         parser.error("--identity is supported only for read, extract, paginate, batch, search, images and do")
     if args.assertions_file and args.operation != "extract":

@@ -5,7 +5,7 @@ import pytest
 
 from frankensurf.search import build_search, filter_results, normalize_options
 from frankensurf.search_checks import (accepted, annotate, canonical_url, check_result, check_results,
-                                       key_terms, merge_results, published, url_kind)
+                                       counted, extract_published, key_terms, merge_results, published, url_kind)
 
 NOW = datetime(2026, 10, 12, 12, 0, tzinfo=timezone.utc)
 
@@ -73,12 +73,12 @@ def test_published_ignores_dates_buried_in_the_text_and_future_source_dates():
 
 
 def test_window_fails_provably_old_results_and_leaves_unknown_dates_alone():
-    results = [item("https://a.test/new", "rust release", "", "2026-10-10T00:00:00Z"),
+    results = [item("https://a.test/newer-rust-release", "rust release", "", "2026-10-10T00:00:00Z"),
                item("https://b.test/old", "rust release", "", "2026-08-01T00:00:00Z"),
                item("https://c.test/unknown", "rust release", "no date")]
     report = check_results("rust release", results, limit=10, recency="week", now=NOW)
     verdicts = {row["url"]: row for row in report["results"]}
-    assert verdicts["https://a.test/new"]["in_window"] is True and verdicts["https://a.test/new"]["passed"]
+    assert verdicts["https://a.test/newer-rust-release"]["in_window"] is True and verdicts["https://a.test/newer-rust-release"]["passed"]
     assert verdicts["https://b.test/old"]["in_window"] is False
     assert verdicts["https://b.test/old"]["reasons"] == ["out_of_window"]
     assert verdicts["https://c.test/unknown"]["in_window"] is None and verdicts["https://c.test/unknown"]["passed"]
@@ -275,3 +275,246 @@ def test_post_filter_enforces_the_whole_list_with_subdomain_matching():
     assert [row["url"] for row in kept] == ["https://notsite02.example/e", "https://site02.example.org/f",
                                             "https://keep.test/g"]
     assert dropped["excluded"] == 4
+
+
+@pytest.mark.parametrize("url", [
+    "https://aws.example/new/",
+    "https://example.com/company/newsroom/",
+    "https://example.com/company/newsroom/press-release-archive/",
+    "https://dev.example.com/changelog/",
+    "https://example.com/headlines/",
+    "https://example.com/news-types/news/",
+    "https://community.example.com/c/announcements/22",
+    "https://example.com/quote/stock/ACME-123/news-press-releases/",
+    "https://example.com/press/press-releases/",
+    "https://example.com/en/whats-new",
+    "https://example.com/docs/release-notes/",
+    "https://example.com/blog/2026/",
+    "https://example.com/events/2/",
+    "https://aggregator.example/news/amd",
+    "https://aggregator.example/news/acme-corp",
+])
+def test_url_kind_catches_index_pages_by_their_last_segment(url):
+    assert url_kind(url) == "tag_listing"
+
+
+@pytest.mark.parametrize("url", [
+    "https://example.com/press/press-releases/2026/acme-announces-new-widget",
+    "https://example.com/news/2026/09/launching-x/",
+    "https://example.com/news/launching-meta-enterprise-platform/",
+    "https://example.com/news/12345",
+    "https://example.com/news/acme-launches-widget-2",
+    "https://example.com/blog/how-we-built-it",
+    "https://example.com/blog/2026/10/12/new-release",
+    "https://example.com/c/announcements/22/release-of-widget",
+    "https://example.com/newsletter-signup-guide",
+    "https://example.com/events/2026-conference-recap",
+])
+def test_url_kind_leaves_real_items_alone(url):
+    assert url_kind(url) == "item"
+
+
+def test_listing_paths_only_fail_when_the_query_asks_for_specific_items():
+    page = item("https://example.com/changelog/", "acme changelog")
+    assert check_result(page, ["acme"], specific=True, now=NOW)["reasons"] == ["tag_listing"]
+    assert check_result(page, ["acme"], specific=False, now=NOW)["passed"]
+
+
+PAGE = """<html><head>%s</head><body>%s</body></html>"""
+
+
+@pytest.mark.parametrize("head,body,origin", [
+    ('<meta property="article:published_time" content="2026-10-01T08:00:00Z">', "", "meta:article:published_time"),
+    ('<meta name="date" content="2026-10-01">', "", "meta:date"),
+    ('<script type="application/ld+json">{"@graph":[{"@type":"NewsArticle","datePublished":"2026-10-01T08:00:00+00:00"}]}</script>',
+     "", "jsonld"),
+    ("", '<span itemprop="datePublished" content="2026-10-01"></span>', "itemprop"),
+    ("", '<time datetime="2026-10-01T08:00:00Z">Oct 1</time>', "time"),
+])
+def test_extract_published_reads_page_metadata(head, body, origin):
+    when, found = extract_published(PAGE % (head, body), NOW)
+    assert (when.year, when.month, when.day) == (2026, 10, 1) and found == origin
+
+
+def test_extract_published_ignores_modified_dates_the_future_and_non_pages():
+    modified = PAGE % ('<meta property="article:modified_time" content="2026-10-01T08:00:00Z">'
+                       '<script type="application/ld+json">{"dateModified": "2026-10-01"}</script>', "")
+    assert extract_published(modified, NOW) == (None, None)
+    future = PAGE % ('<meta property="article:published_time" content="2031-01-01T00:00:00Z">', "")
+    assert extract_published(future, NOW) == (None, None)
+    assert extract_published(None, NOW) == (None, None) and extract_published("plain text", NOW) == (None, None)
+    assert extract_published(PAGE % ("<script type='application/ld+json'>{broken</script>", ""), NOW) == (None, None)
+
+
+def test_undated_results_count_for_at_most_half_the_quota_when_weighed():
+    assert counted(0, 5, 3, True) == 1 and counted(2, 5, 3, True) == 3 and counted(0, 5, 3, False) == 5
+    undated = [item("https://s%d.test/rust/%d" % (index, index), "rust news") for index in range(5)]
+    assert check_results("rust", undated, limit=10, recency="week", now=NOW)["verdict"] == "good"
+    weighed = check_results("rust", undated, limit=10, recency="week", now=NOW, weigh_undated=True)
+    assert weighed["verdict"] == "weak" and weighed["passed"] == 5 and weighed["counted"] == 1
+    assert check_results("rust", undated, limit=10, now=NOW, weigh_undated=True)["verdict"] == "good"
+
+
+def test_annotate_sets_published_from_a_snippet_or_url_date_only_for_windowed_checks():
+    results = [item("https://a.test/2026/10/11/story", "rust"), item("https://b.test/x", "rust", "2 days ago - rust")]
+    windowed = annotate(results, check_results("rust", results, limit=5, recency="week", now=NOW))
+    assert [row["published"] for row in windowed] == ["2026-10-11T23:59:59Z", "2026-10-10T12:00:00Z"]
+    assert [row["check"]["date_source"] for row in windowed] == ["url", "snippet"]
+    plain = annotate(results, check_results("rust", results, limit=5, now=NOW))
+    assert [row["published"] for row in plain] == [None, None]
+
+
+# --- homepages, entities and whole-word matching ------------------------------
+
+from frankensurf.search_checks import entities  # noqa: E402
+
+
+def passes(query, row, **kwargs):
+    return check_results(query, [row], now=NOW, **kwargs)["results"][0]
+
+
+@pytest.mark.parametrize("url", [
+    "https://www.nintendo.com/",
+    "https://www.nintendo.com",
+    "https://www.nintendo.com/en/",
+    "https://www.nintendo.com/en-us/",
+    "https://www.nintendo.com/en-gb/index.html",
+    "https://www.nintendo.com/zh-hans/",
+    "https://www.nintendo.com/us/",
+    "https://www.nintendo.com/news/",
+    "https://www.nintendo.com/en-us/news",
+    "https://www.nintendo.com/about",
+    "https://www.facebook.com/nintendo",
+    "https://www.nintendo.com/en/nintendo",
+])
+def test_one_term_news_queries_reject_homepages_roots_and_section_indexes(url):
+    row = item(url, "Nintendo")
+    for query in ("Nintendo latest announcement", "Nintendo news", "Nintendo new releases"):
+        verdict = passes(query, row)
+        assert not verdict["passed"] and verdict["reasons"][0] in ("homepage", "tag_listing"), (query, verdict)
+
+
+def test_a_recency_window_rejects_a_homepage_whatever_the_term_count():
+    row = item("https://www.nintendo.com/", "Nintendo")
+    assert passes("Nintendo", row, recency="week")["reasons"] == ["homepage"]
+    both = item("https://www.nintendo.com/en/", "Nintendo Switch")
+    assert passes("Nintendo Switch", both, recency="month")["reasons"] == ["homepage"]
+
+
+def test_news_words_make_any_query_specific_even_without_a_window():
+    for query in ("Nintendo announcements", "OpenAI papers", "Mozilla posts", "Meta releases"):
+        row = item("https://%s.test/" % query.split()[0].lower(), query)
+        assert passes(query, row)["reasons"] == ["homepage"], query
+
+
+@pytest.mark.parametrize("query,title", [
+    ("Nintendo", "Nintendo"), ("Nintendo homepage", "Nintendo"), ("Nintendo official site", "Nintendo"),
+    ("Nintendo website", "Nintendo"), ("nintendo home page", "Nintendo"), ("Hugging Face", "Hugging Face")])
+def test_navigational_queries_accept_a_homepage(query, title):
+    host = "huggingface.co" if "Face" in query else "www.nintendo.com"
+    assert passes(query, item("https://%s/" % host, title))["passed"]
+    assert passes(query, item("https://%s/en-us/" % host, title))["passed"]
+
+
+def test_a_navigational_query_accepts_the_entity_homepage_but_a_window_still_rejects_it():
+    row = item("https://huggingface.co/", "Hugging Face")
+    assert passes("Hugging Face", row)["passed"]
+    assert passes("Hugging Face official site", row)["passed"]
+    assert not passes("Hugging Face official site", row, recency="week")["passed"]
+
+
+def test_real_items_still_pass_news_queries():
+    row = item("https://www.nintendo.com/en-us/news/2026/10/new-console-announced", "Nintendo announces console")
+    assert passes("Nintendo latest announcement", row)["passed"]
+    assert passes("Nintendo latest announcement", item("https://www.nintendo.com/switch-2-sales", "Nintendo"))["passed"]
+
+
+def test_only_a_leading_segment_is_a_locale():
+    assert url_kind("https://example.com/en/") == "homepage"
+    assert url_kind("https://example.com/zh-hans") == "homepage"
+    assert url_kind("https://example.com/docs/en/install-guide") == "item"
+    assert url_kind("https://example.com/about-us") == "tag_listing"
+
+
+@pytest.mark.parametrize("query,expected", [
+    ("Nintendo latest announcement", [["nintendo"]]),
+    ("Hugging Face new model release", [["hugging", "face"]]),
+    ("Arm Holdings earnings", [["arm", "holdings"]]),
+    ("Bank of America layoffs", [["bank", "america"]]),
+    ("Tesla and Ford recall", [["tesla"], ["ford"]]),
+    ("latest news on Apple", [["apple"]]),
+    ("how to fix a leaky tap", []),
+    ("Best laptops for students", []),
+    ("Install Docker on Ubuntu", [["docker"], ["ubuntu"]]),
+    ("Rust Async Runtime Comparison", []),
+    ("rust async runtime", []),
+    ("What is Rust", [["rust"]]),
+])
+def test_entities_are_capitalised_runs_without_filler(query, expected):
+    assert entities(query) == expected
+
+
+@pytest.mark.parametrize("query,title,url", [
+    ("Arm Holdings earnings", "Alarm company reports earnings", "https://a.test/alarm-earnings"),
+    ("Arm Holdings earnings", "Harm reduction earnings", "https://a.test/x/1"),
+    ("Meta earnings", "Metadata earnings explained", "https://a.test/metadata-earnings"),
+    ("SAP earnings", "Sapling earnings report", "https://a.test/sapling-earnings"),
+    ("Nintendo latest announcement", "Sony latest announcement", "https://sony.test/news/2026/announcement"),
+])
+def test_terms_match_whole_words_not_substrings(query, title, url):
+    verdict = passes(query, item(url, title))
+    assert verdict["on_query"] is False and "off_query" in verdict["reasons"]
+
+
+@pytest.mark.parametrize("query,title,url", [
+    ("Arm Holdings earnings", "Arm Holdings reports earnings", "https://a.test/news/arm-1"),
+    ("Arm Holdings earnings", "Holdings: Arm quarterly results", "https://a.test/x/1"),
+    ("Hugging Face new model", "New model released", "https://huggingface.co/blog/new-model-2026"),
+    ("Hugging Face new model", "Hugging-Face launches a model", "https://a.test/x/1"),
+    ("Nintendo latest announcement", "Switch sales", "https://www.nintendo.com/en-us/news/2026/switch-sales"),
+    ("Kubernetes operators", "Writing a Kubernetes operator", "https://a.test/x/1"),
+    ("Tesla earnings", "Teslas earned more", "https://a.test/tesla-earnings-q3"),
+])
+def test_entity_in_title_url_or_domain_is_on_query(query, title, url):
+    assert passes(query, item(url, title))["on_query"] is True
+
+
+def test_multi_word_entity_needs_every_word_not_any_one():
+    assert passes("Hugging Face models", item("https://a.test/x/1", "Face cream models"))["on_query"] is False
+    assert passes("Hugging Face models", item("https://a.test/x/1", "Hugging puppies"))["on_query"] is False
+    assert passes("Arm Holdings earnings", item("https://a.test/x/1", "Arm wrestling earnings"))["on_query"] is False
+
+
+def test_a_generic_company_word_alone_in_unrelated_text_is_not_on_query():
+    # "apple" only in the snippet and no other query term: a recipe, not the company.
+    recipe = item("https://food.test/pie", "Easy pie", "Slice an apple and bake.")
+    assert passes("Apple", recipe)["on_query"] is False
+    assert passes("Apple earnings", recipe)["on_query"] is False
+    # The same word in the title is the company's.
+    assert passes("Apple earnings", item("https://news.test/x/1", "Apple earnings beat"))["on_query"] is True
+
+
+def test_a_snippet_mention_counts_with_another_query_term_or_a_full_multi_word_name():
+    assert passes("Apple earnings", item("https://a.test/x/1", "Quarterly results", "Apple posted earnings"))["on_query"]
+    assert passes("Hugging Face", item("https://a.test/x/1", "Open models", "by Hugging Face"))["on_query"]
+
+
+def test_lowercase_queries_match_any_whole_word_term():
+    assert passes("rust async", item("https://a.test/x/1", "Async patterns"))["on_query"] is True
+    assert passes("rust async", item("https://a.test/x/1", "Trust asynchronous"))["on_query"] is False
+
+
+def test_profile_pages_named_for_the_entity_are_not_items_only_for_specific_queries():
+    row = item("https://x.test/nintendo", "Nintendo (@nintendo)")
+    assert passes("Nintendo latest announcement", row)["reasons"] == ["homepage"]
+    assert passes("Nintendo", row)["passed"]
+    assert passes("Hugging Face news", item("https://x.test/hugging-face", "HF"))["reasons"] == ["homepage"]
+
+
+def test_failing_homepages_and_wrong_company_results_leave_a_weak_set():
+    junk = [item("https://www.nintendo.com/", "Nintendo"), item("https://sony.test/news/2026/a-launch", "Sony launch"),
+            item("https://x.test/alarm-2026", "Alarm system installs"), item("https://www.nintendo.com/en-us/", "Nintendo"),
+            item("https://nintendo.test/news/2026/10/new-game", "Nintendo new game announced")]
+    report = check_results("Nintendo latest announcement", junk, now=NOW)
+    assert report["verdict"] == "weak" and report["passed"] == 1
+    assert report["reasons"] == {"homepage": 2, "off_query": 2}

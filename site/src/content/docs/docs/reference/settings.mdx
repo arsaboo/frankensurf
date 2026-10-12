@@ -31,7 +31,7 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `unblocker_timeout_seconds` | `90.0` | Time allowed for an unblocker attempt. |
 | `agent_provider_timeout_seconds` | `300.0` | Time allowed for an agent provider such as Skyvern. |
 | `max_bytes` | 40 MB | Largest response accepted. |
-| `pdf_max_pages` | `50` | Most PDF pages to extract text from. |
+| `pdf_max_pages` | `50` | Most PDF pages to extract text from. Also the most pages a paid tool such as Firecrawl is asked to parse, since it bills per page. |
 | `capture_json_responses` | `False` | On rendered reads, return the JSON the page fetched for itself as `captured_json`. |
 | `capture_json_max_items` | `20` | Most captured JSON responses kept. |
 | `capture_json_max_bytes` | 2 MB | Largest captured JSON response kept. |
@@ -156,6 +156,8 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `search_merge_sources` | `4` | Sources asked at once by `search(mode="merge")`. |
 | `search_ladder` | `True` | An automatic search climbs sources until a result set passes the checks (on the query, inside the date window, real pages, deduplicated), carrying passing results up; false keeps the first answer. |
 | `search_good_results` | `3` | Passing results that make a set good (or the limit, if lower). |
+| `search_date_reads` | `6` | A windowed automatic search (`recency`) reads up to this many undated results' pages per source's result set (twice as many per search) over plain http, with no paid tool, to find their publication date; results provably outside the window drop out, and ones still undated count for at most half of `search_good_results`. 0 turns it off. |
+| `search_date_read_timeout_seconds` | `5.0` | Time one such date read gets, in seconds. |
 | `search_hedge_after_seconds` | `3.0` | After this long without an answer, the next free search source starts beside the current one; 0 turns it off. |
 | `search_hedge_racers` | `2` | Search sources running at once while racing, 1 to 3. Paid sources never race. |
 | `search_max_seconds` | `30.0` | Ceiling for one whole search, in seconds. |

@@ -1,0 +1,48 @@
+# macOS check for the free stealth browsers, installed from THIS checkout.
+# Runs only on pushes to claude/fix-macos and by hand (macOS minutes cost 10x).
+name: macOS stealth
+
+on:
+  push:
+    branches: ["claude/fix-macos"]
+  workflow_dispatch:
+
+jobs:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: macos-latest, python: "3.12"}
+          - {os: macos-latest, python: "3.13"}
+          - {os: macos-latest, python: "3.14"}
+          - {os: macos-15-intel, python: "3.12"}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      FRANKENSURF_DEBUG_WORKERS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ matrix.python }}"}
+      - name: install from this checkout
+        run: |
+          python -m venv /tmp/fs && /tmp/fs/bin/pip install -q --upgrade pip
+          /tmp/fs/bin/pip install -q ".[mcp]"
+          uname -m; sw_vers; /tmp/fs/bin/python -c "import platform; print(platform.machine(), platform.platform())"
+      - name: frankensurf setup
+        run: |
+          /tmp/fs/bin/frankensurf setup | tee /tmp/setup.json
+          /tmp/fs/bin/python -c "import json; d=json.load(open('/tmp/setup.json')); print('works_here', d['works_here']); print('stealth', d['stealth_providers'])"
+      - name: one read per provider
+        if: always()
+        run: |
+          status=0
+          for tool in local camoufox scrapling patchright; do
+            echo "::group::$tool"
+            /tmp/fs/bin/frankensurf read https://example.com --provider "$tool" > /tmp/r.json || true
+            /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/r.json'))['receipt']; f=r.get('failure') or {}; print('RESULT $tool', r['status'], f.get('code') or '', (f.get('message') or '')[:300])" | tee -a /tmp/results.txt
+            echo "::endgroup::"
+          done
+          grep -v observed /tmp/results.txt && status=1
+          exit $status

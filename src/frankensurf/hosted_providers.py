@@ -265,6 +265,34 @@ class InternetArchiveProvider(_Keyed):
         return page
 
 
+# A PDF page is usually 50 KB or more; fewer bytes per page would undercount pages.
+PDF_BYTES_PER_PAGE = 50_000
+
+
+def _pdf_page_estimate(request):
+    """Pages a PDF read may be billed for, or None when the URL is not likely a PDF.
+
+    Likely means the path ends in .pdf or an earlier attempt already saw PDF bytes.
+    Their size gives the page count; without one, assume the most pages
+    the policy would read (``pdf_max_pages``), the worst case the call can bill.
+    """
+    limit = getattr(request.policy, "pdf_max_pages", 50)
+    seen = getattr(request, "pdf_bytes", None)
+    if type(seen) is int and seen > 0:
+        return max(1, min(limit, -(-seen // PDF_BYTES_PER_PAGE)))
+    if urlsplit(request.url).path.lower().endswith(".pdf"):
+        return limit
+    return None
+
+
+def _affordable_credits(policy, per_credit):
+    """Whole credits the remaining cap pays for, or None when uncapped."""
+    cap = getattr(policy, "max_cost_usd", None)
+    if cap is None:
+        return None
+    return int(cap / per_credit + 1e-9) if per_credit > 0 else None
+
+
 class FirecrawlProvider(_Keyed):
     """Firecrawl /v2/scrape: rendered raw HTML, or markdown when preferred."""
     required_settings = ("firecrawl_api_key",)
@@ -275,16 +303,26 @@ class FirecrawlProvider(_Keyed):
     async def acquire(self, request, services):
         key = self._required("firecrawl_api_key")
         # List price: Hobby plan, $19 for 5,000 credits (Oct 2026). A scrape is
-        # 1 credit; PDFs cost one credit per page and can exceed this bound.
+        # 1 credit and a PDF adds 1 credit per parsed page
+        # (https://docs.firecrawl.dev/billing).
         per_credit = _rate("firecrawl_usd_per_credit", 0.0038)
-        _within_cap(request.policy, per_credit, "Firecrawl")
-        markdown = getattr(request.policy, "prefer_markdown", False)
-        body = {"url": request.url, "formats": ["markdown" if markdown else "rawHtml"]}
-        if request.policy.settle_ms > 1000:
+        policy = request.policy
+        pdf_pages = _pdf_page_estimate(request)
+        _within_cap(policy, per_credit * (1 + (pdf_pages or 0)), "Firecrawl")
+        # Whatever the URL looks like, never let Firecrawl parse more pages than
+        # the policy reads or the remaining cap pays for (the base credit comes first).
+        affordable = _affordable_credits(policy, per_credit)
+        max_pages = getattr(policy, "pdf_max_pages", 50)
+        if affordable is not None:
+            max_pages = min(max_pages, max(1, affordable - 1))
+        markdown = getattr(policy, "prefer_markdown", False)
+        body = {"url": request.url, "formats": ["markdown" if markdown else "rawHtml"],
+                "parsers": [{"type": "pdf", "maxPages": max_pages}]}
+        if policy.settle_ms > 1000:
             # Give script-rendered content time, as Core's own browsers settle.
-            body["waitFor"] = request.policy.settle_ms
+            body["waitFor"] = policy.settle_ms
         status, _, raw = await _call(
-            "POST", "https://api.firecrawl.dev/v2/scrape", request.policy,
+            "POST", "https://api.firecrawl.dev/v2/scrape", policy,
             headers={"Authorization": "Bearer " + key}, json_body=body)
         error = _service_status(status, "Firecrawl")
         if error:
@@ -296,10 +334,14 @@ class FirecrawlProvider(_Keyed):
             final = metadata.get("url") or metadata.get("sourceURL") or request.url
             content = data.get("markdown" if markdown else "rawHtml") or ""
             credits = metadata.get("creditsUsed")
+            pages = metadata.get("numPages")
+            is_pdf = "pdf" in str(metadata.get("contentType") or "").lower()
         except (ValueError, KeyError, TypeError, AttributeError):
             raise _failure("SCHEMA_CHANGED", "Firecrawl returned an unexpected body") from None
-        cost = (round(credits * per_credit, 6)
-                if type(credits) in (int, float) and credits >= 0 else None)
+        if type(credits) not in (int, float) or credits < 0:
+            # No credit count: a parsed PDF bills its base credit plus one per page.
+            credits = (1 + pages if is_pdf and type(pages) is int and pages >= 0 else None)
+        cost = round(credits * per_credit, 6) if credits is not None else None
         error = _target_status(target_status, final, cost)
         if error:
             raise error

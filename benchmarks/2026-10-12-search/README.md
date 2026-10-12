@@ -60,3 +60,23 @@ the v0.36.1 router is the `frankensurf_old` arm.
 - Judging is automatic: term matching, published dates, and URL shape, not a
   human reading every result.
 - 75 queries is small. A tie with Exa means "not distinguishable here", not "as good".
+
+## Blind set 2: announcement precision (30 queries)
+
+After v0.37.0, announcement precision was the weak spot. Undated results and
+newsroom/changelog index pages filled the top five. The fix reads undated top
+results for their publication date, drops the ones outside the window, and
+recognises index pages by path. To measure it without reusing a spent set,
+30 new queries were written before the change was measured: 20 announcement
+queries for companies in no other set, in five phrasings, and 10 news queries.
+Each arm was run once (`--set blind2`).
+
+| Arm | hit@5 | precision@5 | announcement precision | cost |
+|---|---|---|---|---|
+| v0.37.0 (free) | 90.0% | 56.7% | | $0 |
+| v0.38 announcement change (free) | 96.7% | 92.0% | 93.0% | $0 |
+| Exa Only | 100% | 94.0% | 92.0% | $0.36 |
+
+Rows: `blind2-rows-old.jsonl` (v0.37.0) and `blind2-rows-new.jsonl`.
+The stricter homepage and company-name checks in v0.38 were added after this
+run and are not part of these numbers.

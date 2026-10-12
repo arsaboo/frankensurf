@@ -136,8 +136,23 @@ A result fails when it:
 - shares no key term with the query (stopwords and words like *news*, *latest*,
   *this week* don't count);
 - is a homepage, search page, tag listing or challenge page, when the query asks
-  for specific items;
+  for specific items (a path that ends in an index word such as `/newsroom/`,
+  `/changelog/`, `/press-releases/` or `/c/announcements/22`, or an aggregator's
+  `/news/<company>`, is a listing; a path with a title slug is not);
 - repeats another result's page.
+
+With a `recency` window, results that carry no date are not left to guess at:
+the pages of up to `search_date_reads` (default 6) undated results that would make
+the top are read at once over plain http (`search_date_read_timeout_seconds`,
+default 5; no paid tools, the normal per-origin pacing), and the publication date
+in the page's own metadata (`article:published_time`, JSON-LD `datePublished`,
+`<time datetime>`; never a modified date) is set as the result's `published`
+with `date_source: "page"`. Results now provably outside the window drop out;
+results that still have no date stay, ranked below verified ones, and count for
+at most half of `search_good_results`, so the ladder keeps climbing instead of
+settling for undated filler. `receipt.search_checks.date_reads` reports
+`tried`, `dated`, `dropped`, `latency_ms` and `cost_usd`. `search_date_reads: 0`
+turns this off.
 
 Weak sets are not wasted: passing results from earlier sources are carried up,
 merged and deduplicated, and the search ends as soon as the sources together have
