@@ -301,6 +301,82 @@ def _link_text_share(content: str, text: str) -> float:
     return min(linked / max(len(" ".join(text.split())), 1), 1.0)
 
 
+# Navigation-led markdown: a reader (Jina, Firecrawl markdown, ...) returns the
+# page top to bottom, and many sites open with menus, link lists, consent text
+# and "Skip to content" before the article, or have no article at all.
+NAV_LEAD_CHARS = 1200      # a navigation block this long before the first prose is "large"
+NAV_LEAD_SHARE = 0.5       # of the lead, this share must be links or menu tokens
+NAV_THIN_PROSE = 1200      # prose (or code) after the lead below this is "thin"
+NAV_BARE_PROSE = 400       # a page with less prose than this and mostly links is only menus
+NAV_BARE_LINKS = 0.5
+_NAV_TOKEN = re.compile(r"(?i)^[\W_]*(menu|home|search|sign[ -]?in|sign[ -]?up|log[ -]?in|log[ -]?out|register|"
+                        r"subscribe|skip to [\w ]+|cart|basket|account|close|open menu|toggle[\w ]*|"
+                        r"main navigation|navigation|more|back to top|accept( all)?|reject( all)?|"
+                        r"contact( us)?|about( us)?|help|share|follow us|language|en|menu close)[\W_]*$")
+_LISTING_PATH = re.compile(r"(?i)/(index|archives?|directory|sitemap|contents|toc|tags?|topics|categories|"
+                           r"category|catalog|catalogue|browse|all|list|lists|glossary|a-z)(/|$|\.)")
+_SENTENCE_END = re.compile(r"""[.!?…:;)"'”’*_\]]$""")
+
+
+def _prose_line(plain: str) -> bool:
+    """A sentence-like line: 8 or more words, ending in punctuation."""
+    return len(plain.split()) >= 8 and _SENTENCE_END.search(plain.rstrip()) is not None
+
+
+def nav_led(content: str) -> dict | None:
+    """Measure a markdown page that opens with navigation; None when it does not.
+
+    Lines are navigation (mostly link text, or a bare menu word such as "Sign in"),
+    prose (8+ words ending in punctuation, not mostly links), or neutral (headings,
+    metadata). Fenced code counts as content. The lead is everything before the
+    first real paragraph (a prose line of 120+ characters that is not consent text).
+    A page is navigation-led when its lead is large and mostly navigation and the
+    content after it is thin, or when it is mostly links with almost no prose.
+    """
+    from .main_content import _CONSENT, _MD_LINK, _link_share
+    lines, fenced = [], False
+    for raw in (content or "")[:400_000].splitlines():
+        line = raw.strip()
+        if line.startswith(("```", "~~~")):
+            fenced = not fenced
+            continue
+        if not line:
+            continue
+        if fenced:
+            lines.append(("code", len(line)))
+            continue
+        plain = " ".join(_MD_LINK.sub(lambda found: found.group(1), line).split()).strip(" *#>-|_`")
+        links = bool(_MD_LINK.search(line))
+        if links and _link_share(line) >= 0.6 or _NAV_TOKEN.match(plain) and len(plain) <= 40 and not line.startswith("#"):
+            lines.append(("nav", len(plain) or len(line)))
+        elif line.startswith("#") or re.match(r"(?i)(title|url source|published time|markdown content|description):", line):
+            lines.append(("neutral", len(plain)))
+        elif _prose_line(plain) and _link_share(line) < 0.35:
+            lines.append(("consent" if _CONSENT.search(plain) else "prose", len(plain)))
+        else:
+            lines.append(("neutral", len(plain)))
+    total = sum(size for kind, size in lines if kind != "neutral") or 1
+    nav = sum(size for kind, size in lines if kind == "nav")
+    prose = sum(size for kind, size in lines if kind in ("prose", "code"))
+    # The lead ends at the first real paragraph.
+    start = next((index for index, line in enumerate(lines)
+                  if line[0] == "code" or (line[0] == "prose" and line[1] >= 120)), len(lines))
+    lead = lines[:start]
+    lead_chars = sum(size for kind, size in lead if kind != "neutral")
+    lead_nav = sum(size for kind, size in lead if kind == "nav")
+    after = sum(size for kind, size in lines[start:] if kind in ("prose", "code"))
+    measure = {"lead_chars": lead_chars, "lead_nav_share": round(lead_nav / max(lead_chars, 1), 2),
+               "prose_chars": prose, "prose_share": round(prose / total, 2), "nav_share": round(nav / total, 2)}
+    if lead_chars >= NAV_LEAD_CHARS and lead_nav / lead_chars >= NAV_LEAD_SHARE and after < NAV_THIN_PROSE:
+        measure["reason"] = (f"opens with {lead_chars} characters of navigation "
+                             f"({round(measure['lead_nav_share'] * 100)}% links); only {after} characters of prose follow")
+        return measure
+    if prose < NAV_BARE_PROSE and nav / total >= NAV_BARE_LINKS and total >= 400:
+        measure["reason"] = f"{round(nav / total * 100)}% of the text is links and menu words, {prose} characters of prose"
+        return measure
+    return None
+
+
 # Article conventions: schema.org types, Open Graph, and the paths publishers use.
 _ARTICLE_TYPES = {"Article", "NewsArticle", "BlogPosting", "Report", "ScholarlyArticle", "AnalysisNewsArticle",
                   "OpinionNewsArticle", "ReviewNewsArticle", "TechArticle", "LiveBlogPosting"}
@@ -367,6 +443,11 @@ def assess(url: str, result: dict, *, min_items: int = 10, min_prices: int = 4,
     if placeholder:
         return {"kind": kind, "complete": False, "score": score, "item_links": items, "prices": prices,
                 "text_chars": len(text), "reason": placeholder, "placeholder": True}
+    if "markdown" in content_type and kind != "search" and not _LISTING_PATH.search(urlparse(url).path or ""):
+        led = nav_led(content)
+        if led:
+            return {"kind": kind, "complete": False, "score": score, "item_links": items, "prices": prices,
+                    "text_chars": len(text), "nav_led": led, "reason": led["reason"]}
     if kind != "search" and prices == 0 and "html" in content_type:
         share = _link_text_share(content, text)
         if share > 0.8 and len(text) >= 400:
@@ -437,13 +518,15 @@ def quality(verdict: dict | None, receipt: dict | None = None) -> dict:
     flags = [name for name in ("placeholder", "off_query", "cookie_notice", "paywall") if verdict.get(name)]
     if verdict.get("link_text_share"):
         flags.append("menus")
+    if verdict.get("nav_led"):
+        flags.append("navigation")
     if verdict.get("needs_interaction"):
         flags.append("needs_interaction")
     if (receipt or {}).get("archived"):
         flags.append("archived")
     if (receipt or {}).get("rescued"):
         flags.append("rescued")
-    if not verdict.get("complete", True) or {"placeholder", "off_query", "cookie_notice", "menus"} & set(flags):
+    if not verdict.get("complete", True) or {"placeholder", "off_query", "cookie_notice", "menus", "navigation"} & set(flags):
         grade = "poor"
     elif flags:
         grade = "partial"
