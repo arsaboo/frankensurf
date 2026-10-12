@@ -3,8 +3,9 @@ real, on the query and inside the date window, and does the whole set deserve
 to end the search. Pure functions over normalised results (url, title,
 snippet, indexed_date); the router in Runtime.search decides what to do next.
 
-A result fails when it is provably outside the date window, shares no key term
-with the query, is a homepage, search page, tag listing or challenge page where
+A result fails when it is provably outside the date window, is not about the
+query (whole-word matches only; a named company or product must be in the title,
+URL or domain), is a homepage, search page, tag listing or challenge page where
 the query asked for specific items, or repeats another result's page. An
 unknown date is "unknown", not a failure; it only ranks below dated results,
 and enrich_dates reads the pages of undated results to find out.
@@ -40,7 +41,7 @@ _LISTING_SEGMENTS = frozenset({"tag", "tags", "tagged", "category", "categories"
                                "label", "labels", "archive", "archives", "author", "authors"})
 _SECTION_SEGMENTS = frozenset({"news", "blog", "blogs", "articles", "posts", "products", "shop", "store",
                                "stories", "videos", "reviews", "forum", "forums", "community", "latest",
-                               "trending", "popular", "all", "index", "home", "default"})
+                               "trending", "popular", "all", "index", "home", "default", "about", "about-us", "company"})
 # Words that name an index of items, not an item: the last path segment of a listing.
 _INDEX_SEGMENTS = frozenset({
     "new", "news", "newsroom", "press", "press-releases", "press-release-archive", "releases",
@@ -61,7 +62,7 @@ _SHORT_ID = re.compile(r"\d{1,4}")
 # An aggregator's entity page: /news/<one or two letters-only words>.
 _ENTITY_SLUG = re.compile(r"[a-z]+(?:-[a-z]+)?")
 _ID_KEYS = frozenset({"id", "p", "v", "item", "story", "article", "post", "tid", "t", "pid", "sku"})
-_LOCALE = re.compile(r"[a-z]{2}(?:[-_][a-z]{2})?")
+_LOCALE = re.compile(r"[a-z]{2}(?:[-_](?:[a-z]{2}|[a-z]{4}|\d{3}))?")
 _CHALLENGE = ("just a moment", "attention required", "access denied", "verify you are human",
               "are you a robot", "captcha", "security check", "checking your browser", "403 forbidden",
               "404 not found", "page not found", "enable javascript", "ddos protection", "robot check",
@@ -83,6 +84,14 @@ _URL_DATE = re.compile(r"(?<!\d)((?:19|20)\d\d)([/-])(\d{1,2})\2(\d{1,2})(?!\d)"
 _URL_MONTH = re.compile(r"/((?:19|20)\d\d)/(0[1-9]|1[0-2])(?:/|$)")
 
 
+def _stem(word):
+    if word.endswith("es") and len(word) >= 5:
+        return word[:-2]
+    if word.endswith("s") and len(word) >= 4:
+        return word[:-1]
+    return word
+
+
 def key_terms(query: str) -> list[str]:
     """What the query is about: its words without operators, stopwords, years and
     freshness words (news, latest, this week), lightly stemmed."""
@@ -92,10 +101,7 @@ def key_terms(query: str) -> list[str]:
             continue
         if len(word) < 3 and word.isascii():
             continue
-        if word.endswith("es") and len(word) >= 5:
-            word = word[:-2]
-        elif word.endswith("s") and len(word) >= 4:
-            word = word[:-1]
+        word = _stem(word)
         if word not in terms:
             terms.append(word)
     return terms[:8]
@@ -143,7 +149,9 @@ def url_kind(url: str) -> str:
         return "search_page"
     if query & _ID_KEYS:
         return "item"
-    index = [part for part in segments if not _LOCALE.fullmatch(part) and not part.startswith(("index.", "default."))]
+    # A locale root (/en/, /en-us/, /zh-hans/) is a homepage; only a leading segment is a locale.
+    index = [part for position, part in enumerate(segments)
+             if not (position == 0 and _LOCALE.fullmatch(part)) and not part.startswith(("index.", "default."))]
     if not index:
         return "homepage"
     if "tag" in query or "category" in query:
@@ -231,13 +239,138 @@ def window_bounds(recency=None, since=None, until=None, now=None):
     return since, until
 
 
-def _asks_specific(terms, recency):
-    # A one-word query may well want a site's front page; a longer one or a
-    # dated one wants pages about something.
-    return len(terms) >= 2 or bool(recency)
+# Query words that ask for dated or newsy items, never for a site's front page.
+_NEWSY = frozenset({
+    "news", "latest", "recent", "recently", "today", "tonight", "yesterday", "announcement", "announcements",
+    "announce", "announced", "announces", "release", "releases", "released", "paper", "papers", "post", "posts",
+    "article", "articles", "launch", "launches", "launched", "headline", "headlines", "update", "updates",
+    "breaking", "published", "preprint", "preprints"})
+_NAVIGATIONAL = re.compile(r"\b(?:home\s?page|(?:official|main|web)\s?(?:site|website|page)|website)\b", re.I)
+# Capitalised first words that start a phrase without naming anything.
+_GENERIC_CAPS = frozenset({
+    "best", "top", "new", "free", "cheap", "good", "easy", "simple", "fast", "how", "install", "compare",
+    "comparison", "fix", "build", "create", "learn", "use", "using", "get", "find", "make", "setup", "set",
+    "configure", "run", "write", "read", "buy", "download", "guide", "tutorial", "review", "reviews", "list",
+    "tips", "ideas", "why", "is", "does", "do", "can", "should", "the", "a", "an", "show", "give", "tell"})
+_CONNECTORS = frozenset({"of", "the", "de", "la"})
 
 
-def check_result(item: dict, terms, *, since=None, until=None, specific=True, now=None) -> dict:
+def entities(query: str) -> list[list[str]]:
+    """The named things a query is about: runs of capitalised words (Hugging Face,
+    Arm Holdings, Nintendo), each as its words lowercased, minus filler words and
+    generic capitalised openers (Best, Install). A query written all in lowercase
+    or in Title Case throughout names none."""
+    words = _WORD.findall(_OPERATOR.sub(" ", str(query or "")))
+    meaningful = [w for w in words if w.lower() not in _STOPWORDS and w.lower() not in _QUERY_FILLER
+                  and w.lower() not in _GENERIC_CAPS and not _YEAR.fullmatch(w) and (len(w) >= 3 or not w.isascii())]
+    if len(meaningful) >= 3 and all(w[:1].isupper() or w[:1].isdigit() for w in meaningful):
+        return []
+    runs, run = [], []
+    for position, word in enumerate(words):
+        low = word.lower()
+        capital = word[:1].isupper() or (bool(run) and word[:1].isdigit())
+        if capital and low in _GENERIC_CAPS and not run:
+            capital = False
+        if capital and low not in _QUERY_FILLER and low not in _STOPWORDS:
+            run.append(word)
+        elif run and low in _CONNECTORS and position + 1 < len(words) and words[position + 1][:1].isupper():
+            continue
+        else:
+            runs.append(run)
+            run = []
+    runs.append(run)
+    found = []
+    for run in runs:
+        phrase = [w.lower() for w in run if (len(w) >= 3 or not w.isascii()) and not _YEAR.fullmatch(w)]
+        if phrase and phrase not in found:
+            found.append(phrase)
+    return found
+
+
+def _asks_specific(terms, windowed, query="", named=()):
+    """Whether the query wants pages about something, so a homepage or section
+    index is no answer. Dated or newsy queries always do, whatever the term count.
+    Only navigational queries accept a front page: "X homepage", "X official site",
+    "X website", or a bare entity name with no window."""
+    if windowed:
+        return True
+    if _NAVIGATIONAL.search(str(query or "")):
+        return False
+    if {word.lower() for word in _WORD.findall(_OPERATOR.sub(" ", str(query or "")))} & _NEWSY:
+        return True
+    if named:
+        bare = {_stem(word) for phrase in named for word in phrase}
+        if terms and set(terms) <= bare:
+            return False
+    return len(terms) >= 2
+
+
+def _term_pattern(term):
+    if not term.isascii():
+        return re.compile(re.escape(term))
+    suffix = "(?:es|s)?" if len(term) <= 4 else "(?:e|es|s|ed|d|ing|ers?)?"
+    return re.compile(r"(?<![^\W_])" + re.escape(term) + suffix + r"(?![^\W_])")
+
+
+_PATTERNS: dict = {}
+
+
+def _has(term, text):
+    pattern = _PATTERNS.get(term)
+    if pattern is None:
+        pattern = _PATTERNS[term] = _term_pattern(term)
+    return pattern.search(text) is not None
+
+
+def _domain_names(host, words):
+    """A host label that is the entity run together (huggingface.co for Hugging
+    Face) or hyphenated into it."""
+    joined = "".join(words)
+    for label in host.removeprefix("www.").split("."):
+        if label.replace("-", "") == joined or set(words) <= set(label.split("-")):
+            return True
+    return False
+
+
+def _on_query(terms, named, item):
+    """Whether a result is about the query. Terms match whole words (light
+    stemming), never inside other words. When the query names something, the
+    result must too: all of an entity's words in the title or URL, or its domain
+    (a snippet-only mention only counts for a multi-word name, or alongside
+    another query term). Without a named entity any key term will do."""
+    if not terms:
+        return True
+    url = str(item.get("url") or "")
+    head = (str(item.get("title") or "") + " " + unquote(url)).lower()
+    snippet = str(item.get("snippet") or "").lower()
+    if not named:
+        return any(_has(term, head) or _has(term, snippet) for term in terms)
+    host = (urlparse(url).hostname or "").lower()
+    named_terms = {_stem(word) for phrase in named for word in phrase}
+    others = [term for term in terms if term not in named_terms]
+    for phrase in named:
+        stems = [_stem(word) for word in phrase]
+        if all(_has(stem, head) for stem in stems) or _domain_names(host, phrase):
+            return True
+        if all(_has(stem, snippet) or _has(stem, head) for stem in stems) and (
+                len(phrase) > 1 or any(_has(term, head) or _has(term, snippet) for term in others)):
+            return True
+    return False
+
+
+def _names_the_entity(url, named):
+    """A profile page: the whole path is one segment that is just the entity's
+    name (example.com/nintendo), a front page of sorts, not an item."""
+    segments = [unquote(part).lower() for part in urlparse(str(url or "")).path.split("/") if part]
+    if segments and _LOCALE.fullmatch(segments[0]):
+        segments = segments[1:]
+    if len(segments) != 1 or not named:
+        return False
+    slug = re.sub(r"[-_.\s]", "", segments[0])
+    return slug in ["".join(phrase) for phrase in named]
+
+
+def check_result(item: dict, terms, *, since=None, until=None, specific=True, now=None, named=()) -> dict:
     """One result's verdict: passed, the reasons it did not, and the check fields."""
     now = now or datetime.now(timezone.utc)
     url, title = str(item.get("url") or ""), str(item.get("title") or "")
@@ -248,11 +381,12 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
         in_window = not ((since is not None and when < since) or (until is not None and when > until))
         if not in_window:
             reasons.append("out_of_window")
-    blob = " ".join((title, str(item.get("snippet") or ""), unquote(url))).lower()
-    on_query = not terms or any(term in blob for term in terms)
+    on_query = _on_query(terms, named, item)
     if not on_query:
         reasons.append("off_query")
     kind = url_kind(url)
+    if kind == "item" and specific and _names_the_entity(url, named):
+        kind = "homepage"
     if kind != "item" and (specific or kind == "search_page"):
         reasons.append(kind)
     lowered = title.lower()
@@ -279,10 +413,11 @@ def check_results(query: str, results, *, limit: int = 10, recency=None, since=N
     now = now or datetime.now(timezone.utc)
     since, until = window_bounds(recency, since, until, now)
     terms = key_terms(query)
-    specific = _asks_specific(terms, recency)
+    named = entities(query)
+    specific = _asks_specific(terms, bool(recency or since or until), query, named)
     verdicts, seen, counts = [], set(), {}
     for item in results:
-        verdict = check_result(item, terms, since=since, until=until, specific=specific, now=now)
+        verdict = check_result(item, terms, since=since, until=until, specific=specific, now=now, named=named)
         key = canonical_url(verdict["url"])
         if key in seen:
             verdict["reasons"].append("duplicate")

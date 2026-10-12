@@ -603,3 +603,28 @@ async def test_a_vertical_that_passes_never_reaches_the_web_engines(monkeypatch,
     install(monkeypatch, Fake("papers_api", good(5), vertical="papers"), Fake("engine", good(5, "w")))
     result = await run(tmp_path, vertical="papers")
     assert CALLS == ["papers_api"]
+
+
+async def test_homepages_and_wrong_company_results_make_a_free_set_weak_so_the_ladder_reaches_paid(monkeypatch, tmp_path):
+    junk = [{"url": "https://www.nintendo.com/", "title": "Nintendo", "snippet": ""},
+            {"url": "https://www.nintendo.com/en-us/", "title": "Nintendo", "snippet": ""},
+            {"url": "https://sony.test/news/2026/ps-launch", "title": "Sony latest announcement", "snippet": ""},
+            {"url": "https://alarm.test/news/2026/latest", "title": "Alarm systems latest announcement", "snippet": ""},
+            {"url": "https://wiki.test/nintendo", "title": "Nintendo", "snippet": ""}]
+    best = [{"url": "https://www.nintendo.com/en-us/news/2026/10/announcement-%d" % index,
+             "title": "Nintendo announcement %d" % index, "snippet": ""} for index in range(4)]
+    install(monkeypatch, Fake("free", junk), Fake("paid", best, paid=True, cost=0.01))
+    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_after_weak=1, search_hedge_after_seconds=0)
+    result = await run(tmp_path, query="Nintendo latest announcement", policy=policy)
+    assert CALLS == ["free", "paid"]
+    assert result["receipt"]["search_ladder"]["winner"] == "paid"
+    assert {row["url"] for row in result["results"]} == {row["url"] for row in best}
+    free = [row for row in result["receipt"]["search_attempts"] if row["source"] == "free"][0]
+    assert free["passed"] == 0
+
+
+async def test_paid_sources_stay_unreached_when_the_homepage_set_is_not_allowed_to_climb(monkeypatch, tmp_path):
+    junk = [{"url": "https://www.nintendo.com/", "title": "Nintendo", "snippet": ""}]
+    install(monkeypatch, Fake("free", junk), Fake("paid", junk, paid=True, cost=0.01))
+    result = await run(tmp_path, query="Nintendo latest announcement")
+    assert CALLS == ["free"] and result["results"] == []
