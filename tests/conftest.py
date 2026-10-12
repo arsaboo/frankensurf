@@ -42,3 +42,20 @@ def _no_origin_pacing(monkeypatch):
     """Fake transports need no politeness; tests/test_origin_pacing.py enables it."""
     monkeypatch.setattr(Runtime, "pacing_enabled", False)
     monkeypatch.setattr(Runtime, "completeness_enabled", False)
+
+
+@pytest.fixture(autouse=True)
+def _no_real_docker_or_local_search(monkeypatch):
+    """No test runs the real docker CLI or talks to a real local SearXNG on port 8088
+    (one may be running on the owner's machine). tests/test_local_search.py replaces both."""
+    import httpx
+    from frankensurf import local_search
+
+    def refuse(request):
+        raise httpx.ConnectError("local search disabled in tests", request=request)
+
+    def no_docker(*args, **kwargs):
+        raise local_search.DockerUnavailable("missing")
+
+    monkeypatch.setattr(local_search, "_TRANSPORT", httpx.MockTransport(refuse))
+    monkeypatch.setattr(local_search, "_docker", no_docker)

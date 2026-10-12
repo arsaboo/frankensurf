@@ -6469,6 +6469,13 @@ class Runtime:
             "candidates": candidates, "automatic_fallback": source is None,
             "benchmark_earned_order": False,
             "source_timeout_seconds": policy.search_source_timeout_seconds}
+        from . import local_search
+        if (source is None and (engine_config or {}).get("base_url") in (None, local_search.URL)
+                and any(item["source"] == "searxng" and item["status"] == "failed"
+                        and item.get("failure") == "PROVIDER_DOWN" for item in search_attempts)):
+            # The default local engine did not answer (a refused or broken connection):
+            # say so, so thinner results have a visible reason and a way to fix it.
+            receipt["search_routing"]["local_search"] = local_search.routing_note()
         # The ladder's receipt: how the sources were ordered and raced, who won, and
         # what the checks made of the results that came back.
         need = max(1, min(policy.search_good_results, limit))
