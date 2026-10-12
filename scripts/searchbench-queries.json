@@ -1,0 +1,1993 @@
+{
+ "schema": "frankensurf.searchbench-queries/v1",
+ "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once.",
+ "shuffle_seed": 20261012,
+ "queries": [
+  {
+   "id": "news-01",
+   "set": "dev",
+   "category": "news",
+   "query": "news about OpenAI this week",
+   "entity_terms": [
+    "openai"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-02",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Nvidia this week",
+   "entity_terms": [
+    "nvidia"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-03",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Tesla this week",
+   "entity_terms": [
+    "tesla"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-04",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Apple this week",
+   "entity_terms": [
+    "apple"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-05",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Microsoft this week",
+   "entity_terms": [
+    "microsoft"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-06",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Google this week",
+   "entity_terms": [
+    "google"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-07",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Amazon this week",
+   "entity_terms": [
+    "amazon"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-08",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Meta this week",
+   "entity_terms": [
+    "meta"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-09",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Samsung this week",
+   "entity_terms": [
+    "samsung"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-10",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Intel past month",
+   "entity_terms": [
+    "intel"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-11",
+   "set": "dev",
+   "category": "news",
+   "query": "news about AMD past month",
+   "entity_terms": [
+    "amd"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-12",
+   "set": "dev",
+   "category": "news",
+   "query": "news about TSMC past month",
+   "entity_terms": [
+    "tsmc"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-13",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Boeing past month",
+   "entity_terms": [
+    "boeing"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-14",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Airbus past month",
+   "entity_terms": [
+    "airbus"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-15",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Toyota past month",
+   "entity_terms": [
+    "toyota"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-16",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Netflix this week",
+   "entity_terms": [
+    "netflix"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-17",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Disney past month",
+   "entity_terms": [
+    "disney"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-18",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Spotify past month",
+   "entity_terms": [
+    "spotify"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-19",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Uber this week",
+   "entity_terms": [
+    "uber"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-20",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Shopify past month",
+   "entity_terms": [
+    "shopify"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-21",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Anthropic this week",
+   "entity_terms": [
+    "anthropic"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-22",
+   "set": "dev",
+   "category": "news",
+   "query": "news about SpaceX this week",
+   "entity_terms": [
+    "spacex"
+   ],
+   "recency": "week",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-23",
+   "set": "heldout",
+   "category": "news",
+   "query": "news about Starbucks past month",
+   "entity_terms": [
+    "starbucks"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-24",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Walmart past month",
+   "entity_terms": [
+    "walmart"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "news-25",
+   "set": "dev",
+   "category": "news",
+   "query": "news about Pfizer past month",
+   "entity_terms": [
+    "pfizer"
+   ],
+   "recency": "month",
+   "vertical": "news",
+   "needs_specific": true
+  },
+  {
+   "id": "ann-01",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Microsoft latest announcement",
+   "entity_terms": [
+    "microsoft"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "microsoft.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-02",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Google latest announcement",
+   "entity_terms": [
+    "google"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "blog.google",
+    "googleblog.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-03",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Apple latest announcement",
+   "entity_terms": [
+    "apple"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "apple.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-04",
+   "set": "dev",
+   "category": "announcement",
+   "query": "Amazon Web Services latest announcement",
+   "entity_terms": [
+    "aws|amazon web services"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "aws.amazon.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-05",
+   "set": "dev",
+   "category": "announcement",
+   "query": "Meta latest announcement",
+   "entity_terms": [
+    "meta"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "about.fb.com",
+    "ai.meta.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-06",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Nvidia latest announcement",
+   "entity_terms": [
+    "nvidia"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "nvidia.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-07",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Intel latest announcement",
+   "entity_terms": [
+    "intel"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "intel.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-08",
+   "set": "dev",
+   "category": "announcement",
+   "query": "AMD latest announcement",
+   "entity_terms": [
+    "amd"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "amd.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-09",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Adobe latest announcement",
+   "entity_terms": [
+    "adobe"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "adobe.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-10",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Salesforce latest announcement",
+   "entity_terms": [
+    "salesforce"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "salesforce.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-11",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Oracle latest announcement",
+   "entity_terms": [
+    "oracle"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "oracle.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-12",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "IBM latest announcement",
+   "entity_terms": [
+    "ibm"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "ibm.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-13",
+   "set": "dev",
+   "category": "announcement",
+   "query": "Cloudflare latest announcement",
+   "entity_terms": [
+    "cloudflare"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "cloudflare.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-14",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Stripe latest announcement",
+   "entity_terms": [
+    "stripe"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "stripe.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-15",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "GitHub latest announcement",
+   "entity_terms": [
+    "github"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "github.blog"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-16",
+   "set": "dev",
+   "category": "announcement",
+   "query": "Mozilla latest announcement",
+   "entity_terms": [
+    "mozilla"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "mozilla.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-17",
+   "set": "dev",
+   "category": "announcement",
+   "query": "Canonical Ubuntu latest announcement",
+   "entity_terms": [
+    "ubuntu|canonical"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "ubuntu.com",
+    "canonical.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-18",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Red Hat latest announcement",
+   "entity_terms": [
+    "red hat"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "redhat.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-19",
+   "set": "dev",
+   "category": "announcement",
+   "query": "Docker latest announcement",
+   "entity_terms": [
+    "docker"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "docker.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-20",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Snowflake latest announcement",
+   "entity_terms": [
+    "snowflake"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "snowflake.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-21",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Databricks latest announcement",
+   "entity_terms": [
+    "databricks"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "databricks.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-22",
+   "set": "dev",
+   "category": "announcement",
+   "query": "Atlassian latest announcement",
+   "entity_terms": [
+    "atlassian"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "atlassian.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-23",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Anthropic latest announcement",
+   "entity_terms": [
+    "anthropic"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "anthropic.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-24",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "OpenAI latest announcement",
+   "entity_terms": [
+    "openai"
+   ],
+   "recency": "month",
+   "expect_domains": [
+    "openai.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "ann-25",
+   "set": "heldout",
+   "category": "announcement",
+   "query": "Tesla latest announcement",
+   "entity_terms": [
+    "tesla"
+   ],
+   "recency": "year",
+   "expect_domains": [
+    "tesla.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-01",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to merge two dataframes on a column in pandas",
+   "entity_terms": [
+    "pandas",
+    "merge"
+   ],
+   "expect_domains": [
+    "pandas.pydata.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-02",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to reshape an array in numpy",
+   "entity_terms": [
+    "numpy",
+    "reshape"
+   ],
+   "expect_domains": [
+    "numpy.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-03",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to add a custom user model in django",
+   "entity_terms": [
+    "django",
+    "user"
+   ],
+   "expect_domains": [
+    "docs.djangoproject.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-04",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to handle file uploads in flask",
+   "entity_terms": [
+    "flask",
+    "upload*"
+   ],
+   "expect_domains": [
+    "flask.palletsprojects.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-05",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to add authentication dependencies in fastapi",
+   "entity_terms": [
+    "fastapi",
+    "auth*|security"
+   ],
+   "expect_domains": [
+    "fastapi.tiangolo.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-06",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to fetch data with useEffect in react",
+   "entity_terms": [
+    "react",
+    "useeffect|effect"
+   ],
+   "expect_domains": [
+    "react.dev"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-07",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to save and load a model checkpoint in pytorch",
+   "entity_terms": [
+    "pytorch",
+    "sav*|checkpoint"
+   ],
+   "expect_domains": [
+    "pytorch.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-08",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to run tests in parallel in pytest",
+   "entity_terms": [
+    "pytest",
+    "parallel|xdist"
+   ],
+   "expect_domains": [
+    "docs.pytest.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-09",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to set a timeout on a request in requests",
+   "entity_terms": [
+    "requests",
+    "timeout"
+   ],
+   "expect_domains": [
+    "requests.readthedocs.io"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-10",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to run tasks concurrently in asyncio",
+   "entity_terms": [
+    "asyncio",
+    "concurren*|gather|task"
+   ],
+   "expect_domains": [
+    "docs.python.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-11",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to customize a plot legend in matplotlib",
+   "entity_terms": [
+    "matplotlib",
+    "legend"
+   ],
+   "expect_domains": [
+    "matplotlib.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-12",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to define a one to many relationship in sqlalchemy",
+   "entity_terms": [
+    "sqlalchemy",
+    "relationship"
+   ],
+   "expect_domains": [
+    "docs.sqlalchemy.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-13",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to write a multi-stage build in docker",
+   "entity_terms": [
+    "docker",
+    "multi-stage|multi stage"
+   ],
+   "expect_domains": [
+    "docs.docker.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-14",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to create a deployment in kubernetes",
+   "entity_terms": [
+    "kubernetes",
+    "deployment"
+   ],
+   "expect_domains": [
+    "kubernetes.io"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-15",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to undo the last commit in git",
+   "entity_terms": [
+    "git",
+    "commit"
+   ],
+   "expect_domains": [
+    "git-scm.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-16",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to create an index on a json column in postgres",
+   "entity_terms": [
+    "postgres",
+    "index*"
+   ],
+   "expect_domains": [
+    "postgresql.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-17",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to narrow a union type in typescript",
+   "entity_terms": [
+    "typescript",
+    "narrow*"
+   ],
+   "expect_domains": [
+    "typescriptlang.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-18",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to spawn async tasks in tokio",
+   "entity_terms": [
+    "tokio",
+    "spawn*"
+   ],
+   "expect_domains": [
+    "docs.rs",
+    "tokio.rs"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-19",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to parse command line arguments in argparse",
+   "entity_terms": [
+    "argparse"
+   ],
+   "expect_domains": [
+    "docs.python.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-20",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to train a model with a custom loss in tensorflow",
+   "entity_terms": [
+    "tensorflow",
+    "loss"
+   ],
+   "expect_domains": [
+    "tensorflow.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-21",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to add middleware in express",
+   "entity_terms": [
+    "express",
+    "middleware"
+   ],
+   "expect_domains": [
+    "expressjs.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-22",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to validate request data in pydantic",
+   "entity_terms": [
+    "pydantic",
+    "validat*"
+   ],
+   "expect_domains": [
+    "docs.pydantic.dev"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-23",
+   "set": "dev",
+   "category": "howto",
+   "query": "how to schedule periodic tasks in celery",
+   "entity_terms": [
+    "celery",
+    "periodic|schedule|beat"
+   ],
+   "expect_domains": [
+    "docs.celeryq.dev"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-24",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to write a custom hook in react",
+   "entity_terms": [
+    "react",
+    "hook"
+   ],
+   "expect_domains": [
+    "react.dev"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "how-25",
+   "set": "heldout",
+   "category": "howto",
+   "query": "how to group by and aggregate in polars",
+   "entity_terms": [
+    "polars",
+    "group*"
+   ],
+   "expect_domains": [
+    "docs.pola.rs"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-01",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on long context language models",
+   "entity_terms": [
+    "long context|long-context"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-02",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on diffusion models for video generation",
+   "entity_terms": [
+    "diffusion",
+    "video"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-03",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on reinforcement learning from human feedback",
+   "entity_terms": [
+    "reinforcement learning",
+    "feedback"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-04",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on mixture of experts",
+   "entity_terms": [
+    "mixture of experts|mixture-of-experts|moe"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-05",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on retrieval augmented generation",
+   "entity_terms": [
+    "retrieval"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-06",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on LLM agents",
+   "entity_terms": [
+    "agent"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-07",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on neural network quantization",
+   "entity_terms": [
+    "quantization|quantisation"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-08",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on vision language models",
+   "entity_terms": [
+    "vision",
+    "language"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-09",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on protein structure prediction",
+   "entity_terms": [
+    "protein"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "needs_specific": true
+  },
+  {
+   "id": "pap-10",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on quantum error correction",
+   "entity_terms": [
+    "quantum",
+    "error"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-11",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on graph neural networks",
+   "entity_terms": [
+    "graph neural|gnn"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-12",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on federated learning",
+   "entity_terms": [
+    "federated"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-13",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on speculative decoding",
+   "entity_terms": [
+    "speculative"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-14",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on state space models",
+   "entity_terms": [
+    "state space|mamba"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-15",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on reasoning in large language models",
+   "entity_terms": [
+    "reasoning"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-16",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on CRISPR base editing",
+   "entity_terms": [
+    "crispr|base editing"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "needs_specific": true
+  },
+  {
+   "id": "pap-17",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on scaling laws",
+   "entity_terms": [
+    "scaling"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-18",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on AI alignment and interpretability",
+   "entity_terms": [
+    "interpretability|alignment"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-19",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on robot learning from demonstrations",
+   "entity_terms": [
+    "robot*"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-20",
+   "set": "dev",
+   "category": "paper",
+   "query": "recent papers on time series forecasting with transformers",
+   "entity_terms": [
+    "time series|forecasting"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-21",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on text to speech synthesis",
+   "entity_terms": [
+    "speech"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-22",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on small language models",
+   "entity_terms": [
+    "small language|slm"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-23",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on machine unlearning",
+   "entity_terms": [
+    "unlearning"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-24",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on multimodal large language models",
+   "entity_terms": [
+    "multimodal"
+   ],
+   "recency": "month",
+   "vertical": "papers",
+   "expect_domains": [
+    "arxiv.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "pap-25",
+   "set": "heldout",
+   "category": "paper",
+   "query": "recent papers on battery materials discovery with machine learning",
+   "entity_terms": [
+    "battery|batteries"
+   ],
+   "recency": "year",
+   "vertical": "papers",
+   "needs_specific": true
+  },
+  {
+   "id": "code-01",
+   "set": "dev",
+   "category": "code",
+   "query": "pandas github repo",
+   "entity_terms": [
+    "pandas"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-02",
+   "set": "heldout",
+   "category": "code",
+   "query": "fastapi github repo",
+   "entity_terms": [
+    "fastapi"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-03",
+   "set": "dev",
+   "category": "code",
+   "query": "pytorch github repo",
+   "entity_terms": [
+    "pytorch"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-04",
+   "set": "heldout",
+   "category": "code",
+   "query": "requests github repo",
+   "entity_terms": [
+    "requests"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-05",
+   "set": "dev",
+   "category": "code",
+   "query": "flask github repo",
+   "entity_terms": [
+    "flask"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-06",
+   "set": "dev",
+   "category": "code",
+   "query": "numpy github repo",
+   "entity_terms": [
+    "numpy"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-07",
+   "set": "dev",
+   "category": "code",
+   "query": "scikit-learn github repo",
+   "entity_terms": [
+    "scikit-learn|sklearn"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-08",
+   "set": "dev",
+   "category": "code",
+   "query": "django github repo",
+   "entity_terms": [
+    "django"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-09",
+   "set": "dev",
+   "category": "code",
+   "query": "transformers hugging face github repo",
+   "entity_terms": [
+    "transformers"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-10",
+   "set": "heldout",
+   "category": "code",
+   "query": "langchain github repo",
+   "entity_terms": [
+    "langchain"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-11",
+   "set": "heldout",
+   "category": "code",
+   "query": "react github repo",
+   "entity_terms": [
+    "react"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-12",
+   "set": "dev",
+   "category": "code",
+   "query": "tokio github repo",
+   "entity_terms": [
+    "tokio"
+   ],
+   "vertical": "code",
+   "expect_domains": [
+    "github.com"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "code-13",
+   "set": "dev",
+   "category": "code",
+   "query": "python library for parsing PDF files",
+   "entity_terms": [
+    "pdf"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-14",
+   "set": "dev",
+   "category": "code",
+   "query": "python library for web scraping",
+   "entity_terms": [
+    "scrap*"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-15",
+   "set": "dev",
+   "category": "code",
+   "query": "python library for reading and writing Excel files",
+   "entity_terms": [
+    "excel|xlsx"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-16",
+   "set": "dev",
+   "category": "code",
+   "query": "python library for sending email",
+   "entity_terms": [
+    "email|smtp|mail"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-17",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for task queues",
+   "entity_terms": [
+    "queue|task"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-18",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for rate limiting",
+   "entity_terms": [
+    "rate"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-19",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for OCR",
+   "entity_terms": [
+    "ocr"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-20",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for data validation",
+   "entity_terms": [
+    "validat*"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-21",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for command line interfaces",
+   "entity_terms": [
+    "cli|command"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-22",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for browser automation",
+   "entity_terms": [
+    "browser|selenium|playwright"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-23",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for generating QR codes",
+   "entity_terms": [
+    "qr"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-24",
+   "set": "heldout",
+   "category": "code",
+   "query": "python library for parsing dates",
+   "entity_terms": [
+    "date"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "code-25",
+   "set": "dev",
+   "category": "code",
+   "query": "python library for terminal progress bars",
+   "entity_terms": [
+    "progress"
+   ],
+   "vertical": "code",
+   "needs_specific": true
+  },
+  {
+   "id": "fact-01",
+   "set": "heldout",
+   "category": "fact",
+   "query": "Alan Turing wikipedia",
+   "entity_terms": [
+    "turing"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-02",
+   "set": "heldout",
+   "category": "fact",
+   "query": "Python programming language wikipedia",
+   "entity_terms": [
+    "python"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-03",
+   "set": "heldout",
+   "category": "fact",
+   "query": "Linux kernel wikipedia",
+   "entity_terms": [
+    "linux"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-04",
+   "set": "dev",
+   "category": "fact",
+   "query": "Mount Everest wikipedia",
+   "entity_terms": [
+    "everest"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-05",
+   "set": "heldout",
+   "category": "fact",
+   "query": "Great Barrier Reef wikipedia",
+   "entity_terms": [
+    "barrier reef"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-06",
+   "set": "dev",
+   "category": "fact",
+   "query": "Marie Curie wikipedia",
+   "entity_terms": [
+    "curie"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-07",
+   "set": "dev",
+   "category": "fact",
+   "query": "European Union wikipedia",
+   "entity_terms": [
+    "european union"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-08",
+   "set": "heldout",
+   "category": "fact",
+   "query": "Photosynthesis wikipedia",
+   "entity_terms": [
+    "photosynthesis"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-09",
+   "set": "dev",
+   "category": "fact",
+   "query": "Sydney Opera House wikipedia",
+   "entity_terms": [
+    "opera house"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-10",
+   "set": "heldout",
+   "category": "fact",
+   "query": "Bitcoin wikipedia",
+   "entity_terms": [
+    "bitcoin"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-11",
+   "set": "dev",
+   "category": "fact",
+   "query": "Transformer deep learning architecture wikipedia",
+   "entity_terms": [
+    "transformer"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-12",
+   "set": "dev",
+   "category": "fact",
+   "query": "Apollo 11 wikipedia",
+   "entity_terms": [
+    "apollo 11"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-13",
+   "set": "dev",
+   "category": "fact",
+   "query": "World Wide Web wikipedia",
+   "entity_terms": [
+    "world wide web"
+   ],
+   "vertical": "reference",
+   "expect_domains": [
+    "wikipedia.org"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-14",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded Microsoft",
+   "entity_terms": [
+    "microsoft"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-15",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded Apple Inc",
+   "entity_terms": [
+    "apple"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-16",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded Amazon",
+   "entity_terms": [
+    "amazon"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-17",
+   "set": "heldout",
+   "category": "fact",
+   "query": "who founded Tesla",
+   "entity_terms": [
+    "tesla"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-18",
+   "set": "heldout",
+   "category": "fact",
+   "query": "who founded Google",
+   "entity_terms": [
+    "google"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-19",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded SpaceX",
+   "entity_terms": [
+    "spacex"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-20",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded Nvidia",
+   "entity_terms": [
+    "nvidia"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-21",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded OpenAI",
+   "entity_terms": [
+    "openai"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-22",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded Netflix",
+   "entity_terms": [
+    "netflix"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-23",
+   "set": "dev",
+   "category": "fact",
+   "query": "who founded Airbnb",
+   "entity_terms": [
+    "airbnb"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-24",
+   "set": "heldout",
+   "category": "fact",
+   "query": "who founded Spotify",
+   "entity_terms": [
+    "spotify"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "fact-25",
+   "set": "heldout",
+   "category": "fact",
+   "query": "who founded Wikipedia",
+   "entity_terms": [
+    "wikipedia"
+   ],
+   "needs_specific": true
+  }
+ ]
+}
