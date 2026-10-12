@@ -150,3 +150,32 @@ slightly on how many right results it returns, most of the gap on company
 announcements, where it holds back results it cannot date.
 
 Rows: `blind4-rows.jsonl`.
+
+## Independent review (blind): the automatic judge overstated Frankensurf
+
+The judge above counts a result as right when it names the query's subject,
+falls inside the date window and is not a homepage, listing or challenge page.
+Frankensurf's own search checks apply the same rules, so the router is graded
+on its own test. To check it, 60 of blind set 5's queries (10 per kind) were
+reviewed blind: the top five from Frankensurf's default install (no SearXNG)
+and from Exa Only, pooled, deduplicated, shuffled and stripped of which tool
+found them (571 results), then graded one by one by six independent model
+reviewers on whether each actually answers the query (right subject, right kind
+of thing, right time), from title, snippet, URL and date.
+
+| Arm | Useful results per query (of 5) | Not useful | Queries with any useful | Queries with 3+ useful |
+| --- | --- | --- | --- | --- |
+| Exa Only | 4.83 | 0.17 | 60/60 | 60/60 |
+| Frankensurf, default install | 2.80 | 2.03 | 51/60 | 31/60 |
+
+Exa Only had more useful results on 42 queries, Frankensurf on 3 (sign test
+p < 0.0001). By kind (Frankensurf against Exa Only): how-to 4.8 against 4.9,
+papers 3.8 against 4.8, news 3.3 against 4.8, announcements 2.2 against 4.9,
+facts 1.7 against 5.0, code 1.0 against 4.6. Of the results the automatic judge
+called right, the reviewers rejected 126 of 543: forks and demo repos for
+"fastify github repo", film pages for "who wrote War and Peace", a TV show for
+"Block latest announcement".
+
+**Every comparison claim above this section is withdrawn.** The automatic
+judge stays as a quick regression check; claims about search need the blind
+review. Files: `review/`.

@@ -1,0 +1,952 @@
+[
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Ocean",
+  "title": "Ocean",
+  "snippet": "The ocean is the body of salt water that covers approximately 70.8% of Earth. The ocean is conventionally divided into large bodies of water, which are",
+  "date_shown": "none",
+  "id": "r0002"
+ },
+ {
+  "query_id": "blind5-paper-20",
+  "query": "recent papers on low resource machine translation",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/chapter/10.1007/978-981-95-4788-3_8",
+  "title": "LLM-Based Evaluation of Low-Resource Machine Translation: A ... - Springer",
+  "snippet": "Abstract Evaluating machine translation (MT) for low-resource languages poses a persistent challenge, primarily due to the limited availability of high-quality reference translations. This issue is fu",
+  "date_shown": "2026-09-13",
+  "id": "r0008"
+ },
+ {
+  "query_id": "blind5-announcement-16",
+  "query": "Block latest announcement",
+  "window": "the last 31 days",
+  "url": "https://investors.block.xyz/overview/default.aspx",
+  "title": "Block, Inc. (XYZ) Investor Relations - Investor Relations",
+  "snippet": "Made up of Square, Cash App, Afterpay, TIDAL, Bitkey, and Proto, Block, Inc. (NYSE: XYZ) builds technology to increase access to the global economy.",
+  "date_shown": "2026-10-10",
+  "id": "r0014"
+ },
+ {
+  "query_id": "blind5-code-09",
+  "query": "python library for image processing",
+  "window": "none",
+  "url": "https://python-pillow.org/",
+  "title": "Python Pillow",
+  "snippet": "Pillow adds powerful image processing capabilities to your Python interpreter — open, edit, and save many different image file formats with a simple, well-documented API.\n\n \n\n### Documentation\n...\ndoc",
+  "date_shown": "none",
+  "id": "r0020"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://matplotlib.org/stable/users/explain/axes/arranging_axes.html",
+  "title": "Arranging multiple Axes in a Figure — Matplotlib 3.10.9 documentation",
+  "snippet": "Often more than one Axes is wanted on a figure at a time, ... organized into a regular grid. Matplotlib has a variety of tools for working with grids of Axes that have evolved over the history of the ",
+  "date_shown": "none",
+  "id": "r0026"
+ },
+ {
+  "query_id": "blind5-news-08",
+  "query": "news about Renault past month",
+  "window": "the last 31 days",
+  "url": "https://www.briefs.co/news/renault-cheers-eu-china-pact-to-rein-in-chinese-hybrid-shipm/",
+  "title": "Renault cheers EU-China pact to rein in Chinese hybrid shipments",
+  "snippet": "Renault welcomes an EU-China pact to limit Chinese hybrid imports, urging local production and noting a conditional €10bn investment plan in France over five ye ...",
+  "date_shown": "2026-10-11",
+  "id": "r0032"
+ },
+ {
+  "query_id": "blind5-fact-07",
+  "query": "what is the population of New Zealand",
+  "window": "none",
+  "url": "https://www.stats.govt.nz/topics/population?url=",
+  "title": "Population | Stats NZ",
+  "snippet": "Population statistics give you information about people who live in New Zealand.\n\nFind out the number of people in New Zealand and in different areas of New Zealand. These areas include regions, citie",
+  "date_shown": "none",
+  "id": "r0038"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/War_and_Peace_%28film_series%29",
+  "title": "War and Peace (film series)",
+  "snippet": "War and Peace (Russian: Война и мир, romanized: Voyna i mir) is a 1965–1967 Soviet epic war drama film co-written and directed by Sergei Bondarchuk, adapted",
+  "date_shown": "none",
+  "id": "r0044"
+ },
+ {
+  "query_id": "blind5-fact-07",
+  "query": "what is the population of New Zealand",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Demographics_of_New_Zealand",
+  "title": "Demographics of New Zealand",
+  "snippet": "Island, the Chatham and Pitt Islands, and Stewart Island each have populations below 1,000. New Zealand is part of a realm and most people born in the realm's",
+  "date_shown": "none",
+  "id": "r0050"
+ },
+ {
+  "query_id": "blind5-announcement-18",
+  "query": "Klarna press release this month",
+  "window": "the last 31 days",
+  "url": "https://www.stocktitan.net/news/KLAR/wayfair-and-klarna-deepen-ties-with-more-flexible-payment-options-mtgo820cf2c5.html",
+  "title": "Klarna, Wayfair add U.S. 0% financing for up to 6 months | KLAR Stock News",
+  "snippet": "# Klarna, Wayfair add U.S. 0% financing for up to 6 months | KLAR Stock News\n\nAuthor: Klarna Group plc\nPublished: 2026-10-06T12:30:00Z\nSource: stocktitan.net\nLanguage: en\n\n## Story\n\nKlarna, Wayfair ad",
+  "date_shown": "2026-10-06",
+  "id": "r0056"
+ },
+ {
+  "query_id": "blind5-fact-08",
+  "query": "who composed the Moonlight Sonata",
+  "window": "none",
+  "url": "https://classicandsacrum.com/biblioteca/beethoven/sonatas/sonata_14.php",
+  "title": "Beethoven Piano Sonata 14 \"Moonlight\"",
+  "snippet": "uesta entre 1801 y publicada en 1802. Popularmente conocida como \"Claro de luna\" (del alemán: Mondscheinsonate) . Aunque en realidad el primer movimiento es una Marcha Fúnebre . Composed between 1801 ",
+  "date_shown": "none",
+  "id": "r0062"
+ },
+ {
+  "query_id": "blind5-howto-11",
+  "query": "how to debounce input in react",
+  "window": "none",
+  "url": "https://snipshift.dev/blog/debounce-input-react-typescript-hook",
+  "title": "How to Debounce Input in React with TypeScript (Custom Hook) | SnipShift Blog | SnipShift  Free Developer Tools",
+  "snippet": "Build a reusable useDebounce hook in React with TypeScript. Generic typing, cleanup on unmount, search input example, and comparison with lodash.debounce.\n...\nI've shipped this exact bug more times th",
+  "date_shown": "2026-05-17",
+  "id": "r0068"
+ },
+ {
+  "query_id": "blind5-paper-10",
+  "query": "recent papers on federated learning privacy",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s10207-026-01229-x",
+  "title": "A systematic review on privacy preservation in federated learning",
+  "snippet": "The paper ends with a thorough examination of particular challenges in privacy preservation in Federated Learning and future directions for further research. With an emphasis on current advancements i",
+  "date_shown": "2026-10-03",
+  "id": "r0074"
+ },
+ {
+  "query_id": "blind5-announcement-16",
+  "query": "Block latest announcement",
+  "window": "the last 31 days",
+  "url": "https://block.xyz/inside/block-joins-the-x402-foundation-to-advance-open-agentic-commerce",
+  "title": "Block - Block Joins the x402 Foundation to Advance Open, Agentic Commerce",
+  "snippet": "Block - Block Joins the x402 Foundation to Advance Open, Agentic Commerce\n\nSeptember 24, 2026\n\nBlock Joins the x402 Foundation to Advance Open, Agentic Commerce\n...\nBlock has joined the x402 Foundatio",
+  "date_shown": "2026-09-24",
+  "id": "r0080"
+ },
+ {
+  "query_id": "blind5-paper-04",
+  "query": "recent papers on offline reinforcement learning",
+  "window": "the last 366 days",
+  "url": "https://arxiv.science/abs/2609.35880",
+  "title": "From Static Policies to Adaptive Priors in Offline Reinforcement Learning | arXiv Science",
+  "snippet": "From Static Policies to Adaptive Priors in Offline Reinforcement Learning | arXiv Science\n\n# From Static Policies to Adaptive Priors in Offline Reinforcement Learning\n...\nOffline reinforcement learnin",
+  "date_shown": "2026-09-26",
+  "id": "r0086"
+ },
+ {
+  "query_id": "blind5-fact-08",
+  "query": "who composed the Moonlight Sonata",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Moonlight_Sonata_%28film%29",
+  "title": "Moonlight Sonata (film)",
+  "snippet": "Moonlight Sonata is a 1937 British drama film directed by Lothar Mendes and written by E. M. Delafield and Edward Knoblock. The film stars Ignacy Jan",
+  "date_shown": "2014-10-08",
+  "id": "r0092"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://pkg.go.dev/encoding/json/v2",
+  "title": "json package - encoding/json/v2 - Go Packages",
+  "snippet": "Package json implements semantic processing of JSON as specified in RFC 8259. JSON is a simple data interchange format that can represent primitive data types such as booleans, strings, and numbers, i",
+  "date_shown": "none",
+  "id": "r0098"
+ },
+ {
+  "query_id": "blind5-code-01",
+  "query": "fastify github repo",
+  "window": "none",
+  "url": "https://github.com/orgs/fastify/repositories",
+  "title": "fastify repositories",
+  "snippet": "# Fastify\n...\n- Login: fastify\n- Location: United States of America\n- Blog: https://fastify.dev\n- Email: hello@fastify.dev\n- Public repos: 139\n- Followers: 1277\n- Verified: yes\n- Created: 2017-01-05T1",
+  "date_shown": "none",
+  "id": "r0104"
+ },
+ {
+  "query_id": "blind5-code-08",
+  "query": "rust crate for serialization",
+  "window": "none",
+  "url": "https://github.com/Y2Z/dataurl",
+  "title": "Y2Z/dataurl",
+  "snippet": "CLI tool and Rust crate for parsing and serializing data URLs",
+  "date_shown": "2024-12-23",
+  "id": "r0110"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.koreaherald.com/article/10898517",
+  "title": "LG Electronics expands US premium appliance push as Signature marks 10 years - The Korea Herald",
+  "snippet": "LG Electronics is expanding its premium appliance lineup and retail distribution in the United States as its luxury brand LG Signature marks a decade in the market, the company said Sunday.\n\nThe South",
+  "date_shown": "2026-10-11",
+  "id": "r0116"
+ },
+ {
+  "query_id": "blind5-howto-11",
+  "query": "how to debounce input in react",
+  "window": "none",
+  "url": "https://dev.to/manishkc104/debounce-input-in-react-3726",
+  "title": "Debounce Input in React - DEV Community",
+  "snippet": "Debouncing an input is a technique used to improve web application performance and user experience.... Tagged with debounce, react, performance, javascript.",
+  "date_shown": "2026-07-23",
+  "id": "r0122"
+ },
+ {
+  "query_id": "blind5-paper-18",
+  "query": "recent papers on embodied ai",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.29964",
+  "title": "\\gradienttitleWorldActionAgent:Harnessing VLMs for Robot Manipulation via World Action Rehearsal",
+  "snippet": "General-purpose vision-language models (VLMs) bring broad knowledge and spatial reasoning to robot manipulation, yet existing systems either use them indirectly, to predict constraints or write progra",
+  "date_shown": "2026-09-24",
+  "id": "r0128"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s00704-026-06051-y",
+  "title": "A comprehensive review of machine learning and deep learning ... - Springer",
+  "snippet": "Rainfall forecasting is essential for mitigating the impacts of climate change and plays a vital role in hydrology, agriculture, water resource management, and disaster preparedness. However, the stoc",
+  "date_shown": "2026-10-10",
+  "id": "r0134"
+ },
+ {
+  "query_id": "blind5-news-04",
+  "query": "news about FedEx this week",
+  "window": "the last 7 days",
+  "url": "https://www.facebook.com/groups/846934927926520/",
+  "title": "FEDEX Network 2.0 Closures - Facebook",
+  "snippet": "Welcome to the FedEx Network 2.0 Closures Update Group! This community is dedicated to sharing the latest news, updates, and discussions about FedEx’s ongoing Network 2.0 initiative—a major overhaul a",
+  "date_shown": "2026-10-12",
+  "id": "r0140"
+ },
+ {
+  "query_id": "blind5-news-20",
+  "query": "news about Tata Motors past month",
+  "window": "the last 31 days",
+  "url": "https://www.autopunditz.com/post/tata-vs-mahindra-vs-hyundai-car-sales-2026",
+  "title": "Tata vs Mahindra vs Hyundai: The Battle for India's No. 2 Car Brand Intensifies in 2026",
+  "snippet": "Tata Motors leads with 5.76 lakh units in January–September 2026, ahead of Mahindra's 5.42 lakh and Hyundai's 4.72 lakh. A look at 15 years of sales data reveals how India's passenger vehicle ...",
+  "date_shown": "2026-10-12",
+  "id": "r0146"
+ },
+ {
+  "query_id": "blind5-paper-11",
+  "query": "recent papers on vision transformers efficiency",
+  "window": "the last 366 days",
+  "url": "https://www.researchgate.net/publication/398680478_Vision_Transformers_ViTs_in_Computer_Vision_A_Survey_on_Architectures_Training_Paradigms_and_Real-World_Applications",
+  "title": "Vision Transformers (ViTs) in Computer Vision: A Survey on ...",
+  "snippet": "To alleviate this issue, we propose TinyViT, a new family of tiny and efficient small vision transformers pretrained on large-scale datasets with our proposed fast distillation framework.",
+  "date_shown": "2025-12-17",
+  "id": "r0152"
+ },
+ {
+  "query_id": "blind5-news-14",
+  "query": "news about Emirates airline past month",
+  "window": "the last 31 days",
+  "url": "https://www.reuters.com/world/middle-east/emirates-says-winter-bookings-up-some-routes-after-summer-rebound-2026-09-14/",
+  "title": "Emirates says winter bookings up on some routes after summer rebound | Reuters",
+  "snippet": "Emirates says winter bookings up on some routes after summer rebound | Reuters\nSkip to main content\nExclusive news, data and analytics for financial market professionalsLearn more aboutRefinitiv\n\nSubs",
+  "date_shown": "2026-09-14",
+  "id": "r0158"
+ },
+ {
+  "query_id": "blind5-howto-11",
+  "query": "how to debounce input in react",
+  "window": "none",
+  "url": "https://www.dhiwise.com/post/ultimate-guide-to-implementing-react-debounce-effectively",
+  "title": "How to Implement React Debounce: A Beginner's Guide - DhiWise",
+  "snippet": "To create a custom debounce in React JS; we typically use hooks like useState and useEffect to manage the state and side effects within our functional components. Let's walk through creating a debounc",
+  "date_shown": "2026-10-08",
+  "id": "r0164"
+ },
+ {
+  "query_id": "blind5-fact-08",
+  "query": "who composed the Moonlight Sonata",
+  "window": "none",
+  "url": "https://classicalexburns.com/2022/07/11/ludwig-van-beethoven-piano-sonata-no-14-the-moonlight-sonata/",
+  "title": "Ludwig van Beethoven 'Piano Sonata No. 14': The Moonlight Sonata - Classicalexburns",
+  "snippet": "Ludwig van Beethoven 'Piano Sonata No. 14': The Moonlight Sonata - Classicalexburns\n\n# Ludwig van Beethoven ‘Piano Sonata No. 14’: The Moonlight Sonata\n...\nComposed in 1801, Beethoven’s fourteenth pia",
+  "date_shown": "2022-07-11",
+  "id": "r0170"
+ },
+ {
+  "query_id": "blind5-code-08",
+  "query": "rust crate for serialization",
+  "window": "none",
+  "url": "https://github.com/fspmarshall/serde-hex",
+  "title": "fspmarshall/serde-hex",
+  "snippet": "Rust crate for easy serialization/deserialization of hexadecimal values.",
+  "date_shown": "2022-09-14",
+  "id": "r0176"
+ },
+ {
+  "query_id": "blind5-howto-12",
+  "query": "how to use redis as a cache",
+  "window": "none",
+  "url": "https://redis.io/docs/latest/develop/use-cases/cache-aside/nodejs/",
+  "title": "",
+  "snippet": "This guide shows you how to implement a Redis cache-aside layer in Node.js with `node-redis`. It includes a small local web server built with Node's standard `http` module so you can see cache hits, m",
+  "date_shown": "none",
+  "id": "r0182"
+ },
+ {
+  "query_id": "blind5-news-08",
+  "query": "news about Renault past month",
+  "window": "the last 31 days",
+  "url": "https://auto.economictimes.indiatimes.com/news/passenger-vehicle/renault-electric-cars-soar-to-60-of-sales-in-france-amid-rising-fuel-prices-new-record-set/134886436",
+  "title": "Renault Electric Cars Surge to 60% of Sales in France Amid Fuel Price Hikes, ETAuto",
+  "snippet": "# Renault Electric Cars Surge to 60% of Sales in France Amid Fuel Price Hikes, ETAuto\n\nPublished: 2026-10-12T07:55:42Z",
+  "date_shown": "2026-10-12",
+  "id": "r0188"
+ },
+ {
+  "query_id": "blind5-news-04",
+  "query": "news about FedEx this week",
+  "window": "the last 7 days",
+  "url": "https://thepaypers.com/payments/news/fedex-dataworks-and-stripe-partner-on-smb-financing-and-payments",
+  "title": "FedEx and Stripe team up on SMB financing | The Paypers",
+  "snippet": "FedEx and Stripe team up on SMB financing | The Paypers\n\n# FedEx Dataworks and Stripe partner on SMB financing and payments\n...\n12 Oct 2026 / 5 Min Read\n\nFedEx Dataworks and Stripe have announced a lo",
+  "date_shown": "2026-10-12",
+  "id": "r0194"
+ },
+ {
+  "query_id": "blind5-announcement-20",
+  "query": "Roku official announcement",
+  "window": "the last 31 days",
+  "url": "https://newsroom.roku.com/news/2026/10/roku-announces-battle-of-the-streaming-stars-/o7vkwdg0-1790791570",
+  "title": "Roku Announces “Battle of the Streaming Stars,” Hosted and Executive Produced by Terry Crews | Roku",
+  "snippet": "Roku Announces “Battle of the Streaming Stars,” Hosted and Executive Produced by Terry Crews | Roku\n\n# Roku Announces “Battle of the Streaming Stars,” Hosted and Executive Produced by Terry Crews \n\nOc",
+  "date_shown": "2026-10-01",
+  "id": "r0200"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://oceanexplorer.noaa.gov/ocean-fact/pacific-size/",
+  "title": "How big is the Pacific Ocean? - NOAA Ocean Exploration",
+  "snippet": "The Pacific Ocean is the largest and deepest ocean basin on Earth, covering more than 155 million square kilometers (60 million square miles) and averaging a depth of 4,000 meters (13,000 feet).\n...\nC",
+  "date_shown": "2013-03-05",
+  "id": "r0206"
+ },
+ {
+  "query_id": "blind5-code-08",
+  "query": "rust crate for serialization",
+  "window": "none",
+  "url": "https://github.com/rust-syndication/atom",
+  "title": "rust-syndication/atom",
+  "snippet": "Library for serializing the Atom web content syndication format https://crates.io/crates/atom_syndication",
+  "date_shown": "2026-07-30",
+  "id": "r0212"
+ },
+ {
+  "query_id": "blind5-paper-10",
+  "query": "recent papers on federated learning privacy",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/10.5555/3857392.3857724",
+  "title": "Cracking federated privacy | Proceedings of the 35th USENIX Conference on Security Symposium",
+  "snippet": "# Cracking federated privacy | Proceedings of the 35th USENIX Conference on Security Symposium",
+  "date_shown": "2026-10-08",
+  "id": "r0218"
+ },
+ {
+  "query_id": "blind5-howto-17",
+  "query": "how to use regex lookahead",
+  "window": "none",
+  "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookahead_assertion",
+  "title": "Lookahead assertion: (?=...), (?!...) - JavaScript - MDN",
+  "snippet": "A lookahead assertion \"looks ahead\": it attempts to match the subsequent input with the given pattern, but it does not consume any of the input — if the match is successful, the current position in th",
+  "date_shown": "2026-10-10",
+  "id": "r0224"
+ },
+ {
+  "query_id": "blind5-announcement-12",
+  "query": "what did Fortinet announce this month",
+  "window": "the last 31 days",
+  "url": "https://intlbm.com/2026/10/07/aramco-unlocks-next-gen-cyber-resilience-with-fortinet/",
+  "title": "Aramco Unlocks Next-Gen Cyber Resilience with Fortinet - INTLBM",
+  "snippet": "- October 7, 2026\n...\nFortinet, the global cybersecurity leader driving the convergence of networking and security, has announced that it has signed a Memorandum of Understanding (MoU) with Aramco. Im",
+  "date_shown": "2026-10-07",
+  "id": "r0230"
+ },
+ {
+  "query_id": "blind5-paper-18",
+  "query": "recent papers on embodied ai",
+  "window": "the last 366 days",
+  "url": "https://arxiv.science/abs/2610.02204",
+  "title": "Reconstruct, Practice, Go Real: Guided Self-Improvement for Embodied Agents | arXiv Science",
+  "snippet": "Reconstruct, Practice, Go Real: Guided Self-Improvement for Embodied Agents | arXiv Science\n\n# Reconstruct, Practice, Go Real: Guided Self-Improvement for Embodied Agents\n...\nBuilding reliable robot c",
+  "date_shown": "2026-10-01",
+  "id": "r0236"
+ },
+ {
+  "query_id": "blind5-paper-04",
+  "query": "recent papers on offline reinforcement learning",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.12014",
+  "title": "[2609.12014] Certified Safety Curation: Distribution-Free Guarantees for Safe Offline Reinforcement Learning",
+  "snippet": "[2609.12014] Certified Safety Curation: Distribution-Free Guarantees for Safe Offline Reinforcement Learning\nSkip to main content\n...\n# Computer Science >\n...\n**arXiv:2609.12014** (cs)\n[Submitted on 1",
+  "date_shown": "2026-09-10",
+  "id": "r0242"
+ },
+ {
+  "query_id": "blind5-news-19",
+  "query": "news about Infosys past month",
+  "window": "the last 31 days",
+  "url": "https://www.unite.ai/infosys-and-columbia-university-launch-enterprise-ai-research-center/",
+  "title": "Infosys and Columbia University Launch Enterprise AI Research Center – Unite.AI",
+  "snippet": "Infosys and\n...\n# Infosys and Columbia University Launch Enterprise AI Research Center\n\n Published October 1, 2026 \n\nBy\n\n Aiden Cross, AI Product Strategy & Execution AI Research Agent \n\nOn October 1,",
+  "date_shown": "2026-10-01",
+  "id": "r0248"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.lg.com/global/business/insights/mobility/news/20261006-solution-lg-renault-group-sdv-integrated-cockpit/",
+  "title": "LG to Supply Integrated Cockpit Solution for Renault Group’s First Commercial SDV",
+  "snippet": "LG to Supply Integrated Cockpit Solution for Renault Group’s First Commercial SDV\n\n# LG to Supply Integrated Cockpit Solution for Renault Group’s First Commercial SDV\n...\n- LG Electronics will supply ",
+  "date_shown": "2026-10-06",
+  "id": "r0254"
+ },
+ {
+  "query_id": "blind5-announcement-13",
+  "query": "Autodesk press release this month",
+  "window": "the last 31 days",
+  "url": "https://www.autodesk.com/free-trials",
+  "title": "Download Free Autodesk Software | Free Trials | Autodesk Official",
+  "snippet": "Download free trials of Autodesk professional 2D & 3D design tools. Choose from AutoCAD, 3ds Max, Maya, Civil 3D, Inventor, Revit, and more.",
+  "date_shown": "2026-10-11",
+  "id": "r0260"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://pkg.go.dev/encoding/json",
+  "title": "json package - encoding/json - Go Packages",
+  "snippet": "Package json implements encoding and decoding of JSON as defined in RFC 7159. The mapping between JSON and Go values is described in the documentation for the Marshal and Unmarshal functions. \n\nSee JS",
+  "date_shown": "none",
+  "id": "r0266"
+ },
+ {
+  "query_id": "blind5-paper-08",
+  "query": "recent papers on 3d gaussian splatting",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.03534",
+  "title": "[2609.03534] TruncGradGS: Improved 3D Gaussian Splatting via Truncated Gradient Updates",
+  "snippet": "[2609.03534] TruncGradGS: Improved 3D Gaussian Splatting via Truncated Gradient Updates\nSkip to main content\n...\n# Computer Science > Computer Vision and Pattern\n...\n**arXiv:2609.03534** (cs)\n[Submitt",
+  "date_shown": "2026-09-03",
+  "id": "r0272"
+ },
+ {
+  "query_id": "blind5-code-10",
+  "query": "go library for configuration files",
+  "window": "none",
+  "url": "https://github.com/gookit/config",
+  "title": "gookit/config: 📝 Go configuration manage(load,get ...",
+  "snippet": "# gookit/config\n\n📝 Go configuration manage(load,get,set,export). support JSON, YAML, TOML, Properties, INI, HCL, ENV and Flags. Multi file load, data override merge, parse ENV var. Go应用配置加载管理，支持多种格式，多",
+  "date_shown": "none",
+  "id": "r0278"
+ },
+ {
+  "query_id": "blind5-code-01",
+  "query": "fastify github repo",
+  "window": "none",
+  "url": "https://github.com/Uzlopak/fastify-types-issue",
+  "title": "Uzlopak/fastify-types-issue",
+  "snippet": "Repo to give an example to fastify developers for issue https://github.com/fastify/fastify/issues/5125",
+  "date_shown": "2023-10-26",
+  "id": "r0284"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/10.1145/3834764",
+  "title": "A Survey of Graph Transformers: Architectures, Theories and ...",
+  "snippet": "Graph Transformers (GTs) have demonstrated a strong capability in modeling graph structures by addressing the intrinsic limitations of graph neural networks (GNNs), such as over-smoothing and over-squ",
+  "date_shown": "2026-08-01",
+  "id": "r0290"
+ },
+ {
+  "query_id": "blind5-code-15",
+  "query": "node.js orm library",
+  "window": "none",
+  "url": "http://github.com/drizzle-team/drizzle-orm",
+  "title": "drizzle-team/drizzle-orm",
+  "snippet": "- Stars: 33915\n- Forks: 1344\n- Watchers: 33915\n- Open issues: 1698\n- Primary language: TypeScript\n- Languages: TypeScript (98.7%), JavaScript (1.3%)\n- License: Apache License 2.0 (Apache-2.0)\n- Topics",
+  "date_shown": "2021-06-24",
+  "id": "r0296"
+ },
+ {
+  "query_id": "blind5-announcement-07",
+  "query": "what did Supabase announce this month",
+  "window": "the last 31 days",
+  "url": "https://runtimewire.com/article/supabase-raises-150m-acquires-turso",
+  "title": "Supabase raises $150M and agrees to acquire Turso for agent databases",
+  "snippet": "Supabase's GIC-led $150 million round follows its $500 million Series F by four months. The company says AI tools create 70% of its new databases and has agreed to acquire Turso.",
+  "date_shown": "2026-10-02",
+  "id": "r0302"
+ },
+ {
+  "query_id": "blind5-paper-11",
+  "query": "recent papers on vision transformers efficiency",
+  "window": "the last 366 days",
+  "url": "https://arxiv.science/abs/2605.26636",
+  "title": "JetViT: Efficient High-Resolution Vision Transformer with Post-Training Attention Search | arXiv Science",
+  "snippet": "JetViT: Efficient High-Resolution Vision Transformer with Post-Training Attention Search | arXiv Science\n\n# JetViT: Efficient High-Resolution Vision Transformer with Post-Training Attention Search\n...",
+  "date_shown": "2026-05-26",
+  "id": "r0308"
+ },
+ {
+  "query_id": "blind5-code-10",
+  "query": "go library for configuration files",
+  "window": "none",
+  "url": "https://github.com/knadh/koanf",
+  "title": "knadh/koanf",
+  "snippet": "Simple, extremely lightweight, extensible, configuration management library for Go. Supports JSON, TOML, YAML, env, command line, file, S3 etc. Alternative to viper.",
+  "date_shown": "2026-10-07",
+  "id": "r0314"
+ },
+ {
+  "query_id": "blind5-announcement-13",
+  "query": "Autodesk press release this month",
+  "window": "the last 31 days",
+  "url": "https://adsknews.autodesk.com/en/pressrelease/autodesk-advances-agentic-ai-in-its-three-industry-clouds/",
+  "title": "Autodesk Advances Agentic AI in Its Three Industry Clouds | Autodesk News",
+  "snippet": "Autodesk Advances Agentic AI in Its Three Industry Clouds | Autodesk News\n\n# Autodesk Advances Agentic AI in Its Three Industry Clouds\n\n 15 SEP 2026 \n\nNew specialized and agentic AI across Autodesk Fo",
+  "date_shown": "2026-09-15",
+  "id": "r0320"
+ },
+ {
+  "query_id": "blind5-howto-11",
+  "query": "how to debounce input in react",
+  "window": "none",
+  "url": "https://www.npmjs.com/package/use-debounce",
+  "title": "useDebounce, useDebouncedCallback & useThrottledCallback",
+  "snippet": "## Simple values debouncing\n...\n```javascript\nimport React, { useState } from 'react';\nimport { useDebounce } from 'use-debounce';\n\nexport default function Input() {\n  const [text, setText] = useState",
+  "date_shown": "none",
+  "id": "r0326"
+ },
+ {
+  "query_id": "blind5-howto-06",
+  "query": "how to create a python package with pyproject.toml",
+  "window": "none",
+  "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/",
+  "title": "Packaging Python Projects - Python Packaging User Guide",
+  "snippet": "Packaging Python Projects ¶ This tutorial walks you through how to package a simple Python project. It will show you how to add the necessary files and structure to create the package, how to build th",
+  "date_shown": "2026-10-12",
+  "id": "r0332"
+ },
+ {
+  "query_id": "blind5-fact-16",
+  "query": "what is the freezing point of water in fahrenheit",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Celsius",
+  "title": "Celsius",
+  "snippet": "Fahrenheit scale is still used. Throughout the 19th and the first half of the 20th centuries, the scale was based on 0 °C for the freezing point of water",
+  "date_shown": "2001-11-18",
+  "id": "r0338"
+ },
+ {
+  "query_id": "blind5-paper-13",
+  "query": "recent papers on recommender systems with llms",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2608.10257",
+  "title": "GenRec: An LLM-Backed Recommendation Ranker at Netflix",
+  "snippet": "Large language models (LLMs) are reshaping recommender systems by enabling richer modeling of users, content, and context directly in natural language. At Netflix, we are exploring this direction thro",
+  "date_shown": "2026-10-10",
+  "id": "r0344"
+ },
+ {
+  "query_id": "blind5-fact-01",
+  "query": "who founded Samsung",
+  "window": "none",
+  "url": "https://www.samsung.com/us/about-us/leadership-and-mission/heritage/",
+  "title": "Heritage | Brand Identity | About Us",
+  "snippet": "## What we began in 1969 has evolved and expanded through the decades. In Korean, the word ‘Samsung’ means “three stars” and the name carries the founder Lee Byung-chull’s vision for the company. The ",
+  "date_shown": "2026-04-14",
+  "id": "r0350"
+ },
+ {
+  "query_id": "blind5-news-18",
+  "query": "news about Baidu past month",
+  "window": "the last 31 days",
+  "url": "https://www.msn.com/en-us/news/other/investors-heavily-search-baidu-inc-bidu-here-is-what-you-need-to-know/ar-AA2dm3gr",
+  "title": "Investors heavily search Baidu, Inc. (BIDU): Here is what you need to know",
+  "snippet": "Baidu Inc. (BIDU) has recently been on Zacks.com's list of the most searched stocks. Therefore, you might want to consider some of the key factors that could influence the stock's performance in the .",
+  "date_shown": "2026-10-01",
+  "id": "r0356"
+ },
+ {
+  "query_id": "blind5-howto-17",
+  "query": "how to use regex lookahead",
+  "window": "none",
+  "url": "https://www.regular-expressions.info/lookaround.html",
+  "title": "Regex Tutorial: Lookahead and Lookbehind Zero-Length Assertions",
+  "snippet": "You can use any regular expression inside the lookahead (but not lookbehind, as explained below). Any valid regular expression can be used inside the lookahead. If it contains capturing groups then th",
+  "date_shown": "2026-10-11",
+  "id": "r0362"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/List_of_seas_on_Earth",
+  "title": "List of seas on Earth",
+  "snippet": "of the World Ocean are not included in this list, nor are ocean gyres. Ocean – the four to seven largest named bodies of water in the World Ocean , all",
+  "date_shown": "2005-04-22",
+  "id": "r0368"
+ },
+ {
+  "query_id": "blind5-announcement-07",
+  "query": "what did Supabase announce this month",
+  "window": "the last 31 days",
+  "url": "https://pomegra.io/startups/supabase-raises-150m-buys-turso-2026-deal-explained-2026-10-05",
+  "title": "Supabase raises $150M, buys Turso: 2026 deal explained",
+  "snippet": "The round arrives only four months after Supabase closed a $500M Series F, also led by GIC, so this is less a fresh bet on the company than a top-up on an existing one. What Did Supabase Announce? Sup",
+  "date_shown": "2026-10-12",
+  "id": "r0374"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://www.guinnessworldrecords.com/world-records/smallest-country",
+  "title": "Smallest country | Guinness World Records",
+  "snippet": "State of the Vatican City or Holy See\n\nWhat\n\n 0.44 square kilometre(s) \n\nWhere\n\n Holy See (Vatican City State) (State of the Vatican City or Holy See (Stato della Città del Vaticano)) \n\nWhen\n\n 1929 \n\n",
+  "date_shown": "none",
+  "id": "r0380"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Judaism_and_peace",
+  "title": "Judaism and peace",
+  "snippet": "of peace and the pursuit of peace is one of the key principles in Jewish law. While Jewish tradition permits waging war and killing in certain cases, however",
+  "date_shown": "2010-10-10",
+  "id": "r0386"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.news.com.au/technology/motoring/motoring-news/chinese-deal-could-save-iconic-stellantis-car-brands/news-story/c142ff02a0b1cdf40adb3f7f2ceb22b1",
+  "title": "Chinese deal could save iconic Stellantis car brands",
+  "snippet": "The future of brands like Jeep and Peugeot could be saved thanks to the surging popularity and strength of the Chinese car industry.",
+  "date_shown": "2026-09-16",
+  "id": "r0392"
+ },
+ {
+  "query_id": "blind5-paper-01",
+  "query": "recent papers on large language model agents for software engineering",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/10.1145/3832783.3837451",
+  "title": "Prism: A Multi-solution Reasoning and Synthesis Framework for Repository-Level Issue Resolution | Proceedings of the 41st IEEE/ACM International Conference on A",
+  "snippet": "Prism: A Multi-solution Reasoning and Synthesis Framework for Repository-Level Issue Resolution | Proceedings of the 41st IEEE/ACM International Conference on Automated Software Engineering\n...\nLarge ",
+  "date_shown": "2026-10-07",
+  "id": "r0398"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Ocean_Park_Hong_Kong",
+  "title": "Ocean Park Hong Kong",
+  "snippet": "Ocean Park Hong Kong, commonly known simply as Ocean Park, is an animal theme park in Hong Kong. Covering an area of 91.5 hectares (226 acres) in Wong",
+  "date_shown": "none",
+  "id": "r0404"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://openformatter.com/parse-json-go",
+  "title": "How to Parse JSON in Go – encoding/json Complete Guide",
+  "snippet": "Parse JSON in Go using encoding/json with Unmarshal, Marshal, struct tags, and error handling.",
+  "date_shown": "2026-10-05",
+  "id": "r0410"
+ },
+ {
+  "query_id": "blind5-news-08",
+  "query": "news about Renault past month",
+  "window": "the last 31 days",
+  "url": "https://www.timeslive.co.za/motoring/2026-10-12-evs-reached-60-of-renault-brand-car-sales-in-france-over-past-days/",
+  "title": "EVs reached 60% of Renault brand car sales in France over past days",
+  "snippet": "Electric cars reached about 60% of Renault’s sales in France over the past weekend, brand CEO Fabrice Cambolive said on Sunday night, setting a new record in the wake of higher fuel prices. The ...",
+  "date_shown": "2026-10-12",
+  "id": "r0416"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.lgcorp.com/media/release/30597",
+  "title": "Press Release | Media | LG",
+  "snippet": "LG Electronics has completed qualification for its 2.6-megawatt (MW) Coolant Distribution Unit (CDU), meeting the applicable NVIDIA DSX reference design requirements for DSX AI Factory Platform. This ",
+  "date_shown": "2026-09-21",
+  "id": "r0422"
+ },
+ {
+  "query_id": "blind5-paper-11",
+  "query": "recent papers on vision transformers efficiency",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2602.21081",
+  "title": "[2602.21081] Scaling Vision Transformers: Evaluating DeepSpeed for ...",
+  "snippet": "We evaluate intra- and inter-node training efficiency across multiple GPU configurations on various datasets like CIFAR-10 and CIFAR-100, exploring the impact of distributed data parallelism on traini",
+  "date_shown": "2026-04-26",
+  "id": "r0428"
+ },
+ {
+  "query_id": "blind5-fact-11",
+  "query": "who invented the light bulb",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Incandescent_light_bulb",
+  "title": "Incandescent light bulb",
+  "snippet": "An incandescent light bulb , also known as an incandescent lamp or incandescent light globe, is an electric light that produces illumination by Joule heating",
+  "date_shown": "none",
+  "id": "r0434"
+ },
+ {
+  "query_id": "blind5-news-14",
+  "query": "news about Emirates airline past month",
+  "window": "the last 31 days",
+  "url": "https://www.emirates247.com/business/emirates-hiring-continues-as-airline-targets-further-growth/5709",
+  "title": "Emirates hiring continues as airline targets further growth",
+  "snippet": "Emirates Airline continues hiring as strong winter bookings, fleet expansion and new A350 deliveries drive growth plans, with high demand across key markets and more flights and promotions planned to ",
+  "date_shown": "2026-09-15",
+  "id": "r0440"
+ },
+ {
+  "query_id": "blind5-news-14",
+  "query": "news about Emirates airline past month",
+  "window": "the last 31 days",
+  "url": "https://scenenow.com/Traveller/Emirates-Offers-Unlimited-Free-Date-Changes-on-Flights-to-Dubai",
+  "title": "Emirates Offers Unlimited Free Date Changes on Flights to Dubai",
+  "snippet": "Emirates Offers Unlimited Free Date Changes on Flights to Dubai\n\n Oct 10, 2026 \n\n# Emirates Offers Unlimited Free Date Changes on Flights to Dubai \n\nThe airline has also enhanced travel cover, disrupt",
+  "date_shown": "2026-10-10",
+  "id": "r0446"
+ },
+ {
+  "query_id": "blind5-news-04",
+  "query": "news about FedEx this week",
+  "window": "the last 7 days",
+  "url": "https://www.msn.com/en-us/sports/football/chiefs-news-ken-walker-named-fedex-ground-nfl-player-of-the-week/ar-AA2dORLV",
+  "title": "Chiefs news: Ken Walker named FedEx Ground NFL player of the week",
+  "snippet": "The latest Chiefs news, brought fresh to you every morning!",
+  "date_shown": "2026-10-08",
+  "id": "r0452"
+ },
+ {
+  "query_id": "blind5-howto-19",
+  "query": "how to set up a postgres connection pool",
+  "window": "none",
+  "url": "https://www.postgrejs.com/docs/guides/pooling",
+  "title": "Connection Pooling | PostgreJS",
+  "snippet": "A `Pool` manages a set of physical `Connection` s to a single server and hands them out on demand, so an application does not pay the cost of a fresh TCP handshake and authentication round trip for ev",
+  "date_shown": "none",
+  "id": "r0458"
+ },
+ {
+  "query_id": "blind5-announcement-11",
+  "query": "CrowdStrike latest announcement",
+  "window": "the last 31 days",
+  "url": "https://dailysynapse.com/news/crowdstrike-schwarz-digits-sovereign-falcon-rollout-europe/",
+  "title": "CrowdStrike and Schwarz Digits plan sovereign Falcon rollout in Europe – DailySynapse",
+  "snippet": "CrowdStrike and Schwarz Digits plan sovereign Falcon rollout in Europe – DailySynapse\n...\n# CrowdStrike and Schwarz Digits plan sovereign Falcon rollout in Europe\n...\nCrowdStrike and Schwarz Digits ex",
+  "date_shown": "2026-10-12",
+  "id": "r0464"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Nolan_chart",
+  "title": "Nolan chart",
+  "snippet": "to be known as the Nolan Chart, and later became the centerpiece of the World's Smallest Political Quiz. Nolan's argument was that the major difference",
+  "date_shown": "2003-08-31",
+  "id": "r0470"
+ },
+ {
+  "query_id": "blind5-code-09",
+  "query": "python library for image processing",
+  "window": "none",
+  "url": "https://github.com/histolab/histolab",
+  "title": "histolab/histolab",
+  "snippet": "Library for Digital Pathology Image Processing",
+  "date_shown": "2026-10-05",
+  "id": "r0476"
+ },
+ {
+  "query_id": "blind5-fact-07",
+  "query": "what is the population of New Zealand",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Australasia",
+  "title": "Australasia",
+  "snippet": "area is ethnically Melanesian, while New Zealand is considered part of Polynesia as the native Maori population is ethnically Polynesian. Geography portal",
+  "date_shown": "2002-10-20",
+  "id": "r0482"
+ },
+ {
+  "query_id": "blind5-howto-06",
+  "query": "how to create a python package with pyproject.toml",
+  "window": "none",
+  "url": "https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html",
+  "title": "Configuring setuptools using pyproject.toml files ¶",
+  "snippet": "# Configuring setuptools using `pyproject.toml` files ¶\n...\nIf compatibility with legacy builds or versions of tools that don’t support certain packaging standards (e.g. PEP 517 or PEP 660), a simple ",
+  "date_shown": "none",
+  "id": "r0488"
+ },
+ {
+  "query_id": "blind5-fact-11",
+  "query": "who invented the light bulb",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Electric_light",
+  "title": "Electric light",
+  "snippet": "An electric light , lamp, or light bulb is an electrical device that produces light from electricity. It is the most common form of artificial lighting",
+  "date_shown": "2002-02-25",
+  "id": "r0494"
+ },
+ {
+  "query_id": "blind5-announcement-16",
+  "query": "Block latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.chattr.com.au/tv/the-block-all-stars/",
+  "title": "The Block All-Stars is coming in 2027, here's what we know",
+  "snippet": "The Block All Stars, titled The Block: The House Next Door, is coming in 2027. Here's what we know about the spinoff and the new season.",
+  "date_shown": "2026-09-17",
+  "id": "r0500"
+ },
+ {
+  "query_id": "blind5-news-20",
+  "query": "news about Tata Motors past month",
+  "window": "the last 31 days",
+  "url": "https://www.autocarpro.in/analysis-sales/tata-motors-ev-sales-exceed-100000-units-in-first-9-months-of-the-year-135171",
+  "title": "Tata Motors EV sales exceed 100,000 units in first 9 months of the year",
+  "snippet": "Electric passenger vehicle market leader dispatched 108,548 EVs in January-September and retailed 101,484 units, giving it a 40% share of the record 255,326 EVs sold in India. With every fifth Tata PV",
+  "date_shown": "2026-10-11",
+  "id": "r0506"
+ },
+ {
+  "query_id": "blind5-paper-11",
+  "query": "recent papers on vision transformers efficiency",
+  "window": "the last 366 days",
+  "url": "https://www.researchgate.net/publication/396455983_A_Survey_on_Vision_Transformers_in_Deep_Learning_Advancements_and_Applications",
+  "title": "A Survey on Vision Transformers in Deep Learning ... - ResearchGate",
+  "snippet": "In this paper, we studied methods of Vision Transformers, detailing their architectural structure, training difficulty, speed-up over standard convolutional neural networks (CNNs), and...",
+  "date_shown": "2025-10-16",
+  "id": "r0512"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_area",
+  "title": "List of countries and dependencies by area",
+  "snippet": "This is a list of the world's countries and their dependencies, ranked by total area, including land and water. This list includes entries that are not",
+  "date_shown": "none",
+  "id": "r0518"
+ },
+ {
+  "query_id": "blind5-fact-11",
+  "query": "who invented the light bulb",
+  "window": "none",
+  "url": "https://www.nps.gov/edis/learn/historyculture/edison-biography.htm",
+  "title": "Edison Biography - Thomas Edison National Historical Park (U.S. National Park Service)",
+  "snippet": "Edison next undertook his greatest challenge, the development of a practical incandescent, electric light. The idea of electric lighting was not new, and a number of people had worked on, and even dev",
+  "date_shown": "none",
+  "id": "r0524"
+ },
+ {
+  "query_id": "blind5-paper-04",
+  "query": "recent papers on offline reinforcement learning",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/html/2610.08989",
+  "title": "LASER: Latent Space Adjoint Matching for Support-Constrained Entropy-Regularized Offline RL",
+  "snippet": "LASER: Latent Space Adjoint Matching for Support-Constrained Entropy-Regularized Offline RL\n\n# LASER: Latent Space Adjoint Matching for Support-Constrained Entropy-Regularized Offline RL\n...\nWhile off",
+  "date_shown": "2026-10-06",
+  "id": "r0530"
+ },
+ {
+  "query_id": "blind5-announcement-10",
+  "query": "Zscaler official announcement",
+  "window": "the last 31 days",
+  "url": "https://ir.zscaler.com/financial-information/sec-filings",
+  "title": "SEC Filings - Zscaler, Inc.",
+  "snippet": "The Investor Relations website contains information about Zscaler, Inc.'s business for stockholders, potential investors, and financial analysts.",
+  "date_shown": "2026-10-12",
+  "id": "r0536"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://apscheduler.readthedocs.io/en/stable/userguide.html",
+  "title": "",
+  "snippet": "## Installing APScheduler \n\nThe preferred installation method is by using pip:\n\n```\n$ pip install apscheduler\n...\nt have pip installed, you ... easily install it ... pip.py.\n\nIf, for some reason, pip",
+  "date_shown": "none",
+  "id": "r0542"
+ },
+ {
+  "query_id": "blind5-code-15",
+  "query": "node.js orm library",
+  "window": "none",
+  "url": "https://github.com/knex/knex/blob/e685b70ff11780d06910f77ecdfbd7ea4ef60cd2/README.md",
+  "title": "README.md at e685b70ff11780d06910f77ecdfbd7ea4ef60cd2 · knex/knex",
+  "snippet": "query builder for PostgreSQL, MySQL, CockroachDB, ... Server, SQLite3\n...\nbd7ea\n...\nA batteries-included, multi-dialect (PostgreSQL, MySQL, CockroachDB, MSSQL, SQLite3, Oracle (including Oracle Wallet",
+  "date_shown": "none",
+  "id": "r0548"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.13844",
+  "title": "[2609.13844] Pre-training with Graph Transformers",
+  "snippet": "[2609.13844] Pre-training with Graph Transformers\nSkip to main content\n...\n# Computer Science > Machine\n...\n**arXiv:2609.13844** (cs)\n[Submitted on 12 Sep 2026]\n# Title:Pre-training with Graph Transfo",
+  "date_shown": "2026-09-12",
+  "id": "r0554"
+ },
+ {
+  "query_id": "blind5-news-08",
+  "query": "news about Renault past month",
+  "window": "the last 31 days",
+  "url": "https://www.scmp.com/economy/global-economy/article/3369753/renaults-plan-chinese-ev-motor-assembly-small-french-town-sparks-job-loss-fears",
+  "title": "Renault’s plan to build Chinese EV motors in French town sparks job loss fears",
+  "snippet": "# Renault’s plan to build Chinese EV motors in French town sparks job loss fears\n...\nRenault’s plan for Chinese EV motor assembly in small French town sparks job loss fears | South China Morning Post\n",
+  "date_shown": "2026-10-07",
+  "id": "r0560"
+ },
+ {
+  "query_id": "blind5-news-05",
+  "query": "news about Embraer past month",
+  "window": "the last 31 days",
+  "url": "https://travelweekly.com.au/latam-starts-adding-embraer-e195-e2-aircraft-to-fleet/",
+  "title": "LATAM starts adding Embraer E195-E2 aircraft to fleet",
+  "snippet": "LATAM has started the delivery process for the first Embraer E195-E2 to join the group’s fleet, which will be completed in the coming days.",
+  "date_shown": "2026-10-12",
+  "id": "r0566"
+ }
+]
