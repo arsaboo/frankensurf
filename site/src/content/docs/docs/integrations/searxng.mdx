@@ -11,12 +11,35 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 - Upstream engine failures are shown in `upstream_failures`, not hidden.
 - Bound to `127.0.0.1:8088`.
 
+Search works without it (DuckDuckGo, Bing and the topic sources answer), but is
+stronger with it: it answered about a third of the queries in our blind benchmark.
+
 ## Set up
 
+You need [Docker](https://docs.docker.com/get-docker/) running. Then either let
+setup offer it, or start it yourself:
+
 ```bash
-bash scripts/start-search.sh
-export FRANKENSURF_SEARCH_URL=http://127.0.0.1:8088
+frankensurf setup                 # asks: Start a local search engine (SearXNG in Docker, port 8088)? [y/N]
+frankensurf setup --search        # yes in advance; --no-search skips the question
+frankensurf search-engine start   # any time; also: stop, status
 ```
+
+`start` runs a pinned SearXNG image as a container named `frankensurf-search`,
+published only on `127.0.0.1:8088`, restarting unless you stop it, with JSON
+output on (settings are copied to `~/.local/share/frankensurf/searxng/` with a
+random secret key; edit them if you like, they are never overwritten). If a
+SearXNG with JSON already answers on that port, nothing is run. Setup reports
+`search.status` as `running`, `started`, `declined`, `not_running` or
+`no_docker`; without Docker it says how to get it and what search falls back to.
+
+Nothing needs an environment variable: Frankensurf looks at `http://127.0.0.1:8088`
+by default. Set `FRANKENSURF_SEARCH_URL` (MCP server) or pass `--search-url`
+(CLI) only to use a SearXNG somewhere else on loopback. From a clone,
+`bash scripts/start-search.sh` starts the same image.
+
+When a search ran without it because it was not reachable,
+`receipt.search_routing.local_search` says so, with the command to start it.
 
 ## Use it
 

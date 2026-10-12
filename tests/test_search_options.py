@@ -40,7 +40,8 @@ def test_each_web_source_applies_options_its_own_way():
     got = params(build_search("rust async", "hacker_news", {"recency": "day"}, now=NOW)[0])
     assert got["numericFilters"] == "created_at_i>%d" % (NOW.timestamp() - 86400)
     got = params(build_search("tokio", "github", {"recency": "month"}, now=NOW)[0])
-    assert got["q"] == "tokio pushed:>2026-09-08"
+    # A bare project name searches repository names; stars order the answer.
+    assert got["q"] == "tokio in:name pushed:>2026-09-08" and got["sort"] == "stars"
     assert build_search("Leica", "wikipedia", {"region": "de"})[0].startswith("https://de.wikipedia.org/w/api.php?")
 
 
@@ -118,8 +119,8 @@ def test_paid_apis_get_options_natively(monkeypatch):
 
 async def test_merge_mode_fuses_sources_and_survives_a_blocked_one(tmp_path):
     rss = ('<rss><channel>'
-           '<item><title>Both</title><link>https://www.shop.example/a?utm_source=x</link></item>'
-           '<item><title>Bing only</title><link>https://other.example/b</link></item></channel></rss>')
+           '<item><title>Both lamp</title><link>https://www.shop.example/a?utm_source=x</link></item>'
+           '<item><title>Bing only lamp</title><link>https://other.example/b</link></item></channel></rss>')
     searx = {"results": [{"url": "https://shop.example/a/", "title": "Both", "engines": ["google"]},
                          {"url": "https://third.example/c", "title": "Searx only"}]}
 

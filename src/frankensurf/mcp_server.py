@@ -326,7 +326,7 @@ async def search(query: str, source: str | None = None, limit: int = 10,
                  identity: str | None = None, provider: str | None = None,
                  site: str | None = None, exclude_domains: list[str] | None = None,
                  recency: str | None = None, region: str | None = None,
-                 vertical: str = "web", mode: str = "fallback",
+                 vertical: str | None = None, mode: str = "fallback",
                  acquisition_policy: dict | None = None) -> dict:
     """Discover indexed candidates through installed sources with exact attribution.
 
@@ -340,7 +340,15 @@ async def search(query: str, source: str | None = None, limit: int = 10,
     (receipt.search_options says what was dropped). vertical picks the kind of
     source: web, news (Bing News), reference (Wikipedia), discussions (Hacker
     News), qa (Stack Overflow), code (GitHub), papers (arXiv), books (Open
-    Library), site (one site's own feeds and sitemaps; pass site=). mode="merge" asks every eligible source at once and fuses them.
+    Library), site (one site's own feeds and sitemaps; pass site=). Leave
+    vertical out and it is inferred from the query: platform words and "<language>
+    library" or "library for" mean code; "papers on", arxiv or "survey of" mean
+    papers; "news", headlines or "latest on" mean news (announcement and launch
+    phrasing stays web); fact questions (who, what is, when was, how tall,
+    capital of, who wrote) mean reference; an error or how-to with code tokens
+    means qa; anything else is web. receipt.search_routing.vertical_inferred
+    says what was picked and why; an explicit vertical always wins.
+    mode="merge" asks every eligible source at once and fuses them.
     """
     config = ({"base_url": os.environ["FRANKENSURF_SEARCH_URL"]}
               if os.getenv("FRANKENSURF_SEARCH_URL") and source in (None, "searxng") else None)

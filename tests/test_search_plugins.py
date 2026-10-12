@@ -7,7 +7,7 @@ from dataclasses import replace
 import httpx
 import pytest
 
-from frankensurf import Runtime, WebPolicy
+from frankensurf import Runtime, WebPolicy, local_search
 from frankensurf.search_plugins import (DEFAULT_SEARCHES, SearchManifest,
     SearchRegistry)
 
@@ -46,7 +46,11 @@ async def test_omitted_source_falls_back_with_exact_attribution_and_attempts(tmp
         "selection_basis": "provisional_free_registry_order", "vertical": "web",
         "candidates": ["searxng", "duckduckgo_html", "bing_rss"],
         "automatic_fallback": True, "benchmark_earned_order": False,
-        "source_timeout_seconds": 8}
+        "source_timeout_seconds": 8,
+        "vertical_inferred": {"vertical": "web", "reason": "no vertical signal"},
+        # searxng answered 503: the receipt says local search was not running.
+        "local_search": {"status": "not_running", "note": local_search.NOT_RUNNING_NOTE,
+                         "start_with": "frankensurf search-engine start"}}
 
 
 async def test_explicit_source_never_substitutes(tmp_path):

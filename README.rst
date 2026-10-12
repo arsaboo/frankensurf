@@ -67,10 +67,23 @@ and ``max_cost_usd``). See
 Search
 ------
 
-``search`` uses free sources first and checks every result for topic and date;
-Exa and Firecrawl's search join only when you allow paid tools. On blind,
-independently judged queries it is not yet as good as Exa, so no comparison is
-claimed here (`benchmarks/2026-10-12-search <benchmarks/2026-10-12-search/README.md>`_).
+``search`` uses free sources first and checks every result for topic, kind of page and
+date; Exa and Firecrawl's search join only when you allow paid tools. Judged blind
+(results pooled and shuffled, which tool found them hidden), useful results in the
+top five:
+
+=================================================  ======================  ===========
+Blind set 7 (120 queries)                          Useful results (of 5)   Cost per 1k
+=================================================  ======================  ===========
+Frankensurf, paid allowed                          4.67                    $9.38
+Exa only                                           4.66                    $9.50
+Frankensurf, free (with the local search engine)   3.83                    $0
+=================================================  ======================  ===========
+
+Free, it beats Firecrawl's search (blind set 6, the 69 queries Firecrawl answered:
+3.78 against 2.91, better on 35 queries and worse on 5). With paid allowed it is level
+with Exa. Without the local search engine ``frankensurf setup`` offers, free search is
+much weaker. Details: `benchmarks/2026-10-13-search <benchmarks/2026-10-13-search/README.md>`_.
 
 Use it
 ------
@@ -127,6 +140,14 @@ their new pages from the feeds and sitemaps they publish, polled with
 conditional requests. Running on a server? Run Steel beside it
 (``docker compose up -d``) and, if sites still refuse your data-centre address,
 set ``FRANKENSURF_PROXY`` to a proxy you bring.
+
+Search works without any setup (DuckDuckGo, Bing and the topic sources), and is
+stronger with a local SearXNG, which answered about a third of the queries in our
+blind benchmark. ``frankensurf setup`` offers to start one in Docker
+("Start a local search engine (SearXNG in Docker, port 8088)? [y/N]", default no;
+never asked in scripts or CI). ``--search`` says yes in advance and ``--no-search``
+skips the question; ``frankensurf search-engine start|stop|status`` manages it later.
+When a search ran without it, ``receipt.search_routing.local_search`` says so.
 
 Agents learn the tools from a bundled skill: the MCP server sends it as its
 instructions, and ``frankensurf skill install`` adds it to ``~/.claude/skills``

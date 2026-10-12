@@ -20,7 +20,7 @@ import { Aside } from "@astrojs/starlight/components";
 | `trace` | `trace_id` | The full record of an earlier read: tools tried, failures, timings, completeness steps. No page content. |
 | `extract` | `url`, `adapter`, `include_images`, `identity`, `provider`, `freshness`, `acquisition_policy` | The page through an adapter: `html` (default), `json` or `rss`. |
 | `batch` | `urls`, `provider`, `adapter`, `identity`, `include_images`, `freshness` | One result per URL. |
-| `search` | `query`, `source`, `limit`, `site`, `exclude_domains`, `recency`, `region`, `vertical`, `mode`, `identity`, `provider`, `acquisition_policy` | Attributed results. Options are applied natively and filtered after; `vertical` picks news, reference, discussions, qa, code, papers or books; `mode="merge"` fuses every eligible source. See [Search](/docs/search/). |
+| `search` | `query`, `source`, `limit`, `site`, `exclude_domains`, `recency`, `region`, `vertical`, `mode`, `identity`, `provider`, `acquisition_policy` | Attributed results. Options are applied natively and filtered after; `vertical` picks news, reference, discussions, qa, code, papers or books (inferred from the query when omitted); `mode="merge"` fuses every eligible source. See [Search](/docs/search/). |
 | `paginate` | `url`, `adapter`, `continuation_adapter`, `acquisition_policy` | Every page with an aggregate receipt. |
 | `images` | `urls`, `identity`, `max_images`, `provider` | Checked images. |
 | `identity_status` | `identity` | Health of your identities. |

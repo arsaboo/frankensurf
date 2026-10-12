@@ -25,7 +25,11 @@ from bs4 import BeautifulSoup
 REGISTRY = {
     "searxng": {"kind": "json", "base_url": "http://127.0.0.1:8088", "path": "/search", "endpoint_scope": "loopback self-hosted", "vertical": "web"},
     "duckduckgo_html": {"kind": "html", "base_url": "https://html.duckduckgo.com", "path": "/html/", "endpoint_scope": "public search", "vertical": "web"},
-    "bing_rss": {"kind": "rss", "base_url": "https://www.bing.com", "path": "/search", "endpoint_scope": "public search", "vertical": "web"},
+    # Bing's RSS search has been seen answering every query with the same unrelated pages, so it
+    # is the last web source asked, and a set none of whose results touch the query is a failure
+    # (search_checks.unrelated_set), not an empty answer.
+    "bing_rss": {"kind": "rss", "base_url": "https://www.bing.com", "path": "/search", "endpoint_scope": "public search", "vertical": "web",
+                 "last_resort": True, "verify_relevance": True},
     "bing_news_rss": {"kind": "rss", "base_url": "https://www.bing.com", "path": "/news/search", "endpoint_scope": "public search", "vertical": "news"},
     "wikipedia": {"kind": "json", "base_url": "https://{lang}.wikipedia.org", "path": "/w/api.php", "endpoint_scope": "official public API", "vertical": "reference"},
     "hacker_news": {"kind": "json", "base_url": "https://hn.algolia.com", "path": "/api/v1/search", "endpoint_scope": "official public API", "vertical": "discussions"},
@@ -180,7 +184,7 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
         elif recency:
             params["qft"] = 'interval="%d"' % {"day": 7, "week": 8, "month": 9}.get(recency, 9)
     elif source == "wikipedia":
-        params = {"action": "query", "list": "search", "srsearch": query, "format": "json",
+        params = {"action": "query", "list": "search", "srsearch": wiki_topic(query), "format": "json",
                   "srlimit": 20, "srprop": "snippet|timestamp"}
     elif source == "hacker_news":
         params = {"query": _operators(query, {}, exclude=False), "tags": "story", "hitsPerPage": 30}
@@ -191,8 +195,9 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
                   "site": config.get("engines") or "stackoverflow", "pagesize": 30}
         if since: params["fromdate"] = int(since.timestamp())
     elif source == "github":
-        terms = query + (" pushed:>" + since.date().isoformat() if since else "")
-        params = {"q": terms, "per_page": 30}
+        terms = github_query(query) + (" pushed:>" + since.date().isoformat() if since else "")
+        # Stars first: the canonical project outranks forks and demos of it.
+        params = {"q": terms, "per_page": 30, "sort": "stars", "order": "desc"}
     elif source == "arxiv":
         # Relevance within the window: sorted by date, any paper that mentions the
         # words anywhere outranks the ones about the topic.
@@ -206,6 +211,170 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
     return url, {**definition, "options": options}
 
 
+# --- GitHub: the words of a project or a need, not of the platform
+
+# Where a thing lives, not what it is.
+_GH_PLATFORM = frozenset({"github", "gitlab", "bitbucket", "repo", "repos", "repository", "repositories",
+                          "library", "libraries", "lib", "libs", "package", "packages", "crate", "crates",
+                          "pypi", "npm", "sdk", "project", "projects"})
+# Words that say what the person wants done: a need, not a name.
+_GH_NEED = frozenset({"for", "to", "that", "which", "with", "using", "like", "from", "without", "into", "in",
+                      "on", "by", "can", "does", "do", "need", "needs", "want", "wants", "looking"})
+_GH_FILLER = frozenset({"the", "a", "an", "of", "and", "or", "is", "are", "i", "my", "me", "we", "find", "show",
+                        "get", "best", "top", "good", "great", "popular", "simple", "easy", "fast", "small",
+                        "new", "official", "canonical", "main", "some", "any", "please", "recommend",
+                        "recommended", "alternative", "alternatives"})
+_GH_LANGUAGES = {"python": "python", "javascript": "javascript", "js": "javascript", "typescript": "typescript",
+                 "ts": "typescript", "rust": "rust", "golang": "go", "java": "java", "kotlin": "kotlin",
+                 "swift": "swift", "ruby": "ruby", "php": "php", "c++": "c++", "cpp": "c++", "c#": "c#",
+                 "csharp": "c#", "scala": "scala", "haskell": "haskell", "elixir": "elixir", "dart": "dart",
+                 "lua": "lua", "perl": "perl", "julia": "julia", "clojure": "clojure", "zig": "zig",
+                 "shell": "shell", "bash": "shell"}
+
+
+def github_parts(query: str) -> dict:
+    """A query for a repository, taken apart: the project or topic words (terms), the languages
+    named (languages), any GitHub qualifiers already in the query, and whether it is a name lookup
+    ("fastify github repo": one or two words left and nothing that asks for something to be done)
+    rather than a need ("python library for image processing"). The platform words (github, repo,
+    library, package, crate, source code) and filler are left out: GitHub would match them literally
+    and so return forks and demos of the wrong thing."""
+    text = re.sub(r"(?i)\b(?:source code|open[- ]source)\b", " ", str(query))
+    tokens = [token.strip(".,;!?()[]{}\"'") for token in text.split()]
+    tokens = [token for token in tokens if token]
+    qualifiers = [token for token in tokens if re.fullmatch(r"[a-z-]+:(?!//)\S+", token, re.I)]
+    terms, languages, platform, need = [], [], False, False
+    for position, token in enumerate(tokens):
+        low = token.lower()
+        if token in qualifiers:
+            continue
+        neighbours = [tokens[index].lower() for index in (position - 1, position + 1) if 0 <= index < len(tokens)]
+        if low in _GH_PLATFORM:
+            platform = True
+        elif low in _GH_NEED:
+            need = True
+        elif low in _GH_FILLER:
+            continue
+        elif low in ("framework", "frameworks"):
+            # "typescript testing framework" asks for a thing that does a job: a need, and the
+            # word stays in the search ("testing framework" is the phrase people name it by).
+            need = True
+            if low not in terms:
+                terms.append(low)
+        elif low == "go" and any(item in _GH_PLATFORM for item in neighbours):
+            languages.append("go")
+        elif low in _GH_LANGUAGES:
+            if _GH_LANGUAGES[low] not in languages:
+                languages.append(_GH_LANGUAGES[low])
+        elif low not in terms:
+            terms.append(low)
+    if not terms and languages:
+        # "rust github repo": the language is the project.
+        terms, languages = [languages[0]], []
+    if not terms:
+        terms = [token.lower() for token in tokens if token not in qualifiers] or [str(query).strip()]
+    return {"terms": terms, "languages": languages, "qualifiers": qualifiers, "platform": platform,
+            "name_lookup": not need and len(terms) <= 2}
+
+
+def github_query(query: str) -> str:
+    """The GitHub repository-search q for a query (see github_parts). A name lookup searches
+    repository names (in:name). A need keeps the topic words, looks in names and descriptions
+    (not READMEs, which mention everything) and turns a language word into a language: qualifier.
+    Results are sorted by stars either way (build_search); the router's ranking puts the
+    repository named for the project first."""
+    found = github_parts(query)
+    words = " ".join(found["terms"])
+    if not found["name_lookup"] and 2 <= len(found["terms"]) <= 3:
+        words = '"' + words + '"'  # a short topic is a phrase: "image processing", not image ... processing
+    parts = [words, "in:name" if found["name_lookup"] else "in:name,description"]
+    if found["languages"]:
+        parts.append("language:" + found["languages"][0])
+    return " ".join(parts + found["qualifiers"])
+
+
+# --- Wikipedia: the topic of the question, and the article that is about it
+
+_WIKI_ASKING = frozenset({"who", "whom", "whose", "what", "when", "where", "how", "which", "why", "is", "was",
+                          "are", "were", "did", "does", "do", "the", "a", "an"})
+_WIKI_ARTICLES = frozenset({"the", "a", "an"})
+# What a question asks about the topic; dropped only from a question, since the article is about the topic.
+_WIKI_ASKED = frozenset({"wrote", "written", "write", "invented", "invent", "discovered", "discover", "founded",
+                         "created", "directed", "composed", "painted", "built", "designed", "authored",
+                         "formed", "started", "born", "died", "won", "named", "called", "known"})
+_WIKI_DEGREE = frozenset({"many", "much", "old", "tall", "long", "far", "big", "large", "high", "often"})
+_WIKI_QUALIFIER = re.compile(r"\s*\(([^)]*)\)\s*$")
+_WIKI_DISAMBIGUATION = re.compile(r"\b(?:may|can|could|might) (?:also )?refer to\b|\bdisambiguation\b", re.I)
+
+
+def wiki_topic(query: str) -> str:
+    """What a question is about: its words without the question words (who, what, when, where, how,
+    which, why, is, was, did, does, the, a) and, from a question, the verb it asks about. "who wrote
+    War and Peace" is War and Peace. The query itself when nothing would be left."""
+    words = [token.strip("?!.,;:") for token in str(query).split()]
+    words = [word for word in words if word]
+    question = bool(words) and words[0].lower() in _WIKI_ASKING - _WIKI_ARTICLES
+    kept = []
+    for position, word in enumerate(words):
+        low = word.lower()
+        if low in _WIKI_ASKING:
+            continue
+        if question and (low in _WIKI_ASKED or (low in _WIKI_DEGREE and position and words[position - 1].lower() == "how")):
+            continue
+        kept.append(word)
+    return " ".join(kept) or str(query).strip()
+
+
+_WIKI_OF = re.compile(
+    r"^(?:the\s+)?(?:(?:current|total|official|estimated)\s+)?(?:population|capital|president|prime minister|founders?|"
+    r"inventor|author|meaning|definition|height|area|currency|flag|languages?|leader|ceo|director|creator|composer|"
+    r"artist|age|size|length|depth|climate|monarch|anthem|motto|origin|name|symbol|formula|boiling point|"
+    r"melting point)\s+of\s+(?:the\s+)?(.+)$", re.I)
+
+
+def reference_topic(query: str) -> str:
+    """The thing a fact question is about: wiki_topic, and for "<property> of X" (population of,
+    capital of, founder of) X. "who founded Samsung" is Samsung; "population of New Zealand" is
+    New Zealand."""
+    topic = wiki_topic(query)
+    found = _WIKI_OF.match(topic)
+    return found.group(1).strip() if found else topic
+
+
+def _wiki_key(text):
+    """A title or topic compared loosely: no parenthetical, articles or case."""
+    text = _WIKI_QUALIFIER.sub("", str(text or ""))
+    return " ".join(word for word in re.findall(r"[^\W_]+", text.lower()) if word not in _WIKI_ARTICLES)
+
+
+def rank_wikipedia(rows, topic):
+    """Wikipedia search rows with disambiguation pages dropped and the article about the topic
+    first: a title equal to the topic (case, articles and a trailing parenthetical aside), then
+    titles that hold all of its words, then the rest in the engine's order. A title with a
+    parenthetical qualifier "(film)", "(1956 film)" goes last unless the topic says the qualifier's
+    kind of thing ("film"). Without a topic only the disambiguation pages are dropped."""
+    kept = [row for row in rows if isinstance(row, dict) and row.get("title")
+            and not str(row["title"]).lower().endswith("(disambiguation)")
+            and not _WIKI_DISAMBIGUATION.search(_text(row.get("snippet")))]
+    if not topic:
+        return kept
+    wanted = _wiki_key(topic)
+    words = set(wanted.split())
+
+    def tier(row):
+        title = str(row["title"])
+        key = _wiki_key(title)
+        qualifier = _WIKI_QUALIFIER.search(title)
+        if qualifier:
+            kinds = {word for word in re.findall(r"[^\W_]+", qualifier.group(1).lower()) if not word.isdigit()}
+            if not kinds or not kinds <= words:
+                return 3
+        if key == wanted:
+            return 0
+        return 1 if words and words <= set(key.split()) else 2
+    return sorted(kept, key=tier)  # sorted is stable: the engine's order within a tier
+
+
 _ARXIV_FILLER = frozenset({"a", "an", "the", "of", "on", "in", "for", "to", "and", "or", "with", "by", "from", "paper", "papers", "preprint", "preprints", "arxiv", "research", "study", "studies"})
 
 
@@ -214,10 +383,12 @@ def _arxiv_query(query):
     matches almost anything and, sorted by date, returns the newest papers. Every
     topic word gets its own prefix and all must match; the words as a phrase rank first."""
     from .completeness import _STOPWORDS
-    from .search_checks import _QUERY_FILLER
+    from .search_checks import _QUERY_FILLER, _WEAK_WORDS
     words = [word for word in re.findall(r"[\w][\w\-]*", query.lower())
              if word not in _STOPWORDS and word not in _QUERY_FILLER and word not in _ARXIV_FILLER
              and not re.fullmatch(r"(19|20)\d\d", word)]
+    # How the question is put (use, make, best) is not a topic word, unless nothing else is left.
+    words = [word for word in words if word not in _WEAK_WORDS] or words
     words = words[:8]
     if not words:
         return "all:" + query
@@ -256,6 +427,10 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
                      "snippet": item.findtext("description") or "",
                      "engines": ["bing_news" if source == "bing_news_rss" else "bing"],
                      "indexed_date": item.findtext("pubDate"), "published": _iso(item.findtext("pubDate"))}
+            if source == "bing_rss":
+                # Bing's web results carry the crawl time as pubDate (every page of a site comes back
+                # "published" days ago), not a publication date: it stays indexed_date only.
+                entry["published"] = None
             publisher = next((child.text for child in item if child.tag.endswith("}Source")), None)
             if publisher:
                 entry["extra"] = {"publisher": publisher}
@@ -266,7 +441,8 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
         parsed = urlparse(request_url or "https://en.wikipedia.org")
         host = "https://" + (parsed.hostname if (parsed.hostname or "").endswith(".wikipedia.org")
                              else "en.wikipedia.org")
-        for row in rows:
+        topic = (parse_qs(parsed.query).get("srsearch") or [None])[0]
+        for row in rank_wikipedia(rows, topic):
             if isinstance(row, dict) and row.get("title"):
                 found.append({"url": host + "/wiki/" + quote(str(row["title"]).replace(" ", "_")),
                               "title": row["title"], "snippet": _text(row.get("snippet")),
@@ -297,12 +473,17 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
         rows = structured.get("items") if isinstance(structured, dict) else None
         if not isinstance(rows, list): raise ValueError("Expected GitHub items")
         for row in rows:
-            if isinstance(row, dict) and row.get("html_url"):
+            # A fork or an archived repository is never the project people mean.
+            if isinstance(row, dict) and row.get("html_url") and not row.get("fork") and not row.get("archived"):
                 found.append({"url": row["html_url"], "title": row.get("full_name") or "",
                               "snippet": row.get("description") or "", "engines": ["github"],
                               "indexed_date": row.get("pushed_at"),
                               "published": _iso(row.get("pushed_at") or row.get("created_at")),
-                              "extra": {"stars": row.get("stargazers_count"), "created_at": _iso(row.get("created_at"))}})
+                              "extra": {"stars": row.get("stargazers_count"),
+                                        "stargazers_count": row.get("stargazers_count"),
+                                        "fork": row.get("fork"), "archived": row.get("archived"),
+                                        "language": row.get("language"),
+                                        "created_at": _iso(row.get("created_at"))}})
     elif source == "arxiv":
         try: root = ET.fromstring(content)
         except ET.ParseError as exc: raise ValueError("Expected arXiv Atom") from exc

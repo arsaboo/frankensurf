@@ -5,7 +5,10 @@ description: "Bing's RSS results as a free fallback."
 
 import { Tabs, TabItem } from "@astrojs/starlight/components";
 
-Reads Bing's RSS search results. It's the third free source.
+Reads Bing's RSS search results. It's the last web source an automatic search
+asks, and it never races another source. If every result in an answer shares
+nothing with the query, the source counts as failed (`SEARCH_UNAVAILABLE`,
+"results unrelated to the query") rather than as an answer.
 
 - No key needed.
 - Fetched through the `http` provider, so pacing applies.

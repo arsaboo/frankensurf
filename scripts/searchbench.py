@@ -51,6 +51,8 @@ QUERIES = Path(__file__).with_name("searchbench-queries.json")
 ROUTER = "frankensurf"
 # The router with paid sources allowed as its last rungs.
 ROUTER_PAID = "frankensurf_paid"
+# The router as a fresh install has it: no self-hosted SearXNG.
+ROUTER_STOCK = "frankensurf_stock"
 PAID = ("exa", "firecrawl_search")
 TOP = 5
 READ_OVERRIDES = {"origin_cooldown_seconds": 0, "freshness": "now", "lightning": False,
@@ -303,6 +305,8 @@ def pick_arms(web, requested: list[str] | None, paid: bool) -> tuple[list[str], 
         plugin = getattr(web.searches, "_plugins", {}).get(arm)
         if arm == ROUTER:
             arms.append(arm)
+        elif arm == ROUTER_STOCK:
+            arms.append(arm)
         elif arm == ROUTER_PAID:
             (arms.append(arm) if paid else skipped.__setitem__(arm, "paid; pass --paid"))
         elif not web.searches.contains(arm):
@@ -318,15 +322,17 @@ def pick_arms(web, requested: list[str] | None, paid: bool) -> tuple[list[str], 
     return arms, skipped
 
 
-async def search_once(web, arm: str, query: dict, timeout: float) -> dict:
+async def search_once(web, arm: str, query: dict, timeout: float, hints: bool = True) -> dict:
     from frankensurf import WebPolicy
     policy = (WebPolicy(allow_paid_fallbacks=True) if arm in (*PAID, ROUTER_PAID)
-              else WebPolicy(provider="http"))
+              else WebPolicy(provider="http", search_source_allow=tuple(k for k in REGISTRY if k != "searxng"))
+              if arm == ROUTER_STOCK else WebPolicy(provider="http"))
     started = time.monotonic()
     try:
         response = await asyncio.wait_for(web.search(
-            query["query"], source=None if arm in (ROUTER, ROUTER_PAID) else arm, limit=TOP, policy=policy,
-            recency=query.get("recency"), vertical=query.get("vertical") or "web"), timeout)
+            query["query"], source=None if arm in (ROUTER, ROUTER_PAID, ROUTER_STOCK) else arm, limit=TOP, policy=policy,
+            recency=query.get("recency"),
+            **({"vertical": query.get("vertical") or "web"} if hints else {})), timeout)
     except Exception as error:  # an arm crash is that arm's failure, not the run's
         return {"results": [], "status": "failed", "failure": type(error).__name__, "source": None,
                 "cost_usd": 0.0, "latency_ms": round((time.monotonic() - started) * 1000)}
@@ -339,12 +345,12 @@ async def search_once(web, arm: str, query: dict, timeout: float) -> dict:
 
 
 async def run_arm(web, reader: Reader, arm: str, queries: list[dict], out: Path, done: set, now: datetime,
-                  timeout: float, rows: list[dict]):
+                  timeout: float, rows: list[dict], hints: bool = True):
     gap = SOURCE_GAP.get(arm, DEFAULT_GAP)
     for query in queries:
         if (arm, query["id"]) in done:
             continue
-        found = await search_once(web, arm, query, timeout)
+        found = await search_once(web, arm, query, timeout, hints)
         results = [{k: item.get(k) for k in ("url", "title", "snippet", "published")} for item in found["results"]]
         top = results[:TOP]
         pages = {}
@@ -377,8 +383,8 @@ async def run(queries, args, out: Path, previous: list[dict]) -> list[dict]:
             print(f"skip {arm}: {reason}", file=sys.stderr)
         reader = Reader(web, out.parent / "pages", args.read_gap, args.read_concurrency,
                         None if args.read_provider == "auto" else args.read_provider, enabled=not args.no_reads)
-        await asyncio.gather(*(run_arm(web, reader, arm, queries, out, done, now, args.search_timeout, rows)
-                               for arm in arms))
+        await asyncio.gather(*(run_arm(web, reader, arm, queries, out, done, now, args.search_timeout, rows,
+                                 not args.no_vertical_hints) for arm in arms))
     return rows
 
 
@@ -450,7 +456,7 @@ def report(rows: list[dict], pairs: list[list[str]]):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--set", choices=["dev", "heldout", "blind2", "blind3", "blind4", "all"], default="dev")
+    parser.add_argument("--set", choices=["dev", "heldout", "blind2", "blind3", "blind4", "blind5", "blind6", "blind7", "all"], default="dev")
     parser.add_argument("--arms", nargs="*", help="default: every free source, the router, and with --paid exa and firecrawl_search")
     parser.add_argument("--paid", action="store_true", help="also run the keyed paid arms (they cost money)")
     parser.add_argument("--limit-queries", type=int, help="run only the first N queries, spread over the categories")
@@ -464,6 +470,9 @@ def main(argv=None):
     parser.add_argument("--read-concurrency", type=int, default=3)
     parser.add_argument("--no-reads", action="store_true", help="score from titles, snippets and result dates only")
     parser.add_argument("--search-timeout", type=float, default=120.0)
+    parser.add_argument("--no-vertical-hints", action="store_true",
+                        help="send no vertical, only the query (and its recency window), as Exa and Firecrawl "
+                             "get it: the router infers the vertical itself; default sends each query's vertical")
     args = parser.parse_args(argv)
     logging.getLogger("pypdf").setLevel(logging.ERROR)  # PDF results are read for scoring; font warnings are noise
     if args.rows:

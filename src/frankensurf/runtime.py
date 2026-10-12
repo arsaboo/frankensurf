@@ -237,6 +237,7 @@ class WebPolicy:
     # weak sets up with it. False keeps the first answer.
     search_ladder: bool = True
     search_good_results: int = 3
+    search_fill_rungs: int = 2
     # A windowed automatic search (recency) reads the pages of up to this many
     # undated results that would make the top, over plain http with a short
     # timeout and no paid tools, to find their publication date; results then
@@ -258,6 +259,14 @@ class WebPolicy:
     # first) join the ladder once this many free sources have come back weak or
     # empty; 0 leaves them until every free source has been tried.
     search_paid_after_weak: int = 2
+    # With allow_paid_fallbacks, any automatic search starts
+    # the cheapest likely-success paid source beside the first free rung instead of after
+    # the free ones fail; everything is merged, checked and ranked, and a paid result that
+    # fails the checks gives way to a passing free one. The cost cap applies as always.
+    search_paid_parallel: bool = True
+    # A parallel paid source still running when the free ones make the answer good is waited
+    # for this many seconds before the free answer stands (receipt note paid_timeout).
+    search_paid_wait_seconds: float = 10.0
     # Try first the source that most often passed the checks for this kind of query
     # (vertical, recency or not, site filter or not), learned on this machine.
     search_learned_routing: bool = True
@@ -424,10 +433,15 @@ class WebPolicy:
         _require(type(self.search_ladder) is bool, "search_ladder must be a boolean")
         _require(type(self.search_learned_routing) is bool, "search_learned_routing must be a boolean")
         _require(isinstance(self.search_hold_undated, bool), "search_hold_undated must be a boolean")
+        _require(isinstance(self.search_paid_parallel, bool), "search_paid_parallel must be a boolean")
+        _require(_is_number(self.search_paid_wait_seconds),
+                 "search_paid_wait_seconds must be finite and nonnegative")
         _require(_is_int(self.search_date_reads, 0) and self.search_date_reads <= 20,
                  "search_date_reads must be an integer from 0 to 20")
         _require(_is_number(self.search_date_read_timeout_seconds, positive=True),
                  "search_date_read_timeout_seconds must be positive and finite")
+        _require(_is_int(self.search_fill_rungs, 0) and self.search_fill_rungs <= 6,
+                 "search_fill_rungs must be an integer from 0 to 6")
         _require(_is_int(self.search_good_results, 1) and self.search_good_results <= 100,
                  "search_good_results must be an integer from 1 to 100")
         _require(_is_number(self.search_hedge_after_seconds),
@@ -1687,6 +1701,12 @@ def _navigation_failure(message):
     return None
 
 
+# Verticals with a specialist source: it is raced against SearXNG in the first rung.
+_RACE_VERTICALS = frozenset({"code", "reference", "papers", "news"})
+# After the first racer of a first rung answers, the others get this long to join the merge.
+_RACE_GRACE_SECONDS = 5.0
+
+
 def _search_query_type(vertical, options):
     """A coarse kind of query for learning which search source suits it:
     vertical, recency or not, site filter or not."""
@@ -1807,6 +1827,10 @@ def _load_priors():
 def _wall_priors():
     """Bundled per-vendor counts: {vendor: {tool: [wins, tries]}} (read once)."""
     return _load_priors()["vendors"]
+
+
+# The kind of page each inferred vertical wants, in the terms paid search APIs sort their index by.
+PAID_SEARCH_CATEGORY = {"news": "news", "papers": "research paper", "code": "github"}
 
 
 def _paid_priors():
@@ -6075,27 +6099,44 @@ class Runtime:
         def key(index_source):
             index, name = index_source
             wins, tries, *spent = (list(stats.get(name) or []) + [0, 0])
-            rate = (wins + 1) / (tries + 2)
             fact = next((facts[item] for item in (name, manifests.get(name, {}).get("transport_provider"),
                                                   name.removesuffix("_search")) if item in facts), {})
+            if not tries and fact.get("overall"):
+                # No local record yet: start from the bundled measured rate.
+                wins, tries = fact["overall"]
+            rate = (wins + 1) / (tries + 2)
             cost = fact.get("cost_usd")
             if cost is None and tries and spent and spent[0]:
                 cost = spent[0] / tries
             return (cost is None, (cost / rate) if cost is not None else -rate, index)
         return [name for _index, name in sorted(enumerate(sources), key=key)]
 
+    async def _search_up(self, identifier, engine_config=None):
+        """Whether a search source looks reachable right now (SearXNG: its port accepts a
+        connection). A transport injected into the runtime stands in for the network, so the
+        bundled HTTP engines have no port to probe and count as not reachable."""
+        from .search_plugins import HttpSearchPlugin
+        plugin = getattr(self.searches, "_plugins", {}).get(identifier)
+        if isinstance(plugin, HttpSearchPlugin) and self._transport is not None:
+            return False
+        return bool(await asyncio.to_thread(self.searches.reachable, identifier,
+                                            (engine_config or {}).get("base_url")))
+
     async def search(self, query: str, source: str | None = None, limit: int = 10,
                      engine_config: dict | None = None, policy: WebPolicy | None = None, *,
                      site: str | None = None, exclude_domains: list[str] | None = None,
                      recency: str | None = None, region: str | None = None,
-                     vertical: str = "web", mode: str = "fallback") -> dict:
+                     vertical: str | None = None, mode: str = "fallback") -> dict:
         """Search through installed sources; an explicit source never falls back.
 
         site, exclude_domains, recency (day, week, month, year) and region
         (en-AU) go to every source, natively where it can, and every result
         list is filtered afterwards. vertical picks the kind of source for
         automatic fallback: web, news, reference, discussions, qa, code,
-        papers or books.
+        papers, books or site. Left out (None) it is inferred from the query
+        (search_checks.infer_vertical; receipt.search_routing.vertical_inferred
+        says what and why); an explicit vertical always wins, and an explicit
+        source is never re-routed (its vertical is web).
 
         mode="merge" asks every eligible source in the vertical at once (up
         to search_merge_sources) and fuses their lists by reciprocal rank:
@@ -6106,14 +6147,22 @@ class Runtime:
             return await self._search_merged(query, limit, engine_config, policy, site=site,
                                              exclude_domains=exclude_domains, recency=recency,
                                              region=region, vertical=vertical)
-        from .search import MAX_EXCLUDE_OPERATORS, VERTICALS, filter_results, normalize_options
-        from .search_checks import (accepted, annotate, check_results, enrich_dates, good_count,
-                                    merge_results)
+        from .search import MAX_EXCLUDE_OPERATORS, REGISTRY, VERTICALS, filter_results, normalize_options
+        from .search_checks import (accepted, annotate, anchored_answer, canonical_url, check_results, demote_off_topic,
+                                    demote_unconfirmed_repos, enrich_dates, good_count, infer_vertical,
+                                    merge_results, query_context, query_kinds, REPO_UNWANTED)
         from .search_plugins import SearchRequest, SearchServices
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise ValueError("Invalid search query")
         if not 1 <= limit <= 100:
             raise ValueError("Search limit must be 1..100")
+        vertical_inferred = None
+        if vertical is None:
+            if source is None:
+                guess, reason = infer_vertical(query, recency)
+                vertical, vertical_inferred = guess, {"vertical": guess, "reason": reason}
+            else:
+                vertical = "web"
         if vertical not in VERTICALS:
             raise ValueError("vertical must be one of: " + ", ".join(VERTICALS))
         options = normalize_options(site, exclude_domains, recency, region)
@@ -6123,6 +6172,9 @@ class Runtime:
         # Ask for a few more when results will be filtered, then trim; a long exclude
         # list is mostly enforced on the results, so ask for more still.
         fetch_limit = min(100, limit + 10) if options else limit
+        if not options and source is None and policy.search_ladder:
+            # The checks drop some of what a source returns; a few more candidates keep the answer full.
+            fetch_limit = min(100, limit + 5)
         if len(options.get("exclude_domains", ())) > policy.search_exclude_operators:
             fetch_limit = min(100, 2 * limit + 10)
         started = time.monotonic()
@@ -6183,6 +6235,28 @@ class Runtime:
         qtype = _search_query_type(vertical, options)
         order, order_notes = self._search_order(candidates, qtype, policy, source)
         paid_ids = {item["id"] for item in self.searches.inspect() if item["paid"]}
+        # With paid sources allowed, each result carries its source's quality prior (the bundled
+        # measured rate for a paid one, a default for a free one) and the merge weighs it with
+        # relevance, so the best source's passing results lead. Without paid, ordering is unchanged.
+        weigh_sources = bool(ladder and policy.allow_paid_fallbacks and any(item in paid_ids for item in order))
+        prior_facts = _paid_priors() if weigh_sources and policy.use_wall_priors else {}
+        search_manifests = {item["id"]: item for item in self.searches.inspect()} if weigh_sources else {}
+
+        def source_priors(identifier):
+            if not weigh_sources:
+                return None
+            rate = None
+            if identifier in paid_ids:
+                fact = next((prior_facts[name] for name in (
+                    identifier, search_manifests.get(identifier, {}).get("transport_provider"),
+                    identifier.removesuffix("_search")) if name in prior_facts), {})
+                overall = fact.get("overall")
+                if overall and overall[1]:
+                    rate = overall[0] / overall[1]
+            return {"source": identifier, "paid_rate": rate}
+        # A last-resort source (bing_rss) is asked only when the others are spent: it never
+        # races, and it never fills.
+        last_resort = {item for item in order if REGISTRY.get(item, {}).get("last_resort")}
         now = datetime.now(timezone.utc)
         engine_extra = ({"max_exclude_operators": policy.search_exclude_operators}
                         if options.get("exclude_domains")
@@ -6217,6 +6291,9 @@ class Runtime:
                             source_timeout))
                 config = {**((engine_config or {}) if source is not None or identifier == "searxng" else {}),
                           **options, **engine_extra} or None
+                if identifier in paid_ids and vertical in PAID_SEARCH_CATEGORY and not options.get("site"):
+                    # A paid index that sorts pages by kind is asked for the kind this query wants.
+                    config = {**(config or {}), "category": PAID_SEARCH_CATEGORY[vertical]}
                 bundle, manifest = await self.searches.search(identifier,
                     SearchRequest(query, fetch_limit, attempt_policy, config), services)
             except ValueError:
@@ -6233,29 +6310,153 @@ class Runtime:
         winner = stopped = None
         hedged, best, best_count = [], None, -1
         queue = list(order[:policy.search_max_sources] if ladder else order)
+        # The first rung. On an automatic search of a vertical with a specialist source
+        # (code, reference, papers, news) the specialist and SearXNG start together when
+        # SearXNG is reachable, and their answers are merged; with search_paid_parallel and
+        # any query the cheapest paid source starts beside
+        # the first free one. Nothing waits for another to fail. Otherwise the ladder
+        # climbs one source at a time (a slow one is hedged).
+        first_rung, paid_parallel, race_open, race_deadline, held = [], None, set(), None, None
+        automatic = ladder and source is None and policy.search_source_candidates is None
+        free_queue = [item for item in queue if item not in paid_ids]
+        verticals = {item["id"]: item["vertical"] for item in self.searches.inspect()}
+        searxng_up = False
+        if automatic and "searxng" in order and (vertical in _RACE_VERTICALS or (not recency and policy.search_fill_rungs > 0)):
+            searxng_up = await self._search_up("searxng", engine_config)
+        if automatic and searxng_up and vertical in _RACE_VERTICALS and policy.search_hedge_after_seconds > 0:
+            specialists = [item for item in free_queue if verticals.get(item) == vertical and item != "searxng"]
+            if specialists and "searxng" in free_queue:
+                first_rung = specialists[:2] + ["searxng"]
+        if automatic and policy.search_paid_parallel and policy.allow_paid_fallbacks:
+            for candidate in order_notes.get("paid_order") or ():
+                try:
+                    self.searches.require_enabled(candidate, policy)
+                except WebFailure:
+                    continue
+                paid_parallel = candidate
+                break
+            if paid_parallel is not None:
+                if not first_rung and free_queue:
+                    first_rung = [free_queue[0]]
+                first_rung.append(paid_parallel)
+        if first_rung:
+            queue = first_rung + [item for item in queue if item not in first_rung]
+            if len(first_rung) > 1:
+                # The parallel paid source is not a racer given a moment's grace: once the free
+                # answer is good it is waited for, up to search_paid_wait_seconds (see below).
+                race_open = set(first_rung) - {paid_parallel}
+                hedged.extend(first_rung)
+        # In a windowed search, once the answer is good, up to search_fill_rungs more free
+        # sources are asked while it holds fewer verified results than the limit, so an
+        # answer short of dated results is filled instead of handed back half empty. Without
+        # a window the same applies once, when SearXNG is reachable, with SearXNG asked first.
+        fill_left, filling = (policy.search_fill_rungs if ladder and recency else 0), False
+        fill_searxng = bool(automatic and not recency and searxng_up and policy.search_fill_rungs > 0)
+        if fill_searxng:
+            fill_left = min(1, policy.search_fill_rungs)
+
+        def short_of_limit():
+            merged = merge_results([(name, rung["kept"]) for name, rung in rungs.items()],
+                                   windowed=bool(recency))
+            verified = [item for item in merged
+                        if not recency or (item.get("check") or {}).get("in_window") is True]
+            return len(verified) < limit
+
+        def can_fill():
+            if fill_searxng and "searxng" in queue:
+                queue.remove("searxng")
+                queue.insert(0, "searxng")
+            return (closing is None and fill_left > 0 and queue and queue[0] not in paid_ids and queue[0] not in last_resort
+                    and deadline - time.monotonic() > 3 and short_of_limit())
         deadline = started + policy.search_max_seconds
         running, leftover = {}, []
+        closing = None          # (winner, stopped) of a good answer waiting for the parallel paid source
+        paid_deadline = None
+        paid_timeout = False
+        paid_estimates = {}
 
-        def launch():
-            identifier = queue.pop(0)
+        def paid_estimate(identifier):
+            """The bundled cost per search of a paid source (the same prior the paid order
+            ranks by), or None when there is none."""
+            if identifier not in paid_estimates:
+                facts = _paid_priors() if policy.use_wall_priors else {}
+                manifest = next((item for item in self.searches.inspect() if item["id"] == identifier), {})
+                fact = next((facts[name] for name in (identifier, manifest.get("transport_provider"),
+                                                      identifier.removesuffix("_search")) if name in facts), {})
+                paid_estimates[identifier] = _measured_cost(fact.get("cost_usd"))
+            return paid_estimates[identifier]
+
+        def can_close():
+            return (closing is None and stopped == "good" and paid_parallel is not None
+                    and paid_parallel not in rungs and paid_parallel in running.values()
+                    and policy.search_paid_wait_seconds > 0 and deadline - time.monotonic() > 0)
+
+        def launch(identifier=None):
+            if identifier is None:
+                identifier = queue.pop(0)
+            else:
+                queue.remove(identifier)
             running[asyncio.ensure_future(run_rung(identifier))] = identifier
 
+        def held_for_race():
+            return bool(race_open) and (race_deadline is None or time.monotonic() < race_deadline)
+
+        def settle(identifier, alone):
+            """The answer is good: fill it if it is short and a fill is allowed, else end the
+            search. One source good alone, or several whose passing results are good together
+            (or were filled or raced), end it with the merged answer."""
+            nonlocal fill_left, filling, winner, stopped
+            if can_fill():
+                fill_left, filling = fill_left - 1, True
+                launch()
+                return False
+            raced = len([name for name in first_rung if name in rungs]) > 1
+            winner = identifier if alone and not filling and not raced else "merged"
+            stopped = "good"
+            return True
+
         try:
+            for identifier in first_rung:
+                launch(identifier)
             while queue or running:
                 if not running:
                     launch()
                 remaining = deadline - time.monotonic()
+                if closing is not None and time.monotonic() >= paid_deadline - 0.001:
+                    # The parallel paid source did not answer in time: the free answer stands.
+                    winner, stopped = closing
+                    paid_timeout = True
+                    break
                 if remaining <= 0:
                     stopped = "time_cap"
                     break
                 # Smart lightning for search: a free source with no answer yet gets the
                 # next free one started beside it. Paid sources only ever run alone.
-                hedge = bool(ladder and policy.search_hedge_after_seconds > 0 and queue
+                hedge = bool(ladder and policy.search_hedge_after_seconds > 0 and queue and not race_open
+                             and closing is None
                              and len(running) < policy.search_hedge_racers and queue[0] not in paid_ids
-                             and policy.search_hedge_after_seconds < remaining)
-                finished, _ = await asyncio.wait(set(running), return_when=asyncio.FIRST_COMPLETED,
-                    timeout=policy.search_hedge_after_seconds if hedge else remaining)
+                             and queue[0] not in last_resort and policy.search_hedge_after_seconds < remaining)
+                wait = remaining
+                if race_open and race_deadline is not None:
+                    wait = max(0.0, min(wait, race_deadline - time.monotonic()))
+                if closing is not None:
+                    waiting = {task for task, name in running.items() if name == paid_parallel}
+                    finished, _ = await asyncio.wait(waiting, return_when=asyncio.FIRST_COMPLETED,
+                        timeout=max(0.0, min(wait, paid_deadline - time.monotonic())))
+                    if not finished:
+                        continue
+                else:
+                    finished, _ = await asyncio.wait(set(running), return_when=asyncio.FIRST_COMPLETED,
+                        timeout=min(policy.search_hedge_after_seconds, wait) if hedge else wait)
                 if not finished:
+                    if race_open and race_deadline is not None and time.monotonic() >= race_deadline - 0.01:
+                        # The first rung's slower racers had their time; go on with what is held.
+                        race_open.clear()
+                        if held is not None:
+                            ready, held = held, None
+                            if settle(*ready):
+                                break
+                        continue
                     if not hedge:
                         stopped = "time_cap"
                         break
@@ -6264,7 +6465,10 @@ class Runtime:
                     continue
                 finish = False
                 for task in [item for item in running if item in finished]:
+                    if finish and running[task] == paid_parallel and can_close():
+                        continue    # answered in the same moment: read below, once the wait starts
                     identifier = running.pop(task)
+                    race_open.discard(identifier)
                     outcome = task.result()
                     manifest = outcome["manifest"]
                     base = {"source": identifier, "source_version": manifest.version,
@@ -6277,7 +6481,12 @@ class Runtime:
                             "cost_usd": _measured_cost(cost), "latency_ms": outcome["latency_ms"],
                             **({"raced": True} if identifier in hedged else {})})
                         planning_failure = exc
-                        if source is not None or exc.code in policy.search_terminal_failures:
+                        terminal = exc.code in policy.search_terminal_failures
+                        if identifier == paid_parallel and (running or rungs):
+                            # The paid source that started beside the free ones hit the cost cap or
+                            # a policy wall: it is dropped, and the free answers go on.
+                            terminal = False
+                        if source is not None or terminal:
                             finish, stopped = True, stopped or "terminal"
                         continue
                     bundle = outcome["bundle"]
@@ -6307,7 +6516,8 @@ class Runtime:
                         items, dropped = (filter_results(response["results"], options, now)
                                           if options else (response["results"], {}))
                         report = check_results(query, items, limit=limit, recency=recency, now=now,
-                                               min_good=policy.search_good_results, weigh_undated=enrich)
+                                               min_good=policy.search_good_results, weigh_undated=enrich,
+                                               vertical=vertical, priors=source_priors(identifier))
                         # N pages per source's result set, 2N for the whole search.
                         spare = min(policy.search_date_reads, 2 * policy.search_date_reads - date_reads["tried"])
                         if enrich and spare > 0 and deadline - time.monotonic() > 2:
@@ -6316,29 +6526,58 @@ class Runtime:
                                 query, items, report, date_read, limit=limit, budget=spare, memo=date_memo,
                                 timeout=policy.search_date_read_timeout_seconds,
                                 gap=policy.origin_min_interval_seconds, recency=recency, now=now,
-                                min_good=policy.search_good_results)
+                                min_good=policy.search_good_results, vertical=vertical,
+                                priors=source_priors(identifier))
                             for key in ("tried", "dated", "dropped"):
                                 date_reads[key] += found[key]
                             date_reads["cost_usd"] += found["cost_usd"]
                             date_reads["latency_ms"] += round((time.monotonic() - read_started) * 1000)
                             costs.append(_measured_cost(found["cost_usd"]))
                         kept = accepted(items, report) if ladder else annotate(items, report)
-                        rungs[identifier] = {"report": report, "kept": kept, "dropped": dropped}
+                        rungs[identifier] = {"report": report, "kept": kept, "dropped": dropped,
+                                             "annotated": annotate(items, report)}
                         attempt.update(count=len(response["results"]), passed=report["passed"],
                                        check=report["verdict"])
                         if len(kept) > best_count:
                             best, best_count = identifier, len(kept)
                         if not ladder:
                             winner, stopped, finish = identifier, "first_answer", True
-                        elif report["verdict"] == "good":
-                            winner, stopped, finish = identifier, "good", True
-                        elif len(rungs) > 1 and good_count(merge_results(
+                        else:
+                            alone = report["verdict"] == "good"
+                            together = len(rungs) > 1 and good_count(merge_results(
                                 [(name, rung["kept"]) for name, rung in rungs.items()]),
-                                report["need"], bool(recency), enrich) >= report["need"]:
-                            # No source is good alone; together their passing results are.
+                                report["need"], bool(recency), enrich) >= report["need"]
+                            if alone or together or filling:
+                                if held_for_race():
+                                    # Good, but the first rung's other racers get a moment to join.
+                                    held = (identifier, alone)
+                                    if race_deadline is None:
+                                        race_deadline = time.monotonic() + _RACE_GRACE_SECONDS
+                                elif settle(identifier, alone):
+                                    finish = True
+                    elif filling:
+                        # A source asked only to fill failed: keep the good answer already held.
+                        if can_fill():
+                            fill_left -= 1
+                            launch()
+                        else:
                             winner, stopped, finish = "merged", "good", True
                     if source is not None or failure in policy.search_terminal_failures:
                         finish, stopped = True, stopped or "terminal"
+                if closing is not None:
+                    # The paid source answered (or failed): the good answer is final, anchored if it can be.
+                    winner = "merged" if paid_parallel in rungs else closing[0]
+                    stopped, finish = closing[1], True
+                if not finish and held is not None and not held_for_race():
+                    ready, held = held, None
+                    finish = settle(*ready)
+                if finish and can_close():
+                    # Good without the paid source that started beside the free ones and is still
+                    # running: wait for it (bounded) so the answer can be anchored on it and its
+                    # cost is known. Anything else still running is not waited for.
+                    closing, winner, stopped, finish = (winner, stopped), None, None, False
+                    held, race_open = None, set()
+                    paid_deadline = min(time.monotonic() + policy.search_paid_wait_seconds, deadline)
                 if finish:
                     break
         finally:
@@ -6351,13 +6590,27 @@ class Runtime:
             # Still running when another source won or the time cap hit: no result, and
             # for a paid source no way to know what it cost.
             paid = identifier in paid_ids
-            costs.append(None if paid else 0)
+            # A paid call cancelled mid-flight may or may not have been charged. With a bundled
+            # price per search, that price is recorded and marked as an estimate; without one the
+            # cost stays unknown (None).
+            estimate = paid_estimate(identifier) if paid else 0
+            costs.append(estimate)
             search_attempts.append({"source": identifier, "status": "cancelled",
-                                    "cost_usd": None if paid else 0, "raced": identifier in hedged})
+                                    "cost_usd": estimate, "raced": identifier in hedged,
+                                    **({"cost_basis": "estimated_bundled_price"} if paid and estimate is not None else {})})
         if stopped is None:
             stopped = "source_cap" if ladder and len(order) > policy.search_max_sources else "exhausted"
-        pool = [(name, rung["kept"]) for name, rung in rungs.items()]
-        if winner in rungs:
+        everyone = [(name, rung["kept"]) for name, rung in rungs.items()]
+        # A paid source answered: the answer is anchored on its results (search_checks.anchored_answer),
+        # and the other sources' passing results are only what fills the slots its failures leave.
+        anchor_id = None
+        if ladder and policy.allow_paid_fallbacks:
+            answered = [name for name in order if name in paid_ids and (rungs.get(name) or {}).get("annotated")]
+            anchor_id = paid_parallel if paid_parallel in answered else answered[0] if answered else None
+        pool = [item for item in everyone if item[0] != anchor_id]
+        if anchor_id is not None:
+            final = merge_results(pool, windowed=bool(recency)) if len(pool) > 1 else pool[0][1] if pool else []
+        elif winner in rungs:
             final = rungs[winner]["kept"]
         elif len(pool) > 1:
             final = merge_results(pool, windowed=bool(recency))
@@ -6369,12 +6622,50 @@ class Runtime:
             # the answer when any verified ones exist; the agent still sees them apart.
             everything = merge_results(pool, windowed=True) if len(pool) > 1 else final
             verified = [item for item in everything if (item.get("check") or {}).get("in_window") is True]
-            if verified:
+            if verified or (anchor_id is not None and any(
+                    (item.get("check") or {}).get("in_window") is True
+                    for item in rungs[anchor_id]["annotated"] if item["check"]["passed"])):
                 held = [item for item in everything if (item.get("check") or {}).get("in_window") is not True]
                 final = verified
+        unwanted = {}
+        if ladder and everyone:
+            # A repository the code source showed to be a fork, archived, in another language or too
+            # small is not wanted when a web engine returns its page too.
+            for rung in rungs.values():
+                for verdict in rung["report"]["results"]:
+                    hit = [reason for reason in verdict["reasons"] if reason in REPO_UNWANTED]
+                    if hit:
+                        unwanted.setdefault(canonical_url(verdict["url"]), hit[0])
+            if unwanted:
+                final = [item for item in final if canonical_url(item.get("url") or "") not in unwanted]
+                held = [item for item in held if canonical_url(item.get("url") or "") not in unwanted]
+        if ladder and pool and vertical in ("reference", "code"):
+            origin = {}
+            for name, rung in rungs.items():
+                for item in rung["kept"]:
+                    origin.setdefault(canonical_url(item.get("url") or ""), set()).add(name)
+            if vertical == "reference":
+                # A specialist's article that is not the question's topic ranks below every web result
+                # that passed, so it fills a slot only when nothing else is left.
+                special = {name for name in rungs if verticals.get(name) == "reference"}
+                specialist_only = {key for key, names in origin.items() if names <= special}
+                if specialist_only:
+                    final = demote_off_topic(query, final, specialist_only)
+            elif query_context(query, vertical=vertical).languages and any(
+                    verticals.get(name) == "code" for name in rungs):
+                # The query names a language and the code source (which searched in it) answered:
+                # a repository page only a web engine returned has no known language, so it
+                # follows the confirmed ones.
+                final = demote_unconfirmed_repos(final, {key for key, names in origin.items() if any(
+                    verticals.get(name) == "code" for name in names)},
+                    need=query_context(query, vertical=vertical).need)
+        anchor_receipt = None
+        if anchor_id is not None:
+            final, anchor_receipt = anchored_answer(query, anchor_id, rungs[anchor_id]["annotated"], final,
+                                                    limit=limit, vertical=vertical, unwanted=unwanted)
         final = final[:limit]
         if winner is None and final:
-            winner = "merged" if len(pool) > 1 else pool[0][0]
+            winner = "merged" if len(everyone) > 1 else everyone[0][0]
 
         if last_bundle is None:
             failure = planning_failure or WebFailure("SEARCH_UNAVAILABLE", "Search sources were exhausted")
@@ -6437,6 +6728,15 @@ class Runtime:
             "candidates": candidates, "automatic_fallback": source is None,
             "benchmark_earned_order": False,
             "source_timeout_seconds": policy.search_source_timeout_seconds}
+        if vertical_inferred:
+            receipt["search_routing"]["vertical_inferred"] = vertical_inferred
+        from . import local_search
+        if (source is None and (engine_config or {}).get("base_url") in (None, local_search.URL)
+                and any(item["source"] == "searxng" and item["status"] == "failed"
+                        and item.get("failure") == "PROVIDER_DOWN" for item in search_attempts)):
+            # The default local engine did not answer (a refused or broken connection):
+            # say so, so thinner results have a visible reason and a way to fix it.
+            receipt["search_routing"]["local_search"] = local_search.routing_note()
         # The ladder's receipt: how the sources were ordered and raced, who won, and
         # what the checks made of the results that came back.
         need = max(1, min(policy.search_good_results, limit))
@@ -6450,7 +6750,13 @@ class Runtime:
         verdict = (rungs[winner]["report"]["verdict"] if winner in rungs
                    else None if not rungs else "good" if weighed >= need else "weak" if passed else "empty")
         receipt["search_ladder"] = {"enabled": ladder, "query_type": qtype, "order": order,
-            "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes}
+            "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes,
+            **({"first_rung": first_rung} if first_rung else {}),
+            **({"paid_parallel": paid_parallel} if paid_parallel else {}),
+            **({"anchor": anchor_receipt} if anchor_receipt else {}),
+            **({"anchor": None, "notes": ["paid_timeout"]} if paid_timeout else {}),
+            **({"cost_estimated": [item["source"] for item in search_attempts if item.get("cost_basis")]}
+               if any(item.get("cost_basis") for item in search_attempts) else {})}
         receipt["search_checks"] = {"verdict": verdict, "need": need, "passed": passed,
             "reasons": reasons, "unknown_dates": unknown,
             "results": [{"url": item["url"],
@@ -6483,6 +6789,12 @@ class Runtime:
     async def _search_merged(self, query, limit, engine_config, policy, **options):
         """Every eligible source at once, fused by reciprocal rank (k=60)."""
         from .search import VERTICALS, normalize_options
+        from .search_checks import infer_vertical
+        asked = options["vertical"]
+        inferred = None
+        if asked is None:
+            guess, reason = infer_vertical(query, options["recency"])
+            options["vertical"], inferred = guess, {"vertical": guess, "reason": reason}
         if options["vertical"] not in VERTICALS:
             raise ValueError("vertical must be one of: " + ", ".join(VERTICALS))
         normalize_options(options["site"], options["exclude_domains"], options["recency"], options["region"])
@@ -6490,7 +6802,8 @@ class Runtime:
         started = time.monotonic()
         sources = self.searches.candidates(policy, vertical=options["vertical"])[:policy.search_merge_sources]
         if not sources:
-            return await self.search(query, None, limit, engine_config, policy, **options)
+            # Nothing to merge: the single-source ladder decides, and infers by itself.
+            return await self.search(query, None, limit, engine_config, policy, **{**options, "vertical": asked})
 
         async def one(identifier):
             try:
@@ -6534,7 +6847,8 @@ class Runtime:
                                      "trace_id": (answer.get("receipt") or {}).get("trace_id")}
                                     for identifier, answer in answers],
                    "search_routing": {"selection_basis": "merge", "vertical": options["vertical"],
-                                      "candidates": sources, "automatic_fallback": False}}
+                                      "candidates": sources, "automatic_fallback": False,
+                                      **({"vertical_inferred": inferred} if inferred else {})}}
         return {"query": query, "source": None, "results": results, "receipt": receipt,
                 "query_attribution": None, "coverage": "returned-results" if observed else "unknown",
                 "upstream_failures": []}

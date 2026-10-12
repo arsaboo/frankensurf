@@ -491,10 +491,14 @@ class _SearchTransport(_Keyed):
     def _options(url):
         """Search options carried on the transport URL (see search_url)."""
         params = parse_qs(urlsplit(url).query)
-        options = {key: params[key][0] for key in ("site", "recency", "region") if params.get(key)}
+        options = {key: params[key][0] for key in ("site", "recency", "region", "category") if params.get(key)}
         if params.get("exclude"):
             options["exclude_domains"] = [item for item in params["exclude"][0].split(",") if item][:200]
         return options
+
+
+# Exa's own content categories, which narrow its index to the kind of page a query asks for.
+EXA_CATEGORIES = frozenset({"news", "research paper", "github", "company", "pdf", "financial report"})
 
 
 class ExaTransport(_SearchTransport):
@@ -514,6 +518,8 @@ class ExaTransport(_SearchTransport):
             body["excludeDomains"] = options["exclude_domains"]
         if options.get("recency"):
             body["startPublishedDate"] = _since(options["recency"])
+        if options.get("category") in EXA_CATEGORIES:
+            body["category"] = options["category"]
         status, _, raw = await _call(
             "POST", self.ENDPOINT, request.policy,
             headers={"x-api-key": self._required("exa_api_key")}, json_body=body)
@@ -877,7 +883,7 @@ def search_url(transport, query, limit, options=None):
                 "firecrawl_search_api": FirecrawlSearchTransport.ENDPOINT}[transport]
     url = endpoint + "?q=" + quote(query, safe="") + "&count=" + str(limit)
     options = options or {}
-    for key in ("site", "recency", "region"):
+    for key in ("site", "recency", "region", "category"):
         if options.get(key):
             url += "&" + key + "=" + quote(str(options[key]), safe="")
     if options.get("exclude_domains"):

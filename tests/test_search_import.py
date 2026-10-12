@@ -32,7 +32,7 @@ async def test_upstream_search_failure_is_not_proof_of_zero_inventory(tmp_path):
 
 
 async def test_bing_rss_search_normalizes_and_limits(tmp_path):
-    rss='<rss><channel><item><title>Bike</title><link>https://shop.test/1</link><description>Ask 2000</description></item><item><title>Second</title><link>https://shop.test/2</link></item></channel></rss>'
+    rss='<rss><channel><item><title>Ebike</title><link>https://shop.test/1</link><description>Ask 2000</description></item><item><title>Second</title><link>https://shop.test/2</link></item></channel></rss>'
     async with Runtime(tmp_path,transport=httpx.MockTransport(lambda r:httpx.Response(200,text=rss,headers={"content-type":"application/rss+xml"}))) as web:
         result=await web.search("ebike",source="bing_rss",limit=1)
     assert len(result["results"])==1

@@ -1,0 +1,15 @@
+# SearXNG settings for FrankenSurf's local search engine.
+# `frankensurf search-engine start` copies this to ~/.local/share/frankensurf/searxng/
+# with a random secret key. Keep JSON output on: FrankenSurf reads results as JSON.
+use_default_settings: true
+server:
+  secret_key: "__SECRET_KEY__"
+  limiter: false
+  public_instance: false
+search:
+  formats:
+    - html
+    - json
+  safe_search: 0
+outgoing:
+  request_timeout: 8.0

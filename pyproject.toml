@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "frankensurf"
-version = "0.39.0"
+version = "0.40.0"
 description = "One read() call for AI agents, stitched from 28 web tools: cheapest first, every page checked, a receipt for every attempt"
 readme = "README.rst"
 license = "Apache-2.0"
@@ -47,7 +47,7 @@ frankensurf-mcp = "frankensurf.mcp_server:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-frankensurf = ["bundled_routes.json", "bundled_route_seeds.json", "bundled_wall_priors.json", "provider_requirements.txt", "skill/SKILL.md"]
+frankensurf = ["bundled_routes.json", "bundled_route_seeds.json", "bundled_wall_priors.json", "provider_requirements.txt", "skill/SKILL.md", "searxng_settings.yml"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

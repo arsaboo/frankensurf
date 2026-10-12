@@ -16,6 +16,16 @@ system:
   removes it.
 </Aside>
 
+<Aside type="note" title="Setup offers local search, and asks first">
+  Search works without it, but is stronger with a local
+  [SearXNG](/docs/integrations/searxng/). If [Docker](https://docs.docker.com/get-docker/)
+  is running, `frankensurf setup` asks "Start a local search engine (SearXNG in
+  Docker, port 8088)?" (the default is no, and scripts and CI are never asked).
+  Pass `--search` to say yes ahead of time or `--no-search` to skip the
+  question. Without Docker, setup tells you how to get it and carries on.
+  Later: `frankensurf search-engine start`, `stop` or `status`.
+</Aside>
+
 <Tabs syncKey="os">
 <TabItem label="Linux">
 
@@ -136,12 +146,13 @@ Working on Frankensurf itself? Install from a clone instead:
 ## Optional extras
 
 Each one adds tools to the [escalation ladder](/docs/blocked/escalation/). The
-scripts run in a shell (on Windows, inside WSL); SearXNG and Steel need
-[Docker](https://docs.docker.com/get-docker/).
+scripts are in the repository and run in a shell (on Windows, inside WSL); SearXNG
+and Steel need [Docker](https://docs.docker.com/get-docker/). Local search needs
+no repository: it is part of the package.
 
 | Add | Command |
 | --- | --- |
-| Local search ([SearXNG](/docs/integrations/searxng/)) | `bash scripts/start-search.sh` |
+| Local search ([SearXNG](/docs/integrations/searxng/)) | `frankensurf setup --search` or `frankensurf search-engine start` |
 | Self-hosted browser ([Steel](/docs/integrations/steel/)) | `bash scripts/start-steel.sh` |
 | Stealth browsers ([Camoufox](/docs/integrations/camoufox/), [Scrapling](/docs/integrations/scrapling/), [Patchright](/docs/integrations/patchright/)) | `frankensurf setup` (included above) |
 | [Crawl4AI](/docs/integrations/crawl4ai/) | `bash scripts/install-crawl4ai-provider.sh` |

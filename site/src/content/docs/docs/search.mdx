@@ -10,7 +10,9 @@ says which source found it, and every result is checked: inside the date window
 you asked for, about what you asked for, and an actual item rather than a
 homepage, listing or challenge page.
 
-- Free by default: your own [SearXNG](/docs/integrations/searxng/), then
+- Free by default: your own [SearXNG](/docs/integrations/searxng/) (optional:
+  `frankensurf setup` offers to start it in Docker, and search is stronger with
+  it), then
   [DuckDuckGo](/docs/integrations/duckduckgo/) and [Bing](/docs/integrations/bing/),
   plus Wikipedia, Hacker News, Stack Exchange, GitHub, arXiv, Open Library, and
   `site_watch`, which reads a site's own feeds and sitemaps.
@@ -106,20 +108,77 @@ many results had no date to check.
 
 ## Kinds of search
 
-`vertical` picks the kind of source. Automatic fallback stays inside it.
+`vertical` picks the kind of source. Automatic fallback stays inside it. Leave
+it out and FrankenSurf infers it from the query, so `fastify github repo` gets
+the code treatment and `who wrote Hamlet` the reference one. An explicit
+`vertical` always wins.
 
 | `vertical` | Source | Notes |
 | --- | --- | --- |
-| `web` (default) | SearXNG, DuckDuckGo, Bing, plus paid sources when allowed | |
+| `web` (the fallback) | SearXNG, DuckDuckGo, Bing, plus paid sources when allowed | |
 | `news` | Bing News RSS | Publisher in `extra.publisher`, dates on every item |
-| `reference` | Wikipedia API | In the `region` language (`de` searches de.wikipedia.org) |
+| `reference` | Wikipedia API | In the `region` language (`de` searches de.wikipedia.org). Question words are dropped (`who wrote War and Peace` searches for *War and Peace*), the article titled for the topic comes first, disambiguation pages are dropped, and titles with a qualifier such as `(film)` or `(1956 film)` go last unless the query asks for that kind of thing |
 | `discussions` | Hacker News (Algolia API) | `extra.points`, `extra.comments`, `extra.discussion_url` |
 | `qa` | Stack Exchange API | Stack Overflow by default; any Stack Exchange site by name via `engine_config={"engines": "superuser"}` |
-| `code` | GitHub API | Repositories; `recency` means pushed recently. `extra.stars` |
+| `code` | GitHub API | Repositories; `recency` means pushed recently. `extra.stars`. Platform words (*github*, *repo*, *library*, *package*, *crate*, *source code*) and filler are not sent as search terms. A project name (`fastify github repo`) searches repository names; a need (`python library for image processing`) searches names and descriptions and turns a language word into a `language:` filter. Results are sorted by stars |
 | `papers` | arXiv API | |
 | `books` | Open Library | |
 
 All of these are official, keyless public APIs.
+
+### Inferred verticals
+
+When no `vertical` is given, the query's wording picks one. The rules are
+deterministic and use common words and sentence shape only, never lists of
+sites or companies. A query that matches nothing is `web`. Rules are checked in
+this order and the first match wins.
+
+| Inferred | Signals | Example |
+| --- | --- | --- |
+| `qa` | An error or how-to (*how to*, *how do I*, *error*, *exception*, *fix*, *fails with*) together with code-shaped tokens (`snake_case`, `call()`, file extensions, error codes) or a language name | `how to reverse a list in python` |
+| `papers` | *papers on*, *paper on*, *research on*, *arxiv*, *preprint*, *survey of* | `papers on retrieval augmented generation` |
+| `code` | Platform words (*github*, *gitlab*, *repo*, *repository*, *crate*, *npm*, *pypi*, *source code*); *library for*, *framework for*, *sdk for*; a language beside *library*, *package*, *crate*, *module* or *framework* | `python library for image processing` |
+| `web` | Announcement phrasing (*announces*, *announcement*, *press release*, *launch*) stays windowed web, not news | `Anthropic announces new model` |
+| `news` | *news*, *headlines*, *latest on*; an entity with *today* or *this week* | `openai news` |
+| `reference` | Fact questions: *who*, *what is*, *what year*, *when was*, *how tall*, *how many*, *capital of*, *population of*, *currency of*, *wrote*, *invented*, *founded*, *painted*, *composed*, *discovered*; not when the query asks for *best*, *vs*, *review* or buying advice | `who wrote Hamlet` |
+
+A how-to with no code in it (`how to boil an egg`) stays `web`, as do words that
+are only sometimes about software (`Python the snake`, `Go to market strategy`,
+`package delivery tracking`). An explicit `source` is never re-routed. The
+receipt says what was picked and why:
+`receipt.search_routing.vertical_inferred` is `{"vertical": "code", "reason": "platform word: github"}`.
+It is absent when you passed a `vertical` yourself. `mode="merge"` infers the same way.
+
+A vertical with its own specialist source (`code`, `reference`, `papers`, `news`)
+does not wait for it to fail. When the local SearXNG is reachable, the
+specialist and SearXNG start together as the first rung, and their answers are
+merged, checked and ranked as one. If one fails or is slow it is simply left
+out (the slower one gets a few seconds after the first answer). Turning off
+`search_hedge_after_seconds` turns this racing off too.
+
+## Local search
+
+Search works with nothing installed. A local SearXNG makes it stronger, and
+`frankensurf setup` offers to start one if Docker is running: it asks first
+(default no, never in scripts or CI), `--search` says yes ahead of time and
+`--no-search` skips the question. `frankensurf search-engine start`, `stop` and
+`status` do the same later. See [SearXNG](/docs/integrations/searxng/).
+
+When an automatic search ran without it because nothing answered on
+`127.0.0.1:8088`, the receipt says why results may be thinner:
+
+```json
+"search_routing": {
+  "local_search": {
+    "status": "not_running",
+    "note": "Local search (SearXNG) was not running, so this search used other sources and may be thinner. Start it with: frankensurf search-engine start",
+    "start_with": "frankensurf search-engine start"
+  }
+}
+```
+
+The field is absent when SearXNG answered, when you named a source, and when
+you pointed at your own search URL.
 
 ## The search ladder
 
@@ -139,7 +198,26 @@ A result fails when it:
   for specific items (a path that ends in an index word such as `/newsroom/`,
   `/changelog/`, `/press-releases/` or `/c/announcements/22`, or an aggregator's
   `/news/<company>`, is a listing; a path with a title slug is not);
-- repeats another result's page.
+- is about another thing with the same name: when the query's entity is a single
+  word (*Block*, *Unity*, *Arm*), a result whose domain is not the entity's and
+  whose title has the word inside a longer proper-noun phrase, led by a
+  capitalised *The* (*The Block*) or following another capitalised word (*Cinder
+  Block*), is `wrong_entity`. Possessives (*Dorsey's Block*), corporate suffixes
+  (*Block, Inc.*) and freshness words don't count as a longer name;
+- repeats another result's page;
+- for an announcement query in a window (*announce*, *announcement*, *press
+  release*, *launch*), is not an article: it passes only with a verified in-window
+  date or an article-like path (a date in the path; a `news`, `press`, `blog`,
+  `stories`, `announcements`, `releases`, `articles`, `updates`, `insights` or
+  `media` segment followed by a slug of three or more hyphenated words or an id;
+  or any slug of four or more words). Product, pricing, careers, platform, sign-in,
+  investor overview, filings, results and category pages, listings (`?l=`,
+  `?page=`), profiles and homepages fail as `not_article`, so the ladder climbs
+  instead of returning them;
+- for a code query, is a fork or an archived repository, is in a language the query
+  does not name (when it names one and GitHub knows the repository's), or has too
+  few stars: under 500 for a need (*library for X*, *X framework*), under 100 for a
+  name lookup unless the repository carries the name.
 
 With a `recency` window, results that carry no date are not left to guess at:
 the pages of up to `search_date_reads` (default 6) undated results that would make
@@ -157,28 +235,127 @@ turns this off.
 When any result's date is verified inside the window, results whose date could
 not be verified leave `results` and come back apart as `unverified_results`: the
 answer holds only what is known to be fresh, and nothing is hidden.
-`search_hold_undated: false` mixes them back in, ranked last.
+`search_hold_undated: false` mixes them back in, ranked last. So that holding
+results back does not leave the answer short, a good windowed answer with fewer
+verified results than `limit` asks up to `search_fill_rungs` (default 2) more free
+sources and merges what passes.
 
 Weak sets are not wasted: passing results from earlier sources are carried up,
 merged and deduplicated, and the search ends as soon as the sources together have
 enough. Paid sources join only with `allow_paid_fallbacks`, after
 `search_paid_after_weak` free sources (default 2) came back weak, cheapest
-likely success first. A free source with no answer after
-`search_hedge_after_seconds` (default 3) is raced by the next free one; the first
-set that passes wins. `search_max_seconds` and `search_max_sources` cap the climb.
+likely success first, except for the queries below. A free source with no answer
+after `search_hedge_after_seconds` (default 3) is raced by the next free one; the
+first set that passes wins. `bing_rss` is the last web source and never races:
+when its results share nothing with the query it counts as failed, not as an
+answer. `search_max_seconds` and `search_max_sources` cap the climb.
+
+### Ranking
+
+Passing results are ordered within each date tier by a relevance score
+(`check.relevance`). From the strongest signal down:
+
+1. the entity, or every key term, in the title;
+2. the result being the thing itself: its domain, or its GitHub `owner/repo`, is
+   the entity or project name (among repositories of that name, more stars first);
+3. for news and announcement queries, the entity's own site, and a press or news
+   path on it;
+4. key terms only in the snippet.
+
+Pages that are not what a search is after count against a result, from their URL
+and title alone, unless the query asks for that kind of page: stock quotes, share
+prices and liveblogs; policy and legal pages; release notes and documentation
+(for news and announcement queries); security advisory listings and news
+aggregator pages (the same); and *awesome-* lists and paper digests (for paper
+queries). They rank below every ordinary passing result. The source's own order
+breaks ties.
+
+Code queries add their own ordering. A query that asks for the repository (*github*,
+*repo*) prefers repository pages (`owner/name`) to an organisation's page or a
+project's website; repositories named *demo*, *example(s)*, *sample(s)*,
+*template*, *starter*, *boilerplate*, *tutorial*, *benchmark(s)* or *awesome-\**
+go last unless the query asks for them. For a name lookup (*httpx python github*)
+the repository whose name is the project, owner first, leads, and repositories whose
+owner/name does not hold the name as a word rank below those that do. For a need,
+popular repositories and pages that name libraries lead, and a how-to guide
+follows them.
+
+For a fact question in the reference vertical, a Wikipedia article whose title is
+not the question's topic (the topic of *who founded X* or *population of X* is X)
+ranks below every passing web result, so it fills a slot only when nothing else is
+left.
+
+#### Source priors with paid search allowed
+
+When paid sources are allowed, each result also carries the quality prior of the
+source it came from (`check.prior`), weighed with relevance in the merge. A paid
+source's prior is its bundled measured rate (`paid` in `bundled_wall_priors.json`);
+free sources use defaults (SearXNG 0.75, arXiv 0.8, Stack Exchange 0.7, Bing News
+and Wikipedia 0.6, GitHub 0.5, others 0.5), with Wikipedia 0.9 when the title is the
+topic and GitHub 0.85 for the project asked for or a repository with 1000 stars. A
+passing result of the best source therefore outranks a free one of similar
+relevance; a canonical free result, or one with a verified date against an undated
+paid one, can still lead. Results that fail the checks never count, whoever
+returned them. Without paid sources the ordering is unchanged.
+
+#### The answer starts from the paid source
+
+When a paid source answered, the answer starts from its results, in its own order.
+Each stays in place unless our checks fail it: off the query, outside the window,
+the wrong entity, a home page, listing or non-article, a stock blurb, a challenge
+page, or, for a code query, an organisation page or a project website when the
+repository was asked for, or a demo, example, template or similar repository that
+was not. A result that only ranks lower stays. The slots a failure leaves are
+filled, in order, by the best passing results of the other sources (a short paid
+set is filled the same way). For a name lookup or a reference question, a free
+canonical result the paid set lacks (the project's own repository, the article
+titled for the topic) takes a removed slot, or the last one. If no paid source
+answered, or paid is not allowed, the merge above applies unchanged.
+`receipt.search_ladder.anchor` records the source, how many results were kept,
+which were replaced and why, and how many slots the other sources filled.
+
+### Paid search in parallel
+
+With `allow_paid_fallbacks`, an automatic search starts the cheapest
+likely-success paid source beside the first free rung, instead of after the free
+ones fail, whatever the kind of query. Everything is merged, checked and ranked,
+and a paid result that fails the checks gives way to a passing free one.
+`max_cost_usd` applies as always: a paid source that goes over the cap is
+dropped and the free results stand. `search_paid_parallel: false` keeps paid
+sources behind the free rungs. `receipt.search_ladder.paid_parallel` names the
+source that was started early.
+
+If the free sources make the answer good while that paid source is still
+running, the search waits for it, up to `search_paid_wait_seconds` (default 10),
+and anchors the answer on it. If it does not answer in time, the free answer
+stands, `receipt.search_ladder.anchor` is null with `notes: ["paid_timeout"]`,
+and the cancelled call is costed at its bundled price per search, marked
+`cost_basis: "estimated_bundled_price"` on its attempt and listed in
+`search_ladder.cost_estimated`. A source with no bundled price stays unknown.
+
+### Filling a short answer
+
+Without a window, when the local SearXNG is reachable and a good answer holds
+fewer passing results than `limit`, one more free source (SearXNG first, if it has
+not been asked) is asked and merged in. With a window, up to `search_fill_rungs`
+more are, as above. Paid and last-resort sources are never asked to fill;
+`search_fill_rungs: 0` turns filling off.
 
 FrankenSurf remembers, per kind of query (vertical, recency or not, site filter
 or not), which source passed the checks and tries it first next time
 (`search_learned_routing`, stored in `search-stats.json` in the state directory).
 
-Every result carries `check` (`passed`, `in_window`, `on_query`, `published`,
-`date_source`, `kind`), and the receipt says what happened:
+Every result carries `check` (`passed`, `reasons`, `in_window`, `on_query`,
+`published`, `date_source`, `kind`, `relevance`, and `prior` when paid sources are
+allowed), and the receipt says what
+happened:
 
 ```json
 {
   "search_ladder": {"enabled": true, "query_type": "news|recent|open",
-                    "order": ["bing_news_rss", "duckduckgo_html"],
-                    "winner": "merged", "stopped": "good", "hedged": []},
+                    "order": ["bing_news_rss", "searxng", "duckduckgo_html"],
+                    "first_rung": ["bing_news_rss", "searxng"],
+                    "winner": "merged", "stopped": "good", "hedged": ["bing_news_rss", "searxng"]},
   "search_checks": {"verdict": "good", "need": 3, "passed": 3,
                     "reasons": {"off_query": 2, "out_of_window": 1},
                     "unknown_dates": 1,
@@ -213,7 +390,7 @@ results = await web.search("film camera repair sydney", mode="merge")
 | `source` | automatic | One source only, by name (see the tables above). |
 | `limit` | `10` | Number of results. |
 | `site`, `exclude_domains`, `recency`, `region` | none | See above. |
-| `vertical` | `web` | The kind of source. |
+| `vertical` | inferred | The kind of source. Inferred from the query when left out; an explicit value always wins. |
 | `mode` | `fallback` | `merge` to ask every eligible source at once. |
 | `search_source_prefer` | none | Try these sources first. |
 | `search_source_allow` | all | Only these sources may run. |
