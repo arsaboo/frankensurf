@@ -41,6 +41,12 @@ jobs:
           /tmp/fs/bin/frankensurf install --with-deps | tee /tmp/install.json
           /tmp/fs/bin/python -c "import json,sys; r=json.load(open('/tmp/install.json')); print({k: v['ok'] for k, v in r['installed'].items()}, r.get('works_here')); sys.exit(0 if r['ok'] and all(v is True for v in r['works_here'].values()) else 1)"
           /tmp/fs/bin/frankensurf install --list
+      - name: Diagnostics when install failed
+        if: failure()
+        run: |
+          ls -l "$(/tmp/fs/bin/python -c 'import sys, os; print(os.path.realpath(sys._base_executable))')" || true
+          tail -40 ~/.local/share/frankensurf/searxng-native/searxng.log || true
+          FRANKENSURF_DEBUG_WORKERS=1 /tmp/fs/bin/frankensurf read https://example.com --provider crawl4ai | tail -20 || true
       - name: The local search engine answers (no Docker)
         run: |
           # Upstream engines may refuse a data-centre address; the engine itself must answer.

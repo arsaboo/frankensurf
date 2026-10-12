@@ -76,16 +76,58 @@ def _install_search(log):
             "engine": running}
 
 
+def _protected(python):
+    """Crawl4AI only runs from an interpreter no other user can change: owned by you or
+    root, and not group- or world-writable (crawl4ai_config checks this on every run)."""
+    try:
+        details = Path(python).resolve(strict=True).stat()
+    except OSError:
+        return False
+    return details.st_uid in (0, os.getuid()) and details.st_mode & 0o022 == 0
+
+
+def _crawl4ai_base_python():
+    """The interpreter to build Crawl4AI's environment from: this one if it is protected,
+    else another Python 3.10+ on the machine that is. (A shared toolcache Python can be
+    group-writable; the environment would install and then be refused.)"""
+    mine = [getattr(sys, "_base_executable", None), sys.executable]
+    for candidate in [*mine, shutil.which("python3"), "/usr/bin/python3", "/usr/local/bin/python3",
+                      "/opt/homebrew/bin/python3"]:
+        if not candidate or not _protected(candidate):
+            continue
+        if candidate in mine:
+            return str(Path(candidate).resolve())
+        try:
+            new_enough = subprocess.run([candidate, "-c", "import sys; sys.exit(sys.version_info < (3, 10))"],
+                                        capture_output=True, timeout=30).returncode == 0
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if new_enough:
+            return str(Path(candidate).resolve())
+    return None
+
+
 def _install_crawl4ai(log):
     from . import crawl4ai_config
     if shutil.which("bash") is None:
         return {"ok": False, "error": "needs bash (on Windows, run FrankenSurf inside WSL)"}
+    base = _crawl4ai_base_python()
+    if base is None:
+        return {"ok": False, "error": (
+            f"no protected Python 3.10+ to build it from: {Path(sys.executable).resolve()} can be changed "
+            "by other users (group- or world-writable), and Crawl4AI is only run from an interpreter "
+            "that cannot. Install Python from python.org, Homebrew, uv or your system packages")}
     log("Installing Crawl4AI and its browsers (a few minutes)")
     script = Path(__file__).with_name("install_crawl4ai.sh")
-    code = _run(["bash", str(script)], env={**os.environ, "FRANKENSURF_CRAWL4AI_BASE_PYTHON": sys.executable})
-    ok = code == 0 and crawl4ai_config.installed()
-    return {"ok": ok, "path": str(crawl4ai_config.environment_dir())} if ok else {
-        "ok": False, "error": f"the Crawl4AI installer stopped (exit {code}; see above)"}
+    code = _run(["bash", str(script)], env={**os.environ, "FRANKENSURF_CRAWL4AI_BASE_PYTHON": base})
+    if code != 0:
+        return {"ok": False, "error": f"the Crawl4AI installer stopped (exit {code}; see above)"}
+    if not crawl4ai_config.installed():
+        return {"ok": False, "error": (
+            "Crawl4AI installed, but its environment failed FrankenSurf's checks (an interpreter or "
+            "folder other users can change), so it will not be run; FRANKENSURF_DEBUG_WORKERS=1 "
+            "frankensurf read URL --provider crawl4ai shows more")}
+    return {"ok": True, "path": str(crawl4ai_config.environment_dir()), "built_from": base}
 
 
 def _install_nodriver(log):

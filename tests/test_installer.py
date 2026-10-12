@@ -88,10 +88,32 @@ def test_crawl4ai_runs_the_installer_that_ships_in_the_package(monkeypatch):
     ran = []
     monkeypatch.setattr(installer, "_run", lambda command, **kwargs: ran.append((command, kwargs["env"])) or 0)
     monkeypatch.setattr(crawl4ai_config, "installed", lambda: True)
+    monkeypatch.setattr(installer, "_crawl4ai_base_python", lambda: "/usr/bin/python3.12")
     assert installer._install_crawl4ai(lambda message: None)["ok"] is True
     (command, env), = ran
     assert command[0] == "bash" and Path(command[1]).name == "install_crawl4ai.sh" and Path(command[1]).is_file()
-    assert env["FRANKENSURF_CRAWL4AI_BASE_PYTHON"] == installer.sys.executable
+    assert env["FRANKENSURF_CRAWL4AI_BASE_PYTHON"] == "/usr/bin/python3.12"
+    # Installed but refused by the environment checks: said plainly, not as a silent failure.
+    monkeypatch.setattr(crawl4ai_config, "installed", lambda: False)
+    assert "failed FrankenSurf's checks" in installer._install_crawl4ai(lambda message: None)["error"]
+
+
+def test_crawl4ai_is_built_from_a_python_no_other_user_can_change(monkeypatch, tmp_path):
+    shared = tmp_path / "python-shared"
+    shared.write_text("")
+    shared.chmod(0o775)
+    own = tmp_path / "python-own"
+    own.write_text("")
+    own.chmod(0o755)
+    assert installer._protected(own) and not installer._protected(shared)
+    monkeypatch.setattr(installer.sys, "_base_executable", str(shared), raising=False)
+    monkeypatch.setattr(installer.sys, "executable", str(shared))
+    monkeypatch.setattr(installer.shutil, "which", lambda name: str(own))
+    monkeypatch.setattr(subprocess, "run", lambda command, **kwargs: subprocess.CompletedProcess(command, 0))
+    assert installer._crawl4ai_base_python() == str(own.resolve())
+    monkeypatch.setattr(installer.shutil, "which", lambda name: None)
+    monkeypatch.setattr(installer, "_protected", lambda python: False)
+    assert installer._crawl4ai_base_python() is None
 
 
 def test_the_crawl4ai_installer_and_lock_are_package_data():

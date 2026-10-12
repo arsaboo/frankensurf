@@ -289,8 +289,13 @@ def start_native(*, url=URL, port=PORT, folder=None, wait=30):
     if not _wait_running(url, wait):
         if process.poll() is not None:
             _pid_file().unlink(missing_ok=True)
+        try:
+            tail = (root / "searxng.log").read_text(errors="replace").strip().splitlines()[-3:]
+        except OSError:
+            tail = []
         return _not_running(url, engine="native", error=(
-            f"the native engine did not answer on {url} within {wait}s (log: {root / 'searxng.log'})"))
+            f"the native engine did not answer on {url} within {wait}s (log: {root / 'searxng.log'})"),
+            **({"log_tail": tail} if tail else {}))
     return {"status": "started", "url": url, "engine": "native", "pid": process.pid}
 
 
