@@ -651,3 +651,39 @@ def test_url_dates_with_month_names_and_compact_stamps():
     assert _url_date("https://w.test/news/business-wire/20261006057924/co-announces").strftime("%Y-%m-%d") == "2026-10-06"
     assert _url_date("https://w.test/product/12345678") is None
     assert _url_date("https://w.test/sku/20261399") is None
+
+
+def test_short_capital_names_are_key_terms_and_other_short_words_are_not():
+    from frankensurf.search_checks import key_terms
+    assert key_terms("news about BP this week") == ["bp"]
+    assert key_terms("3M press release this month")[0] == "3m"
+    assert "go" not in key_terms("how to parse json in go")
+
+
+def test_platform_words_are_not_the_topic_unless_nothing_else_is():
+    from frankensurf.search_checks import check_results, key_terms
+    assert key_terms("prisma github repo") == ["prisma"]
+    assert key_terms("GitHub latest announcement")[0] == "github"
+    assert key_terms("github repo") == ["github", "repo"]
+    report = check_results("prisma github repo", [
+        {"url": "https://github.com/someone/prismarine-repo-actions", "title": "someone/prismarine-repo-actions",
+         "snippet": "Actions for repos"},
+        {"url": "https://github.com/prisma/prisma", "title": "prisma/prisma", "snippet": "Next-generation ORM"}], limit=5)
+    assert [verdict["on_query"] for verdict in report["results"]] == [False, True]
+
+
+def test_an_off_topic_result_fails_a_two_letter_name_query():
+    from frankensurf.search_checks import check_results
+    report = check_results("news about BP this week", [
+        {"url": "https://n.test/markets/asx-posts-strong-gain", "title": "ASX posts strong gain", "snippet": "Banks lift"},
+        {"url": "https://n.test/energy/bp-cuts-output", "title": "BP cuts output at refinery", "snippet": ""}],
+        limit=5, recency="week")
+    assert [verdict["on_query"] for verdict in report["results"]] == [False, True]
+
+
+def test_a_month_only_date_is_never_reported_in_the_future():
+    from datetime import datetime, timezone
+    from frankensurf.search_checks import published
+    now = datetime(2026, 10, 12, 12, tzinfo=timezone.utc)
+    when, origin = published({"url": "https://l.test/2026/10/new-laptop.html"}, now)
+    assert origin == "url" and when == now

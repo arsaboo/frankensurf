@@ -653,3 +653,40 @@ async def test_holding_undated_results_can_be_turned_off(monkeypatch, tmp_path):
     result = await run(tmp_path, recency="week",
                        policy=WebPolicy(provider="http", search_date_reads=0, search_hold_undated=False))
     assert len(result["results"]) == 2 and "unverified_results" not in result
+
+
+def dated(count, prefix, days=1):
+    when = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return [{"url": "https://%s%d.test/rust/story-%d" % (prefix, index, index), "title": "rust async story %d" % index,
+             "snippet": "", "published": when} for index in range(count)]
+
+
+async def test_a_good_but_short_windowed_answer_is_filled_from_the_next_free_source(monkeypatch, tmp_path):
+    install(monkeypatch, Fake("one", dated(3, "a")), Fake("two", dated(3, "b")), Fake("three", dated(3, "c")))
+    result = await run(tmp_path, recency="week", limit=5, policy=WebPolicy(provider="http", search_date_reads=0))
+    assert CALLS == ["one", "two"]
+    assert len(result["results"]) == 5 and result["receipt"]["search_ladder"]["winner"] == "merged"
+
+
+async def test_a_full_answer_is_not_filled_and_filling_can_be_turned_off(monkeypatch, tmp_path):
+    install(monkeypatch, Fake("one", dated(5, "a")), Fake("two", dated(3, "b")))
+    await run(tmp_path, recency="week", limit=5, policy=WebPolicy(provider="http", search_date_reads=0))
+    assert CALLS == ["one"]
+    CALLS.clear()
+    install(monkeypatch, Fake("one", dated(3, "a")), Fake("two", dated(3, "b")))
+    await run(tmp_path, recency="week", limit=5,
+              policy=WebPolicy(provider="http", search_date_reads=0, search_fill_rungs=0))
+    assert CALLS == ["one"]
+
+
+async def test_filling_never_reaches_a_paid_source(monkeypatch, tmp_path):
+    install(monkeypatch, Fake("one", dated(3, "a")), Fake("paid", dated(5, "p"), paid=True, cost=0.01))
+    await run(tmp_path, recency="week", limit=5,
+              policy=WebPolicy(provider="http", search_date_reads=0, allow_paid_fallbacks=True))
+    assert CALLS == ["one"]
+
+
+async def test_a_search_without_a_window_is_never_filled(monkeypatch, tmp_path):
+    install(monkeypatch, Fake("one", good(3)), Fake("two", good(3, "t")))
+    await run(tmp_path, limit=5)
+    assert CALLS == ["one"]

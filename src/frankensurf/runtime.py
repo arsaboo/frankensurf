@@ -237,6 +237,7 @@ class WebPolicy:
     # weak sets up with it. False keeps the first answer.
     search_ladder: bool = True
     search_good_results: int = 3
+    search_fill_rungs: int = 2
     # A windowed automatic search (recency) reads the pages of up to this many
     # undated results that would make the top, over plain http with a short
     # timeout and no paid tools, to find their publication date; results then
@@ -428,6 +429,8 @@ class WebPolicy:
                  "search_date_reads must be an integer from 0 to 20")
         _require(_is_number(self.search_date_read_timeout_seconds, positive=True),
                  "search_date_read_timeout_seconds must be positive and finite")
+        _require(_is_int(self.search_fill_rungs, 0) and self.search_fill_rungs <= 6,
+                 "search_fill_rungs must be an integer from 0 to 6")
         _require(_is_int(self.search_good_results, 1) and self.search_good_results <= 100,
                  "search_good_results must be an integer from 1 to 100")
         _require(_is_number(self.search_hedge_after_seconds),
@@ -6233,6 +6236,21 @@ class Runtime:
         winner = stopped = None
         hedged, best, best_count = [], None, -1
         queue = list(order[:policy.search_max_sources] if ladder else order)
+        # In a windowed search, once the answer is good, up to search_fill_rungs more free
+        # sources are asked while it holds fewer verified results than the limit, so an
+        # answer short of dated results is filled instead of handed back half empty.
+        fill_left, filling = (policy.search_fill_rungs if ladder and recency else 0), False
+
+        def short_of_limit():
+            merged = merge_results([(name, rung["kept"]) for name, rung in rungs.items()],
+                                   windowed=bool(recency))
+            verified = [item for item in merged
+                        if not recency or (item.get("check") or {}).get("in_window") is True]
+            return len(verified) < limit
+
+        def can_fill():
+            return (fill_left > 0 and queue and queue[0] not in paid_ids
+                    and deadline - time.monotonic() > 3 and short_of_limit())
         deadline = started + policy.search_max_seconds
         running, leftover = {}, []
 
@@ -6330,12 +6348,26 @@ class Runtime:
                             best, best_count = identifier, len(kept)
                         if not ladder:
                             winner, stopped, finish = identifier, "first_answer", True
-                        elif report["verdict"] == "good":
-                            winner, stopped, finish = identifier, "good", True
-                        elif len(rungs) > 1 and good_count(merge_results(
+                        else:
+                            alone = report["verdict"] == "good"
+                            together = len(rungs) > 1 and good_count(merge_results(
                                 [(name, rung["kept"]) for name, rung in rungs.items()]),
-                                report["need"], bool(recency), enrich) >= report["need"]:
-                            # No source is good alone; together their passing results are.
+                                report["need"], bool(recency), enrich) >= report["need"]
+                            if alone or together or filling:
+                                if can_fill():
+                                    fill_left, filling = fill_left - 1, True
+                                    launch()
+                                else:
+                                    # One source good alone, or several whose passing
+                                    # results are good together (or were filled).
+                                    winner = identifier if alone and not filling else "merged"
+                                    stopped, finish = "good", True
+                    elif filling:
+                        # A source asked only to fill failed: keep the good answer already held.
+                        if can_fill():
+                            fill_left -= 1
+                            launch()
+                        else:
                             winner, stopped, finish = "merged", "good", True
                     if source is not None or failure in policy.search_terminal_failures:
                         finish, stopped = True, stopped or "terminal"

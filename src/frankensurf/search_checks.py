@@ -96,19 +96,34 @@ def _stem(word):
     return word
 
 
+# Where a thing lives, not what it is: "pydantic github repo" is about pydantic. These
+# count only when the query has nothing else; written as a name ("GitHub latest
+# announcement"), the word is the topic.
+_PLATFORM_WORDS = frozenset({"github", "gitlab", "repo", "repos", "repository", "repositories", "library",
+                             "libraries", "package", "packages", "crate", "crates", "module", "modules", "source",
+                             "code", "sdk", "docs", "documentation", "official", "website", "site", "homepage",
+                             "pypi", "npm"})
+
+
 def key_terms(query: str) -> list[str]:
     """What the query is about: its words without operators, stopwords, years and
-    freshness words (news, latest, this week), lightly stemmed."""
-    terms = []
-    for word in _WORD.findall(_OPERATOR.sub(" ", str(query or "")).lower()):
+    freshness words (news, latest, this week), lightly stemmed. Two-character names
+    written in capitals or with a digit (BP, GE, 3M) stay; other short words go.
+    Platform words in lower case (github, repo, library) count only when nothing
+    else is left."""
+    terms, platform = [], []
+    for raw in _WORD.findall(_OPERATOR.sub(" ", str(query or ""))):
+        word = raw.lower()
         if word in _STOPWORDS or word in _QUERY_FILLER or _YEAR.fullmatch(word):
             continue
-        if len(word) < 3 and word.isascii():
+        if len(word) < 3 and word.isascii() and not (len(word) == 2 and (raw.isupper() or any(c.isdigit() for c in raw))):
             continue
-        word = _stem(word)
-        if word not in terms:
-            terms.append(word)
-    return terms[:8]
+        word = _stem(word) if len(word) > 2 else word
+        # Written as a name (GitHub, Docs), a platform word is the topic after all.
+        bucket = platform if word in _PLATFORM_WORDS and raw.islower() else terms
+        if word not in bucket:
+            bucket.append(word)
+    return (terms or platform)[:8]
 
 
 def canonical_url(url: str) -> str:
@@ -237,9 +252,11 @@ def published(item: dict, now=None):
     for field in ("snippet", "title"):
         when = _text_date(item.get(field), now)
         if when is not None:
-            return when, field
+            return min(when, now), field
     when = _url_date(item.get("url"))
-    return (when, "url") if when is not None else (None, None)
+    # A month-only date (/2026/10/) counts as the month's last day for the window,
+    # but is never reported as a day still to come.
+    return (min(when, now), "url") if when is not None else (None, None)
 
 
 def window_bounds(recency=None, since=None, until=None, now=None):
