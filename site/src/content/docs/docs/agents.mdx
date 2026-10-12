@@ -93,9 +93,15 @@ skills from a folder (Claude Code), install it too:
 frankensurf skill install            # ~/.claude/skills/frankensurf/SKILL.md
 frankensurf skill install --skill-dir ./my-agent/skills
 frankensurf skill show
+frankensurf skill uninstall          # remove it again (--skill-dir for another folder)
 ```
 
-`frankensurf setup` installs it automatically when `~/.claude` exists.
+`frankensurf setup` asks first: in a terminal it names the path and waits for a
+yes (the default is no). Scripts and CI are never asked and nothing is written;
+setup's JSON says where the skill would go. Pass `frankensurf setup
+--install-skill` to install it, or `--no-install-skill` to skip it and the
+question. An installed skill that differs from the bundled one is only
+overwritten if you say yes or pass `--install-skill`.
 
 ## When a page isn't what you needed
 
