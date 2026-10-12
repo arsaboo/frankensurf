@@ -159,7 +159,7 @@ not be verified leave `results` and come back apart as `unverified_results`: the
 answer holds only what is known to be fresh, and nothing is hidden.
 `search_hold_undated: false` mixes them back in, ranked last. So that holding
 results back does not leave the answer short, a good windowed answer with fewer
-verified results than  asks up to  (default 2) more free
+verified results than `limit` asks up to `search_fill_rungs` (default 2) more free
 sources and merges what passes.
 
 Weak sets are not wasted: passing results from earlier sources are carried up,
