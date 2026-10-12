@@ -37,7 +37,7 @@ async def test_pdf_text_is_extracted_not_returned_as_bytes(tmp_path):
     assert result["receipt"]["status"] == "observed"
     assert "Dummy PDF file" in result["text"] and "%PDF" not in result["text"]
     assert result["title"] == "Example Paper"
-    assert result["structured"] == {"format": "pdf", "pages": 1}
+    assert result["structured"] == {"format": "pdf", "pages": 1, "pages_total": 1, "truncated": False}
 
 
 async def test_untitled_pdf_uses_its_first_line(tmp_path):
@@ -63,3 +63,33 @@ def test_pdf_page_cap_is_validated():
     assert WebPolicy().pdf_max_pages == 50
     with pytest.raises(ValueError):
         WebPolicy(pdf_max_pages=0)
+
+
+def blank_pdf(pages: int) -> bytes:
+    writer = PdfWriter()
+    for _ in range(pages):
+        writer.add_blank_page(width=300, height=200)
+    out = io.BytesIO(); writer.write(out)
+    return out.getvalue()
+
+
+async def read_pdf(tmp_path, body, **overrides):
+    transport = httpx.MockTransport(lambda request: httpx.Response(
+        200, content=body, headers={"content-type": "application/pdf"}))
+    async with Runtime(tmp_path, transport=transport) as web:
+        return await web.read(URL, policy_overrides={"provider": "http", **overrides})
+
+
+async def test_free_pdf_cut_by_the_page_limit_says_so(tmp_path):
+    result = await read_pdf(tmp_path, blank_pdf(6), pdf_max_pages=4)
+    assert result["structured"] == {"format": "pdf", "pages": 4, "pages_total": 6, "truncated": True}
+    assert result["receipt"]["status"] == "observed"
+    assert result["receipt"]["pdf"] == {
+        "pages_read": 4, "pages_total": 6, "truncated": True,
+        "note": "PDF truncated: read 4 of 6 pages; raise pdf_max_pages"}
+
+
+async def test_free_pdf_within_the_limit_is_not_truncated(tmp_path):
+    result = await read_pdf(tmp_path / "a", blank_pdf(3), pdf_max_pages=3)
+    assert result["structured"]["pages_total"] == 3 and result["structured"]["truncated"] is False
+    assert result["receipt"]["pdf"] == {"pages_read": 3, "pages_total": 3, "truncated": False}

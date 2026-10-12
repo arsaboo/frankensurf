@@ -97,6 +97,13 @@ their worst case (ZenRows, Firecrawl and the hosted browsers) refuse a call that
 could pass what's left, with `BUDGET_EXHAUSTED`. Tools that can't report cost
 don't run under a cap.
 
+A bound is an estimate. When a paid call still bills more than the cap (a PDF
+with more pages than expected), the page you paid for is returned, not thrown
+away: `receipt.budget` is `{"cap_usd": 0.02, "spent_usd": 0.0266, "exceeded": true}`,
+`cost_budget_satisfied` is `false`, and no further paid call runs. Set
+`strict_cost_cap=True` to fail with `BUDGET_EXHAUSTED` instead. A call whose
+cost is unknown is always refused.
+
 <Aside type="note">
   Hosted browsers bill by session time. The default rates are list prices; set
   yours with `FRANKENSURF_<ID>_USD_PER_HOUR`, for example

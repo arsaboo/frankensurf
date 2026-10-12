@@ -51,6 +51,20 @@ frankensurf read https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/d
 | `pdf_max_pages` | `50` | Most pages to extract. Also the most pages a paid tool such as Firecrawl is asked to parse; it bills one credit per page, and a cost cap skips it when the estimate is over. |
 | `max_bytes` | 40 MB | Largest file accepted. |
 
+A PDF longer than `pdf_max_pages` (or than a cost cap pays a paid tool to parse)
+is cut short, and the result says so. `structured` carries `pages` (read),
+`pages_total` and `truncated`, and the receipt a short note:
+
+```json
+"structured": { "format": "pdf", "pages": 10, "pages_total": 48, "truncated": true },
+"receipt": { "pdf": { "pages_read": 10, "pages_total": 48, "truncated": true,
+  "note": "PDF truncated: read 10 of 48 pages; raise pdf_max_pages" } }
+```
+
+A paid tool returns markdown or HTML, so there the same fields sit under
+`structured.pdf`. Firecrawl reports the true count as `totalPages`. When it does not, `pages_total`
+is `null` and a parse that stopped at the page limit counts as truncated.
+
 <Aside type="caution">
   Scanned PDFs without a text layer return no text. OCR is not built in yet.
 </Aside>

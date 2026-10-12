@@ -335,6 +335,7 @@ class FirecrawlProvider(_Keyed):
             content = data.get("markdown" if markdown else "rawHtml") or ""
             credits = metadata.get("creditsUsed")
             pages = metadata.get("numPages")
+            total_pages = metadata.get("totalPages")
             is_pdf = "pdf" in str(metadata.get("contentType") or "").lower()
         except (ValueError, KeyError, TypeError, AttributeError):
             raise _failure("SCHEMA_CHANGED", "Firecrawl returned an unexpected body") from None
@@ -350,6 +351,15 @@ class FirecrawlProvider(_Keyed):
                        target_status or 200)
         if cost is not None:
             result["cost_usd"] = cost
+        if is_pdf and type(pages) is int and pages >= 0:
+            # numPages is what was parsed. totalPages (the true count) is omitted
+            # when unknown; then parsing as many pages as were asked for means
+            # the PDF may run on.
+            from .runtime import _pdf_info
+            known = type(total_pages) is int and total_pages >= 0
+            result["pdf"] = _pdf_info(
+                pages, total_pages if known else None,
+                total_pages > pages if known else pages >= max_pages, paid=True)
         return result
 
 

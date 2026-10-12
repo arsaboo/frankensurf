@@ -31,7 +31,7 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `unblocker_timeout_seconds` | `90.0` | Time allowed for an unblocker attempt. |
 | `agent_provider_timeout_seconds` | `300.0` | Time allowed for an agent provider such as Skyvern. |
 | `max_bytes` | 40 MB | Largest response accepted. |
-| `pdf_max_pages` | `50` | Most PDF pages to extract text from. Also the most pages a paid tool such as Firecrawl is asked to parse, since it bills per page. |
+| `pdf_max_pages` | `50` | Most PDF pages to extract text from. Also the most pages a paid tool such as Firecrawl is asked to parse, since it bills per page. A longer PDF is cut short and says so: `structured.truncated` and `receipt.pdf`. |
 | `capture_json_responses` | `False` | On rendered reads, return the JSON the page fetched for itself as `captured_json`. |
 | `capture_json_max_items` | `20` | Most captured JSON responses kept. |
 | `capture_json_max_bytes` | 2 MB | Largest captured JSON response kept. |
@@ -58,6 +58,7 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `allow_local_browser` | `True` | Allow providers that run a browser on your machine. |
 | `allow_paid_fallbacks` | `False` | Allow paid providers to join the route. |
 | `max_cost_usd` | `None` | Cap on measured provider cost for the whole operation. |
+| `strict_cost_cap` | `False` | A paid call that bills more than `max_cost_usd` still returns its valid content, and `receipt.budget` says the cap was exceeded. `True` discards it and fails with `BUDGET_EXHAUSTED`. |
 | `allow_handoff` | `False` | Try `handoff` after every automatic provider fails. |
 | `handoff_timeout_seconds` | `300.0` | How long a handoff waits for a person. |
 | `allow_real_browser` | `False` | Let your real Chrome or Edge join automatic reads; it moves ahead once walls do. |
