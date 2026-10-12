@@ -100,7 +100,7 @@ async def test_router_routes_by_vertical_and_filters_results(tmp_path):
     assert [item["url"] for item in result["results"]] == ["https://blog.example.com/a"]
     assert result["receipt"]["search_options"]["filtered"]["excluded"] == 1
     assert result["receipt"]["search_routing"]["vertical"] == "discussions"
-    assert all("hn.algolia.com" in url for url in seen)
+    assert "hn.algolia.com" in seen[0]  # its own vertical first; the web engines are later rungs
 
 
 def test_paid_apis_get_options_natively(monkeypatch):

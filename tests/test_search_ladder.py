@@ -590,3 +590,16 @@ async def test_date_reads_use_the_cheap_provider_even_when_paid_tools_are_allowe
     result = await run(tmp_path, policy=policy, recency="month", limit=4)
     assert seen and set(seen) == {("http", None, False, None, 2.5)}
     assert result["receipt"]["search_checks"]["date_reads"]["dated"] == len(seen)
+
+
+async def test_a_vertical_falls_back_to_the_web_engines_when_its_own_sources_fail(monkeypatch, tmp_path):
+    install(monkeypatch, Fake("papers_api", fail=True, vertical="papers"), Fake("engine", good(5, "w")))
+    result = await run(tmp_path, vertical="papers")
+    assert CALLS == ["papers_api", "engine"]
+    assert result["receipt"]["search_ladder"]["winner"] == "engine" and len(result["results"]) == 5
+
+
+async def test_a_vertical_that_passes_never_reaches_the_web_engines(monkeypatch, tmp_path):
+    install(monkeypatch, Fake("papers_api", good(5), vertical="papers"), Fake("engine", good(5, "w")))
+    result = await run(tmp_path, vertical="papers")
+    assert CALLS == ["papers_api"]

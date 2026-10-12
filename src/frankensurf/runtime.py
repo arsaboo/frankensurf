@@ -6063,6 +6063,12 @@ class Runtime:
         try:
             require_action(policy, "READ_PUBLIC")
             candidates = self.searches.candidates(policy, explicit=source, vertical=vertical)
+            if (source is None and policy.search_ladder and vertical not in (None, "web")
+                    and policy.search_source_candidates is None):
+                # A vertical's own sources climb first; the general web engines are
+                # the rungs after them, so one slow or rate-limited API is not a dead end.
+                candidates += [identifier for identifier in self.searches.candidates(policy, vertical="web")
+                               if identifier not in candidates]
         except WebFailure as exc:
             candidates, planning_failure = [], exc
         else:
