@@ -9,7 +9,7 @@ import math
 import re
 from typing import Awaitable, Callable, Protocol
 
-from .search import build_search, normalize_results
+from .search import REGISTRY, build_search, normalize_results
 
 
 _PLUGIN_ID = re.compile(r"[a-z][a-z0-9_.-]{0,127}\Z")
@@ -481,12 +481,27 @@ class SearchRegistry:
                     and (explicit is not None or self._plugins[identifier].manifest.vertical == vertical)
                     and (not self._plugins[identifier].manifest.paid or policy.allow_paid_fallbacks)
                     and (explicit is not None or self._available(identifier))]
+        if explicit is None and policy.search_source_candidates is None:
+            # A source flagged last_resort in the registry (bing_rss) goes after the others
+            # unless the policy set the route; stable otherwise.
+            selected.sort(key=lambda identifier: bool(REGISTRY.get(identifier, {}).get("last_resort")))
         if explicit is None and policy.search_source_prefer:
             preferred = [identifier for identifier in policy.search_source_prefer if identifier in selected]
             selected = preferred + [identifier for identifier in selected if identifier not in preferred]
         if policy.search_max_attempts is not None:
             selected = selected[:policy.search_max_attempts]
         return selected
+
+    def reachable(self, identifier, base_url=None):
+        """Whether a source looks up right now, when it can say (a loopback engine answers its
+        port); True for sources that cannot tell. Blocking and quick: run it in a thread."""
+        check = getattr(self._plugins.get(identifier), "reachable", None)
+        if check is None:
+            return identifier in self._plugins and identifier not in self._disabled
+        try:
+            return check(base_url) is True
+        except Exception:
+            return False
 
     def _available(self, identifier):
         # Keyed sources without a configured key are skipped, not attempted.
@@ -701,14 +716,38 @@ class SearchRegistry:
                 cost_usd=reported_cost) from None
         return safe, manifest
 
+_PORT_UP: dict = {}
+
+
 class HttpSearchPlugin:
     def __init__(self, identifier, version="1"):
-        from .search import REGISTRY
         self.manifest = SearchManifest(identifier, version,
                                        transport_provider="http",
                                        vertical=REGISTRY[identifier].get("vertical", "web"))
 
+    def reachable(self, base_url=None, ttl=20.0):
+        """Only the self-hosted loopback engine can be asked: its port accepts a connection
+        (remembered for ttl seconds). Public sources are assumed up."""
+        if self.manifest.id != "searxng":
+            return True
+        import socket
+        import time
+        from urllib.parse import urlparse
+        parsed = urlparse(base_url or REGISTRY["searxng"]["base_url"])
+        key = (parsed.hostname, parsed.port or 80)
+        seen = _PORT_UP.get(key)
+        if seen is not None and time.monotonic() - seen[0] < ttl:
+            return seen[1]
+        try:
+            socket.create_connection(key, timeout=0.4).close()
+            up = True
+        except OSError:
+            up = False
+        _PORT_UP[key] = (time.monotonic(), up)
+        return up
+
     async def search(self, request, services):
+        from .search_checks import unrelated_set
         url, definition = build_search(request.query, self.manifest.id, request.config)
         adapter = "json" if definition["kind"] == "json" else "rss" if definition["kind"] == "rss" else "html"
         acquisition = await services.read(url, request.policy, adapter=adapter)
@@ -731,6 +770,11 @@ class HttpSearchPlugin:
                 if not found and failures:
                     receipt.update(status="failed", failure={"code": "SEARCH_UNAVAILABLE",
                         "message": "No results; upstream search engines failed"})
+                elif REGISTRY[self.manifest.id].get("verify_relevance") and unrelated_set(request.query, found):
+                    # The same pages whatever was asked (a broken endpoint) is a failure, not an answer.
+                    response["upstream_failures"] = [[self.manifest.id, "results unrelated to the query"]]
+                    receipt.update(status="failed", failure={"code": "SEARCH_UNAVAILABLE",
+                        "message": "Upstream returned results unrelated to the query"})
                 else:
                     response["results"] = [{**item, "listing_state": "unknown",
                         "verification": "indexed_discovery", "query_attribution": attribution}

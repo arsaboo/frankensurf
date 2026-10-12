@@ -220,7 +220,8 @@ def test_annotate_and_accepted_carry_check_fields():
     kept = accepted(results, report)
     assert len(kept) == 2
     assert kept[0]["check"] == {"passed": True, "reasons": [], "in_window": True, "on_query": True,
-                                "published": "2026-10-11T00:00:00Z", "date_source": "source", "kind": "item"}
+                                "published": "2026-10-11T00:00:00Z", "date_source": "source", "kind": "item",
+                                "relevance": 4.0}
 
 
 # --- merge -------------------------------------------------------------------

@@ -259,6 +259,11 @@ class WebPolicy:
     # first) join the ladder once this many free sources have come back weak or
     # empty; 0 leaves them until every free source has been tried.
     search_paid_after_weak: int = 2
+    # With allow_paid_fallbacks, a news, announcement (recency), fact or code query starts
+    # the cheapest likely-success paid source beside the first free rung instead of after
+    # the free ones fail; everything is merged, checked and ranked, and a paid result that
+    # fails the checks gives way to a passing free one. The cost cap applies as always.
+    search_paid_parallel: bool = True
     # Try first the source that most often passed the checks for this kind of query
     # (vertical, recency or not, site filter or not), learned on this machine.
     search_learned_routing: bool = True
@@ -425,6 +430,7 @@ class WebPolicy:
         _require(type(self.search_ladder) is bool, "search_ladder must be a boolean")
         _require(type(self.search_learned_routing) is bool, "search_learned_routing must be a boolean")
         _require(isinstance(self.search_hold_undated, bool), "search_hold_undated must be a boolean")
+        _require(isinstance(self.search_paid_parallel, bool), "search_paid_parallel must be a boolean")
         _require(_is_int(self.search_date_reads, 0) and self.search_date_reads <= 20,
                  "search_date_reads must be an integer from 0 to 20")
         _require(_is_number(self.search_date_read_timeout_seconds, positive=True),
@@ -1688,6 +1694,12 @@ def _navigation_failure(message):
     if "ERR_NAME_NOT_RESOLVED" in message:
         return "NOT_FOUND"
     return None
+
+
+# Verticals with a specialist source: it is raced against SearXNG in the first rung.
+_RACE_VERTICALS = frozenset({"code", "reference", "papers", "news"})
+# After the first racer of a first rung answers, the others get this long to join the merge.
+_RACE_GRACE_SECONDS = 4.0
 
 
 def _search_query_type(vertical, options):
@@ -6087,6 +6099,17 @@ class Runtime:
             return (cost is None, (cost / rate) if cost is not None else -rate, index)
         return [name for _index, name in sorted(enumerate(sources), key=key)]
 
+    async def _search_up(self, identifier, engine_config=None):
+        """Whether a search source looks reachable right now (SearXNG: its port accepts a
+        connection). A transport injected into the runtime stands in for the network, so the
+        bundled HTTP engines have no port to probe and count as not reachable."""
+        from .search_plugins import HttpSearchPlugin
+        plugin = getattr(self.searches, "_plugins", {}).get(identifier)
+        if isinstance(plugin, HttpSearchPlugin) and self._transport is not None:
+            return False
+        return bool(await asyncio.to_thread(self.searches.reachable, identifier,
+                                            (engine_config or {}).get("base_url")))
+
     async def search(self, query: str, source: str | None = None, limit: int = 10,
                      engine_config: dict | None = None, policy: WebPolicy | None = None, *,
                      site: str | None = None, exclude_domains: list[str] | None = None,
@@ -6111,7 +6134,7 @@ class Runtime:
                                              region=region, vertical=vertical)
         from .search import MAX_EXCLUDE_OPERATORS, VERTICALS, filter_results, normalize_options
         from .search_checks import (accepted, annotate, check_results, enrich_dates, good_count,
-                                    merge_results)
+                                    merge_results, query_kinds)
         from .search_plugins import SearchRequest, SearchServices
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise ValueError("Invalid search query")
@@ -6236,10 +6259,49 @@ class Runtime:
         winner = stopped = None
         hedged, best, best_count = [], None, -1
         queue = list(order[:policy.search_max_sources] if ladder else order)
+        # The first rung. On an automatic search of a vertical with a specialist source
+        # (code, reference, papers, news) the specialist and SearXNG start together when
+        # SearXNG is reachable, and their answers are merged; with search_paid_parallel and
+        # a news, announcement, fact or code query the cheapest paid source starts beside
+        # the first free one. Nothing waits for another to fail. Otherwise the ladder
+        # climbs one source at a time (a slow one is hedged).
+        first_rung, paid_parallel, race_open, race_deadline, held = [], None, set(), None, None
+        automatic = ladder and source is None and policy.search_source_candidates is None
+        kinds = query_kinds(query, vertical=vertical, recency=recency) if automatic else frozenset()
+        free_queue = [item for item in queue if item not in paid_ids]
+        verticals = {item["id"]: item["vertical"] for item in self.searches.inspect()}
+        searxng_up = False
+        if automatic and "searxng" in order and (vertical in _RACE_VERTICALS or (not recency and policy.search_fill_rungs > 0)):
+            searxng_up = await self._search_up("searxng", engine_config)
+        if automatic and searxng_up and vertical in _RACE_VERTICALS and policy.search_hedge_after_seconds > 0:
+            specialists = [item for item in free_queue if verticals.get(item) == vertical and item != "searxng"]
+            if specialists and "searxng" in free_queue:
+                first_rung = specialists[:2] + ["searxng"]
+        if automatic and kinds and policy.search_paid_parallel and policy.allow_paid_fallbacks:
+            for candidate in order_notes.get("paid_order") or ():
+                try:
+                    self.searches.require_enabled(candidate, policy)
+                except WebFailure:
+                    continue
+                paid_parallel = candidate
+                break
+            if paid_parallel is not None:
+                if not first_rung and free_queue:
+                    first_rung = [free_queue[0]]
+                first_rung.append(paid_parallel)
+        if first_rung:
+            queue = first_rung + [item for item in queue if item not in first_rung]
+            if len(first_rung) > 1:
+                race_open = set(first_rung)
+                hedged.extend(first_rung)
         # In a windowed search, once the answer is good, up to search_fill_rungs more free
         # sources are asked while it holds fewer verified results than the limit, so an
-        # answer short of dated results is filled instead of handed back half empty.
+        # answer short of dated results is filled instead of handed back half empty. Without
+        # a window the same applies once, when SearXNG is reachable, with SearXNG asked first.
         fill_left, filling = (policy.search_fill_rungs if ladder and recency else 0), False
+        fill_searxng = bool(automatic and not recency and searxng_up and policy.search_fill_rungs > 0)
+        if fill_searxng:
+            fill_left = min(1, policy.search_fill_rungs)
 
         def short_of_limit():
             merged = merge_results([(name, rung["kept"]) for name, rung in rungs.items()],
@@ -6249,16 +6311,41 @@ class Runtime:
             return len(verified) < limit
 
         def can_fill():
+            if fill_searxng and "searxng" in queue:
+                queue.remove("searxng")
+                queue.insert(0, "searxng")
             return (fill_left > 0 and queue and queue[0] not in paid_ids
                     and deadline - time.monotonic() > 3 and short_of_limit())
         deadline = started + policy.search_max_seconds
         running, leftover = {}, []
 
-        def launch():
-            identifier = queue.pop(0)
+        def launch(identifier=None):
+            if identifier is None:
+                identifier = queue.pop(0)
+            else:
+                queue.remove(identifier)
             running[asyncio.ensure_future(run_rung(identifier))] = identifier
 
+        def held_for_race():
+            return bool(race_open) and (race_deadline is None or time.monotonic() < race_deadline)
+
+        def settle(identifier, alone):
+            """The answer is good: fill it if it is short and a fill is allowed, else end the
+            search. One source good alone, or several whose passing results are good together
+            (or were filled or raced), end it with the merged answer."""
+            nonlocal fill_left, filling, winner, stopped
+            if can_fill():
+                fill_left, filling = fill_left - 1, True
+                launch()
+                return False
+            raced = len([name for name in first_rung if name in rungs]) > 1
+            winner = identifier if alone and not filling and not raced else "merged"
+            stopped = "good"
+            return True
+
         try:
+            for identifier in first_rung:
+                launch(identifier)
             while queue or running:
                 if not running:
                     launch()
@@ -6271,9 +6358,20 @@ class Runtime:
                 hedge = bool(ladder and policy.search_hedge_after_seconds > 0 and queue
                              and len(running) < policy.search_hedge_racers and queue[0] not in paid_ids
                              and policy.search_hedge_after_seconds < remaining)
+                wait = remaining
+                if race_open and race_deadline is not None:
+                    wait = max(0.0, min(wait, race_deadline - time.monotonic()))
                 finished, _ = await asyncio.wait(set(running), return_when=asyncio.FIRST_COMPLETED,
-                    timeout=policy.search_hedge_after_seconds if hedge else remaining)
+                    timeout=min(policy.search_hedge_after_seconds, wait) if hedge else wait)
                 if not finished:
+                    if race_open and race_deadline is not None and time.monotonic() >= race_deadline - 0.01:
+                        # The first rung's slower racers had their time; go on with what is held.
+                        race_open.clear()
+                        if held is not None:
+                            ready, held = held, None
+                            if settle(*ready):
+                                break
+                        continue
                     if not hedge:
                         stopped = "time_cap"
                         break
@@ -6283,6 +6381,7 @@ class Runtime:
                 finish = False
                 for task in [item for item in running if item in finished]:
                     identifier = running.pop(task)
+                    race_open.discard(identifier)
                     outcome = task.result()
                     manifest = outcome["manifest"]
                     base = {"source": identifier, "source_version": manifest.version,
@@ -6325,7 +6424,8 @@ class Runtime:
                         items, dropped = (filter_results(response["results"], options, now)
                                           if options else (response["results"], {}))
                         report = check_results(query, items, limit=limit, recency=recency, now=now,
-                                               min_good=policy.search_good_results, weigh_undated=enrich)
+                                               min_good=policy.search_good_results, weigh_undated=enrich,
+                                               vertical=vertical)
                         # N pages per source's result set, 2N for the whole search.
                         spare = min(policy.search_date_reads, 2 * policy.search_date_reads - date_reads["tried"])
                         if enrich and spare > 0 and deadline - time.monotonic() > 2:
@@ -6334,7 +6434,7 @@ class Runtime:
                                 query, items, report, date_read, limit=limit, budget=spare, memo=date_memo,
                                 timeout=policy.search_date_read_timeout_seconds,
                                 gap=policy.origin_min_interval_seconds, recency=recency, now=now,
-                                min_good=policy.search_good_results)
+                                min_good=policy.search_good_results, vertical=vertical)
                             for key in ("tried", "dated", "dropped"):
                                 date_reads[key] += found[key]
                             date_reads["cost_usd"] += found["cost_usd"]
@@ -6354,14 +6454,13 @@ class Runtime:
                                 [(name, rung["kept"]) for name, rung in rungs.items()]),
                                 report["need"], bool(recency), enrich) >= report["need"]
                             if alone or together or filling:
-                                if can_fill():
-                                    fill_left, filling = fill_left - 1, True
-                                    launch()
-                                else:
-                                    # One source good alone, or several whose passing
-                                    # results are good together (or were filled).
-                                    winner = identifier if alone and not filling else "merged"
-                                    stopped, finish = "good", True
+                                if held_for_race():
+                                    # Good, but the first rung's other racers get a moment to join.
+                                    held = (identifier, alone)
+                                    if race_deadline is None:
+                                        race_deadline = time.monotonic() + _RACE_GRACE_SECONDS
+                                elif settle(identifier, alone):
+                                    finish = True
                     elif filling:
                         # A source asked only to fill failed: keep the good answer already held.
                         if can_fill():
@@ -6371,6 +6470,9 @@ class Runtime:
                             winner, stopped, finish = "merged", "good", True
                     if source is not None or failure in policy.search_terminal_failures:
                         finish, stopped = True, stopped or "terminal"
+                if not finish and held is not None and not held_for_race():
+                    ready, held = held, None
+                    finish = settle(*ready)
                 if finish:
                     break
         finally:
@@ -6489,7 +6591,9 @@ class Runtime:
         verdict = (rungs[winner]["report"]["verdict"] if winner in rungs
                    else None if not rungs else "good" if weighed >= need else "weak" if passed else "empty")
         receipt["search_ladder"] = {"enabled": ladder, "query_type": qtype, "order": order,
-            "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes}
+            "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes,
+            **({"first_rung": first_rung} if first_rung else {}),
+            **({"paid_parallel": paid_parallel} if paid_parallel else {})}
         receipt["search_checks"] = {"verdict": verdict, "need": need, "passed": passed,
             "reasons": reasons, "unknown_dates": unknown,
             "results": [{"url": item["url"],

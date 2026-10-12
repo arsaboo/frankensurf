@@ -14,8 +14,10 @@ from __future__ import annotations
 import asyncio
 import calendar
 import json
+import math
 import re
 import time
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qsl, unquote, urlparse
 
@@ -111,6 +113,15 @@ def key_terms(query: str) -> list[str]:
     written in capitals or with a digit (BP, GE, 3M) stay; other short words go.
     Platform words in lower case (github, repo, library) count only when nothing
     else is left."""
+    return _terms(query, True)
+
+
+def raw_terms(query: str) -> list[str]:
+    """key_terms without the stemming: the words as written, lowercased (pandas, not panda)."""
+    return _terms(query, False)
+
+
+def _terms(query, stem):
     terms, platform = [], []
     for raw in _WORD.findall(_OPERATOR.sub(" ", str(query or ""))):
         word = raw.lower()
@@ -118,7 +129,7 @@ def key_terms(query: str) -> list[str]:
             continue
         if len(word) < 3 and word.isascii() and not (len(word) == 2 and (raw.isupper() or any(c.isdigit() for c in raw))):
             continue
-        word = _stem(word) if len(word) > 2 else word
+        word = _stem(word) if stem and len(word) > 2 else word
         # Written as a name (GitHub, Docs), a platform word is the topic after all.
         bucket = platform if word in _PLATFORM_WORDS and raw.islower() else terms
         if word not in bucket:
@@ -508,6 +519,271 @@ def _names_the_entity(url, named):
     return slug in ["".join(phrase) for phrase in named]
 
 
+# --- what kind of query it is, and which result answers it best
+
+# Question openers and phrasings that ask for a fact, not for pages about a topic.
+_FACT_LEAD = re.compile(r"^\W*(?:who|whom|whose|what|when|where|which|why|how (?:many|much|old|tall|long|far|big|"
+                        r"large|high|often)|is|was|are|were|did|does|do)\b", re.I)
+_FACT_PHRASE = re.compile(r"\b(?:smallest|largest|biggest|tallest|highest|longest|deepest|oldest|youngest|fastest|"
+                          r"capital of|population of|president of|prime minister of|founder of|inventor of|"
+                          r"author of|meaning of|definition of|height of|born in|died in)\b", re.I)
+_CODE_WORDS = frozenset({"github", "gitlab", "bitbucket", "repo", "repos", "repository", "repositories",
+                         "library", "libraries", "package", "packages", "crate", "crates", "pypi", "npm", "sdk"})
+_ANNOUNCE_WORDS = frozenset({"news", "latest", "announcement", "announcements", "announce", "announced",
+                             "announces", "launch", "launches", "launched", "headline", "headlines", "breaking",
+                             "press", "today", "yesterday", "recent", "recently"})
+_PAPER_WORDS = frozenset({"paper", "papers", "preprint", "preprints", "arxiv", "research", "study", "studies",
+                          "survey", "surveys"})
+_ASKS = {
+    "policy": frozenset({"policy", "policies", "terms", "privacy", "legal", "tos", "gdpr", "cookie", "cookies",
+                         "license", "licence"}),
+    "stock": frozenset({"stock", "stocks", "share", "shares", "price", "prices", "quote", "quotes", "ticker"}),
+    "docs": frozenset({"docs", "documentation", "release", "releases", "changelog", "notes", "api", "reference",
+                       "guide", "tutorial", "manual", "readme", "version", "versions"}),
+    "security": frozenset({"security", "vulnerability", "vulnerabilities", "cve", "advisory", "advisories",
+                           "exploit", "patch"}),
+}
+_FORGES = frozenset({"github.com", "gitlab.com", "bitbucket.org", "codeberg.org"})
+
+
+def _query_words(query):
+    return {word.lower() for word in _WORD.findall(_OPERATOR.sub(" ", str(query or "")))}
+
+
+def query_kinds(query: str, *, vertical=None, recency=None) -> frozenset:
+    """Which kinds of query this is, for the work that suits each: "news" (the news
+    vertical), "announcement" (a recency window was asked for), "fact" (a question or
+    superlative, or the reference vertical) and "code" (the code vertical, or words like
+    github, repo or library). From the words and options alone, never the names."""
+    words = _query_words(query)
+    text = str(query or "")
+    kinds = set()
+    if vertical == "news":
+        kinds.add("news")
+    if recency:
+        kinds.add("announcement")
+    if vertical == "reference" or _FACT_LEAD.search(text) or _FACT_PHRASE.search(text):
+        kinds.add("fact")
+    if vertical == "code" or words & _CODE_WORDS:
+        kinds.add("code")
+    return frozenset(kinds)
+
+
+@dataclass(frozen=True)
+class QueryContext:
+    """What ranking needs to know about a query, worked out once."""
+    terms: tuple
+    named: tuple
+    cased: tuple
+    names: frozenset      # what a canonical result is called: the entity or project, run together
+    announce: bool        # asks for news or announcements (a window, or words like latest, press)
+    papers: bool
+    asks: frozenset       # the kinds of page the query asks for outright: policy, stock, docs, security
+
+
+def _joined_names(named, cased, raw):
+    names = set()
+    for phrase in named:
+        names.add("".join(phrase))
+    for tokens in cased:
+        if tokens:
+            names.add("".join(t.lower() for t in _core_words(tokens)))
+            names.add("".join(t.lower() for t in tokens if t.lower() not in _CONNECTORS))
+    if len(raw) == 1:
+        names.add(raw[0])
+    elif 2 <= len(raw) <= 3:
+        names.add("".join(raw))
+    return frozenset(name.replace("-", "") for name in names if len(name) >= 2)
+
+
+def query_context(query: str, *, recency=None, vertical=None) -> QueryContext:
+    runs = _entity_runs(query)
+    named = tuple(phrase for phrase, _ in runs)
+    cased = tuple(tokens for _, tokens in runs)
+    words = _query_words(query)
+    return QueryContext(
+        terms=tuple(key_terms(query)), named=named, cased=cased,
+        names=_joined_names(named, cased, raw_terms(query)),
+        announce=bool(recency) or bool(words & _ANNOUNCE_WORDS) or vertical == "news",
+        papers=vertical == "papers" or bool(words & _PAPER_WORDS),
+        asks=frozenset(name for name, group in _ASKS.items() if words & group))
+
+
+# Generic patterns for pages that are not what a search is after.
+_STOCK_URL = re.compile(r"/(?:quotes?|stocks?|stock-?quotes?|stock-?prices?|share-?prices?|live-?blog|stock-market)"
+                        r"(?:/|-|$)|(?:share|stock)-?price|liveblog")
+_STOCK_TITLE = re.compile(r"\b(?:share|stock) prices?\b|\bstock quotes?\b|\blive ?blog\b|\blive blog\b|"
+                          r"\b(?:stocks?|shares?) (?:live|today)\b|\bstock market today\b", re.I)
+_POLICY_URL = re.compile(r"/(?:legal|policy|policies|terms|terms-of-service|terms-of-use|privacy|privacy-policy|tos|"
+                         r"cookies?|gdpr|legal-notice)(?:/|$)")
+_POLICY_TITLE = re.compile(r"\bterms (?:of (?:service|use)|and conditions|& conditions)\b|"
+                           r"\bprivacy (?:policy|notice|statement)\b|\bpolicy updates?\b|\bcookie (?:policy|notice)\b|"
+                           r"\blegal notices?\b|\bpolicies\b", re.I)
+_DOCS_URL = re.compile(r"/(?:release-?notes?|releases|changelog|change-?log|whats-?new|docs?|documentation|api|"
+                       r"reference|developers?|help|support|kb|knowledge-?base|status|guides?)(?:/|$)")
+_DOCS_HOST = frozenset({"docs", "developer", "developers", "support", "help", "status", "api", "learn"})
+_DOCS_TITLE = re.compile(r"\brelease notes?\b|\bchange-?log\b|\bapi reference\b|\bdocumentation\b|"
+                         r"\bhelp cent(?:er|re)\b|\buser guide\b", re.I)
+_ADVISORY_URL = re.compile(r"/(?:security-)?advisor(?:y|ies)(?:/|$)|/cve-\d")
+_ADVISORY_TITLE = re.compile(r"\bsecurity advisor(?:y|ies)\b|\bcve-\d{4}-\d+", re.I)
+_AGGREGATOR_TITLE = re.compile(r"\b(?:latest|breaking|top|all|today'?s)\s+(?:news|headlines|stories|updates)\b|"
+                               r"\bnews(?:\s+and|,)\s+(?:updates|analysis|photos|videos)\b|\bnews archive\b|"
+                               r"\bnews today\b", re.I)
+_LIST_URL = re.compile(r"/awesome-|/(?:paper|reading)-?lists?(?:/|$)")
+_LIST_TITLE = re.compile(r"\bawesome[- ]|\b(?:paper|reading|curated|resource) lists?\b|"
+                         r"\blist of (?:papers|publications)\b|\bcollection of papers\b|"
+                         r"\bpapers? (?:digest|roundup|weekly)\b|\bdaily papers\b", re.I)
+_PRESS_URL = re.compile(r"/(?:news|press|newsroom|press-releases?|blog|stories|media|announcements?)/")
+
+
+def _entity_domain(named, cased, host):
+    """Whether the host is the entity's own: a label that is the name run together
+    (huggingface.co), hyphenated into it, or its name without corporate suffixes."""
+    label = _registrable_label(host).replace("-", "")
+    for index, phrase in enumerate(named):
+        if _domain_names(host, phrase):
+            return True
+        tokens = cased[index] if index < len(cased) else []
+        if tokens and label:
+            joined = {"".join(t.lower() for t in tokens if t.lower() not in _CONNECTORS),
+                      "".join(t.lower() for t in _core_words(tokens)), "".join(t.lower() for t in tokens)}
+            if label in joined:
+                return True
+    return False
+
+
+def _canonical(ctx, url, host, item):
+    """How much the result is the thing named: a repository whose name (and owner) is the
+    project, or a site whose domain is the entity. 0 when it is neither."""
+    if not ctx.names:
+        return 0.0
+    segments = [unquote(part).lower().replace("-", "") for part in urlparse(url).path.split("/") if part]
+    registrable = ".".join(host.removeprefix("www.").split(".")[-2:])
+    if registrable in _FORGES:
+        owner = segments[0] if segments else ""
+        repo = segments[1] if len(segments) >= 2 else ""
+        if repo and repo in ctx.names:
+            stars = ((item.get("extra") or {}).get("stars")) if isinstance(item.get("extra"), dict) else None
+            # Among repositories of the name, the one people use: stars break the tie with forks.
+            bonus = min(0.9, math.log10(stars + 1) / 7) if isinstance(stars, (int, float)) and stars > 0 else 0.0
+            return 3.0 + (1.0 if owner in ctx.names else 0.0) + bonus
+        if owner in ctx.names:
+            return 2.0 if not repo else 1.5
+        return 0.0
+    return 3.0 if _registrable_label(host).replace("-", "") in ctx.names or _entity_domain(
+        ctx.named, ctx.cased, host) else 0.0
+
+
+def relevance(item: dict, ctx: QueryContext) -> float:
+    """How well a result answers the query, for ordering results of the same tier. Strongest
+    first: the entity (or every key term) in the title; the result being the thing itself (its
+    domain, or its GitHub owner/repo, is the entity or project name); the entity's own site for
+    a news or announcement query; key terms only in the snippet. Pages that are not what a
+    search is after count against it, from their URL and title alone: stock quotes and share
+    prices, policy and legal pages, release notes and docs (for announcements), security
+    advisory listings, news aggregators, and awesome-lists (for paper queries) -- each unless
+    the query asks for that kind of page."""
+    url, title = str(item.get("url") or ""), str(item.get("title") or "")
+    snippet = str(item.get("snippet") or "").lower()
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    path = unquote(parsed.path).lower()
+    low = title.lower()
+    score = 0.0
+    if ctx.terms:
+        hits = sum(1 for term in ctx.terms if _has(term, low))
+        entity_in_title = False
+        for index, phrase in enumerate(ctx.named):
+            tokens = ctx.cased[index] if index < len(ctx.cased) else []
+            if all(_has(_stem(word), low) for word in phrase):
+                entity_in_title = True
+            elif tokens and any(re.search(r"(?<![^\W_])" + re.escape(a) + r"(?![^\W_])", title)
+                                for a in _acronyms(tokens)):
+                entity_in_title = True
+        if entity_in_title or hits == len(ctx.terms):
+            score += 4.0
+        elif hits * 2 >= len(ctx.terms):
+            score += 2.0
+        elif any(_has(term, snippet) for term in ctx.terms):
+            score += 1.0
+    score += _canonical(ctx, url, host, item)
+    if ctx.announce:
+        if ctx.named and _entity_domain(ctx.named, ctx.cased, host):
+            score += 2.0
+        if _PRESS_URL.search(path) and url_kind(url) == "item":
+            score += 1.0
+    # The penalties outweigh everything above (at most about 11), so a page of an unwanted
+    # kind ranks below every ordinary passing result, even on the entity's own domain.
+    asks = ctx.asks
+    if "stock" not in asks and (_STOCK_URL.search(path) or _STOCK_TITLE.search(title)):
+        score -= 20.0
+    if "policy" not in asks and (_POLICY_URL.search(path) or _POLICY_TITLE.search(title)):
+        score -= 20.0
+    if ctx.announce:
+        if "docs" not in asks and (_DOCS_URL.search(path) or host.split(".")[0] in _DOCS_HOST
+                                   or _DOCS_TITLE.search(title)):
+            score -= 12.0
+        if "security" not in asks and (_ADVISORY_URL.search(path) or _ADVISORY_TITLE.search(title)):
+            score -= 12.0
+        if _AGGREGATOR_TITLE.search(title):
+            score -= 6.0
+    if ctx.papers and (_LIST_URL.search(path) or _LIST_TITLE.search(title)):
+        score -= 20.0
+    return round(score, 3)
+
+
+# Words next to an entity that make no new name of it: "Latest Block news", "Block Inc".
+_SAFE_NEIGHBOURS = (_QUERY_FILLER | _NEWSY | _GENERIC_CAPS | _CORPORATE_SUFFIXES | _CONNECTORS | _STOPWORDS)
+
+
+def _wrong_entity(named, cased, item) -> bool:
+    """A result about another thing that shares the query entity's name. Only for an entity
+    of one word (Block, Unity, Arm), and only when the result's domain is not the entity's:
+    the title has the word as part of a longer proper-noun phrase, either led by a capitalised
+    article ("The Block") or with another capitalised word directly before it ("Cinder
+    Block") in a title that is not all capitalised words. Possessives ("Dorsey's Block"),
+    corporate suffixes and freshness words don't make a new name."""
+    if len(named) != 1 or len(named[0]) != 1:
+        return False
+    host = (urlparse(str(item.get("url") or "")).hostname or "").lower()
+    if _entity_domain(named, cased, host):
+        return False
+    title = str(item.get("title") or "")
+    pattern = re.compile(r"(?<![^\W_])" + re.escape(named[0][0]) + r"(?:s)?(?![^\W_])", re.I)
+    found = list(pattern.finditer(title))
+    if not found:
+        return False
+    words = _WORD.findall(title)
+    mixed = any(word[:1].islower() and word.lower() not in _SAFE_NEIGHBOURS for word in words)
+    for match in found:
+        before = title[:match.start()]
+        if re.fullmatch(r"\W*(?:The|A|An)\s+", before):
+            continue
+        previous = re.search(r"([^\W\d_][\w'\u2019.-]*)\s+$", before)
+        if mixed and previous:
+            token = previous.group(1)
+            if (token[:1].isupper() and token.lower() not in _SAFE_NEIGHBOURS
+                    and not token.lower().endswith(("'s", "\u2019s"))):
+                continue
+        return False
+    return True
+
+
+def unrelated_set(query: str, results) -> bool:
+    """Whether a source's whole result set is off the query: it has results and none of them
+    mentions any of the query's key terms (title, URL or snippet). A source that answers every
+    query with the same pages looks like this, and is failing, not finding nothing."""
+    terms = key_terms(query)
+    if not terms or not results:
+        return False
+    for item in results:
+        text = (str(item.get("title") or "") + " " + unquote(str(item.get("url") or "")) + " "
+                + str(item.get("snippet") or "")).lower()
+        if any(_has(term, text) for term in terms):
+            return False
+    return True
+
+
 def check_result(item: dict, terms, *, since=None, until=None, specific=True, now=None, named=(),
                  cased=()) -> dict:
     """One result's verdict: passed, the reasons it did not, and the check fields."""
@@ -523,6 +799,9 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
     on_query = _on_query(terms, named, item, cased)
     if not on_query:
         reasons.append("off_query")
+    elif _wrong_entity(named, cased, item):
+        on_query = False
+        reasons.append("wrong_entity")
     kind = url_kind(url)
     if kind == "item" and specific and _names_the_entity(url, named):
         kind = "homepage"
@@ -544,13 +823,16 @@ def counted(dated: int, undated: int, need: int, weigh_undated: bool) -> int:
 
 
 def check_results(query: str, results, *, limit: int = 10, recency=None, since=None, until=None,
-                  now=None, min_good: int = 3, weigh_undated: bool = False) -> dict:
+                  now=None, min_good: int = 3, weigh_undated: bool = False, vertical=None) -> dict:
     """Verdict per result and for the set. good: at least min(min_good, limit)
     results pass; weak: some do; empty: none do. Repeats of a page already seen
     fail as duplicates. With weigh_undated, passing results of a windowed query
-    whose date is unknown count at most half the quota (see counted)."""
+    whose date is unknown count at most half the quota (see counted). Every verdict also
+    carries "relevance" (see relevance), which orders results within a tier."""
     now = now or datetime.now(timezone.utc)
     since, until = window_bounds(recency, since, until, now)
+    context = query_context(query, recency="window" if (since is not None or until is not None) else None,
+                            vertical=vertical)
     terms = key_terms(query)
     runs = _entity_runs(query)
     named = [phrase for phrase, _ in runs]
@@ -560,6 +842,7 @@ def check_results(query: str, results, *, limit: int = 10, recency=None, since=N
     for item in results:
         verdict = check_result(item, terms, since=since, until=until, specific=specific, now=now, named=named,
                                cased=cased)
+        verdict["relevance"] = relevance(item, context)
         key = canonical_url(verdict["url"])
         if key in seen:
             verdict["reasons"].append("duplicate")
@@ -594,24 +877,32 @@ def annotate(results, report: dict) -> list[dict]:
     rows = []
     for item, verdict in zip(results, report["results"]):
         row = {**item, "check": {key: verdict[key] for key in
-                                 ("passed", "reasons", "in_window", "on_query", "published", "date_source", "kind")}}
+                                 ("passed", "reasons", "in_window", "on_query", "published", "date_source", "kind",
+                                  "relevance") if key in verdict}}
         if report["windowed"] and verdict["published"] and not item.get("published"):
             row["published"] = verdict["published"]
         rows.append(row)
     return rows
 
 
+def _relevance(item):
+    return (item.get("check") or {}).get("relevance") or 0.0
+
+
 def accepted(results, report: dict) -> list[dict]:
-    """The results that passed, each carrying its check fields. When a window was
-    asked for, dated in-window results come before those with unknown dates."""
+    """The results that passed, each carrying its check fields, the more relevant first
+    (a stable sort: the source's own order breaks ties). When a window was asked for,
+    dated in-window results come before those with unknown dates."""
     kept = [item for item in annotate(results, report) if item["check"]["passed"]]
-    return sorted(kept, key=_tier) if report["windowed"] else kept
+    windowed = report["windowed"]
+    return sorted(kept, key=lambda item: (_tier(item) if windowed else 0, -_relevance(item)))
 
 
 def merge_results(groups, *, windowed=False, limit=None) -> list[dict]:
     """Passing result lists from several sources as one: deduplicated by canonical
     URL, fused by reciprocal rank (k=60) so a page several sources agree on rises,
-    dated in-window results ahead of unknown dates when a window was asked for.
+    dated in-window results ahead of unknown dates when a window was asked for, and
+    within a tier the more relevant (check.relevance) ahead of the less.
     groups is [(source, [result, ...]), ...]."""
     fused, order = {}, []
     for source, items in groups:
@@ -631,7 +922,7 @@ def merge_results(groups, *, windowed=False, limit=None) -> list[dict]:
             fused[key]["fusion"]["score"] += 1.0 / (60 + rank + 1)
             fused[key]["fusion"]["sources"].append({"source": source, "rank": rank + 1})
     merged = sorted((fused[key] for key in order), key=lambda item: (_tier(item) if windowed else 0,
-                                                                    -item["fusion"]["score"]))
+                                                                    -_relevance(item), -item["fusion"]["score"]))
     for item in merged:
         item["fusion"]["score"] = round(item["fusion"]["score"], 5)
     return merged[:limit] if limit else merged
@@ -738,7 +1029,7 @@ async def read_dates(urls, read, *, timeout: float, gap: float, memo: dict) -> d
 
 
 async def enrich_dates(query, items, report, read, *, limit, budget, memo, timeout, gap, recency=None,
-                       since=None, until=None, now=None, min_good=3, weigh_undated=True):
+                       since=None, until=None, now=None, min_good=3, weigh_undated=True, vertical=None):
     """Give undated results that would make the top `limit` a verified date by
     reading their pages (see read_dates), then check the set again, so results
     that are provably outside the window drop out. Returns (items, report, stats)
@@ -764,7 +1055,7 @@ async def enrich_dates(query, items, report, read, *, limit, budget, memo, timeo
     if not pages:
         return items, report, stats
     again = check_results(query, revised, limit=limit, recency=recency, since=since, until=until, now=now,
-                          min_good=min_good, weigh_undated=weigh_undated)
+                          min_good=min_good, weigh_undated=weigh_undated, vertical=vertical)
     for verdict in again["results"]:
         if canonical_url(verdict["url"]) in pages and verdict["published"]:
             verdict["date_source"] = "page"

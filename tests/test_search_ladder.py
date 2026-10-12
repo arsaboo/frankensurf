@@ -681,8 +681,11 @@ async def test_a_full_answer_is_not_filled_and_filling_can_be_turned_off(monkeyp
 
 async def test_filling_never_reaches_a_paid_source(monkeypatch, tmp_path):
     install(monkeypatch, Fake("one", dated(3, "a")), Fake("paid", dated(5, "p"), paid=True, cost=0.01))
+    # A windowed search is an announcement-type query, so paid sources start beside the first free
+    # rung unless search_paid_parallel is off; filling itself still never asks one.
     await run(tmp_path, recency="week", limit=5,
-              policy=WebPolicy(provider="http", search_date_reads=0, allow_paid_fallbacks=True))
+              policy=WebPolicy(provider="http", search_date_reads=0, allow_paid_fallbacks=True,
+                               search_paid_parallel=False))
     assert CALLS == ["one"]
 
 
