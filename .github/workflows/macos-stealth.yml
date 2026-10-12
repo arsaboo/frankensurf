@@ -46,3 +46,13 @@ jobs:
           done
           grep -v observed /tmp/results.txt && status=1
           exit $status
+      - name: diagnostics
+        if: always()
+        run: |
+          find ~/Library/Caches/camoufox ~/.cache/camoufox -maxdepth 4 2>/dev/null | head -30
+          ~/.local/share/frankensurf/provider-venv/bin/python -c "import sys; print(sys.version)"
+          ~/.local/share/frankensurf/provider-venv/bin/python - <<'PY'
+          import sys; sys.path.insert(0, "/tmp/fs/lib/python${{ matrix.python }}/site-packages/frankensurf")
+          import provider_worker as w
+          print(w._camoufox_binaries("152.0.4-beta.31"))
+          PY
