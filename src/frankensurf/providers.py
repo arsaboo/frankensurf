@@ -72,6 +72,9 @@ class ProviderRequest:
     url: str
     policy: object
     operation: str = "read"
+    # Size of PDF bytes an earlier attempt already saw, so a paid tool can
+    # estimate per-page charges before it is called.
+    pdf_bytes: int | None = None
 
 
 @dataclass(frozen=True)
@@ -1117,7 +1120,7 @@ class ProviderRegistry:
                 invocation_task.add_done_callback(finish_child)
             request = ProviderRequest(request.url,
                 _nested_policy(parent_scope, request.policy, identifier),
-                request.operation)
+                request.operation, request.pdf_bytes)
             if parent_scope.counter[0] >= root_scope.max_attempts:
                 raise WebFailure("PROVIDER_DOWN",
                     "Nested provider attempt limit exceeded")

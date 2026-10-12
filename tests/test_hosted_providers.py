@@ -80,7 +80,7 @@ async def test_firecrawl_scrape_returns_raw_html_and_hides_the_key(tmp_path, mon
     assert result["receipt"]["status"] == "observed"
     assert result["title"] == "Item one"
     sent = json.loads(calls[0].content)
-    assert sent == {"url": URL, "formats": ["rawHtml"]}
+    assert sent == {"url": URL, "formats": ["rawHtml"], "parsers": [{"type": "pdf", "maxPages": 50}]}
     assert calls[0].headers["authorization"] == "Bearer " + KEY
     assert KEY not in json.dumps(result, default=str)
 
@@ -293,3 +293,85 @@ async def test_archive_without_a_copy_is_not_found(tmp_path, api):
         200, json={"archived_snapshots": {}})
     result = await read(tmp_path, URL, provider="internet_archive", allow_archive=True)
     assert result["receipt"]["failure"]["code"] == "NOT_FOUND"
+
+
+FIRECRAWL_SCRAPE = "https://api.firecrawl.dev/v2/scrape"
+PDF_URL = "https://docs.example.com/files/annual-report.pdf"
+
+
+def firecrawl_pdf(pages, **metadata):
+    def respond(request):
+        return httpx.Response(200, json={"success": True, "data": {"rawHtml": HTML, "metadata": {
+            "statusCode": 200, "url": PDF_URL, "contentType": "application/pdf",
+            "numPages": pages, **metadata}}})
+    return respond
+
+
+async def test_firecrawl_pdf_estimate_over_the_cap_skips_the_paid_call(tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(5)
+    # 50 assumed pages plus the base credit is 51 credits, about $0.19.
+    refused = await read(tmp_path / "a", PDF_URL, provider="firecrawl", allow_paid_fallbacks=True,
+                         max_cost_usd=0.05)
+    assert refused["receipt"]["failure"]["code"] == "BUDGET_EXHAUSTED"
+    assert refused["receipt"]["cost_usd"] == 0 and calls == []
+    # Reading fewer pages lowers the estimate under the same cap, and Firecrawl is told the limit.
+    allowed = await read(tmp_path / "b", PDF_URL, provider="firecrawl", allow_paid_fallbacks=True,
+                         max_cost_usd=0.05, pdf_max_pages=10)
+    assert allowed["receipt"]["status"] == "observed"
+    assert json.loads(calls[0].content)["parsers"] == [{"type": "pdf", "maxPages": 10}]
+    assert allowed["receipt"]["cost_usd"] == round(6 * 0.0038, 6)
+
+
+async def test_firecrawl_caps_pages_to_what_the_remaining_budget_pays_for(tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(4)
+    # Not a .pdf URL, so only the flat estimate applies; the cap still bounds the pages.
+    result = await read(tmp_path, URL, provider="firecrawl", allow_paid_fallbacks=True, max_cost_usd=0.02)
+    assert json.loads(calls[0].content)["parsers"] == [{"type": "pdf", "maxPages": 4}]
+    assert result["receipt"]["cost_usd"] <= 0.02
+
+
+def test_firecrawl_pdf_size_seen_earlier_sets_the_page_estimate():
+    class Request:
+        url = URL
+        policy = WebPolicy()
+        pdf_bytes = 230_000
+    assert hosted_providers._pdf_page_estimate(Request) == 5
+    Request.pdf_bytes = None
+    assert hosted_providers._pdf_page_estimate(Request) is None
+    Request.pdf_bytes = 900_000_000
+    assert hosted_providers._pdf_page_estimate(Request) == 50
+
+
+async def test_firecrawl_pdf_cost_is_base_credit_plus_pages_when_credits_are_not_reported(
+        tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(12)
+    result = await read(tmp_path / "a", PDF_URL, provider="firecrawl", allow_paid_fallbacks=True)
+    assert result["receipt"]["cost_usd"] == round(13 * 0.0038, 6)
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(12, creditsUsed=20)
+    reported = await read(tmp_path / "b", PDF_URL, provider="firecrawl", allow_paid_fallbacks=True)
+    assert reported["receipt"]["cost_usd"] == round(20 * 0.0038, 6)
+
+
+async def test_overspend_is_recorded_honestly_and_stops_the_paid_climb(tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    key(monkeypatch, "zenrows_api_key")
+    # The URL gives no sign of a PDF, so the flat estimate passes; the response reports 30 pages.
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(30)
+    routes["https://api.zenrows.com/v1/"] = lambda request: httpx.Response(
+        200, text=HTML, headers={"content-type": "text/html", "x-request-cost": "0.001"})
+    result = await read(tmp_path, URL, provider_candidates=("firecrawl", "zenrows"),
+                        allow_paid_fallbacks=True, max_cost_usd=0.01)
+    receipt = result["receipt"]
+    assert receipt["status"] == "failed"
+    assert receipt["cost_usd"] == round(31 * 0.0038, 6) > 0.01
+    assert receipt["cost_budget_satisfied"] is False
+    first = receipt["attempts"][0]
+    assert first["provider"] == "firecrawl" and first["cost_usd"] == round(31 * 0.0038, 6)
+    assert [call.url.host for call in calls] == ["api.firecrawl.dev"]

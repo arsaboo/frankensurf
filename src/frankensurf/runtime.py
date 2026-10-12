@@ -5714,7 +5714,8 @@ class Runtime:
                             candidate,
                             ProviderRequest(
                                 url, attempt_policy,
-                                "extract" if adapter else "read"),
+                                "extract" if adapter else "read",
+                                plan_state.get("pdf_bytes")),
                             self._provider_services(
                                 identity_binding=identity_binding),
                             _evidence_preparer=(
@@ -5827,6 +5828,10 @@ class Runtime:
                             candidate, candidate_version, candidate_binding_id,
                             attempt_started, attempt_cost, cost_reported, receipt,
                             attempts, attempt_costs, _recipe, resolved)
+                        if isinstance(response, dict) and "pdf" in (
+                                response.get("content_type") or "").lower():
+                            # Paid tools bill PDFs per page; remember how big this one is.
+                            plan_state["pdf_bytes"] = len(response.get("raw") or b"")
                         vendor = getattr(exc, "wall_vendor", None)
                         if vendor and not plan_state.get("vendor") and not resolved:
                             plan_state["vendor"] = vendor
