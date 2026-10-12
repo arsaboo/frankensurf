@@ -8,6 +8,14 @@ import { Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 Frankensurf is a Python package and needs Python 3.12 or newer. Pick your
 system:
 
+<Aside type="note" title="Setup asks before it touches your agent">
+  `frankensurf setup` asks before it adds the [agent skill](/docs/agents/) to
+  `~/.claude/skills` (the default is no, and scripts and CI are never asked, so
+  nothing is written). Pass `--install-skill` to say yes ahead of time or
+  `--no-install-skill` to skip the question; `frankensurf skill uninstall`
+  removes it.
+</Aside>
+
 <Tabs syncKey="os">
 <TabItem label="Linux">
 
@@ -27,6 +35,7 @@ system:
    ```
 
    If Chromium won't start, install its system libraries: `sudo $(which python) -m playwright install-deps chromium`.
+
 
 3. Read a page, and see each tool it tried.
 

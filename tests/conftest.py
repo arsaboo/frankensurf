@@ -21,6 +21,17 @@ def _no_hosted_network(monkeypatch, tmp_path):
 
 
 @pytest.fixture(autouse=True)
+def _no_real_home(monkeypatch, tmp_path):
+    """No test reads or writes the owner's real ~/.claude/skills: the default skills
+    folder is a temporary one. (HOME itself stays: browsers' caches live under it.)"""
+    from frankensurf import skill
+    home = tmp_path / "stand-in-home"
+    home.mkdir()
+    monkeypatch.setattr(skill, "default_folder", lambda: home / ".claude" / "skills")
+    monkeypatch.delenv("CI", raising=False)
+
+
+@pytest.fixture(autouse=True)
 def _no_owner_plugin_policy(monkeypatch, tmp_path):
     """The owner's own trust file (a disabled plugin, say) never changes a test."""
     monkeypatch.setenv("FRANKENSURF_PLUGINS", str(tmp_path / "no-plugin-policy" / "plugins.json"))
