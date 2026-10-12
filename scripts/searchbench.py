@@ -49,6 +49,8 @@ from frankensurf.search import REGISTRY, RECENCY, matches_domain, parse_date
 EVALS = Path.home() / ".local/share/frankensurf/evals/searchbench"
 QUERIES = Path(__file__).with_name("searchbench-queries.json")
 ROUTER = "frankensurf"
+# The router with paid sources allowed as its last rungs.
+ROUTER_PAID = "frankensurf_paid"
 PAID = ("exa", "firecrawl_search")
 TOP = 5
 READ_OVERRIDES = {"origin_cooldown_seconds": 0, "freshness": "now", "lightning": False,
@@ -171,7 +173,7 @@ def judge(query: dict, item: dict, page: dict | None, now: datetime) -> dict:
         on_query = "page"
     if on_query is None:
         why.append("off_query")
-    when, date_source = parse_date(item.get("indexed_date")), "result"
+    when, date_source = parse_date(item.get("published")), "result"
     if when is None:
         when, date_source = (parse_date(page.get("date")), "page") if page_ok and page.get("date") else (None, None)
     window = in_window(when, query.get("recency"), now)
@@ -295,12 +297,14 @@ def listening(base_url: str) -> bool:
 
 def pick_arms(web, requested: list[str] | None, paid: bool) -> tuple[list[str], dict[str, str]]:
     """The arms that can run, and why each skipped one did not."""
-    wanted = requested or [*REGISTRY, ROUTER, *(PAID if paid else ())]
+    wanted = requested or [*REGISTRY, ROUTER, *((*PAID, ROUTER_PAID) if paid else ())]
     arms, skipped = [], {}
     for arm in wanted:
         plugin = getattr(web.searches, "_plugins", {}).get(arm)
         if arm == ROUTER:
             arms.append(arm)
+        elif arm == ROUTER_PAID:
+            (arms.append(arm) if paid else skipped.__setitem__(arm, "paid; pass --paid"))
         elif not web.searches.contains(arm):
             skipped[arm] = "not installed"
         elif arm in PAID and not paid:
@@ -316,11 +320,12 @@ def pick_arms(web, requested: list[str] | None, paid: bool) -> tuple[list[str], 
 
 async def search_once(web, arm: str, query: dict, timeout: float) -> dict:
     from frankensurf import WebPolicy
-    policy = WebPolicy(allow_paid_fallbacks=True) if arm in PAID else WebPolicy(provider="http")
+    policy = (WebPolicy(allow_paid_fallbacks=True) if arm in (*PAID, ROUTER_PAID)
+              else WebPolicy(provider="http"))
     started = time.monotonic()
     try:
         response = await asyncio.wait_for(web.search(
-            query["query"], source=None if arm == ROUTER else arm, limit=TOP, policy=policy,
+            query["query"], source=None if arm in (ROUTER, ROUTER_PAID) else arm, limit=TOP, policy=policy,
             recency=query.get("recency"), vertical=query.get("vertical") or "web"), timeout)
     except Exception as error:  # an arm crash is that arm's failure, not the run's
         return {"results": [], "status": "failed", "failure": type(error).__name__, "source": None,
@@ -340,7 +345,7 @@ async def run_arm(web, reader: Reader, arm: str, queries: list[dict], out: Path,
         if (arm, query["id"]) in done:
             continue
         found = await search_once(web, arm, query, timeout)
-        results = [{k: item.get(k) for k in ("url", "title", "snippet", "indexed_date")} for item in found["results"]]
+        results = [{k: item.get(k) for k in ("url", "title", "snippet", "published")} for item in found["results"]]
         top = results[:TOP]
         pages = {}
         for item in top:

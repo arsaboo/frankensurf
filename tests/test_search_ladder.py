@@ -16,7 +16,7 @@ SEEN_POLICY = {}
 
 def good(count, prefix="s", words="rust async", date=None):
     return [{"url": "https://%s%d.test/rust/story-%d" % (prefix, index, index), "title": words + " story %d" % index,
-             "snippet": "", "indexed_date": date} for index in range(count)]
+             "snippet": "", "published": date} for index in range(count)]
 
 
 class Fake:
@@ -142,9 +142,9 @@ async def test_recency_window_drops_old_results_and_ranks_unknown_dates_last(mon
     fresh = (now - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
     old = (now - timedelta(days=90)).strftime("%Y-%m-%dT%H:%M:%SZ")
     rows = [{"url": "https://u.test/rust/1", "title": "rust async", "snippet": "no date"},
-            {"url": "https://o.test/rust/2", "title": "rust async", "snippet": "", "indexed_date": old},
-            {"url": "https://f.test/rust/3", "title": "rust async", "snippet": "", "indexed_date": fresh},
-            {"url": "https://g.test/rust/4", "title": "rust async", "snippet": "", "indexed_date": fresh},
+            {"url": "https://o.test/rust/2", "title": "rust async", "snippet": "", "published": old},
+            {"url": "https://f.test/rust/3", "title": "rust async", "snippet": "", "published": fresh},
+            {"url": "https://g.test/rust/4", "title": "rust async", "snippet": "", "published": fresh},
             {"url": "https://w.test/rust/5", "title": "rust async", "snippet": "6 months ago"}]
     install(monkeypatch, Fake("one", rows))
     result = await run(tmp_path, recency="week")

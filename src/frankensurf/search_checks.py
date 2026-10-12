@@ -164,7 +164,8 @@ def published(item: dict, now=None):
     nothing says. Dates known only to the day count as the day's last moment,
     so a result is out of a window only when it provably is."""
     now = now or datetime.now(timezone.utc)
-    for key in ("indexed_date", "published", "published_date", "date"):
+    # indexed_date is not a publication date (Wikipedia gives the last edit there).
+    for key in ("published", "published_date", "date"):
         when = parse_date(item.get(key))
         if when is not None and when <= now + timedelta(days=2):
             return when, "source"

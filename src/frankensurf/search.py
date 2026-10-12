@@ -97,7 +97,7 @@ def filter_results(results, options, now=None):
             dropped["off_site"] += 1
             continue
         if cutoff is not None:
-            when = parse_date(item.get("indexed_date"))
+            when = parse_date(item.get("published") or item.get("indexed_date"))
             if when is None:
                 undated += 1
             elif when < cutoff:

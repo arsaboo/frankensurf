@@ -11,7 +11,7 @@ NOW = datetime(2026, 10, 12, 12, 0, tzinfo=timezone.utc)
 
 
 def item(url, title="", snippet="", date=None):
-    return {"url": url, "title": title, "snippet": snippet, "indexed_date": date, "engines": ["fake"]}
+    return {"url": url, "title": title, "snippet": snippet, "published": date, "engines": ["fake"]}
 
 
 # --- key terms ---------------------------------------------------------------

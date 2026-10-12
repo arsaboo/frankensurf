@@ -23,7 +23,7 @@ def query(**fields):
 
 
 def item(url, title="OpenAI ships a model", snippet="", date=None):
-    return {"url": url, "title": title, "snippet": snippet, "indexed_date": date}
+    return {"url": url, "title": title, "snippet": snippet, "published": date}
 
 
 def page(text="OpenAI announced a model.", title="OpenAI", date=None, status="observed", **extra):
