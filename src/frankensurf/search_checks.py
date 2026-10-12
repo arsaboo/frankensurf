@@ -116,12 +116,24 @@ _PLATFORM_WORDS = frozenset({"github", "gitlab", "repo", "repos", "repository", 
                              "pypi", "npm"})
 
 
+# Action verbs, auxiliaries and quality words: how the question is put, not what it is about
+# ("how to use regex lookahead" is about regex lookahead; every dictionary has "use"). Like the
+# platform words they count only when nothing else is left. Checked on the word as written and
+# stemmed (writes, guides).
+_WEAK_WORDS = frozenset({
+    "use", "uses", "using", "used", "make", "makes", "making", "made", "create", "creates", "creating",
+    "created", "get", "gets", "getting", "set", "sets", "setting", "do", "does", "doing", "write", "writes",
+    "writing", "add", "adds", "adding", "run", "runs", "running", "find", "finds", "need", "needs", "want",
+    "wants", "work", "works", "working", "best", "good", "simple", "easy", "example", "examples", "tutorial",
+    "tutorials", "guide", "guides", "way", "ways", "paper", "papers", "preprint", "preprints", "arxiv"})
+
+
 def key_terms(query: str) -> list[str]:
     """What the query is about: its words without operators, stopwords, years and
     freshness words (news, latest, this week), lightly stemmed. Two-character names
     written in capitals or with a digit (BP, GE, 3M) stay; other short words go.
-    Platform words in lower case (github, repo, library) count only when nothing
-    else is left."""
+    Platform words and action or quality words in lower case (github, repo, library; use,
+    make, best, example) count only when nothing else is left."""
     return _terms(query, True)
 
 
@@ -131,8 +143,15 @@ def raw_terms(query: str) -> list[str]:
 
 
 def _terms(query, stem):
+    # "home page", "official site": where the query wants to go, not what it is about (kept when
+    # nothing else is left).
+    text = _OPERATOR.sub(" ", str(query or ""))
+    return _terms_of(_NAVIGATIONAL.sub(" ", text), stem) or _terms_of(text, stem)
+
+
+def _terms_of(text, stem):
     terms, platform = [], []
-    for raw in _WORD.findall(_OPERATOR.sub(" ", str(query or ""))):
+    for raw in _WORD.findall(text):
         word = raw.lower()
         if word in _STOPWORDS or word in _QUERY_FILLER or _YEAR.fullmatch(word):
             continue
@@ -140,7 +159,8 @@ def _terms(query, stem):
             continue
         word = _stem(word) if stem and len(word) > 2 else word
         # Written as a name (GitHub, Docs), a platform word is the topic after all.
-        bucket = platform if word in _PLATFORM_WORDS and raw.islower() else terms
+        weak = word in _PLATFORM_WORDS or word in _WEAK_WORDS or raw.lower() in _WEAK_WORDS
+        bucket = platform if weak and raw.islower() else terms
         if word not in bucket:
             bucket.append(word)
     return (terms or platform)[:8]
@@ -329,6 +349,19 @@ def article_like(url) -> bool:
     return any(len(_slug_words(part)) >= 4 for part in segments)
 
 
+_MARKETING_SEGMENTS = frozenset({"brc", "resources", "resource", "learn", "business-resources", "help", "support",
+                                 "guides", "guide", "academy"})
+
+
+def marketing_path(url) -> bool:
+    """Whether the path sits under a marketing or help segment (brc, resources, learn,
+    business-resources, help, support, guides, academy, blog/tips): how-to and explainer content,
+    not news."""
+    segments = [unquote(part).lower() for part in urlparse(str(url or "")).path.split("/") if part]
+    return (any(part in _MARKETING_SEGMENTS for part in segments)
+            or any(first == "blog" and second == "tips" for first, second in zip(segments, segments[1:])))
+
+
 def window_bounds(recency=None, since=None, until=None, now=None):
     """(since, until) as aware datetimes; recency is day, week, month or year."""
     now = now or datetime.now(timezone.utc)
@@ -427,6 +460,13 @@ def _asks_specific(terms, windowed, query="", named=()):
 def _term_pattern(term):
     if not term.isascii():
         return re.compile(re.escape(term))
+    if len(term) >= 11 and term.endswith("ation") and term[:-5].isalpha():
+        # serialization is also serialize, serializing, serializer; configuration, configure, configured.
+        return re.compile(r"(?<![^\W_])" + re.escape(term[:-5]) +
+                          r"(?:ations?|ing|ed|es?|ers?|ors?|ions?|s)(?![^\W_])")
+    if len(term) >= 7 and term.endswith("ing") and len(term) - 3 >= 4 and term[:-3].isalpha():
+        # modeling is also model, models, modelling; learning, learn, learned, learner.
+        return re.compile(r"(?<![^\W_])" + re.escape(term[:-3]) + r"(?:ings?|ed|es?|s|ers?|ling)?(?![^\W_])")
     suffix = "(?:es|s)?" if len(term) <= 4 else "(?:e|es|s|ed|d|ing|ers?)?"
     return re.compile(r"(?<![^\W_])" + re.escape(term) + suffix + r"(?![^\W_])")
 
@@ -525,7 +565,46 @@ def _alias_match(tokens, title, url, host):
     return False
 
 
-def _on_query(terms, named, item, cased=()):
+_PHRASE_GAP = r"[\W_]+(?:(?:of|and|with|for|in|on|the|a|an|to|by)[\W_]+)?"
+_PHRASES: dict = {}
+
+
+def _rarer(terms):
+    """The rarer of the query's terms, by a simple proxy: the longer one, a non-dictionary-looking
+    one (digits, dots, dashes) before a plain one of the same length."""
+    return max(terms, key=lambda term: (len(term), not term.isalpha()))
+
+
+def _phrase_in(pair, text):
+    """Two query terms next to each other in the text, with at most a connector between."""
+    pattern = _PHRASES.get(pair)
+    if pattern is None:
+        pattern = _PHRASES[pair] = re.compile(_term_pattern(pair[0]).pattern + _PHRASE_GAP + _term_pattern(pair[1]).pattern)
+    return pattern.search(text) is not None
+
+
+def _phrase_hit(terms, text):
+    """Whether two terms that are next to each other in the query are next to each other in the text."""
+    return any(_phrase_in(pair, text) for pair in zip(terms, terms[1:]))
+
+
+def enough_terms(terms, head, snippet="", entity=False):
+    """Whether the text (title + URL = head, and snippet) covers enough of the query's terms.
+    One term: it. Two: both, or the rarer one together with the entity. Three or more: at least
+    half of them (rounded up), or the entity, or two of them as a phrase. The entity is whether the
+    result names the query's entity, which a caller with a named entity has already settled."""
+    if not terms:
+        return True
+    text = head + " " + snippet
+    hits = [term for term in terms if _has(term, text)]
+    if len(terms) == 1:
+        return bool(hits)
+    if len(terms) == 2:
+        return len(hits) == 2 or (entity and _rarer(terms) in hits)
+    return entity or len(hits) >= math.ceil(len(terms) / 2) or _phrase_hit(terms, text)
+
+
+def _on_query(terms, named, item, cased=(), entity=False):
     """Whether a result is about the query. Terms match whole words (light
     stemming), never inside other words. When the query names something, the
     result must too: all of an entity's words in the title or URL, or its domain
@@ -534,7 +613,9 @@ def _on_query(terms, named, item, cased=()):
     corporate suffixes (Arm for Arm Holdings), its acronym (AWS for Amazon Web
     Services), the registrable domain, and, for an all-caps query entity
     (AWS), the capitalised words that spell it in the title. Without a named
-    entity any key term will do."""
+    entity the result must cover the key terms (see enough_terms): the one term; both of two (or the
+    rarer one, when entity says the page is of the kind asked for: a library page for a "library
+    for X" query); at least half of three or more, or two of them as a phrase."""
     if not terms:
         return True
     url = str(item.get("url") or "")
@@ -542,7 +623,7 @@ def _on_query(terms, named, item, cased=()):
     head = (title + " " + unquote(url)).lower()
     snippet = str(item.get("snippet") or "").lower()
     if not named:
-        return any(_has(term, head) or _has(term, snippet) for term in terms)
+        return enough_terms(terms, head, snippet, entity)
     host = (urlparse(url).hostname or "").lower()
     named_terms = {_stem(word) for phrase in named for word in phrase}
     others = [term for term in terms if term not in named_terms]
@@ -816,6 +897,22 @@ _STOCK_URL = re.compile(r"/(?:quotes?|stocks?|stock-?quotes?|stock-?prices?|shar
                         r"(?:/|-|$)|(?:share|stock)-?price|liveblog")
 _STOCK_TITLE = re.compile(r"\b(?:share|stock) prices?\b|\bstock quotes?\b|\blive ?blog\b|\blive blog\b|"
                           r"\b(?:stocks?|shares?) (?:live|today)\b|\bstock market today\b", re.I)
+# Auto-generated market blurbs: an all-caps ticker in parentheses and a market phrase in one title.
+_TICKER = re.compile(r"\((?:[A-Z]{2,8}\s*:\s*)?[A-Z]{1,6}(?:[.-][A-Z])?\)")
+_MARKET_PHRASE = re.compile(r"\b(?:outperform(?:s|ed|ing)?|underperform(?:s|ed|ing)?|trending stocks?|"
+                            r"investors heavily search|stock moves?|(?:shares?|stocks?) (?:rise|rises|rose|fall|falls|fell|"
+                            r"jump|jumps|jumped|drop|drops|dropped|surge|surges|surged|slip|slips|slipped)|"
+                            r"price targets?|broader market|here(?:'s| is) what you need to know)\b", re.I)
+
+
+def stock_blurb(title) -> bool:
+    """Whether the title is an auto-generated stock blurb: a ticker in capitals in parentheses
+    ("(VALE)", "(NYSE: X)") together with a market phrase (outperforms, trending stock, investors
+    heavily search, price target, broader market, shares fall, here is what you need to know)."""
+    title = str(title or "")
+    return bool(_TICKER.search(title) and _MARKET_PHRASE.search(title))
+
+
 _POLICY_URL = re.compile(r"/(?:legal|policy|policies|terms|terms-of-service|terms-of-use|privacy|privacy-policy|tos|"
                          r"cookies?|gdpr|legal-notice)(?:/|$)")
 _POLICY_TITLE = re.compile(r"\bterms (?:of (?:service|use)|and conditions|& conditions)\b|"
@@ -890,13 +987,39 @@ _GUIDE_ASKED = frozenset({"guide", "tutorial", "tutorials", "how", "learn", "beg
                           "introduction"})
 
 
+# What a "library for X" query asks for, and what else a repository may call itself.
+_NEED_NOUNS = frozenset({"library", "libraries", "lib", "libs", "package", "packages", "module", "modules",
+                         "crate", "crates", "sdk", "sdks", "framework", "frameworks", "toolkit", "toolkits",
+                         "client", "clients"})
+_NEED_NOUN = re.compile(r"(?<![^\W_])(?:librar(?:y|ies)|libs?|packages?|modules?|crates?|sdks?|frameworks?|"
+                        r"toolkits?|clients?)(?![^\W_])", re.I)
+
+
+def _squash(text):
+    return re.sub(r"[-_.\s]", "", str(text).lower())
+
+
+def _need_fit(item, ctx, name=""):
+    """Whether a repository answers a need query ("go library for configuration files"): when the
+    query asks for a kind of thing (library, package, crate, module, sdk, framework, toolkit,
+    client) its description (or name) says it is one, library or a synonym; a repository that only
+    talks about the topic is a tool. A need that names no kind needs every topic word."""
+    text = str(item.get("snippet") or "") + " " + str(name)
+    if ctx.words & _NEED_NOUNS:
+        return _NEED_NOUN.search(text) is not None
+    topic = [term for term in ctx.terms if term not in _NEED_NOUNS]
+    return all(_has(term, text.lower()) for term in topic)
+
+
 def _code_adjustment(item, ctx, url, host, title):
     """How a result suits a code query. A query for the repository (github, repo) prefers
     repository pages (owner/name) to an organisation's page or a project's website; demos, examples,
     templates, starters, tutorials, benchmarks and awesome-lists go last unless asked for; for a
-    name lookup the repository of that name leads and other repositories rank below any whose
-    owner/name does not hold the name as a word; for a need ("library for X") popular repositories
-    and pages that name libraries lead and how-to guides follow them."""
+    name lookup the repository of that name leads and repositories of any other name (add-ons,
+    plugins, siblings) rank below the web pages about the project; for a need ("library for X")
+    repositories whose description says they are a library (or package, crate, module, sdk, framework,
+    toolkit, client) lead, popular ones first, with the pages that name libraries, and how-to guides
+    follow them; a repository that is only a tool on the topic goes below those pages."""
     parts = _repo_parts(item)
     delta = 0.0
     segments = [part for part in urlparse(url).path.split("/") if part]
@@ -906,15 +1029,19 @@ def _code_adjustment(item, ctx, url, host, title):
             delta += 2.0
         if _EXAMPLE_TOKENS & set(re.split(r"[-_.\s]+", name.lower())) and not ctx.words & _EXAMPLE_TOKENS:
             delta -= 20.0
-        if ctx.lookup and ctx.lookup_terms:
-            tokens = set(re.split(r"[^a-z0-9]+", (owner + "/" + name).lower()))
-            if not all(token in tokens for term in ctx.lookup_terms for token in re.split(r"[^a-z0-9]+", term.lower())
-                       if token):
-                delta -= 10.0
+        if ctx.lookup and ctx.names:
+            # The repository of the project's name leads; add-ons, plugins and siblings
+            # (pytest_httpx, httpx-sse, tokio-core) follow every web page about the project.
+            if _squash(name) not in {_squash(known) for known in ctx.names}:
+                delta -= 20.0   # more than the 12 a project's front page loses when the repository was asked for
         if ctx.need:
-            stars = _stars(item)
-            if stars and stars > 0:
-                delta += min(3.0, math.log10(stars + 1) / 1.5)
+            if _need_fit(item, ctx, name):
+                stars = _stars(item)
+                if stars and stars > 0:
+                    delta += min(3.0, math.log10(stars + 1) / 1.5)
+            else:
+                # A tool, not the library asked for: below the web pages that name libraries.
+                delta -= 10.0
         return delta
     if ctx.repo and len(segments) <= 1:
         # An organisation's page or a project's front page, when the repository was asked for.
@@ -926,6 +1053,24 @@ def _code_adjustment(item, ctx, url, host, title):
         if _GUIDE_TITLE.search(title) and not ctx.words & _GUIDE_ASKED:
             delta -= 3.0
     return delta
+
+
+def _compact(terms, title):
+    """Whether the terms sit close together in the title: all within a stretch of the title's words
+    only a few words longer than the terms themselves."""
+    words = re.findall(r"[a-z0-9]+", title)
+    spots = []
+    for term in terms:
+        found = [index for index, word in enumerate(words) if _has(term, word)]
+        if not found:
+            return False
+        spots.append(found)
+    # the narrowest stretch holding one spot of every term, anchored on each spot of the first term
+    narrowest = len(words)
+    for anchor in spots[0]:
+        chosen = [anchor] + [min(other, key=lambda index: abs(index - anchor)) for other in spots[1:]]
+        narrowest = min(narrowest, max(chosen) - min(chosen) + 1)
+    return narrowest <= len(terms) + 3
 
 
 def relevance(item: dict, ctx: QueryContext) -> float:
@@ -955,12 +1100,22 @@ def relevance(item: dict, ctx: QueryContext) -> float:
                                 for a in _acronyms(tokens)):
                 entity_in_title = True
         if entity_in_title or hits == len(ctx.terms):
-            score += 4.0
+            # A paper's topic is a phrase: all the terms scattered across a long title are half a match.
+            score += 4.0 if not (ctx.papers and hits == len(ctx.terms) > 1 and not _compact(ctx.terms, low)) else 2.0
         elif hits * 2 >= len(ctx.terms):
             score += 2.0
         elif any(_has(term, snippet) for term in ctx.terms):
             score += 1.0
     score += _canonical(ctx, url, host, item)
+    if ctx.papers and len(ctx.terms) >= 2:
+        # A paper is about what its title says: under half the topic in the title ranks below any
+        # paper with more.
+        covered = sum(1 for term in ctx.terms if _has(term, low))
+        score += covered / len(ctx.terms) if covered * 2 >= len(ctx.terms) else -6.0
+        # Terms that are next to each other in the query and in the title (or abstract) are the topic.
+        pairs = list(zip(ctx.terms, ctx.terms[1:]))
+        score += (0.75 * min(2, sum(1 for pair in pairs if _phrase_in(pair, low)))
+                  + 0.5 * min(2, sum(1 for pair in pairs if _phrase_in(pair, snippet))))
     if ctx.announce:
         if ctx.named and _entity_domain(ctx.named, ctx.cased, host):
             score += 2.0
@@ -976,6 +1131,8 @@ def relevance(item: dict, ctx: QueryContext) -> float:
     if "policy" not in asks and (_POLICY_URL.search(path) or _POLICY_TITLE.search(title)):
         score -= 20.0
     if ctx.announce:
+        if "stock" not in asks and stock_blurb(title):
+            score -= 12.0
         if "docs" not in asks and (_DOCS_URL.search(path) or host.split(".")[0] in _DOCS_HOST
                                    or _DOCS_TITLE.search(title)):
             score -= 12.0
@@ -1027,18 +1184,16 @@ def _wrong_entity(named, cased, item) -> bool:
 
 
 def unrelated_set(query: str, results) -> bool:
-    """Whether a source's whole result set is off the query: it has results and none of them
-    mentions any of the query's key terms (title, URL or snippet). A source that answers every
+    """Whether a source's whole result set is off the query: it has results and none of them is
+    on the query by the same rule the checks use (_on_query: enough of the key terms in the
+    title, URL and snippet, not one word that fits any page). A source that answers every
     query with the same pages looks like this, and is failing, not finding nothing."""
     terms = key_terms(query)
     if not terms or not results:
         return False
-    for item in results:
-        text = (str(item.get("title") or "") + " " + unquote(str(item.get("url") or "")) + " "
-                + str(item.get("snippet") or "")).lower()
-        if any(_has(term, text) for term in terms):
-            return False
-    return True
+    runs = _entity_runs(query)
+    named, cased = [phrase for phrase, _ in runs], [tokens for _, tokens in runs]
+    return not any(_on_query(terms, named, item, cased) for item in results)
 
 
 def _repo_parts(item):
@@ -1101,7 +1256,9 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
                  cased=(), article=False, ctx=None) -> dict:
     """One result's verdict: passed, the reasons it did not, and the check fields. With
     article (an announcement query in a window), a result passes only with a verified date in
-    the window or an article-like path (see article_like); anything else fails as not_article."""
+    the window or an article-like path (see article_like); anything else fails as not_article, and so
+    does an article-like path under a marketing or help segment on the entity's own domain
+    (see marketing_path) without a verified date."""
     now = now or datetime.now(timezone.utc)
     url, title = str(item.get("url") or ""), str(item.get("title") or "")
     reasons = []
@@ -1111,7 +1268,8 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
         in_window = not ((since is not None and when < since) or (until is not None and when > until))
         if not in_window:
             reasons.append("out_of_window")
-    on_query = _on_query(terms, named, item, cased)
+    on_query = _on_query(terms, named, item, cased,
+                         entity=bool(ctx is not None and ctx.need and _LIBRARY_TITLE.search(title)))
     if not on_query:
         reasons.append("off_query")
     elif _wrong_entity(named, cased, item):
@@ -1125,7 +1283,8 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
     lowered = title.lower()
     if any(word in lowered for word in _CHALLENGE):
         reasons.append("challenge_page")
-    if article and in_window is not True and not article_like(url):
+    if article and in_window is not True and (not article_like(url) or (
+            named and marketing_path(url) and _entity_domain(named, cased, (urlparse(url).hostname or "").lower()))):
         reasons.append("not_article")
     reasons.extend(_repo_reasons(item, ctx))
     return {"url": url, "passed": not reasons, "reasons": reasons, "in_window": in_window,
@@ -1184,15 +1343,23 @@ def demote_off_topic(query: str, items, specialist_only) -> list:
     return first + last
 
 
-def demote_unconfirmed_repos(items, confirmed) -> list:
+def demote_unconfirmed_repos(items, confirmed, need=False) -> list:
     """For a code query that names a language: repository pages (owner/name) that only a web
     engine returned go after the ones the code source returned, which searched in that language.
-    confirmed is the set of canonical URLs the code source returned."""
-    first, last = [], []
+    confirmed is the set of canonical URLs the code source returned. For a need ("library for X"),
+    a confirmed repository the ranking itself put far down (a tool where a library was asked for:
+    relevance under -5) does not keep the others behind it; it goes last."""
+    first, middle, last = [], [], []
     for item in items:
-        unconfirmed = _repo_parts(item) is not None and canonical_url(item.get("url") or "") not in confirmed
-        (last if unconfirmed else first).append(item)
-    return first + last
+        if _repo_parts(item) is None:
+            first.append(item)
+        elif canonical_url(item.get("url") or "") not in confirmed:
+            middle.append(item)
+        elif need and ((item.get("check") or {}).get("relevance") or 0.0) < -5.0:
+            last.append(item)
+        else:
+            first.append(item)
+    return first + middle + last
 
 
 def counted(dated: int, undated: int, need: int, weigh_undated: bool) -> int:
@@ -1200,6 +1367,34 @@ def counted(dated: int, undated: int, need: int, weigh_undated: bool) -> int:
     than a dated one, so with weigh_undated they count at most half the quota
     (need // 2): a set of undated filler cannot end the search alone."""
     return dated + (min(undated, need // 2) if weigh_undated else undated)
+
+
+def _stock_blurbs(results, verdicts, ctx):
+    """For a news or announcement query that is not about stocks: a stock blurb fails as
+    stock_blurb when the set has a passing result that is not one (they are demoted either
+    way, see relevance); with nothing else to show, it stays."""
+    if not ctx.announce or "stock" in ctx.asks:
+        return
+    blurbs = [verdict for item, verdict in zip(results, verdicts) if stock_blurb(item.get("title"))]
+    marked = {id(verdict) for verdict in blurbs}
+    if blurbs and any(verdict["passed"] for verdict in verdicts if id(verdict) not in marked):
+        for verdict in blurbs:
+            verdict["reasons"].append("stock_blurb")
+            verdict["passed"] = False
+
+
+def _paper_phrases(results, verdicts, ctx):
+    """For a papers query with a topic phrase (two key terms next to each other in the query): when a
+    passing paper has the phrase in its title, papers whose title has a single topic term rank lower
+    still (on top of the under-half penalty in relevance)."""
+    if not ctx.papers or len(ctx.terms) < 2:
+        return
+    titles = [str(item.get("title") or "").lower() for item in results]
+    if not any(verdict["passed"] and _phrase_hit(list(ctx.terms), title) for verdict, title in zip(verdicts, titles)):
+        return
+    for verdict, title in zip(verdicts, titles):
+        if sum(1 for term in ctx.terms if _has(term, title)) <= 1:
+            verdict["relevance"] = round(verdict["relevance"] - 4.0, 3)
 
 
 def check_results(query: str, results, *, limit: int = 10, recency=None, since=None, until=None,
@@ -1219,7 +1414,8 @@ def check_results(query: str, results, *, limit: int = 10, recency=None, since=N
     since, until = window_bounds(recency, since, until, now)
     context = query_context(query, recency="window" if (since is not None or until is not None) else None,
                             vertical=vertical)
-    terms = key_terms(query)
+    # A name lookup is about the project, not the language or platform words beside it.
+    terms = list(context.terms) if context.lookup else key_terms(query)
     runs = _entity_runs(query)
     named = [phrase for phrase, _ in runs]
     cased = [tokens for _, tokens in runs]
@@ -1233,6 +1429,11 @@ def check_results(query: str, results, *, limit: int = 10, recency=None, since=N
         if priors:
             verdict["prior"] = round(source_prior(priors.get("source"), item, str(query or ""), context,
                                                   priors.get("paid_rate")), 3)
+        verdicts.append(verdict)
+    _stock_blurbs(results, verdicts, context)
+    _paper_phrases(results, verdicts, context)
+    verdicts, listed = [], verdicts
+    for verdict in listed:
         key = canonical_url(verdict["url"])
         if key in seen:
             verdict["reasons"].append("duplicate")

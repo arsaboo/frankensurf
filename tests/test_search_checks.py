@@ -156,7 +156,8 @@ def test_url_kind(url, kind):
 
 
 def test_homepages_and_listings_fail_only_when_the_query_asks_for_specific_items():
-    pages = [item("https://rust-lang.org/", "Rust language home"), item("https://x.test/tag/rust", "Rust tag")]
+    # (iteration 3: a page must cover half of a four-term query, so these titles carry two terms)
+    pages = [item("https://rust-lang.org/", "Rust async language home"), item("https://x.test/tag/rust", "Rust async tag")]
     specific = check_results("rust async runtime comparison", pages, now=NOW)
     assert [row["reasons"] for row in specific["results"]] == [["homepage"], ["tag_listing"]]
     single = check_results("rust", pages, now=NOW)
@@ -502,8 +503,11 @@ def test_a_snippet_mention_counts_with_another_query_term_or_a_full_multi_word_n
 
 
 def test_lowercase_queries_match_any_whole_word_term():
-    assert passes("rust async", item("https://a.test/x/1", "Async patterns"))["on_query"] is True
+    # Iteration 3: with two terms a result needs both (before: any one of them).
+    assert passes("rust async", item("https://a.test/x/1", "Rust async patterns"))["on_query"] is True
+    assert passes("rust async", item("https://a.test/x/1", "Async patterns"))["on_query"] is False
     assert passes("rust async", item("https://a.test/x/1", "Trust asynchronous"))["on_query"] is False
+    assert passes("rust", item("https://a.test/x/1", "Rust patterns"))["on_query"] is True
 
 
 def test_profile_pages_named_for_the_entity_are_not_items_only_for_specific_queries():

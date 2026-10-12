@@ -383,10 +383,12 @@ def _arxiv_query(query):
     matches almost anything and, sorted by date, returns the newest papers. Every
     topic word gets its own prefix and all must match; the words as a phrase rank first."""
     from .completeness import _STOPWORDS
-    from .search_checks import _QUERY_FILLER
+    from .search_checks import _QUERY_FILLER, _WEAK_WORDS
     words = [word for word in re.findall(r"[\w][\w\-]*", query.lower())
              if word not in _STOPWORDS and word not in _QUERY_FILLER and word not in _ARXIV_FILLER
              and not re.fullmatch(r"(19|20)\d\d", word)]
+    # How the question is put (use, make, best) is not a topic word, unless nothing else is left.
+    words = [word for word in words if word not in _WEAK_WORDS] or words
     words = words[:8]
     if not words:
         return "all:" + query

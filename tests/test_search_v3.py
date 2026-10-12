@@ -355,7 +355,9 @@ def test_repo_queries_prefer_repository_pages_to_org_pages_and_project_sites():
             repo("fastify", "fastify", 30000, "JavaScript"),
             repo("fastify", "fastify-cors", 600, "JavaScript")]
     order, verdicts = order_of("fastify github repo", rows)
-    assert order[:2] == ["https://github.com/fastify/fastify", "https://github.com/fastify/fastify-cors"]
+    # Iteration 3: an add-on (fastify-cors) is not the project; it ranks below the project's own site.
+    assert order[0] == "https://github.com/fastify/fastify"
+    assert order.index("https://fastify.dev/") < order.index("https://github.com/fastify/fastify-cors")
     assert order.index("https://github.com/fastify") < order.index("https://github.com/fastify/demo")
     assert order.index("https://fastify.dev/") < order.index("https://github.com/fastify/demo")
     assert order[-1] == "https://github.com/fastify/demo"

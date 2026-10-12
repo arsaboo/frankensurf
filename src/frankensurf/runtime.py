@@ -6577,7 +6577,8 @@ class Runtime:
                 # a repository page only a web engine returned has no known language, so it
                 # follows the confirmed ones.
                 final = demote_unconfirmed_repos(final, {key for key, names in origin.items() if any(
-                    verticals.get(name) == "code" for name in names)})
+                    verticals.get(name) == "code" for name in names)},
+                    need=query_context(query, vertical=vertical).need)
         final = final[:limit]
         if winner is None and final:
             winner = "merged" if len(pool) > 1 else pool[0][0]
