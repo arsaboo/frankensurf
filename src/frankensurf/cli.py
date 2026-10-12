@@ -209,12 +209,35 @@ def _skill_plan(args):
     return False, report
 
 
+def _search_plan(args):
+    """Decide, before the long downloads, whether setup starts the local search engine
+    (SearXNG in Docker). Only the user's yes does: --search, or a "y" at an interactive
+    prompt. Returns (start?, report): the report is what setup's JSON says under "search"."""
+    from . import local_search
+    report = local_search.status()
+    if report["status"] in ("running", "no_docker"):
+        return False, report
+    if args.no_search:
+        report["note"] = "left off (--no-search)"
+        return False, report
+    if args.search:
+        return True, report
+    if _interactive():
+        if _ask_yes_no(f"Start a local search engine (SearXNG in Docker, port {local_search.PORT})?"):
+            return True, report
+        report["status"] = "declined"
+        return False, report
+    report["note"] = "not started: pass --search to start it (setup only runs Docker with your say-so)"
+    return False, report
+
+
 def _setup(args):
     """frankensurf setup: Chromium for JavaScript pages, plus the free stealth providers."""
     import subprocess
     import sys
     say = lambda message: print(message, file=sys.stderr, flush=True)
     install_skill, skill_report = _skill_plan(args)
+    start_search, search_report = _search_plan(args)
     say("Downloading Chromium for JavaScript pages")
     # Download progress goes to stderr: stdout is the JSON result, for scripts.
     chromium = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"],
@@ -237,6 +260,14 @@ def _setup(args):
         skill_report["status"] = "updated" if existed else "installed"
         skill_report["installed_version"] = skill_report["bundled_version"]
     result["skill"] = skill_report
+    if start_search:
+        from . import local_search
+        say("Starting the local search engine")
+        try:
+            search_report = local_search.start()
+        except Exception as error:   # a failed engine start never fails setup
+            search_report = {**search_report, "error": str(error)[:300]}
+    result["search"] = search_report
     if sys.platform.startswith("linux"):
         result["if_chromium_will_not_start"] = "sudo $(which python) -m playwright install-deps chromium"
     return result
@@ -323,6 +354,9 @@ async def run(args):
             result["if_a_browser_does_not_work"] = (
                 "the others still read; FRANKENSURF_DEBUG_WORKERS=1 frankensurf read URL --provider TOOL "
                 "shows why, and https://github.com/yail259/frankensurf/issues takes the report")
+    elif args.operation == "search-engine":
+        from . import local_search
+        result = getattr(local_search, args.urls[0])()
     elif args.operation == "egress":
         from .egress import check
         result = {"connections": await check(),
@@ -469,7 +503,7 @@ def build_parser():
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
         "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
-        "egress", "plugins"])
+        "egress", "plugins", "search-engine"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
@@ -483,6 +517,10 @@ def build_parser():
         help="setup: install the agent skill into the skills folder without asking")
     parser.add_argument("--no-install-skill", action="store_true",
         help="setup: do not install the agent skill, and do not ask")
+    parser.add_argument("--search", action="store_true",
+        help="setup: start the local search engine (SearXNG in Docker, port 8088) without asking")
+    parser.add_argument("--no-search", action="store_true",
+        help="setup: do not start the local search engine, and do not ask")
     parser.add_argument("--save", action="store_true",
         help="module discover: save the best drafted module")
     parser.add_argument("--module", metavar="ID",
@@ -661,6 +699,9 @@ def parse_args(argv=None):
     elif args.operation == "skill":
         if args.urls not in ([], ["install"], ["uninstall"], ["show"]):
             parser.error("skill takes: install [--skill-dir DIR] | uninstall [--skill-dir DIR] | show")
+    elif args.operation == "search-engine":
+        if args.urls not in (["start"], ["stop"], ["status"]):
+            parser.error("search-engine takes: start | stop | status (local search: SearXNG in Docker, port 8088)")
     elif args.operation == "egress":
         if args.urls != ["check"]:
             parser.error("egress takes: check")
@@ -676,6 +717,8 @@ def parse_args(argv=None):
             parser.error("setup takes no arguments (add --no-stealth to skip the stealth providers)")
         if args.install_skill and args.no_install_skill:
             parser.error("--install-skill and --no-install-skill contradict each other")
+        if args.search and args.no_search:
+            parser.error("--search and --no-search contradict each other")
     elif args.operation == "read-template":
         if len(args.urls) != 2:
             parser.error("read-template takes MODULE_ID TEMPLATE (and --param NAME=VALUE)")
@@ -695,6 +738,8 @@ def parse_args(argv=None):
         parser.error(f"{args.operation} requires exactly one URL, trace ID or registration ID")
     if (args.install_skill or args.no_install_skill) and args.operation != "setup":
         parser.error("--install-skill and --no-install-skill are supported only for setup")
+    if (args.search or args.no_search) and args.operation != "setup":
+        parser.error("--search and --no-search are supported only for setup")
     if args.skill_dir and args.operation not in ("setup", "skill"):
         parser.error("--skill-dir is supported only for setup and skill")
     if args.identity and args.operation not in _WEB_OPERATIONS:

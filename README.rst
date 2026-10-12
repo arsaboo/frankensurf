@@ -142,6 +142,14 @@ conditional requests. Running on a server? Run Steel beside it
 (``docker compose up -d``) and, if sites still refuse your data-centre address,
 set ``FRANKENSURF_PROXY`` to a proxy you bring.
 
+Search works without any setup (DuckDuckGo, Bing and the topic sources), and is
+stronger with a local SearXNG, which answered about a third of the queries in our
+blind benchmark. ``frankensurf setup`` offers to start one in Docker
+("Start a local search engine (SearXNG in Docker, port 8088)? [y/N]", default no;
+never asked in scripts or CI). ``--search`` says yes in advance and ``--no-search``
+skips the question; ``frankensurf search-engine start|stop|status`` manages it later.
+When a search ran without it, ``receipt.search_routing.local_search`` says so.
+
 Agents learn the tools from a bundled skill: the MCP server sends it as its
 instructions, and ``frankensurf skill install`` adds it to ``~/.claude/skills``
 (``frankensurf skill uninstall`` removes it). ``frankensurf setup`` asks before
