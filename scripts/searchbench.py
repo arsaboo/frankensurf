@@ -51,6 +51,8 @@ QUERIES = Path(__file__).with_name("searchbench-queries.json")
 ROUTER = "frankensurf"
 # The router with paid sources allowed as its last rungs.
 ROUTER_PAID = "frankensurf_paid"
+# The router as a fresh install has it: no self-hosted SearXNG.
+ROUTER_STOCK = "frankensurf_stock"
 PAID = ("exa", "firecrawl_search")
 TOP = 5
 READ_OVERRIDES = {"origin_cooldown_seconds": 0, "freshness": "now", "lightning": False,
@@ -303,6 +305,8 @@ def pick_arms(web, requested: list[str] | None, paid: bool) -> tuple[list[str], 
         plugin = getattr(web.searches, "_plugins", {}).get(arm)
         if arm == ROUTER:
             arms.append(arm)
+        elif arm == ROUTER_STOCK:
+            arms.append(arm)
         elif arm == ROUTER_PAID:
             (arms.append(arm) if paid else skipped.__setitem__(arm, "paid; pass --paid"))
         elif not web.searches.contains(arm):
@@ -321,11 +325,12 @@ def pick_arms(web, requested: list[str] | None, paid: bool) -> tuple[list[str], 
 async def search_once(web, arm: str, query: dict, timeout: float) -> dict:
     from frankensurf import WebPolicy
     policy = (WebPolicy(allow_paid_fallbacks=True) if arm in (*PAID, ROUTER_PAID)
-              else WebPolicy(provider="http"))
+              else WebPolicy(provider="http", search_source_allow=tuple(k for k in REGISTRY if k != "searxng"))
+              if arm == ROUTER_STOCK else WebPolicy(provider="http"))
     started = time.monotonic()
     try:
         response = await asyncio.wait_for(web.search(
-            query["query"], source=None if arm in (ROUTER, ROUTER_PAID) else arm, limit=TOP, policy=policy,
+            query["query"], source=None if arm in (ROUTER, ROUTER_PAID, ROUTER_STOCK) else arm, limit=TOP, policy=policy,
             recency=query.get("recency"), vertical=query.get("vertical") or "web"), timeout)
     except Exception as error:  # an arm crash is that arm's failure, not the run's
         return {"results": [], "status": "failed", "failure": type(error).__name__, "source": None,
