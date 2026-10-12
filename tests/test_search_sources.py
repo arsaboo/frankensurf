@@ -304,3 +304,10 @@ async def test_site_watch_fails_fast_without_a_site_and_when_nothing_is_publishe
 def test_site_watch_is_a_free_site_vertical_source():
     manifest = next(item for item in DEFAULT_SEARCHES.inspect() if item["id"] == "site_watch")
     assert manifest["vertical"] == "site" and not manifest["paid"] and manifest["transport_provider"] == "http"
+
+
+def test_arxiv_query_prefixes_every_topic_word():
+    from frankensurf.search import build_search
+    url, _ = build_search("recent papers on mixture of experts", "arxiv", {"recency": "year"})
+    assert "all%3Amixture%20AND%20all%3Aexperts" in url
+    assert "recent" not in url.split("search_query=")[1].split("&")[0]
