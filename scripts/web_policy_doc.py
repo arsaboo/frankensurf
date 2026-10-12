@@ -11,7 +11,7 @@ D = {
  "unblocker_timeout_seconds": "Time allowed for an unblocker attempt.",
  "agent_provider_timeout_seconds": "Time allowed for an agent provider such as Skyvern.",
  "max_bytes": "Largest response accepted.",
- "pdf_max_pages": "Most PDF pages to extract text from. Also the most pages a paid tool such as Firecrawl is asked to parse, since it bills per page.",
+ "pdf_max_pages": "Most PDF pages to extract text from. Also the most pages a paid tool such as Firecrawl is asked to parse, since it bills per page. A longer PDF is cut short and says so: `structured.truncated` and `receipt.pdf`.",
  "capture_json_responses": "On rendered reads, return the JSON the page fetched for itself as `captured_json`.",
  "capture_json_max_items": "Most captured JSON responses kept.",
  "capture_json_max_bytes": "Largest captured JSON response kept.",
@@ -46,6 +46,7 @@ D = {
  "allow_local_browser": "Allow providers that run a browser on your machine.",
  "allow_paid_fallbacks": "Allow paid providers to join the route.",
  "max_cost_usd": "Cap on measured provider cost for the whole operation.",
+ "strict_cost_cap": "A paid call that bills more than `max_cost_usd` still returns its valid content, and `receipt.budget` says the cap was exceeded. `True` discards it and fails with `BUDGET_EXHAUSTED`.",
  "allow_handoff": "Try `handoff` after every automatic provider fails.",
  "handoff_timeout_seconds": "How long a handoff waits for a person.",
  "terminal_failures": "Failures that stop the climb.",
@@ -159,7 +160,7 @@ D = {
 ALL = [x.name for x in dataclasses.fields(WebPolicy)]
 GROUPS = [
  ("Fetching", ["freshness","render","prefer_markdown","sign_requests","timeout_seconds","unblocker_timeout_seconds","agent_provider_timeout_seconds","max_bytes","pdf_max_pages","capture_json_responses","capture_json_max_items","capture_json_max_bytes","include_images","max_images","card_images","scroll_screens","expect_terms","main_content","interactions","auto_items","max_image_bytes","image_max_attempts","image_retry_delay_seconds","image_retry_failures","retain_public_failure_evidence"]),
- ("Routing and cost", ["provider","provider_candidates","allow_local_browser","allow_paid_fallbacks","max_cost_usd","allow_handoff","handoff_timeout_seconds","allow_real_browser","real_browser_wait_seconds","use_egress_pool","egress_failures","egress_tools","allow_archive","block_private_network","exclude_providers","try_harder","retry_of_trace","terminal_failures","context_stop_failures","auth_wall_confirmations","fake_wall_confirmers","escalate_after_walls","paid_after_walls","escalation_failures","use_route_memory","use_wall_priors","route_memory_ttl_seconds","route_memory_min_samples","origin_route_hint_ttl_seconds","provider_max_attempts_per_candidate","provider_retry_delay_seconds","provider_retry_failures","provider_deadline_grace_seconds","provider_cleanup_grace_seconds","provider_composition_max_depth","provider_composition_max_attempts","compound_source_candidates"]),
+ ("Routing and cost", ["provider","provider_candidates","allow_local_browser","allow_paid_fallbacks","max_cost_usd","strict_cost_cap","allow_handoff","handoff_timeout_seconds","allow_real_browser","real_browser_wait_seconds","use_egress_pool","egress_failures","egress_tools","allow_archive","block_private_network","exclude_providers","try_harder","retry_of_trace","terminal_failures","context_stop_failures","auth_wall_confirmations","fake_wall_confirmers","escalate_after_walls","paid_after_walls","escalation_failures","use_route_memory","use_wall_priors","route_memory_ttl_seconds","route_memory_min_samples","origin_route_hint_ttl_seconds","provider_max_attempts_per_candidate","provider_retry_delay_seconds","provider_retry_failures","provider_deadline_grace_seconds","provider_cleanup_grace_seconds","provider_composition_max_depth","provider_composition_max_attempts","compound_source_candidates"]),
  ("Completeness and walls", ["completeness_escalation","completeness_ladder","completeness_max_extra_reads","completeness_parallel","completeness_stop_on_agreement","completeness_borderline_items","completeness_settle_ms","completeness_deadline_seconds","completeness_step_timeout_seconds","hedge_after_seconds","hedge_racers","lightning","rescue_not_found","interact_on_escalation","warm_up_on_wall","site_session_hours"]),
  ("Pacing", ["origin_min_interval_seconds","origin_cooldown_seconds","origin_cooldown_failures"]),
  ("Rendering and content checks", ["wait_selector","wait_state","content_ready_selector","content_ready_timeout_seconds","settle_ms","public_browser_headless","html_shell_min_text_chars","html_shell_large_bytes","html_shell_large_min_text_chars","rendered_min_text_chars","second_opinion_text_chars","navigation_page","public_entry_url","public_entry_continue_failures","scrapling_navigation_wait_until","scrapling_solve_cloudflare","scrapling_load_dom","scrapling_google_search"]),

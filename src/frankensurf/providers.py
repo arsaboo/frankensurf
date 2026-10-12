@@ -1637,8 +1637,21 @@ class ProviderRegistry:
                 "url", "content", "content_type", "raw", "http_status",
                 "headers", "screenshot", "navigation", "navigation_data",
                 "cost_usd", "acquisition_evidence", "provider_attempts"}
+            pdf = result.get("pdf")
+            if pdf is not None:
+                if (type(pdf) is not dict
+                        or set(pdf) != {"pages", "pages_total", "truncated", "note"} - (
+                            set() if pdf.get("truncated") else {"note"})
+                        or type(pdf["pages"]) is not int or pdf["pages"] < 0
+                        or (pdf["pages_total"] is not None
+                            and (type(pdf["pages_total"]) is not int or pdf["pages_total"] < 0))
+                        or type(pdf["truncated"]) is not bool
+                        or ("note" in pdf and not _bounded_text(pdf["note"], 200))):
+                    raise WebFailure("PROVIDER_DOWN", "Invalid provider PDF envelope")
             filtered = {key: result[key] for key in allowed_result_fields
                         if key in result}
+            if pdf is not None:
+                filtered["pdf"] = dict(pdf)
             filtered.update(raw=raw,http_status=status,
                 headers={key:value for key,value in headers.items()
                          if key in _SAFE_HEADERS})

@@ -285,6 +285,11 @@ def _explain(result):
                   + ((f", complete ({links} results)" if links >= 10 else ", complete") if done.get("complete") else "")
                   + (", free" if cost == 0 else f", cost ${cost:.4f}" if isinstance(cost, (int, float)) else ""),
                   "", text[:400] + ("…" if len(text) > 400 else "")]
+        if (receipt.get("pdf") or {}).get("note"):
+            lines.append("\n! " + receipt["pdf"]["note"])
+        if receipt.get("budget"):
+            budget = receipt["budget"]
+            lines.append(f"\n! Cost cap exceeded: spent ${budget['spent_usd']:.4f} of ${budget['cap_usd']:.4f}; the page was kept.")
         if done.get("off_query"):
             lines.append("\n! These results don't mention the query: the search URL may be wrong.")
     else:

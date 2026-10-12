@@ -154,7 +154,7 @@ _RECEIPT_KEYS = {
     "source_freshness", "source_refresh_performed",
     "requested_freshness_satisfied", "semantic_freshness", "navigation",
     "navigation_data_source", "failure_stage", "latency_ms", "max_cost_usd",
-    "cost_budget_satisfied", "recovery", "search_source",
+    "cost_budget_satisfied", "budget", "pdf", "recovery", "search_source",
     "search_source_version", "provider_binding_id",
     "adapter_binding_id", "search_binding_id",
     # Fields later Core reads add: completeness checks, second opinions,

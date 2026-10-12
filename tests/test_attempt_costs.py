@@ -155,13 +155,26 @@ async def test_unknown_or_exhausted_spend_skips_further_paid_calls_and_allows_fr
     assert receipt["cost_budget_satisfied"] is (cost is not None)
 
 
-@pytest.mark.parametrize("cost", [None, 0.6])
-async def test_strict_cap_rejects_unverified_or_excess_charge_success(tmp_path, monkeypatch, cost):
+@pytest.mark.parametrize("cost,strict", [(None, False), (None, True), (0.6, True)])
+async def test_strict_cap_rejects_unverified_or_excess_charge_success(tmp_path, monkeypatch, cost, strict):
     from dataclasses import replace
     policy = install(monkeypatch, [("paid", True, {"cost_usd": cost})], bounded=True)
-    receipt = (await observe(tmp_path, replace(policy, max_cost_usd=0.5)))["receipt"]
+    receipt = (await observe(tmp_path, replace(policy, max_cost_usd=0.5, strict_cost_cap=strict)))["receipt"]
     assert receipt["status"] == "failed" and receipt["failure"]["code"] == "BUDGET_EXHAUSTED"
     assert receipt["cost_usd"] == cost and receipt["cost_budget_satisfied"] is False
+
+
+async def test_known_excess_charge_keeps_the_page_and_stops_paid_calls(tmp_path, monkeypatch):
+    from dataclasses import replace
+    calls = []
+    policy = install(monkeypatch, [("paid", True, {"cost_usd": 0.6}), ("second", True, {"cost_usd": 0.1})],
+                     bounded=True, calls=calls)
+    result = await observe(tmp_path, replace(policy, max_cost_usd=0.5))
+    receipt = result["receipt"]
+    assert receipt["status"] == "observed" and "Correct subject" in result["text"]
+    assert receipt["cost_usd"] == 0.6 and receipt["cost_budget_satisfied"] is False
+    assert receipt["budget"] == {"cap_usd": 0.5, "spent_usd": 0.6, "exceeded": True}
+    assert calls == [("paid", 0.5)]
 
 
 @pytest.mark.parametrize("second_recipe", [False, True])
