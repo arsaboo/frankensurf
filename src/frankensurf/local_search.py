@@ -356,7 +356,7 @@ def start(*, url=URL, name=CONTAINER, port=PORT, folder=None, wait=90):
     if state != "unreachable":
         return _occupied(url, state, port)
     if native_installed():
-        return start_native(url=url, port=port, folder=folder)
+        return start_native(url=url, port=port, folder=folder, wait=wait)
     problem = docker_problem()
     if problem:
         return _no_docker(url, problem)

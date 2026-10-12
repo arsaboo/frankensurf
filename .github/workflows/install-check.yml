@@ -46,6 +46,9 @@ jobs:
         run: |
           ls -l "$(/tmp/fs/bin/python -c 'import sys, os; print(os.path.realpath(sys._base_executable))')" || true
           tail -40 ~/.local/share/frankensurf/searxng-native/searxng.log || true
+          lsof -nP -iTCP:8088 -sTCP:LISTEN || true
+          curl -sv -m 10 "http://127.0.0.1:8088/search?q=&format=json" || true
+          ps aux | grep '[s]earx' || true
           FRANKENSURF_DEBUG_WORKERS=1 /tmp/fs/bin/frankensurf read https://example.com --provider crawl4ai | tail -20 || true
       - name: The local search engine answers (no Docker)
         run: |
@@ -60,7 +63,9 @@ jobs:
         run: /tmp/fs/bin/frankensurf read https://example.com --explain
       - name: Each browser tool on its own
         run: |
-          for tool in local camoufox scrapling patchright crawl4ai; do
+          tools="local camoufox scrapling patchright"
+          [ "$RUNNER_OS" = "Linux" ] && tools="$tools crawl4ai"   # not installed on macOS yet
+          for tool in $tools; do
             /tmp/fs/bin/frankensurf read https://news.ycombinator.com/ --provider "$tool" \
               | /tmp/fs/bin/python -c "import json,sys; r=json.load(sys.stdin)['receipt']; f=r.get('failure') or {}; print('$tool', r['status'], f.get('code') or '', (f.get('message') or '')[:300])"
           done

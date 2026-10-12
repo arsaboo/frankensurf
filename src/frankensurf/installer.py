@@ -28,13 +28,21 @@ OPTIONAL = {
     "nodriver": "nodriver (AGPL-3.0; drives your installed Chrome), into the stealth environment",
 }
 DEFAULT = tuple(COMPONENTS)
+# Left out of a plain `frankensurf install` on these systems (naming it still tries).
+NOT_YET = {"darwin": {"crawl4ai": "not on macOS yet: Crawl4AI's environment checks do not pass there; "
+                                  "`frankensurf install crawl4ai` tries anyway"}}
+
+
+def defaults():
+    """Every component a plain `frankensurf install` installs on this system."""
+    return [name for name in DEFAULT if name not in NOT_YET.get(sys.platform, {})]
 
 
 def resolve(names):
     """The components to act on: none named (or "all") means every default one."""
     names = [name.lower() for name in names or []]
     if not names or names == ["all"]:
-        return list(DEFAULT)
+        return defaults()
     unknown = [name for name in names if name not in COMPONENTS and name not in OPTIONAL]
     if unknown:
         raise ValueError(f"unknown: {', '.join(unknown)}; choose from all, "
@@ -71,7 +79,8 @@ def _install_search(log):
     from . import local_search
     installed = local_search.install_native(log=log)
     log("Starting the local search engine")
-    running = local_search.start()
+    # The first start can be slow (a cold machine compiling and importing everything).
+    running = local_search.start(wait=120)
     return {"ok": running.get("status") in ("running", "started"), "path": installed["path"],
             "engine": running}
 
@@ -166,6 +175,10 @@ def install(names=None, *, with_deps=False, log=print):
         if not done[name]["ok"]:
             log(f"  {name}: not installed: {done[name].get('error') or 'see above'}")
     result["installed"] = done
+    skipped = {name: why for name, why in NOT_YET.get(sys.platform, {}).items()
+               if name not in chosen and (not names or names == ["all"])}
+    if skipped:
+        result["skipped"] = skipped
     result["ok"] = all(item["ok"] for item in done.values()) and result.get("system_libraries") is not False
     failed = [name for name, item in done.items() if not item["ok"]]
     if failed:
@@ -210,7 +223,7 @@ def listing():
     }
     for name, row in rows.items():
         row["about"] = COMPONENTS.get(name) or OPTIONAL[name]
-    missing = [name for name in DEFAULT if not rows[name]["installed"]]
+    missing = [name for name in defaults() if not rows[name]["installed"]]
     return {"components": rows, "missing": missing,
             **({"install_with": "frankensurf install " + " ".join(missing)} if missing else {})}
 
@@ -274,7 +287,7 @@ def uninstall(names):
     """Remove what install put there. Names are required: "all" removes every component."""
     if not names:
         raise ValueError("say what to remove: all, " + ", ".join([*COMPONENTS, *OPTIONAL]))
-    chosen = [*resolve(names), *(["nodriver"] if names == ["all"] else [])]
+    chosen = [*(list(DEFAULT) if names == ["all"] else resolve(names)), *(["nodriver"] if names == ["all"] else [])]
     if "stealth" in chosen and "nodriver" in chosen:
         chosen.remove("nodriver")       # it lives inside the stealth environment
     return {"uninstalled": {name: UNINSTALLERS[name]() for name in chosen}}

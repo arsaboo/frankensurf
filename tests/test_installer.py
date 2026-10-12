@@ -27,7 +27,8 @@ def ran_commands(monkeypatch, code=0, out=""):
 
 # --- choosing what to install ----------------------------------------------------------------
 
-def test_nothing_named_or_all_means_every_free_tool():
+def test_nothing_named_or_all_means_every_free_tool(monkeypatch):
+    monkeypatch.setattr(installer.sys, "platform", "linux")
     assert installer.resolve([]) == ["chromium", "stealth", "search", "crawl4ai"]
     assert installer.resolve(["all"]) == installer.resolve(None)
     assert installer.resolve(["search", "Chromium", "search"]) == ["search", "chromium"]
@@ -49,7 +50,19 @@ def test_install_and_uninstall_arguments():
 
 # --- installing ------------------------------------------------------------------------------
 
+def test_macos_leaves_crawl4ai_out_of_a_plain_install_and_says_so(monkeypatch):
+    monkeypatch.setattr(installer.sys, "platform", "darwin")
+    assert installer.resolve([]) == ["chromium", "stealth", "search"]
+    assert installer.resolve(["crawl4ai"]) == ["crawl4ai"]          # named: it still tries
+    monkeypatch.setattr(installer, "INSTALLERS", {name: (lambda log: {"ok": True}) for name in installer.DEFAULT})
+    result = installer.install(log=lambda message: None)
+    assert result["ok"] is True and "crawl4ai" not in result["installed"]
+    assert "macOS" in result["skipped"]["crawl4ai"]
+    assert "skipped" not in installer.install(["search"], log=lambda message: None)
+
+
 def test_one_tool_failing_never_stops_the_others(monkeypatch):
+    monkeypatch.setattr(installer.sys, "platform", "linux")
     done = []
 
     def works(name):
