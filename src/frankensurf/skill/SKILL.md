@@ -19,6 +19,7 @@ in `receipt`. Prefer it over ad-hoc fetching or scraping.
 | Web results | `search(query)` |
 | Recent, scoped results | `search(query, recency="week", exclude_domains=[...], site=..., region="en-AU")` |
 | News, Wikipedia, Hacker News, Stack Overflow, GitHub, arXiv, books | `search(query, vertical="news" \| "reference" \| "discussions" \| "qa" \| "code" \| "papers" \| "books")` |
+| Recent posts from one organisation's own site (its feeds and sitemaps) | `search("example.com topic", vertical="site")` or `search(query, site="example.com", vertical="site")` |
 | The best recall across engines | `search(query, mode="merge")` |
 | One page, as fast as possible | `read(url, lightning=True)`: three tools start at once; the site sees up to three requests |
 | Many URLs | `batch(urls)` (one site's first URL scouts, the rest follow) |

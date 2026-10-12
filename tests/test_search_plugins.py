@@ -247,11 +247,12 @@ def test_builtin_sources_are_inspectable_plugins():
     manifests = {item["id"]: item for item in DEFAULT_SEARCHES.inspect()}
     assert set(manifests) == {"searxng", "duckduckgo_html", "bing_rss", "exa", "brave", "tavily", "parallel",
                               "bing_news_rss", "wikipedia", "hacker_news", "stack_exchange", "github",
-                              "arxiv", "open_library"}
+                              "arxiv", "open_library", "firecrawl_search", "site_watch"}
     assert {name for name, item in manifests.items() if item["vertical"] == "web"} == {
-        "searxng", "duckduckgo_html", "bing_rss", "exa", "brave", "tavily", "parallel"}
+        "searxng", "duckduckgo_html", "bing_rss", "exa", "brave", "tavily", "parallel", "firecrawl_search"}
     assert all(item["enabled"] for item in manifests.values())
-    assert {name for name, item in manifests.items() if item["paid"]} == {"exa", "brave", "tavily", "parallel"}
+    assert {name for name, item in manifests.items() if item["paid"]} == {
+        "exa", "brave", "tavily", "parallel", "firecrawl_search"}
 
 
 def test_cli_omission_and_policy_flags_reach_search_router():

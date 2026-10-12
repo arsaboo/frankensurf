@@ -3,7 +3,9 @@
 Web sources (SearXNG, DuckDuckGo, Bing) answer general queries. Vertical
 sources are official, keyless public APIs for one kind of result: news (Bing
 News RSS), reference (Wikipedia), discussions (Hacker News via Algolia), Q&A
-(Stack Exchange), code (GitHub), papers (arXiv) and books (Open Library).
+(Stack Exchange), code (GitHub), papers (arXiv) and books (Open Library). The
+site vertical (site_watch.py) reads one organisation's own feeds and sitemaps.
+Results carry an ISO ``published`` date when the source returns one.
 
 Search options (normalize_options) travel with every request: site,
 exclude_domains, recency and region. Each source applies what it can natively
@@ -32,7 +34,7 @@ REGISTRY = {
     "arxiv": {"kind": "rss", "base_url": "https://export.arxiv.org", "path": "/api/query", "endpoint_scope": "official public API", "vertical": "papers"},
     "open_library": {"kind": "json", "base_url": "https://openlibrary.org", "path": "/search.json", "endpoint_scope": "official public API", "vertical": "books"},
 }
-VERTICALS = ("web", "news", "reference", "discussions", "qa", "code", "papers", "books")
+VERTICALS = ("web", "news", "reference", "discussions", "qa", "code", "papers", "books", "site")
 RECENCY = {"day": 1, "week": 7, "month": 31, "year": 366}
 _OPTION_KEYS = {"site", "exclude_domains", "recency", "region"}
 _HOST = re.compile(r"(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}")
@@ -196,7 +198,7 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
 
 def _iso(value):
     when = parse_date(value)
-    return when.strftime("%Y-%m-%dT%H:%M:%SZ") if when else None
+    return when.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if when else None
 
 
 def _text(value):
@@ -212,7 +214,7 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
         upstream_failures = structured.get("unresponsive_engines", [])
         for item in structured["results"]:
             if not isinstance(item, dict): continue
-            found.append({"url": item.get("url"), "title": item.get("title") or "", "snippet": item.get("content") or "", "engines": item.get("engines") or ([item["engine"]] if item.get("engine") else []), "indexed_date": item.get("publishedDate")})
+            found.append({"url": item.get("url"), "title": item.get("title") or "", "snippet": item.get("content") or "", "engines": item.get("engines") or ([item["engine"]] if item.get("engine") else []), "indexed_date": item.get("publishedDate"), "published": _iso(item.get("publishedDate"))})
     elif source in ("bing_rss", "bing_news_rss"):
         try: root = ET.fromstring(content)
         except ET.ParseError as exc: raise ValueError("Expected search RSS") from exc
@@ -224,7 +226,7 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
             entry = {"url": target[0] if target else link, "title": item.findtext("title") or "",
                      "snippet": item.findtext("description") or "",
                      "engines": ["bing_news" if source == "bing_news_rss" else "bing"],
-                     "indexed_date": item.findtext("pubDate")}
+                     "indexed_date": item.findtext("pubDate"), "published": _iso(item.findtext("pubDate"))}
             publisher = next((child.text for child in item if child.tag.endswith("}Source")), None)
             if publisher:
                 entry["extra"] = {"publisher": publisher}
@@ -248,7 +250,7 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
             discussion = "https://news.ycombinator.com/item?id=" + str(row["objectID"])
             found.append({"url": row.get("url") or discussion, "title": row.get("title") or "",
                           "snippet": _text(row.get("story_text"))[:300], "engines": ["hacker_news"],
-                          "indexed_date": row.get("created_at"),
+                          "indexed_date": row.get("created_at"), "published": _iso(row.get("created_at")),
                           "extra": {"discussion_url": discussion, "points": row.get("points"),
                                     "comments": row.get("num_comments")}})
     elif source == "stack_exchange":
@@ -260,6 +262,7 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
                               "snippet": " ".join(str(tag) for tag in row.get("tags") or [])[:200],
                               "engines": ["stack_exchange"],
                               "indexed_date": _iso(row.get("last_activity_date")),
+                              "published": _iso(row.get("creation_date")),
                               "extra": {"answered": row.get("is_answered"), "score": row.get("score")}})
     elif source == "github":
         rows = structured.get("items") if isinstance(structured, dict) else None
@@ -268,7 +271,9 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
             if isinstance(row, dict) and row.get("html_url"):
                 found.append({"url": row["html_url"], "title": row.get("full_name") or "",
                               "snippet": row.get("description") or "", "engines": ["github"],
-                              "indexed_date": row.get("pushed_at"), "extra": {"stars": row.get("stargazers_count")}})
+                              "indexed_date": row.get("pushed_at"),
+                              "published": _iso(row.get("pushed_at") or row.get("created_at")),
+                              "extra": {"stars": row.get("stargazers_count"), "created_at": _iso(row.get("created_at"))}})
     elif source == "arxiv":
         try: root = ET.fromstring(content)
         except ET.ParseError as exc: raise ValueError("Expected arXiv Atom") from exc
@@ -278,7 +283,8 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
             found.append({"url": (entry.findtext(atom + "id") or "").strip(),
                           "title": " ".join((entry.findtext(atom + "title") or "").split()),
                           "snippet": " ".join((entry.findtext(atom + "summary") or "").split())[:400],
-                          "engines": ["arxiv"], "indexed_date": entry.findtext(atom + "published")})
+                          "engines": ["arxiv"], "indexed_date": entry.findtext(atom + "published"),
+                          "published": _iso(entry.findtext(atom + "published"))})
     elif source == "open_library":
         rows = structured.get("docs") if isinstance(structured, dict) else None
         if not isinstance(rows, list): raise ValueError("Expected Open Library docs")
@@ -308,6 +314,8 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password or url in seen: continue
         seen.add(url)
+        if item.get("published") is None:
+            item.pop("published", None)
         results.append(item)
         if len(results) >= limit: break
     return results, upstream_failures
