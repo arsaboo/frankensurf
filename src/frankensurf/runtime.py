@@ -259,11 +259,14 @@ class WebPolicy:
     # first) join the ladder once this many free sources have come back weak or
     # empty; 0 leaves them until every free source has been tried.
     search_paid_after_weak: int = 2
-    # With allow_paid_fallbacks, a news, announcement (recency), fact or code query starts
+    # With allow_paid_fallbacks, any automatic search starts
     # the cheapest likely-success paid source beside the first free rung instead of after
     # the free ones fail; everything is merged, checked and ranked, and a paid result that
     # fails the checks gives way to a passing free one. The cost cap applies as always.
     search_paid_parallel: bool = True
+    # A parallel paid source still running when the free ones make the answer good is waited
+    # for this many seconds before the free answer stands (receipt note paid_timeout).
+    search_paid_wait_seconds: float = 10.0
     # Try first the source that most often passed the checks for this kind of query
     # (vertical, recency or not, site filter or not), learned on this machine.
     search_learned_routing: bool = True
@@ -431,6 +434,8 @@ class WebPolicy:
         _require(type(self.search_learned_routing) is bool, "search_learned_routing must be a boolean")
         _require(isinstance(self.search_hold_undated, bool), "search_hold_undated must be a boolean")
         _require(isinstance(self.search_paid_parallel, bool), "search_paid_parallel must be a boolean")
+        _require(_is_number(self.search_paid_wait_seconds),
+                 "search_paid_wait_seconds must be finite and nonnegative")
         _require(_is_int(self.search_date_reads, 0) and self.search_date_reads <= 20,
                  "search_date_reads must be an integer from 0 to 20")
         _require(_is_number(self.search_date_read_timeout_seconds, positive=True),
@@ -6301,12 +6306,11 @@ class Runtime:
         # The first rung. On an automatic search of a vertical with a specialist source
         # (code, reference, papers, news) the specialist and SearXNG start together when
         # SearXNG is reachable, and their answers are merged; with search_paid_parallel and
-        # a news, announcement, fact or code query the cheapest paid source starts beside
+        # any query the cheapest paid source starts beside
         # the first free one. Nothing waits for another to fail. Otherwise the ladder
         # climbs one source at a time (a slow one is hedged).
         first_rung, paid_parallel, race_open, race_deadline, held = [], None, set(), None, None
         automatic = ladder and source is None and policy.search_source_candidates is None
-        kinds = query_kinds(query, vertical=vertical, recency=recency) if automatic else frozenset()
         free_queue = [item for item in queue if item not in paid_ids]
         verticals = {item["id"]: item["vertical"] for item in self.searches.inspect()}
         searxng_up = False
@@ -6316,7 +6320,7 @@ class Runtime:
             specialists = [item for item in free_queue if verticals.get(item) == vertical and item != "searxng"]
             if specialists and "searxng" in free_queue:
                 first_rung = specialists[:2] + ["searxng"]
-        if automatic and kinds and policy.search_paid_parallel and policy.allow_paid_fallbacks:
+        if automatic and policy.search_paid_parallel and policy.allow_paid_fallbacks:
             for candidate in order_notes.get("paid_order") or ():
                 try:
                     self.searches.require_enabled(candidate, policy)
@@ -6331,7 +6335,9 @@ class Runtime:
         if first_rung:
             queue = first_rung + [item for item in queue if item not in first_rung]
             if len(first_rung) > 1:
-                race_open = set(first_rung)
+                # The parallel paid source is not a racer given a moment's grace: once the free
+                # answer is good it is waited for, up to search_paid_wait_seconds (see below).
+                race_open = set(first_rung) - {paid_parallel}
                 hedged.extend(first_rung)
         # In a windowed search, once the answer is good, up to search_fill_rungs more free
         # sources are asked while it holds fewer verified results than the limit, so an
@@ -6353,10 +6359,30 @@ class Runtime:
             if fill_searxng and "searxng" in queue:
                 queue.remove("searxng")
                 queue.insert(0, "searxng")
-            return (fill_left > 0 and queue and queue[0] not in paid_ids and queue[0] not in last_resort
+            return (closing is None and fill_left > 0 and queue and queue[0] not in paid_ids and queue[0] not in last_resort
                     and deadline - time.monotonic() > 3 and short_of_limit())
         deadline = started + policy.search_max_seconds
         running, leftover = {}, []
+        closing = None          # (winner, stopped) of a good answer waiting for the parallel paid source
+        paid_deadline = None
+        paid_timeout = False
+        paid_estimates = {}
+
+        def paid_estimate(identifier):
+            """The bundled cost per search of a paid source (the same prior the paid order
+            ranks by), or None when there is none."""
+            if identifier not in paid_estimates:
+                facts = _paid_priors() if policy.use_wall_priors else {}
+                manifest = next((item for item in self.searches.inspect() if item["id"] == identifier), {})
+                fact = next((facts[name] for name in (identifier, manifest.get("transport_provider"),
+                                                      identifier.removesuffix("_search")) if name in facts), {})
+                paid_estimates[identifier] = _measured_cost(fact.get("cost_usd"))
+            return paid_estimates[identifier]
+
+        def can_close():
+            return (closing is None and stopped == "good" and paid_parallel is not None
+                    and paid_parallel not in rungs and paid_parallel in running.values()
+                    and policy.search_paid_wait_seconds > 0 and deadline - time.monotonic() > 0)
 
         def launch(identifier=None):
             if identifier is None:
@@ -6389,19 +6415,32 @@ class Runtime:
                 if not running:
                     launch()
                 remaining = deadline - time.monotonic()
+                if closing is not None and time.monotonic() >= paid_deadline - 0.001:
+                    # The parallel paid source did not answer in time: the free answer stands.
+                    winner, stopped = closing
+                    paid_timeout = True
+                    break
                 if remaining <= 0:
                     stopped = "time_cap"
                     break
                 # Smart lightning for search: a free source with no answer yet gets the
                 # next free one started beside it. Paid sources only ever run alone.
                 hedge = bool(ladder and policy.search_hedge_after_seconds > 0 and queue and not race_open
+                             and closing is None
                              and len(running) < policy.search_hedge_racers and queue[0] not in paid_ids
                              and queue[0] not in last_resort and policy.search_hedge_after_seconds < remaining)
                 wait = remaining
                 if race_open and race_deadline is not None:
                     wait = max(0.0, min(wait, race_deadline - time.monotonic()))
-                finished, _ = await asyncio.wait(set(running), return_when=asyncio.FIRST_COMPLETED,
-                    timeout=min(policy.search_hedge_after_seconds, wait) if hedge else wait)
+                if closing is not None:
+                    waiting = {task for task, name in running.items() if name == paid_parallel}
+                    finished, _ = await asyncio.wait(waiting, return_when=asyncio.FIRST_COMPLETED,
+                        timeout=max(0.0, min(wait, paid_deadline - time.monotonic())))
+                    if not finished:
+                        continue
+                else:
+                    finished, _ = await asyncio.wait(set(running), return_when=asyncio.FIRST_COMPLETED,
+                        timeout=min(policy.search_hedge_after_seconds, wait) if hedge else wait)
                 if not finished:
                     if race_open and race_deadline is not None and time.monotonic() >= race_deadline - 0.01:
                         # The first rung's slower racers had their time; go on with what is held.
@@ -6419,6 +6458,8 @@ class Runtime:
                     continue
                 finish = False
                 for task in [item for item in running if item in finished]:
+                    if finish and running[task] == paid_parallel and can_close():
+                        continue    # answered in the same moment: read below, once the wait starts
                     identifier = running.pop(task)
                     race_open.discard(identifier)
                     outcome = task.result()
@@ -6516,9 +6557,20 @@ class Runtime:
                             winner, stopped, finish = "merged", "good", True
                     if source is not None or failure in policy.search_terminal_failures:
                         finish, stopped = True, stopped or "terminal"
+                if closing is not None:
+                    # The paid source answered (or failed): the good answer is final, anchored if it can be.
+                    winner = "merged" if paid_parallel in rungs else closing[0]
+                    stopped, finish = closing[1], True
                 if not finish and held is not None and not held_for_race():
                     ready, held = held, None
                     finish = settle(*ready)
+                if finish and can_close():
+                    # Good without the paid source that started beside the free ones and is still
+                    # running: wait for it (bounded) so the answer can be anchored on it and its
+                    # cost is known. Anything else still running is not waited for.
+                    closing, winner, stopped, finish = (winner, stopped), None, None, False
+                    held, race_open = None, set()
+                    paid_deadline = min(time.monotonic() + policy.search_paid_wait_seconds, deadline)
                 if finish:
                     break
         finally:
@@ -6531,9 +6583,14 @@ class Runtime:
             # Still running when another source won or the time cap hit: no result, and
             # for a paid source no way to know what it cost.
             paid = identifier in paid_ids
-            costs.append(None if paid else 0)
+            # A paid call cancelled mid-flight may or may not have been charged. With a bundled
+            # price per search, that price is recorded and marked as an estimate; without one the
+            # cost stays unknown (None).
+            estimate = paid_estimate(identifier) if paid else 0
+            costs.append(estimate)
             search_attempts.append({"source": identifier, "status": "cancelled",
-                                    "cost_usd": None if paid else 0, "raced": identifier in hedged})
+                                    "cost_usd": estimate, "raced": identifier in hedged,
+                                    **({"cost_basis": "estimated_bundled_price"} if paid and estimate is not None else {})})
         if stopped is None:
             stopped = "source_cap" if ladder and len(order) > policy.search_max_sources else "exhausted"
         everyone = [(name, rung["kept"]) for name, rung in rungs.items()]
@@ -6689,7 +6746,10 @@ class Runtime:
             "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes,
             **({"first_rung": first_rung} if first_rung else {}),
             **({"paid_parallel": paid_parallel} if paid_parallel else {}),
-            **({"anchor": anchor_receipt} if anchor_receipt else {})}
+            **({"anchor": anchor_receipt} if anchor_receipt else {}),
+            **({"anchor": None, "notes": ["paid_timeout"]} if paid_timeout else {}),
+            **({"cost_estimated": [item["source"] for item in search_attempts if item.get("cost_basis")]}
+               if any(item.get("cost_basis") for item in search_attempts) else {})}
         receipt["search_checks"] = {"verdict": verdict, "need": need, "passed": passed,
             "reasons": reasons, "unknown_dates": unknown,
             "results": [{"url": item["url"],

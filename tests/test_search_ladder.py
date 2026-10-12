@@ -194,7 +194,7 @@ async def test_paid_sources_are_not_tried_without_the_opt_in(monkeypatch, tmp_pa
 async def test_paid_sources_join_after_weak_free_ones_when_allowed(monkeypatch, tmp_path):
     install(monkeypatch, Fake("free_a", good(1)), Fake("free_b", [{"url": "https://b0.test/x/1", "title": "off topic"}]),
             Fake("free_c", good(1, "c")), Fake("paid", good(5, "p"), paid=True, cost=0.01))
-    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_after_weak=2,
+    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_parallel=False, search_paid_after_weak=2,
                        search_hedge_after_seconds=0)
     result = await run(tmp_path, policy=policy)
     assert CALLS == ["free_a", "free_b", "paid"]
@@ -269,7 +269,7 @@ async def test_hedging_off_waits_for_the_slow_source(monkeypatch, tmp_path):
 
 async def test_paid_sources_are_never_raced(monkeypatch, tmp_path):
     install(monkeypatch, Fake("slow", good(1), delay=0.4), Fake("paid", good(5, "p"), paid=True, cost=0.01))
-    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_hedge_after_seconds=0.05,
+    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_parallel=False, search_hedge_after_seconds=0.05,
                        search_paid_after_weak=1)
     result = await run(tmp_path, policy=policy)
     assert result["receipt"]["search_ladder"]["hedged"] == []
@@ -304,7 +304,7 @@ async def test_source_cap_limits_how_many_sources_are_tried(monkeypatch, tmp_pat
 async def test_terminal_failure_stops_the_climb(monkeypatch, tmp_path):
     install(monkeypatch, Fake("free_a", good(1)), Fake("paid", good(5, "p"), paid=True, cost=0.5),
             Fake("free_b", good(5, "f")))
-    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, max_cost_usd=0.1, search_paid_after_weak=1)
+    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_parallel=False, max_cost_usd=0.1, search_paid_after_weak=1)
     result = await run(tmp_path, policy=policy)
     # The paid source blew through the cap (BUDGET_EXHAUSTED): nothing further is tried.
     assert CALLS == ["free_a", "paid"]
@@ -616,7 +616,7 @@ async def test_homepages_and_wrong_company_results_make_a_free_set_weak_so_the_l
     best = [{"url": "https://www.nintendo.com/en-us/news/2026/10/announcement-%d" % index,
              "title": "Nintendo announcement %d" % index, "snippet": ""} for index in range(4)]
     install(monkeypatch, Fake("free", junk), Fake("paid", best, paid=True, cost=0.01))
-    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_after_weak=1, search_hedge_after_seconds=0)
+    policy = WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_parallel=False, search_paid_after_weak=1, search_hedge_after_seconds=0)
     result = await run(tmp_path, query="Nintendo latest announcement", policy=policy)
     assert CALLS == ["free", "paid"]
     assert result["receipt"]["search_ladder"]["winner"] == "paid"

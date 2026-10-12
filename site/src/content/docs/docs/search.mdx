@@ -316,15 +316,22 @@ which were replaced and why, and how many slots the other sources filled.
 
 ### Paid search in parallel
 
-With `allow_paid_fallbacks`, a news (`vertical="news"`), announcement
-(`recency` set), fact (a question or a superlative, or `vertical="reference"`)
-or code (*github*, *repo*, *library*, or `vertical="code"`) query starts the
-cheapest likely-success paid source beside the first free rung, instead of after
-the free ones fail. Everything is merged, checked and ranked, and a paid result
-that fails the checks gives way to a passing free one. `max_cost_usd` applies as
-always: a paid source that goes over the cap is dropped and the free results
-stand. `search_paid_parallel: false` keeps paid sources behind the free rungs.
-`receipt.search_ladder.paid_parallel` names the source that was started early.
+With `allow_paid_fallbacks`, an automatic search starts the cheapest
+likely-success paid source beside the first free rung, instead of after the free
+ones fail, whatever the kind of query. Everything is merged, checked and ranked,
+and a paid result that fails the checks gives way to a passing free one.
+`max_cost_usd` applies as always: a paid source that goes over the cap is
+dropped and the free results stand. `search_paid_parallel: false` keeps paid
+sources behind the free rungs. `receipt.search_ladder.paid_parallel` names the
+source that was started early.
+
+If the free sources make the answer good while that paid source is still
+running, the search waits for it, up to `search_paid_wait_seconds` (default 10),
+and anchors the answer on it. If it does not answer in time, the free answer
+stands, `receipt.search_ladder.anchor` is null with `notes: ["paid_timeout"]`,
+and the cancelled call is costed at its bundled price per search, marked
+`cost_basis: "estimated_bundled_price"` on its attempt and listed in
+`search_ladder.cost_estimated`. A source with no bundled price stays unknown.
 
 ### Filling a short answer
 

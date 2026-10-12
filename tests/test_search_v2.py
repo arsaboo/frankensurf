@@ -383,6 +383,10 @@ def paid_policy(**kwargs):
 
 def test_the_policy_flag_defaults_on_and_validates():
     assert WebPolicy().search_paid_parallel is True
+    assert WebPolicy().search_paid_wait_seconds == 10
+    for bad in (-1, float("nan"), "5"):
+        with pytest.raises(Exception):
+            WebPolicy(search_paid_wait_seconds=bad)
     with pytest.raises(Exception):
         WebPolicy(search_paid_parallel="yes")
 
@@ -444,8 +448,7 @@ async def test_each_kind_of_query_starts_paid_in_parallel(monkeypatch, tmp_path,
 @pytest.mark.parametrize("policy,query,kwargs", [
     (WebPolicy(provider="http", search_date_reads=0), "rust async", dict(recency="week")),          # paid not allowed
     (paid_policy(search_paid_parallel=False), "rust async", dict(recency="week")),                    # flag off
-    (paid_policy(), "rust async", dict()),                                                           # plain query
-    (paid_policy(), "how to bake bread", dict()),                                                    # how-to
+    (WebPolicy(provider="http", search_date_reads=0), "how to bake bread", dict()),                  # how-to, paid not allowed
     (paid_policy(search_source_candidates=("free", "exa")), "rust async", dict(recency="week")),   # explicit route
     (paid_policy(search_ladder=False), "rust async", dict(recency="week")),                          # first answer only
 ])
@@ -456,6 +459,71 @@ async def test_paid_never_runs_in_parallel_when_not_allowed_or_not_wanted(monkey
     install(monkeypatch, Fake("free", rows, delay=0.05), Fake("exa", dated(4, "e"), paid=True, cost=0.005))
     await run(tmp_path, query=query, limit=3, policy=policy, **kwargs)
     assert CALLS == ["free"]
+
+
+@pytest.mark.parametrize("query,kwargs", [
+    ("how to bake bread", dict()),
+    ("python static type checker", dict()),
+    ("attention is all you need", dict(vertical="papers")),
+    ("papers on graph neural networks", dict(vertical="papers")),
+    ("rust async", dict()),
+])
+async def test_paid_starts_in_parallel_for_every_query_when_allowed(monkeypatch, tmp_path, query, kwargs):
+    rows = [{"url": "https://f%d.test/x/story-%d" % (n, n), "title": query + " story %d" % n} for n in range(4)]
+    vertical = kwargs.get("vertical", "web")
+    install(monkeypatch, Fake("free", rows, delay=0.05, vertical=vertical),
+            Fake("exa", dated(4, "e"), paid=True, cost=0.005, vertical="web"))
+    result = await run(tmp_path, query=query, limit=3, policy=paid_policy(), **kwargs)
+    assert CALLS == ["free", "exa"]
+    assert result["receipt"]["search_ladder"]["paid_parallel"] == "exa"
+
+
+def slow_paid_rows(query):
+    fresh = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return [{"url": "https://e%d.test/x/story-%d" % (n, n), "title": query + " story %d" % n, "published": fresh}
+            for n in range(4)]
+
+
+async def test_a_slow_paid_source_is_waited_for_and_anchors_the_answer(monkeypatch, tmp_path):
+    # The free source is good at once; the paid one answers later but inside the wait.
+    install(monkeypatch, Fake("free", dated(4, "f"), delay=0.02),
+            Fake("exa", slow_paid_rows("rust async"), paid=True, cost=0.005, delay=0.4))
+    result = await run(tmp_path, recency="week", limit=3,
+                       policy=paid_policy(search_paid_wait_seconds=5, search_hedge_after_seconds=0))
+    ladder = result["receipt"]["search_ladder"]
+    assert CALLS == ["free", "exa"]
+    assert ladder["anchor"]
+    assert "notes" not in ladder
+    assert {item["url"][8] for item in result["results"]} == {"e"}
+    attempts = {item["source"]: item for item in result["receipt"]["search_attempts"]}
+    assert attempts["exa"]["status"] == "observed" and result["receipt"]["cost_usd"] == 0.005
+
+
+async def test_a_paid_source_slower_than_the_wait_times_out_with_an_honest_cost(monkeypatch, tmp_path):
+    import frankensurf.runtime as runtime
+    monkeypatch.setattr(runtime, "_paid_priors", lambda: {"exa": {"overall": [0, 0], "cost_usd": 0.0095}})
+    install(monkeypatch, Fake("free", dated(4, "f"), delay=0.02),
+            Fake("exa", slow_paid_rows("rust async"), paid=True, cost=0.0095, delay=5))
+    result = await run(tmp_path, recency="week", limit=3,
+                       policy=paid_policy(search_paid_wait_seconds=0.3, search_hedge_after_seconds=0))
+    ladder = result["receipt"]["search_ladder"]
+    assert ladder["anchor"] is None and ladder["notes"] == ["paid_timeout"] and ladder["stopped"] == "good"
+    assert {item["url"][8] for item in result["results"]} == {"f"}
+    attempts = {item["source"]: item for item in result["receipt"]["search_attempts"]}
+    assert attempts["exa"]["status"] == "cancelled"
+    assert attempts["exa"]["cost_usd"] == 0.0095 and attempts["exa"]["cost_basis"] == "estimated_bundled_price"
+    assert result["receipt"]["cost_usd"] == 0.0095 and ladder["cost_estimated"] == ["exa"]
+
+
+async def test_a_timed_out_paid_source_with_no_bundled_price_stays_unknown(monkeypatch, tmp_path):
+    import frankensurf.runtime as runtime
+    monkeypatch.setattr(runtime, "_paid_priors", lambda: {})
+    install(monkeypatch, Fake("free", dated(4, "f"), delay=0.02),
+            Fake("exa", slow_paid_rows("rust async"), paid=True, cost=0.01, delay=5))
+    result = await run(tmp_path, recency="week", limit=3,
+                       policy=paid_policy(search_paid_wait_seconds=0.2, search_hedge_after_seconds=0))
+    assert result["receipt"]["cost_usd"] is None
+    assert result["receipt"]["search_ladder"]["notes"] == ["paid_timeout"]
 
 
 async def test_parallel_paid_respects_the_cost_cap(monkeypatch, tmp_path):
@@ -575,5 +643,5 @@ async def test_fill_without_a_window_needs_reachable_searxng_room_in_the_limit_a
 async def test_filling_never_reaches_paid_or_a_last_resort_source(monkeypatch, tmp_path):
     install(monkeypatch, Up("searxng", good(3)), Fake("bing_rss", good(3, "b")),
             Fake("exa", good(3, "p"), paid=True, cost=0.01))
-    await run(tmp_path, limit=5, policy=WebPolicy(provider="http", allow_paid_fallbacks=True))
+    await run(tmp_path, limit=5, policy=WebPolicy(provider="http", allow_paid_fallbacks=True, search_paid_parallel=False))
     assert CALLS == ["searxng"]
