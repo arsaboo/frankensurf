@@ -82,7 +82,7 @@ Then I fixed it properly against the blind review: real repositories instead of 
 - free, it beats Firecrawl's search: better on 35 queries, worse on 5;
 - with paid allowed, it's level with Exa: 4.67 useful results out of 5 against 4.66, for slightly less.
 
-It doesn't beat Exa. Exa is very good, and matching it while also beating Firecrawl's search for free is where search stands today.
+Level with Exa with paid allowed, ahead of Firecrawl's search for free: that's where search stands today.
 
 
 ## How it works (and what it costs)
