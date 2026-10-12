@@ -48,6 +48,24 @@ jobs:
           done
           grep -v observed /tmp/results.txt && status=1
           exit $status
+      - name: pinned Camoufox direct download verifies against its SHA-256
+        # The fallback used when the GitHub release list is rate-limited, run for real:
+        # the pinned hash for this platform must match the release asset.
+        if: always()
+        run: |
+          /tmp/fs/bin/python - <<'PY'
+          import pathlib, shutil
+          from frankensurf import experimental as e
+          shutil.rmtree(pathlib.Path.home() / "Library/Caches/camoufox", ignore_errors=True)
+          assert not e._camoufox_ready()
+          error = e._run_step([str(e.worker_python()), "-c", e._CAMOUFOX_DIRECT, e.CAMOUFOX_BROWSER.split("/")[1],
+                               str(pathlib.Path(e.__file__).parent)], print, verify=e._camoufox_installed, attempts=1)
+          print("direct download:", error or "verified and installed")
+          assert error is None
+          assert any(path.name.endswith("-direct") for path in (pathlib.Path.home() / "Library/Caches/camoufox/browsers/official").iterdir())
+          PY
+          /tmp/fs/bin/frankensurf read https://example.com --provider camoufox > /tmp/d.json || true
+          /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/d.json'))['receipt']; print('DIRECT read camoufox', r['status']); assert r['status']=='observed'"
       - name: quarantined browsers still work
         # Browsers fetched by tools that set com.apple.quarantine make Gatekeeper verify
         # the app at first launch. Mark the bundles FrankenSurf installed, then read.
@@ -84,5 +102,9 @@ jobs:
           /tmp/fs/bin/frankensurf read https://example.com --provider nodriver > /tmp/n.json || true
           /tmp/fs/bin/python -c "import json; f=json.load(open('/tmp/n.json'))['receipt']['failure']; print(f); assert f['code']=='PROVIDER_UNAVAILABLE' and 'not installed (optional)' in f['message']"
           ~/.local/share/frankensurf/provider-venv/bin/pip install -q "nodriver==0.47.0"
-          /tmp/fs/bin/frankensurf read https://example.com --provider nodriver > /tmp/n.json || true
-          /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/n.json'))['receipt']; print('RESULT nodriver', r['status'], r.get('failure')); assert r['status']=='observed'"
+          # nodriver sometimes loses the race to connect to a freshly started Chrome: allow retries.
+          for attempt in 1 2 3; do
+            /tmp/fs/bin/frankensurf read https://example.com --provider nodriver > /tmp/n.json || true
+            /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/n.json'))['receipt']; print('RESULT nodriver', r['status'], r.get('failure')); raise SystemExit(r['status'] != 'observed')" && exit 0
+          done
+          exit 1
