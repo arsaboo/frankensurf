@@ -79,5 +79,93 @@ def test_setup_keeps_going_when_one_step_fails(monkeypatch, tmp_path):
         failed = "camoufox" in command and "fetch" in command
         return subprocess.CompletedProcess(command, 1 if failed else 0, stdout="", stderr="no build for this OS")
     monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
+    monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path / "home")
     result = experimental.install_free_providers(log=lambda message: None)
-    assert len(calls) == 3 and "Downloading the Camoufox browser" in result["errors"]
+    # pip, two tries at the browser, the direct download, then Patchright's browser
+    assert len(calls) == 5 and "Downloading the Camoufox browser" in result["errors"]
+
+
+def _fake_worker_python(monkeypatch, tmp_path):
+    (tmp_path / "bin").mkdir()
+    (tmp_path / "bin" / "python").write_text("")
+    (tmp_path / "lib/python3.12/site-packages/camoufox").mkdir(parents=True)
+    monkeypatch.setenv("FRANKENSURF_PROVIDER_PYTHON", str(tmp_path / "bin" / "python"))
+    monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path / "home")
+
+
+def test_camoufox_fetch_that_exits_zero_without_a_browser_is_a_failure(monkeypatch, tmp_path):
+    """`camoufox fetch` prints its errors and exits 0 (GitHub rate limit, no network)."""
+    import subprocess
+    from frankensurf import experimental
+    _fake_worker_python(monkeypatch, tmp_path)
+    fetches = []
+
+    def run(command, **kwargs):
+        fetches.append(command)
+        return subprocess.CompletedProcess(command, 0, stdout="Syncing...\nError: 403 rate limit exceeded\n"
+                                           if "fetch" in command else "", stderr="")
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
+    logged = []
+    result = experimental.install_free_providers(log=logged.append)
+    assert result["camoufox"] is False and result["scrapling"] is False
+    assert len([c for c in fetches if "fetch" in c]) == 2
+    assert any("-c" in c for c in fetches), "the direct download is tried after the fetches"
+    assert "rate limit" in result["errors"]["Downloading the Camoufox browser"]
+    assert "GITHUB_TOKEN" in result["errors"]["Downloading the Camoufox browser"]
+
+
+def _mac_build(tmp_path, folder="152.0.4-beta.31-abc"):
+    mac = tmp_path / "home/Library/Caches/camoufox/browsers/official" / folder / "Camoufox.app/Contents/MacOS"
+    mac.mkdir(parents=True)
+    (mac / "camoufox").write_text("")
+
+
+def test_camoufox_fetch_is_retried_until_the_browser_is_there(monkeypatch, tmp_path):
+    import subprocess
+    from frankensurf import experimental
+    _fake_worker_python(monkeypatch, tmp_path)
+    fetches = []
+
+    def run(command, **kwargs):
+        if "fetch" in command:
+            fetches.append(command)
+            if len(fetches) == 2:
+                _mac_build(tmp_path)
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
+    monkeypatch.setattr("sys.platform", "darwin")
+    monkeypatch.setattr("platform.machine", lambda: "arm64")
+    result = experimental.install_free_providers(log=lambda message: None)
+    assert len(fetches) == 2 and result["camoufox"] is True and "errors" not in result
+
+
+def test_camoufox_falls_back_to_the_pinned_direct_download(monkeypatch, tmp_path):
+    """No release list (API rate limit): the pinned build still downloads."""
+    import subprocess
+    from frankensurf import experimental
+    _fake_worker_python(monkeypatch, tmp_path)
+
+    def run(command, **kwargs):
+        if "-c" in command:
+            assert command[-1] == "152.0.4-beta.31"
+            _mac_build(tmp_path, "152.0.4-beta.31-direct")
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
+    result = experimental.install_free_providers(log=lambda message: None)
+    assert result["camoufox"] is True and "errors" not in result
+
+
+def test_a_direct_download_is_dropped_once_a_regular_install_duplicates_it(monkeypatch, tmp_path):
+    from frankensurf import experimental
+    _fake_worker_python(monkeypatch, tmp_path)
+    _mac_build(tmp_path, "152.0.4-beta.31-direct")
+    assert experimental._camoufox_installed() is True
+    _mac_build(tmp_path, "152.0.4-beta.31-abc")
+    assert experimental._camoufox_ready() is False  # two builds: the worker would refuse to pick
+    assert experimental._camoufox_installed() is True
+    root = tmp_path / "home/Library/Caches/camoufox/browsers/official"
+    assert [path.name for path in root.iterdir()] == ["152.0.4-beta.31-abc"]
