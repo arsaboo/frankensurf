@@ -6090,9 +6090,12 @@ class Runtime:
         def key(index_source):
             index, name = index_source
             wins, tries, *spent = (list(stats.get(name) or []) + [0, 0])
-            rate = (wins + 1) / (tries + 2)
             fact = next((facts[item] for item in (name, manifests.get(name, {}).get("transport_provider"),
                                                   name.removesuffix("_search")) if item in facts), {})
+            if not tries and fact.get("overall"):
+                # No local record yet: start from the bundled measured rate.
+                wins, tries = fact["overall"]
+            rate = (wins + 1) / (tries + 2)
             cost = fact.get("cost_usd")
             if cost is None and tries and spent and spent[0]:
                 cost = spent[0] / tries

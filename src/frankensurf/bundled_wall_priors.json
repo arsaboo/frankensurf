@@ -255,6 +255,20 @@
     8
    ],
    "cost_usd": 0.025
+  },
+  "exa": {
+   "overall": [
+    290,
+    300
+   ],
+   "cost_usd": 0.0095
+  },
+  "firecrawl_search": {
+   "overall": [
+    208,
+    300
+   ],
+   "cost_usd": 0.0114
   }
  }
 }
