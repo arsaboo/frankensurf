@@ -61,6 +61,16 @@ def _iso(value):
     return when.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") if when else None
 
 
+def _summarised(entry, text):
+    """Add the feed's own summary (markup stripped, bounded) when it has one."""
+    if isinstance(text, str) and text.strip():
+        from bs4 import BeautifulSoup
+        plain = " ".join(BeautifulSoup(text[:20_000], "html.parser").get_text(" ").split())
+        if plain:
+            entry["summary"] = plain[:500]
+    return entry
+
+
 def parse_feed(content: str) -> list[dict] | None:
     """Entries of an RSS, RDF, Atom or JSON feed: url, title, published. None if
     the content is not a feed."""
@@ -72,8 +82,9 @@ def parse_feed(content: str) -> list[dict] | None:
             return None
         if not isinstance(data, dict) or not isinstance(data.get("items"), list):
             return None
-        return [{"url": item.get("url") or item.get("external_url"), "title": item.get("title") or "",
-                 "published": _iso(item.get("date_published") or item.get("date_modified"))}
+        return [_summarised({"url": item.get("url") or item.get("external_url"), "title": item.get("title") or "",
+                             "published": _iso(item.get("date_published") or item.get("date_modified"))},
+                            item.get("summary") or item.get("content_text") or item.get("content_html"))
                 for item in data["items"][:_MAX_ENTRIES] if isinstance(item, dict)]
     try:
         root = ET.fromstring(text.encode() if isinstance(text, str) else text)
@@ -84,8 +95,10 @@ def parse_feed(content: str) -> list[dict] | None:
         for entry in root.findall(_ATOM + "entry")[:_MAX_ENTRIES]:
             link = next((node.get("href") for node in entry.findall(_ATOM + "link")
                          if node.get("rel", "alternate") == "alternate"), None)
-            entries.append({"url": link, "title": (entry.findtext(_ATOM + "title") or "").strip(),
-                            "published": _iso(entry.findtext(_ATOM + "published") or entry.findtext(_ATOM + "updated"))})
+            entries.append(_summarised(
+                {"url": link, "title": (entry.findtext(_ATOM + "title") or "").strip(),
+                 "published": _iso(entry.findtext(_ATOM + "published") or entry.findtext(_ATOM + "updated"))},
+                entry.findtext(_ATOM + "summary") or entry.findtext(_ATOM + "content")))
         return entries
     items = root.findall("./channel/item") or [node for node in root if node.tag.endswith("}item")]
     if root.tag != "rss" and not root.tag.endswith("RDF"):
@@ -96,8 +109,10 @@ def parse_feed(content: str) -> list[dict] | None:
         if not link and guid and guid.startswith("http"):
             link = guid
         date = item.findtext("pubDate") or next((node.text for node in item if node.tag.endswith("}date")), None)
-        entries.append({"url": (link or "").strip(), "title": (item.findtext("title") or "").strip(),
-                        "published": _iso(date)})
+        body = item.findtext("description") or next(
+            (node.text for node in item if node.tag.endswith("}encoded")), None)
+        entries.append(_summarised({"url": (link or "").strip(), "title": (item.findtext("title") or "").strip(),
+                                    "published": _iso(date)}, body))
     return entries
 
 

@@ -492,7 +492,7 @@ def build_parser():
         help="search: only results from the last day, week, month or year")
     parser.add_argument("--region", help="search: region and language, like en-AU")
     parser.add_argument("--vertical", default="web",
-        choices=["web", "news", "reference", "discussions", "qa", "code", "papers", "books"],
+        choices=["web", "news", "reference", "discussions", "qa", "code", "papers", "books", "site"],
         help="search: the kind of source (default web)")
     parser.add_argument("--mode", default="fallback", choices=["fallback", "merge"],
         help="search: merge asks every eligible source at once and fuses the results")
