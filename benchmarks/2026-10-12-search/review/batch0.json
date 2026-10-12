@@ -1,0 +1,962 @@
+[
+ {
+  "query_id": "blind5-howto-14",
+  "query": "how to use kubectl port forward",
+  "window": "none",
+  "url": "https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/",
+  "title": "Use Port Forwarding to Access Applications in a Cluster",
+  "snippet": "This page shows how to use kubectl port-forward to connect to a MongoDB server running in a Kubernetes cluster. This type of connection can be useful for database debugging. Before you begin You need ",
+  "date_shown": "2026-10-10",
+  "id": "r0000"
+ },
+ {
+  "query_id": "blind5-howto-06",
+  "query": "how to create a python package with pyproject.toml",
+  "window": "none",
+  "url": "https://packaging.python.org/en/latest/guides/writing-pyproject-toml/",
+  "title": "Writing your pyproject.toml - Python Packaging User Guide",
+  "snippet": "Writing your pyproject.toml ¶ pyproject.toml is a configuration file used by packaging tools, as well as other tools such as linters, type checkers, etc. There are three possible TOML tables in this f",
+  "date_shown": "2026-10-09",
+  "id": "r0006"
+ },
+ {
+  "query_id": "blind5-howto-08",
+  "query": "how to use docker volumes",
+  "window": "none",
+  "url": "https://docs.docker.com/reference/cli/docker/volume/create/",
+  "title": "docker volume create",
+  "snippet": "# docker volume create\n\nDescription: Create a volume\n\nUsage: `docker volume create [OPTIONS] [VOLUME]`\n...\nCreates a new volume that containers can consume and store data in. If a name is\nnot specifie",
+  "date_shown": "none",
+  "id": "r0012"
+ },
+ {
+  "query_id": "blind5-paper-04",
+  "query": "recent papers on offline reinforcement learning",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.03842",
+  "title": "[2609.03842] Multi-step Proximal Policy Improvement in Offline Reinforcement Learning",
+  "snippet": "[2609.03842] Multi-step Proximal Policy Improvement in Offline Reinforcement Learning\nSkip to main content\n...\n**arXiv:2609.03842** (cs)\n[Submitted on 3 Sep 2026]\n# Title:Multi-step Proximal Policy Im",
+  "date_shown": "2026-09-03",
+  "id": "r0018"
+ },
+ {
+  "query_id": "blind5-news-14",
+  "query": "news about Emirates airline past month",
+  "window": "the last 31 days",
+  "url": "https://www.euronews.com/2026/10/07/emirates-launches-helsinki-flights-as-airline-reaches-93-of-pre-disruption-capacity",
+  "title": "Emirates launches Helsinki flights as airline reaches 93% of pre-disruption capacity  | Euronews",
+  "snippet": "Emirates launches Helsinki flights as airline reaches 93% of pre-disruption capacity | Euronews\n\n# Emirates launches Helsinki flights as airline reaches 93% of pre-disruption capacity \n\n \n\n Emirates h",
+  "date_shown": "2026-10-07",
+  "id": "r0024"
+ },
+ {
+  "query_id": "blind5-news-05",
+  "query": "news about Embraer past month",
+  "window": "the last 31 days",
+  "url": "https://flightdeckreport.com/articles/embraer-posts-record-q3-with-66-deliveries-hunts-2026-targets-d87ae440",
+  "title": "Embraer posts record Q3 with 66 deliveries, hunts 2026 targets — Flightdeck Report",
+  "snippet": "Embraer posts record Q3 with 66 deliveries, hunts 2026 targets — Flightdeck Report\n\n# Embraer posts record Q3 with 66 deliveries, hunts 2026 targets\n\nEmbraer delivered 66 aircraft in Q3 2026 — its str",
+  "date_shown": "2026-10-10",
+  "id": "r0030"
+ },
+ {
+  "query_id": "blind5-code-09",
+  "query": "python library for image processing",
+  "window": "none",
+  "url": "https://github.com/xavctn/img2table",
+  "title": "xavctn/img2table",
+  "snippet": "img2table is a table identification and extraction Python Library for PDF and images, based on OpenCV image processing",
+  "date_shown": "2026-07-12",
+  "id": "r0036"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://www.biography.com/authors-writers/leo-tolstoy",
+  "title": "Leo Tolstoy - Books, Quotes & War and Peace",
+  "snippet": "Russian author Leo Tolstoy wrote the acclaimed novels 'War and Peace,' 'Anna Karenina' and 'The Death of Ivan Ilyich,' and ranks among the world's top writers.\n...\nIn the 1860s, Russian author Leo Tol",
+  "date_shown": "2014-09-09",
+  "id": "r0042"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/War_and_Peace",
+  "title": "War and Peace",
+  "snippet": "War and Peace (Russian: Война и мир, romanized: Voyna i mir; pre-reform Russian: Война и миръ; IPA: [vɐjˈna i ˈmʲir]) is an epic novel by the Russian",
+  "date_shown": "2002-12-06",
+  "id": "r0048"
+ },
+ {
+  "query_id": "blind5-howto-13",
+  "query": "how to configure tailwind css dark mode",
+  "window": "none",
+  "url": "https://v2.tailwindcss.com/docs/dark-mode",
+  "title": "Dark Mode - Tailwind CSS",
+  "snippet": "To make this as easy as possible, Tailwind includes a `dark` variant that lets you style your site differently when dark mode is enabled:\n...\nIt’s important to note that because of file size considera",
+  "date_shown": "none",
+  "id": "r0054"
+ },
+ {
+  "query_id": "blind5-news-12",
+  "query": "news about Vale past month",
+  "window": "the last 31 days",
+  "url": "https://www.el-fondo.com/en/news/vale-agrees-to-pay-brl-2119m-over-mariana-mine-report",
+  "title": "Vale settles Mariana mine safety omission for BRL 21.19m",
+  "snippet": "Vale settles Mariana mine safety omission for BRL 21.19m\n\n# Vale agrees to pay BRL 21.19m over Mariana mine report\n\nThe miner withheld a 2020 safety report on a waste pile above a containment dike for",
+  "date_shown": "2026-10-07",
+  "id": "r0060"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/10.1016/j.neucom.2026.132992",
+  "title": "MetaGT: : A lightweight graph transformer via meta learning for large-scale graphs: Neurocomputing: Vol 676, No C",
+  "snippet": "MetaGT: : A lightweight graph transformer via meta learning for large-scale graphs: Neurocomputing: Vol 676, No C\n\n# MetaGT: : A lightweight graph transformer via meta learning for large-scale graphs\n",
+  "date_shown": "2026-06-24",
+  "id": "r0066"
+ },
+ {
+  "query_id": "blind5-code-15",
+  "query": "node.js orm library",
+  "window": "none",
+  "url": "https://github.com/mariadb-developers/nodejs-sequelize-quickstart",
+  "title": "mariadb-developers/nodejs-sequelize-quickstart",
+  "snippet": "This repository will walk you through the process of quickly getting started with Sequelize, a promise-based Node.js object-relational mapping (ORM) library, to connect to and communicate with a Maria",
+  "date_shown": "2022-02-03",
+  "id": "r0072"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://www.github.com/encode/httpx",
+  "title": "encode/httpx",
+  "snippet": "# encode/httpx\n\nA next generation HTTP client for Python. 🦋\n\n- Stars: 15444\n- Forks: 1261\n- Watchers: 15444\n- Open issues: 143\n- License: BSD 3-Clause \"New\" or \"Revised\" License\n- Homepage: https://ww",
+  "date_shown": "none",
+  "id": "r0078"
+ },
+ {
+  "query_id": "blind5-announcement-11",
+  "query": "CrowdStrike latest announcement",
+  "window": "the last 31 days",
+  "url": "https://en.wikipedia.org/wiki/CrowdStrike",
+  "title": "CrowdStrike - Wikipedia",
+  "snippet": "The company was co-founded in 2011 by George Kurtz, Dmitri Alperovitch, and Gregg Marston. Kurtz is the CEO. CrowdStrike went public on the Nasdaq in 2019 and joined the S&P 500 index in 2024. CrowdSt",
+  "date_shown": "2026-10-10",
+  "id": "r0084"
+ },
+ {
+  "query_id": "blind5-code-10",
+  "query": "go library for configuration files",
+  "window": "none",
+  "url": "https://github.com/spf13/viper?tab=readme-ov-file",
+  "title": "spf13/viper",
+  "snippet": "Go configuration with fangs\n...\n**Go configuration with fangs!**\n...\nViper is a complete configuration solution for Go applications including\n[12-Factor apps](https://12factor.net/#the_twelve_factors)",
+  "date_shown": "2014-04-02",
+  "id": "r0090"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://matplotlib.org/stable/gallery/subplots_axes_and_figures/subplots_demo.html",
+  "title": "Create multiple subplots using plt.subplots — Matplotlib 3.11.2 ...",
+  "snippet": "Create multiple subplots using plt.subplots # pyplot.subplots creates a figure and a grid of subplots with a single call, while providing reasonable control over how the individual plots are created. ",
+  "date_shown": "2026-10-12",
+  "id": "r0096"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.media.stellantis.com/em-en/corporate/press/stellantis-unveils-six-concept-cars-the-night-before-the-paris-motor-show",
+  "title": "Stellantis Unveils Six Concept Cars “The Night Before ...",
+  "snippet": "Stellantis Unveils Six Concept Cars “The Night Before” the Paris Motor Show | Corporate | Stellantis Media\n11 Oct 2026\n# Stellantis Unveils Six Concept Cars “The Night Before” the Paris Motor Show\n## ",
+  "date_shown": "none",
+  "id": "r0102"
+ },
+ {
+  "query_id": "blind5-announcement-10",
+  "query": "Zscaler official announcement",
+  "window": "the last 31 days",
+  "url": "https://www.zscaler.com/blogs/product-insights/ai-endpoint-security-closes-zero-trust-gap",
+  "title": "AI Endpoint Security Closes the Zero Trust Gap | Zscaler",
+  "snippet": "AI Endpoint Security Closes the Zero Trust Gap | Zscaler\n...\nAt Zenith Live in Las Vegas, we introduced Zscaler AI Endpoint Security, a new product that extends Zscaler's AI protection to the endpoint",
+  "date_shown": "2026-10-08",
+  "id": "r0108"
+ },
+ {
+  "query_id": "blind5-howto-19",
+  "query": "how to set up a postgres connection pool",
+  "window": "none",
+  "url": "https://blog.devops.dev/handling-postgresql-connection-pooling-dee3849d0299",
+  "title": "Handling PostgreSQL Connection Pooling - DevOps.dev",
+  "snippet": "PostgreSQL’s powerful features and reliability make it a preferred choice for modern applications. However, in server ... and microservice environments, managing PostgreSQL connections and resources i",
+  "date_shown": "2025-06-15",
+  "id": "r0114"
+ },
+ {
+  "query_id": "blind5-code-02",
+  "query": "tokio github repository",
+  "window": "none",
+  "url": "https://github.com/tokio-rs/tokio/",
+  "title": "tokio-rs/tokio",
+  "snippet": "# tokio-rs/tokio\n\nA runtime for writing reliable asynchronous applications with Rust. Provides I/O, networking, scheduling, timers, ...\n\n- Stars: 33407\n- Forks: 5311\n- Watchers: 33407\n- Open issues: 4",
+  "date_shown": "none",
+  "id": "r0120"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://proceedings.neurips.cc/paper_files/paper/2025/hash/c8fa61687c7a85d392a0503b456070f1-Abstract-Conference.html",
+  "title": "Unifying and Enhancing Graph Transformers via a Hierarchical Mask Framework",
+  "snippet": "Unifying and Enhancing Graph Transformers via a Hierarchical Mask Framework\n\n# Unifying and Enhancing Graph Transformers via a Hierarchical Mask Framework\n...\nGraph Transformers (GTs) have emerged as ",
+  "date_shown": "2026-04-23",
+  "id": "r0126"
+ },
+ {
+  "query_id": "blind5-paper-18",
+  "query": "recent papers on embodied ai",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/html/2605.10653v1",
+  "title": "Embodied AI in ActionInsights from SAE World Congress 2026 on Safety ...",
+  "snippet": "At SAE World Congress 2026, a panel of experts from industry, consulting, startups, and academia convened to discuss the current state of embodied AI and the path toward responsible deployment.",
+  "date_shown": "2026-10-12",
+  "id": "r0132"
+ },
+ {
+  "query_id": "blind5-paper-18",
+  "query": "recent papers on embodied ai",
+  "window": "the last 366 days",
+  "url": "https://embodiedglobal.com/en/article/caai-embodied-ai-white-paper-2026-technical-standards",
+  "title": "CAAI Releases Embodied Intelligence White Paper 2026: Comprehensive ...",
+  "snippet": "The Chinese Association for Artificial Intelligence (CAAI) has released its 2026 White Paper on Embodied Intelligence, providing the most comprehensive technical framework to date. Covering perception",
+  "date_shown": "2026-10-12",
+  "id": "r0138"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://github.com/rhawk117/github-httpx-client",
+  "title": "rhawk117/github-httpx-client",
+  "snippet": "Automatically generated python HTTPX Client supporting both sync and async from the OpenAPI spec.",
+  "date_shown": "2025-07-24",
+  "id": "r0144"
+ },
+ {
+  "query_id": "blind5-paper-01",
+  "query": "recent papers on large language model agents for software engineering",
+  "window": "the last 366 days",
+  "url": "https://paperlayer.ai/abs/2609.38335v1",
+  "title": "E2E-SWE: Benchmarking LLMs on Building Working Codebases from Scratch | Paperlayer",
+  "snippet": "E2E-SWE: Benchmarking LLMs on Building Working Codebases from Scratch | Paperlayer\n\n# E2E-SWE: Benchmarking LLMs on Building Working Codebases from Scratch\n...\narXiv:2609.38335v1 Sep 29, 2026 cs.SE cs",
+  "date_shown": "2026-09-29",
+  "id": "r0150"
+ },
+ {
+  "query_id": "blind5-paper-13",
+  "query": "recent papers on recommender systems with llms",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2512.03439",
+  "title": "LLM as Explainable Re-Ranker for Recommendation System",
+  "snippet": "The application of large language models (LLMs) in recommendation systems has recently gained traction. Traditional recommendation systems often lack explainability and suffer from issues such as popu",
+  "date_shown": "2026-05-27",
+  "id": "r0156"
+ },
+ {
+  "query_id": "blind5-announcement-11",
+  "query": "CrowdStrike latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.crowdstrike.com/en-us/pricing/",
+  "title": "Endpoint, Cloud & Identity Security Products | CrowdStrike",
+  "snippet": "Delivered from the cloud, our products are battle-tested to stop breaches. Explore CrowdStrike's suite of cybersecurity products here!",
+  "date_shown": "2026-10-10",
+  "id": "r0162"
+ },
+ {
+  "query_id": "blind5-howto-08",
+  "query": "how to use docker volumes",
+  "window": "none",
+  "url": "https://docs.docker.com/reference/compose-file/volumes",
+  "title": "Define and manage volumes in Docker Compose",
+  "snippet": "Volumes are persistent data stores implemented by the container engine. Compose offers a neutral way for services to mount volumes, and configuration parameters to allocate them to infrastructure. The",
+  "date_shown": "none",
+  "id": "r0168"
+ },
+ {
+  "query_id": "blind5-code-20",
+  "query": "typescript testing framework",
+  "window": "none",
+  "url": "https://github.com/dubzzz/fast-check",
+  "title": "dubzzz/fast-check",
+  "snippet": "Property based testing framework for JavaScript (like QuickCheck) written in TypeScript",
+  "date_shown": "2026-10-11",
+  "id": "r0174"
+ },
+ {
+  "query_id": "blind5-howto-17",
+  "query": "how to use regex lookahead",
+  "window": "none",
+  "url": "https://www.codegenes.net/blog/regex-lookahead-lookbehind-and-atomic-groups/",
+  "title": "Regex Lookahead, Lookbehind & Atomic Groups: What They Are, How to Use ...",
+  "snippet": "Regular expressions (regex) are indispensable for pattern matching in text, but their true power lies in advanced features that solve complex problems. If you’ve ever needed to validate a password wit",
+  "date_shown": "2026-10-05",
+  "id": "r0180"
+ },
+ {
+  "query_id": "blind5-announcement-16",
+  "query": "Block latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.digitaltoday.co.kr/en/view/112211/block-gives-away-1-bitcoin-at-complexcon-in-los-angeles",
+  "title": "Block gives away 1 bitcoin at ComplexCon in Los Angeles",
+  "snippet": "Block gives away 1 bitcoin at ComplexCon in Los Angeles\n\n Updated 1:55 PM KST, Mon October 12, 2026 | Mobile Web \n\n Block, led by Jack Dorsey, gave 1 bitcoin as a prize to a participant at the Complex",
+  "date_shown": "2026-10-08",
+  "id": "r0186"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://pythonguides.com/matplotlib-subplot-tutorial/",
+  "title": "Matplotlib Subplots - Python Guides",
+  "snippet": "Learn how to create and customize Matplotlib subplots in Python with this practical tutorial. Perfect for data visualization beginners and pros alike.",
+  "date_shown": "2026-10-11",
+  "id": "r0192"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://www.vaticanstate.va/en/state-and-government/history/vatican-city-today.html",
+  "title": "Vatican City today",
+  "snippet": "With a surface area of 0.44 hectares, Vatican City State is the smallest independent State in the world, both in terms of population and territory. Its borders are marked by its walls, and in Saint Pe",
+  "date_shown": "2019-05-23",
+  "id": "r0198"
+ },
+ {
+  "query_id": "blind5-announcement-13",
+  "query": "Autodesk press release this month",
+  "window": "the last 31 days",
+  "url": "https://adsknews.autodesk.com/en/pressrelease/autodesk-names-diana-colella-to-lead-architecture-engineering-and-construction-business/",
+  "title": "Autodesk names Diana Colella to lead architecture, engineering and construction business | Autodesk News",
+  "snippet": "Autodesk names Diana Colella to lead architecture, engineering and construction business | Autodesk News\n\n# Autodesk names Diana Colella to lead architecture, engineering and construction business\n\n 6",
+  "date_shown": "2026-10-06",
+  "id": "r0204"
+ },
+ {
+  "query_id": "blind5-howto-12",
+  "query": "how to use redis as a cache",
+  "window": "none",
+  "url": "https://www.dragonflydb.io/guides/mastering-redis-cache-from-basic-to-advanced",
+  "title": "Mastering Redis Cache: From Basic to Advanced [2026 Guide]",
+  "snippet": "Redis cache demystified: how it works, why it matters, and ways to implement it for immediate performance gains on your site and app.",
+  "date_shown": "2026-09-24",
+  "id": "r0210"
+ },
+ {
+  "query_id": "blind5-paper-08",
+  "query": "recent papers on 3d gaussian splatting",
+  "window": "the last 366 days",
+  "url": "https://scipapermill.com/2026/08/22/gaussian-splatting-unpacking-the-latest-breakthroughs-in-3d-reconstruction-robotics-and-beyond/",
+  "title": "gaussian splatting: Unpacking the Latest Breakthroughs in 3D ...",
+  "snippet": "Latest 34 papers on gaussian splatting: Aug. 22, 2026 Gaussian Splatting (3DGS) has rapidly emerged as a game-changer in 3D scene representation, offering stunning visual quality at unprecedented rend",
+  "date_shown": "2026-10-03",
+  "id": "r0216"
+ },
+ {
+  "query_id": "blind5-code-15",
+  "query": "node.js orm library",
+  "window": "none",
+  "url": "https://www.prisma.io/orm",
+  "title": "Prisma ORM | Type-Safe ORM for TypeScript and Node.js",
+  "snippet": "Prisma ORM | Type-Safe ORM for TypeScript and Node.js\n...\nDefine your data model once, and Prisma ORM generates a typed client where every query, migration and type is checked against it.\n...\nin your ",
+  "date_shown": "none",
+  "id": "r0222"
+ },
+ {
+  "query_id": "blind5-howto-14",
+  "query": "how to use kubectl port forward",
+  "window": "none",
+  "url": "https://kubernetes.io/docs/reference/kubectl/quick-reference/",
+  "title": "kubectl Quick Reference | Kubernetes",
+  "snippet": "kubectl attach my-pod -i                            # Attach to Running Container\nkubectl port-forward my-pod 5000:6000               # Listen on port 5000 on the local machine and forward to port 600",
+  "date_shown": "none",
+  "id": "r0228"
+ },
+ {
+  "query_id": "blind5-howto-14",
+  "query": "how to use kubectl port forward",
+  "window": "none",
+  "url": "https://lenshq.io/blog/kubernetes-port-forward/",
+  "title": "How to Use Kubectl Port-Forward: Complete Guide for Kubernetes ...",
+  "snippet": "Port forwarding is a powerful Kubernetes feature that helps you debug applications, test connections, and access internal dashboards without modifying cluster network configuration.",
+  "date_shown": "2026-10-03",
+  "id": "r0234"
+ },
+ {
+  "query_id": "blind5-fact-11",
+  "query": "who invented the light bulb",
+  "window": "none",
+  "url": "https://www.nationalgeographic.com/history/article/thomas-edison-light-bulb-history",
+  "title": "Thomas Edison didn’t invent the light bulb—but here’s what he did do | National Geographic",
+  "snippet": "Thomas Edison didn’t invent the light bulb—but here’s what he did do | National Geographic\n...\nThomas Edison had a hand in inventing revolutionary devices such as the movie camera, microphone, and pho",
+  "date_shown": "2022-04-13",
+  "id": "r0240"
+ },
+ {
+  "query_id": "blind5-howto-06",
+  "query": "how to create a python package with pyproject.toml",
+  "window": "none",
+  "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/?highlight=distributing",
+  "title": "Packaging Python Projects #",
+  "snippet": "This tutorial walks you through how to package a simple Python project. It will show you how to add the necessary files and structure to create the package, how to build the package, and how to upload",
+  "date_shown": "none",
+  "id": "r0246"
+ },
+ {
+  "query_id": "blind5-paper-13",
+  "query": "recent papers on recommender systems with llms",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s41060-026-01106-9",
+  "title": "Large language models for generative recommendation: a systematic ...",
+  "snippet": "The rise of large language models (LLMs) has redefined recommender systems, transforming them from static ranking frameworks into dynamic, generative engines that produce contextually rich and explain",
+  "date_shown": "2026-10-05",
+  "id": "r0252"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://github.com/devchandansh/django-apscheduler",
+  "title": "devchandansh/django-apscheduler",
+  "snippet": "Django APScheduler for Scheduler Jobs. Advanced Python Scheduler (APScheduler) is a Python library that lets you schedule your Python code to be executed later, either just once or periodically. You c",
+  "date_shown": "2023-04-21",
+  "id": "r0258"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Pacific_Ocean",
+  "title": "Pacific Ocean",
+  "snippet": "The Pacific Ocean is the largest and deepest of Earth's five oceanic divisions. It stretches from the Arctic Ocean in the north to the Southern Ocean",
+  "date_shown": "none",
+  "id": "r0264"
+ },
+ {
+  "query_id": "blind5-fact-15",
+  "query": "who developed the theory of relativity",
+  "window": "none",
+  "url": "https://www.britannica.com/story/how-albert-einstein-developed-the-theory-of-general-relativity",
+  "title": "How Albert Einstein Developed the Theory of General ...",
+  "snippet": "# How Albert Einstein Developed the Theory of General Relativity\n\nLearn how one of history’s greatest minds came up with one of science’s most important theories.\n...\nIn 1907, two years after the publ",
+  "date_shown": "none",
+  "id": "r0270"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://matplotlib.org/stable/users/explain/quick_start.html",
+  "title": "Quick start guide — Matplotlib 3.11.0 documentation",
+  "snippet": "Matplotlib graphs your data on `Figure` s (e.g., windows, Jupyter widgets, etc.), each of which can contain one or more `Axes`, an area where points can be specified in terms of x-y coordinates (or th",
+  "date_shown": "none",
+  "id": "r0276"
+ },
+ {
+  "query_id": "blind5-howto-14",
+  "query": "how to use kubectl port forward",
+  "window": "none",
+  "url": "https://kubernetes.io/docs/reference/kubectl/generated/kubectl_port-forward/",
+  "title": "kubectl port-forward - Kubernetes",
+  "snippet": "Synopsis Forward one or more local ports to a pod. Use resource type/name such as deployment/mydeployment to select a pod. Resource type defaults to 'pod' if omitted. If there are multiple pods matchi",
+  "date_shown": "2026-10-09",
+  "id": "r0282"
+ },
+ {
+  "query_id": "blind5-fact-08",
+  "query": "who composed the Moonlight Sonata",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Piano_Sonata_No._23_%28Beethoven%29",
+  "title": "Piano Sonata No. 23 (Beethoven)",
+  "snippet": "works in sonata form that ends in tragedy ( the others being the C minor Piano Trio, Piano Sonata Op. 27, No. 2 (\" Moonlight \"), and the Violin Sonata Op. 30",
+  "date_shown": "2004-03-30",
+  "id": "r0288"
+ },
+ {
+  "query_id": "blind5-fact-11",
+  "query": "who invented the light bulb",
+  "window": "none",
+  "url": "https://thecanadianencyclopedia.ca/en/article/woodward-and-evans-light-bulb",
+  "title": "Woodward and Evans Light Bulb | The Canadian Encyclopedia",
+  "snippet": "In 1874, Canadians Henry Woodward and Mathew Evans patented a design for an incandescent light bulb. Their invention preceded that of American Thomas Edison by several years. In fact, the second paten",
+  "date_shown": "none",
+  "id": "r0294"
+ },
+ {
+  "query_id": "blind5-news-12",
+  "query": "news about Vale past month",
+  "window": "the last 31 days",
+  "url": "https://www.msn.com/en-us/news/other/vale-sa-vale-is-a-trending-stock-facts-to-know-before-betting-on-it/ar-AA2dOWr0",
+  "title": "VALE S.A. (VALE) Is a Trending Stock: Facts to Know Before Betting on It",
+  "snippet": "VALE S.A. (VALE) is one of the stocks most watched by Zacks.com visitors lately. So, it might be a good idea to review some of the factors that might affect the near-term performance of the stock.",
+  "date_shown": "2026-10-08",
+  "id": "r0300"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Miniature_book",
+  "title": "Miniature book",
+  "snippet": "Nelson in Paris from ca. 1920 Miniature Constitution of Ukraine Thumb Bibles Many books have claim to the title of smallest book in the world at the time",
+  "date_shown": "2005-04-01",
+  "id": "r0306"
+ },
+ {
+  "query_id": "blind5-fact-07",
+  "query": "what is the population of New Zealand",
+  "window": "none",
+  "url": "https://www.stats.govt.nz/information-releases/national-population-estimates-at-31-december-2025",
+  "title": "National population estimates: At 31 December 2025 | Stats NZ",
+  "snippet": "At 31 December 2025:\n\n- the estimated resident population of New Zealand was 5,342,000 (provisionally)\n- there were 2,689,500 females and 2,652,500 males\n- the median age of females and males was 39.2",
+  "date_shown": "2026-02-16",
+  "id": "r0312"
+ },
+ {
+  "query_id": "blind5-fact-05",
+  "query": "what is the deepest lake in the world",
+  "window": "none",
+  "url": "https://www.guinnessworldrecords.com/world-records/deepest-lake",
+  "title": "Deepest lake | Guinness World Records",
+  "snippet": "Deepest lake |\n...\n# Deepest lake\n...\nLake Baikal\n\nWhat\n\n 1,642 metre(s) \n\nWhere\n\n Russian Federation \n\nWhen\n\n 1999 \n\nLake Baikal is a freshwater lake located in a geological rift valley in south-east",
+  "date_shown": "2019-03-15",
+  "id": "r0318"
+ },
+ {
+  "query_id": "blind5-code-20",
+  "query": "typescript testing framework",
+  "window": "none",
+  "url": "http://github.com/kulshekhar/ts-jest",
+  "title": "kulshekhar/ts-jest",
+  "snippet": "A Jest transformer with source map support that lets you use Jest to test projects written in TypeScript.\n...\nts-jest \n\n A Jest transformer with source map support that lets you use Jest to test proje",
+  "date_shown": "2016-08-30",
+  "id": "r0324"
+ },
+ {
+  "query_id": "blind5-howto-12",
+  "query": "how to use redis as a cache",
+  "window": "none",
+  "url": "https://redis.io/tutorials/howtos/quick-start/",
+  "title": "Redis Quick Start Guide: Install, Connect, and Query in Minutes",
+  "snippet": "Redis is an open-source, in-memory data store used as a database, cache, and message broker. To get started, install Redis via Docker or Redis Cloud, connect with redis-cli or a client library in your",
+  "date_shown": "2026-10-11",
+  "id": "r0330"
+ },
+ {
+  "query_id": "blind5-paper-08",
+  "query": "recent papers on 3d gaussian splatting",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s10489-026-07227-9",
+  "title": "A review of recent advances in Gaussian splatting - Springer",
+  "snippet": "Gaussian splatting (GS) enables high-quality real-time novel view synthesis by representing scenes with explicit Gaussian primitives and leveraging efficient differentiable rendering. It has expanded ",
+  "date_shown": "2026-10-12",
+  "id": "r0336"
+ },
+ {
+  "query_id": "blind5-news-20",
+  "query": "news about Tata Motors past month",
+  "window": "the last 31 days",
+  "url": "https://www.autocarindia.com/industry/september-2026-ev-sales-kia-overtakes-maruti-suzuki-for-fifth-spot-440909",
+  "title": "September 2026 EV sales: Kia overtakes Maruti Suzuki for fifth spot | Autocar India",
+  "snippet": "Tata Motors leads with a record 35,995-unit month, while Tesla moves ahead of Mercedes-Benz in luxury EV sales\n...\nRetail sales of electric passenger vehicles reached a new monthly high of 35,995 unit",
+  "date_shown": "2026-10-02",
+  "id": "r0342"
+ },
+ {
+  "query_id": "blind5-howto-06",
+  "query": "how to create a python package with pyproject.toml",
+  "window": "none",
+  "url": "https://betterstack.com/community/guides/scaling-python/pyproject-explained/",
+  "title": "Managing Python Projects With pyproject.toml - Better Stack Community",
+  "snippet": "With its broad ecosystem support and clean, readable syntax, pyproject.toml offers a vastly improved configuration experience compared to the legacy setup.py approach. This article will guide you usin",
+  "date_shown": "2026-09-22",
+  "id": "r0348"
+ },
+ {
+  "query_id": "blind5-announcement-13",
+  "query": "Autodesk press release this month",
+  "window": "the last 31 days",
+  "url": "https://adsknews.autodesk.com/en/news/autodesk-ai-design-manufacturing-au-2026/",
+  "title": "Autodesk advances AI for design and manufacturing at AU 2026",
+  "snippet": "# Autodesk advances AI for design and manufacturing at AU 2026\n\n 15 SEP 2026 \n\n Jeff Kinder \n\n## Key takeaways\n...\nAutodesk is unlocking capacity by applying AI to repetitive design, engineering, and ",
+  "date_shown": "2026-09-15",
+  "id": "r0354"
+ },
+ {
+  "query_id": "blind5-news-04",
+  "query": "news about FedEx this week",
+  "window": "the last 7 days",
+  "url": "https://www.msn.com/en-us/sports/golf/whos-in-and-whos-out-fedex-cup-fall-standings-update-after-baycurrent-in-japan/ar-AA2e0qSU",
+  "title": "Who's in and who's out? FedEx Cup Fall standings update after Baycurrent in Japan",
+  "snippet": "Michael Brennan won in Japan as PGA Tour players scramble for FedEx Cup position with only five events left in the season.",
+  "date_shown": "2026-10-11",
+  "id": "r0360"
+ },
+ {
+  "query_id": "blind5-code-10",
+  "query": "go library for configuration files",
+  "window": "none",
+  "url": "https://github.com/joshbetz/config",
+  "title": "joshbetz/config",
+  "snippet": "🛠 A configuration library for Go that parses environment variables, JSON files, and reloads automatically on SIGHUP.",
+  "date_shown": "2021-11-12",
+  "id": "r0366"
+ },
+ {
+  "query_id": "blind5-fact-16",
+  "query": "what is the freezing point of water in fahrenheit",
+  "window": "none",
+  "url": "https://www.ebsco.com/research-starters/science/freezing-point/",
+  "title": "Freezing point | Science | Research Starters | EBSCOhost",
+  "snippet": "The freezing point is defined as the temperature at which a liquid transitions into a solid state under atmospheric pressure. The most commonly recognized freezing point is that of water, which is 32°",
+  "date_shown": "none",
+  "id": "r0372"
+ },
+ {
+  "query_id": "blind5-howto-11",
+  "query": "how to debounce input in react",
+  "window": "none",
+  "url": "https://stackoverflow.com/questions/75556418/how-to-use-debounce-hooks-in-react",
+  "title": "How to use debounce hooks in React",
+  "snippet": "```\nimport { useEffect, useState } from 'react';\n\nexport default function useDebounce(text: string, delay: number) {\n  const [value, setValue] = useState('');\n\n  useEffect(() => {\n    const timerId = ",
+  "date_shown": "2023-02-24",
+  "id": "r0378"
+ },
+ {
+  "query_id": "blind5-announcement-11",
+  "query": "CrowdStrike latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.crowdstrike.com/en-us/press-releases/falcon-europe-2026-sells-out/",
+  "title": "Fal.Con Europe 2026 Sells Out at Record Pace | CrowdStrike",
+  "snippet": "Fal.Con Europe 2026 Sells Out at Record Pace | CrowdStrike\n\n# Fal.Con Europe Sells Out at Record Pace as CrowdStrike Puts the AI Advantage in Defenders’ Hands\n...\nAUSTIN, Texas – October 6, 2026 – Cro",
+  "date_shown": "2026-10-06",
+  "id": "r0384"
+ },
+ {
+  "query_id": "blind5-code-15",
+  "query": "node.js orm library",
+  "window": "none",
+  "url": "https://github.com/MrSmart0401/Nest-typeORM-mySQL-API",
+  "title": "MrSmart0401/Nest-typeORM-mySQL-API",
+  "snippet": "About This is a project built using NestJS, a popular Node.js framework, to interact with a MySQL database using the TypeORM ORM library",
+  "date_shown": "2024-03-15",
+  "id": "r0390"
+ },
+ {
+  "query_id": "blind5-news-05",
+  "query": "news about Embraer past month",
+  "window": "the last 31 days",
+  "url": "https://www.aviacionline.com/english/sustainable-aviation/-the-boeing-case-is-now-completely-behind-us-says-embraer-ceo_a6ac7e526c10c54ce4b9afcdb",
+  "title": "\"The Boeing case is now completely behind us,\" says Embraer CEO - Aviacionline",
+  "snippet": "# \"The Boeing case is now completely behind us,\" says Embraer CEO - Aviacionline\n\nAuthor: Edgardo Gimenez Mazó\nPublished: 2026-10-08T18:45:45Z\nSource: aviacionline.com\n...\n\"The Boeing case is now comp",
+  "date_shown": "2026-10-08",
+  "id": "r0396"
+ },
+ {
+  "query_id": "blind5-code-19",
+  "query": "polars github repository",
+  "window": "none",
+  "url": "https://pola.rs/",
+  "title": "Polars — DataFrames for the new era",
+  "snippet": "39k+\n\nGitHub stars\n...\nPolars is an open-source library for data manipulation, known for being one of the fastest data processing solutions on a single machine. It features a well-structured, typed AP",
+  "date_shown": "none",
+  "id": "r0402"
+ },
+ {
+  "query_id": "blind5-paper-18",
+  "query": "recent papers on embodied ai",
+  "window": "the last 366 days",
+  "url": "https://luohongkun.top/Embodied-AI-Daily/index.html",
+  "title": "Embodied AI Daily — Latest arXiv Papers",
+  "snippet": "📄 Latest arXiv Papers VLN · VLA · SLAM · 3D · Embodied AI — auto-updated daily 👤 Hongkun Luo (罗宏昆) · 🎓 Academic Page · 🐙 GitHub ☕ 支持本项目 · Support this project",
+  "date_shown": "2026-10-12",
+  "id": "r0408"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://www.nature.com/articles/s41612-025-01311-6",
+  "title": "A deep learning-based land-atmosphere coupled model for ... - Nature",
+  "snippet": "Extreme heatwaves are intensifying under climate change, yet their prediction remains limited by inadequate representation of land–atmosphere (L–A) interactions. Most deep learning–based ...",
+  "date_shown": "2026-02-01",
+  "id": "r0414"
+ },
+ {
+  "query_id": "blind5-fact-01",
+  "query": "who founded Samsung",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Samsung_Electronics",
+  "title": "Samsung Electronics",
+  "snippet": "corporation founded in 1969 and headquartered in Yeongtong District, Suwon, South Korea. It is the flagship listed company of the Samsung chaebol and",
+  "date_shown": "none",
+  "id": "r0420"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.lg.com/global/newsroom/news/eco-solution/lg-electronics-secures-supply-agreement-to-advance-ai-data-center-cooling-business-in-north-america/",
+  "title": "LG Electronics Secures Supply Agreement to Advance AI Data Center Cooling Business in North America",
+  "snippet": "LG Electronics Secures Supply Agreement to Advance AI Data Center Cooling Business in North America\n\n# LG Electronics Secures Supply Agreement to Advance AI Data Center Cooling Business in North Ameri",
+  "date_shown": "2026-10-05",
+  "id": "r0426"
+ },
+ {
+  "query_id": "blind5-news-18",
+  "query": "news about Baidu past month",
+  "window": "the last 31 days",
+  "url": "https://www.aol.com/articles/alibaba-jumps-4-zhenwu-v900-134339000.html",
+  "title": "Alibaba Jumps 4% as Zhenwu V900 Chip Targets the Gap NVIDIA Left in China; Baidu Sits Tight",
+  "snippet": "Alibaba just unveiled a chip it claims reshapes the AI compute landscape inside China, and the stock is reacting sharply, but one key rival is barely moving, and that gap reveals exactly who the ...",
+  "date_shown": "2026-09-22",
+  "id": "r0432"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://schedule.readthedocs.io/en/latest/index.html",
+  "title": "schedule ¶",
+  "snippet": "# schedule ¶\n\n \n\nPython job scheduling for humans. Run Python functions (or any other callable) periodically using a friendly syntax.\n\n- A simple to use API for scheduling jobs, made for humans.\n- In-",
+  "date_shown": "none",
+  "id": "r0438"
+ },
+ {
+  "query_id": "blind5-news-19",
+  "query": "news about Infosys past month",
+  "window": "the last 31 days",
+  "url": "https://economictimes.indiatimes.com/nri/latest-updates/us-suspends-tcs-infosys-wipro-hcltech-cognizant-and-three-other-firms-from-perm-green-card-programme/articleshow/134799468.cms",
+  "title": "US suspends TCS, Infosys, Wipro, HCLTech, Cognizant and three other firms from PERM green card programme",
+  "snippet": "The US Labour Department has suspended eight major technology companies from the permanent labour certification programme. This decision bars these firms from filing new applications or processing ...",
+  "date_shown": "2026-10-08",
+  "id": "r0444"
+ },
+ {
+  "query_id": "blind5-announcement-07",
+  "query": "what did Supabase announce this month",
+  "window": "the last 31 days",
+  "url": "https://x.com/supabase/article/2099489075032096993",
+  "title": "Supabase Update — September 2026 | Supabase (@supabase) on X",
+  "snippet": "Here’s everything that happened with Supabase in the last month: Supabase Select SF 2026 Meet the Supabase team at Select on October 2 in SF, a curated day of talks, feature deep dives, and more",
+  "date_shown": "2026-09-14",
+  "id": "r0450"
+ },
+ {
+  "query_id": "blind5-announcement-13",
+  "query": "Autodesk press release this month",
+  "window": "the last 31 days",
+  "url": "https://en.wikipedia.org/wiki/Autodesk",
+  "title": "Autodesk - Wikipedia",
+  "snippet": "The manufacturing industry uses Autodesk's digital prototyping software—including Autodesk Inventor, Autodesk Fusion, and the Autodesk Product Design Suite—to visualize, simulate, and analyze real-wor",
+  "date_shown": "2026-10-11",
+  "id": "r0456"
+ },
+ {
+  "query_id": "blind5-news-20",
+  "query": "news about Tata Motors past month",
+  "window": "the last 31 days",
+  "url": "https://www.livemint.com/market/stock-market-news/ata-motors-cv-arm-acquires-26-stake-in-hyderabad-based-e-mobility-company-stock-in-red-check-details-11790667389617.html",
+  "title": "Tata Motors CV arm acquires 26% stake in Hyderabad-based e-mobility company, stock in red | Check details",
+  "snippet": "Tata Motors has acquired a 26% stake in Mateshwari E-Smart Mobility for ₹2,60,000, making it an associate company. This investment aims to enhance Tata Motors' operations in electric bus tenders, ...",
+  "date_shown": "2026-09-29",
+  "id": "r0462"
+ },
+ {
+  "query_id": "blind5-howto-19",
+  "query": "how to set up a postgres connection pool",
+  "window": "none",
+  "url": "https://oneuptime.com/blog/post/2026-01-21-postgresql-pgbouncer-connection-pooling/view",
+  "title": "How to Set Up PostgreSQL with PgBouncer Connection Pooling",
+  "snippet": "How to Set Up PostgreSQL with PgBouncer Connection Pooling A comprehensive guide to setting up PgBouncer connection pooling for PostgreSQL, covering installation, configuration modes, authentication, ",
+  "date_shown": "2026-09-26",
+  "id": "r0468"
+ },
+ {
+  "query_id": "blind5-news-19",
+  "query": "news about Infosys past month",
+  "window": "the last 31 days",
+  "url": "https://economictimes.indiatimes.com/markets/stocks/stock-liveblog/infosys-stock-price-live-updates-12-oct-2026/liveblog/134880993.cms",
+  "title": "Infosys Share Price Highlights: Infosys Stock Price History",
+  "snippet": "Discover the Infosys Stock Liveblog, your ultimate resource for real-time updates and insightful analysis on a prominent stock. Keep track of Infosys with the latest details, including: Last traded ..",
+  "date_shown": "2026-10-12",
+  "id": "r0474"
+ },
+ {
+  "query_id": "blind5-news-20",
+  "query": "news about Tata Motors past month",
+  "window": "the last 31 days",
+  "url": "https://www.thehindu.com/business/tata-motors-pv-expects-15-market-share-very-soon-eyes-20-by-fy31-md-shailesh-chandra/article71515356.ece",
+  "title": "Tata Motors PV expects 15% market share 'very soon' ...",
+  "snippet": "Tata Motors PV expects 15% market share 'very soon', eyes 20% by FY31: MD Shailesh Chandra - The Hindu \n\n# Tata Motors PV expects 15% market share 'very soon', eyes 20% by FY31: MD Shailesh Chandra \n\n",
+  "date_shown": "2026-09-27",
+  "id": "r0480"
+ },
+ {
+  "query_id": "blind5-announcement-10",
+  "query": "Zscaler official announcement",
+  "window": "the last 31 days",
+  "url": "https://help.zscaler.com/zia/release-upgrade-summary-2026?applicable_category=zscaler.net",
+  "title": "Release Upgrade Summary (2026) | Zscaler",
+  "snippet": "This article provides a summary of all new features and enhancements per Zscaler cloud for Zscaler Internet Access (ZIA). Zscaler will email a notification to your organization's registered support co",
+  "date_shown": "2026-10-09",
+  "id": "r0486"
+ },
+ {
+  "query_id": "blind5-announcement-12",
+  "query": "what did Fortinet announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.fortinet.com/corporate/about-us/newsroom/press-releases/2026/fortinet-to-announce-third-quarter-2026-financial-results",
+  "title": "Fortinet to Announce Third Quarter 2026 Financial Results",
+  "snippet": "News Summary Fortinet ® (NASDAQ: FTNT), the global cybersecurity leader driving the convergence of networking and security, announced that it will hold a conference call to discuss its third quarter 2",
+  "date_shown": "2026-10-12",
+  "id": "r0492"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://github.com/michaelkoelle/python-template",
+  "title": "michaelkoelle/python-template",
+  "snippet": "A python template that serves as a robust boilerplate to streamline projects with enforced coding practices. It includes guides for environment setup, git, recommended libraries, and extensions, as we",
+  "date_shown": "2026-08-07",
+  "id": "r0498"
+ },
+ {
+  "query_id": "blind5-announcement-18",
+  "query": "Klarna press release this month",
+  "window": "the last 31 days",
+  "url": "https://hk.marketscreener.com/news/klarna-partners-with-the-white-company-to-bring-flexibility-to-homeware-ce785ddcde81f327",
+  "title": "Klarna : partners with The White Company to bring flexibility to homeware | MarketScreener Hong Kong",
+  "snippet": "Klarna : partners with The White Company to bring flexibility to homeware | MarketScreener Hong Kong\n# Klarna : partners with The White Company to bring flexibility to homeware\nPublished on 10/12/2026",
+  "date_shown": "2026-10-12",
+  "id": "r0504"
+ },
+ {
+  "query_id": "blind5-code-08",
+  "query": "rust crate for serialization",
+  "window": "none",
+  "url": "https://github.com/jplatte/serde_html_form",
+  "title": "jplatte/serde_html_form",
+  "snippet": "Rust crate for (de-)serialization of `application/x-www-form-urlencoded` data.",
+  "date_shown": "2026-05-07",
+  "id": "r0510"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html",
+  "title": "matplotlib.pyplot.subplots — Matplotlib 3.11.2 documentation",
+  "snippet": "matplotlib.pyplot.subplots # matplotlib.pyplot.subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True, width_ratios=None, height_ratios=None, subplot_kw=None, gridspec_kw=None, **fig_k",
+  "date_shown": "2026-10-11",
+  "id": "r0516"
+ },
+ {
+  "query_id": "blind5-fact-15",
+  "query": "who developed the theory of relativity",
+  "window": "none",
+  "url": "https://www.pbs.org/wgbh/aso/databank/entries/dp15ei.html",
+  "title": "Einstein announces the general theory of relativity",
+  "snippet": "> Einstein announces the general theory of relativity 1915 \n> \n> Albert Einstein had described the special theory of relativity in 1905. The result of Einstein's thinking about light, this theory intr",
+  "date_shown": "none",
+  "id": "r0522"
+ },
+ {
+  "query_id": "blind5-paper-01",
+  "query": "recent papers on large language model agents for software engineering",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s10462-025-11471-9",
+  "title": "From language to action: a review of large language models as ...",
+  "snippet": "The pursuit of human-level artificial intelligence (AI) has significantly advanced the development of autonomous agents and Large Language Models (LLMs). LLMs are now widely utilized as decision-makin",
+  "date_shown": "2026-10-10",
+  "id": "r0528"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://github.com/encode/httpx/blob/master/docs/api.md",
+  "title": "docs/api.md at master · encode/httpx",
+  "snippet": "- Branch: master\n- Repository: encode/httpx\n...\n# Developer Interface\n...\n!!! note\n Only use these functions if you're testing HTTPX in a console\n or making a small number of requests. Using a `Client",
+  "date_shown": "none",
+  "id": "r0534"
+ },
+ {
+  "query_id": "blind5-announcement-20",
+  "query": "Roku official announcement",
+  "window": "the last 31 days",
+  "url": "https://newsroom.roku.com/news/2026/09/roku-launches-new-live-sports-talk-series-pregame-with/-dmckd1k-1790105603",
+  "title": "Roku Launches New Live Sports Talk Series “Pregame with Matthew Berry” | Roku",
+  "snippet": "Roku Launches New Live Sports Talk Series “Pregame with Matthew Berry” | Roku\n\n# Roku Launches New Live Sports Talk Series “Pregame with Matthew Berry” \n\nSeptember 23, 2026 at 10:00 AM\n...\nSAN JOSE, C",
+  "date_shown": "2026-09-23",
+  "id": "r0540"
+ },
+ {
+  "query_id": "blind5-news-05",
+  "query": "news about Embraer past month",
+  "window": "the last 31 days",
+  "url": "https://jumpseataerospacenews.com/2026/10/embraer-emerges-stronger-after-failed-boeing-deal/",
+  "title": "Embraer Emerges Stronger After Failed Boeing Deal | Jumpseat Aerospace News",
+  "snippet": "Embraer Emerges Stronger After Failed Boeing Deal | Jumpseat Aerospace News\n\n# Embraer Emerges Stronger After Failed Boeing Deal\n\nOctober 9, 2026\n...\n- Embraer's CEO says the failed Boeing deal was po",
+  "date_shown": "2026-10-09",
+  "id": "r0546"
+ },
+ {
+  "query_id": "blind5-howto-06",
+  "query": "how to create a python package with pyproject.toml",
+  "window": "none",
+  "url": "https://packaging.python.org/en/latest/specifications/pyproject-toml/",
+  "title": "pyproject.toml specification ¶",
+  "snippet": "PI-friendly ... distribution releases using ... Toggle navigation of Hosting** ... recommendations Analyzing Py\n...\n# `pyproject.toml` specification ¶\n...\nThis is a technical, formal specification. Fo",
+  "date_shown": "none",
+  "id": "r0552"
+ },
+ {
+  "query_id": "blind5-news-19",
+  "query": "news about Infosys past month",
+  "window": "the last 31 days",
+  "url": "https://docstox.com/news/india-s-infosys-does-not-expect-material-impact-from-us-perm-suspension-526a996a",
+  "title": "India's Infosys does not expect material impact from US PERM suspension",
+  "snippet": "India's Infosys does not expect material impact from US PERM suspension\n\n# India's Infosys does not expect material impact from US PERM suspension\n\nReuters 1d ago· 10 Oct 2026, 5:43 pm\n...\nInfosys has",
+  "date_shown": "2026-10-10",
+  "id": "r0558"
+ },
+ {
+  "query_id": "blind5-paper-13",
+  "query": "recent papers on recommender systems with llms",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s10844-026-01048-5",
+  "title": "Active learning for LLM-based recommender systems",
+  "snippet": "To address these issues, this paper proposes an active learning framework for LLM-based recommender systems—ALLRec. This method evaluates the informativeness of training samples based on the loss valu",
+  "date_shown": "2026-09-30",
+  "id": "r0564"
+ },
+ {
+  "query_id": "blind5-news-12",
+  "query": "news about Vale past month",
+  "window": "the last 31 days",
+  "url": "https://g1.globo.com/mg/minas-gerais/noticia/2026/10/07/vale-fecha-acordo-com-ministerio-publico-apos-omissao-de-laudo-em-mina-de-mariana.ghtml",
+  "title": "Vale fecha acordo com MP após omissão de laudo em mina de Mariana | G1",
+  "snippet": "Vale fecha acordo com MP após omissão de laudo em mina de Mariana | G1\n\n## Documento de 2020 apontava problemas na o Mina de Fábrica Nova, em Mariana. Dinheiro será destinado para modernizar e fortale",
+  "date_shown": "2026-10-07",
+  "id": "r0570"
+ }
+]

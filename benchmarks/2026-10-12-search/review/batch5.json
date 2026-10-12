@@ -1,0 +1,952 @@
+[
+ {
+  "query_id": "blind5-news-19",
+  "query": "news about Infosys past month",
+  "window": "the last 31 days",
+  "url": "https://www.kalkine.co.in/article/technology/infosys-nse-infy-with-organic-growth-seen-below-1-deal-conversion-and-guidance-will-define-the-quarter",
+  "title": "Infosys (NSE: INFY) as Large-Cap IT Growth Stays Below 1% | Kalkine India",
+  "snippet": "Infosys (NSE: INFY) as Large-Cap IT Growth Stays Below 1% | Kalkine India\n\n# Infosys (NSE: INFY): With Organic Growth Seen Below 1%, Deal Conversion and Guidance Will Define the Quarter\n...\n- Large-ca",
+  "date_shown": "2026-10-07",
+  "id": "r0005"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://github.com/dothinking/jsp_framework",
+  "title": "dothinking/jsp_framework",
+  "snippet": "A Python library for implementing and testing algorithm for Job-Shop Scheduling problem.",
+  "date_shown": "2024-04-29",
+  "id": "r0011"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/War_and_peace",
+  "title": "War and Peace",
+  "snippet": "War and Peace (Russian: Война и мир, romanized: Voyna i mir; pre-reform Russian: Война и миръ; IPA: [vɐjˈna i ˈmʲir]) is an epic novel by the Russian author Leo Tolstoy. Set during the Napoleonic Wars",
+  "date_shown": "2002-12-06",
+  "id": "r0017"
+ },
+ {
+  "query_id": "blind5-howto-19",
+  "query": "how to set up a postgres connection pool",
+  "window": "none",
+  "url": "https://awjunaid.com/postgresql/how-to-configure-connection-pooling-in-postgresql/",
+  "title": "How to Configure Connection Pooling in PostgreSQL",
+  "snippet": "Wrapping Up Connection pooling isn’t an optional nice-to-have for any PostgreSQL deployment beyond a small, low-traffic application — it’s close to a requirement once you have more than a handful of a",
+  "date_shown": "2026-09-25",
+  "id": "r0023"
+ },
+ {
+  "query_id": "blind5-announcement-07",
+  "query": "what did Supabase announce this month",
+  "window": "the last 31 days",
+  "url": "https://foundermag.co/launches/supabase-select-2026/",
+  "title": "Supabase Select 2026: Multigres, OrioleDB Beta, an MCP Server for Your App, and Supabase Compute · FounderMag",
+  "snippet": "On October 2, 2026, the same day it announced it was acquiring Turso, Supabase used its Supabase Select event to ship a set of announcements under two themes. One is about scaling Postgres. The other ",
+  "date_shown": "2026-10-02",
+  "id": "r0029"
+ },
+ {
+  "query_id": "blind5-announcement-11",
+  "query": "CrowdStrike latest announcement",
+  "window": "the last 31 days",
+  "url": "https://en.wikipedia.org/wiki/2024_CrowdStrike-related_IT_outages",
+  "title": "2024 CrowdStrike-related IT outages - Wikipedia",
+  "snippet": "On 19 July 2024, the American cybersecurity company CrowdStrike distributed a faulty update to its Falcon Sensor security software that caused widespread problems with Microsoft Windows computers runn",
+  "date_shown": "2026-10-10",
+  "id": "r0035"
+ },
+ {
+  "query_id": "blind5-paper-10",
+  "query": "recent papers on federated learning privacy",
+  "window": "the last 366 days",
+  "url": "https://link.springer.com/article/10.1007/s44163-026-01853-5",
+  "title": "Recent advances in privacy-preserving federated learning for financial ...",
+  "snippet": "Financial institutions increasingly rely on machine learning (ML) for fraud detection, credit scoring, anti-money laundering, and personalised services, yet regulatory constraints and competitive data",
+  "date_shown": "2026-10-10",
+  "id": "r0041"
+ },
+ {
+  "query_id": "blind5-fact-16",
+  "query": "what is the freezing point of water in fahrenheit",
+  "window": "none",
+  "url": "https://math.libretexts.org/Courses/Laney_College/Mathematics_for_Liberal_Arts/08%3A_Measurement/8.03%3A_Temperature_and_Time",
+  "title": "8.3: Temperature and Time - Mathematics LibreTexts",
+  "snippet": "| A thermometer measuring a temperature of 22° Celsius is shown here. | | A thermometer measuring a temperature of 72° Fahrenheit is shown here. |\n| --- | --- | --- |\n| On the Celsius scale, water fre",
+  "date_shown": "2024-07-27",
+  "id": "r0047"
+ },
+ {
+  "query_id": "blind5-news-20",
+  "query": "news about Tata Motors past month",
+  "window": "the last 31 days",
+  "url": "https://economictimes.indiatimes.com/markets/stocks/stock-liveblog/tata-motors-pv-share-price-live-updates-08-oct-2026/liveblog/134778339.cms",
+  "title": "Tata Motors PV Share Price Highlights: Tata Motors PV Stock Price History",
+  "snippet": "Welcome to the Tata Motors PV Stock Liveblog, your ultimate source for real-time updates and analysis of one of the most prominent stocks in the market. Stay on top of the game with our comprehensive ",
+  "date_shown": "2026-10-07",
+  "id": "r0053"
+ },
+ {
+  "query_id": "blind5-news-16",
+  "query": "news about Alibaba this week",
+  "window": "the last 7 days",
+  "url": "https://theedgemalaysia.com/article/alibaba-acquires-1035-stake-singpost-3125-mil",
+  "title": "Alibaba acquires 10.35% stake in Singpost for $312.5 mil",
+  "snippet": "Alibaba acquires 10.35% stake in Singpost for $312.5 mil\n...\nSingapore Post and Alibaba Group Holding today announced that SingPost and Alibaba Investment Limited, a wholly-owned subsidiary of Alibaba",
+  "date_shown": "2026-10-12",
+  "id": "r0059"
+ },
+ {
+  "query_id": "blind5-news-18",
+  "query": "news about Baidu past month",
+  "window": "the last 31 days",
+  "url": "https://www.stocktitan.net/sec-filings/BIDU/6-k-baidu-inc-current-report-foreign-issuer-b59eed985e1e.html",
+  "title": "Baidu buyback: 10.2M shares await cancellation | BIDU SEC Filing - Form 6-K",
+  "snippet": "# Baidu buyback: 10.2M shares await cancellation | BIDU SEC Filing - Form 6-K\n\nPublished: 2026-10-07T20:01:46Z",
+  "date_shown": "2026-10-07",
+  "id": "r0065"
+ },
+ {
+  "query_id": "blind5-announcement-10",
+  "query": "Zscaler official announcement",
+  "window": "the last 31 days",
+  "url": "https://www.zscaler.com/press/zscaler-hosts-2026-investor-day-reaffirms-first-quarter-and-fiscal-2027-guidance",
+  "title": "Zscaler Reaffirms First Quarter and Fiscal 2027 Guidance",
+  "snippet": "Zscaler Reaffirms First Quarter and Fiscal 2027 Guidance\n\n# Zscaler Hosts 2026 Investor Day, Reaffirms First Quarter and Fiscal 2027 Guidance\n...\nZscaler, Inc. (Nasdaq: ZS), the cybersecurity platform",
+  "date_shown": "2026-10-06",
+  "id": "r0071"
+ },
+ {
+  "query_id": "blind5-paper-10",
+  "query": "recent papers on federated learning privacy",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2511.02785",
+  "title": "[2511.02785] Enhancing Federated Learning Privacy with QUBO",
+  "snippet": "Federated learning (FL) is a widely used method for training machine learning (ML) models in a scalable way while preserving privacy (i.e., without centralizing raw data). Prior research shows that th",
+  "date_shown": "2026-06-23",
+  "id": "r0077"
+ },
+ {
+  "query_id": "blind5-fact-01",
+  "query": "who founded Samsung",
+  "window": "none",
+  "url": "https://www.britannica.com/money/Samsung-Electronics",
+  "title": "Samsung | History, Consumer Products, Leadership, & Facts",
+  "snippet": "### Who founded Samsung?\n\n Samsung was founded by Lee Byung-Chull on March 1, 1938, in Taegu, Korea. It began as a grocery trading business that sold noodles and other locally produced goods and expor",
+  "date_shown": "2015-09-09",
+  "id": "r0083"
+ },
+ {
+  "query_id": "blind5-code-02",
+  "query": "tokio github repository",
+  "window": "none",
+  "url": "https://github.com/AlexMelanFromRingo/octoradar",
+  "title": "AlexMelanFromRingo/octoradar",
+  "snippet": "Real-time radar for public GitHub activity: discover, filter, enrich, store and alert on newly pushed and created repositories. Rust + tokio.",
+  "date_shown": "2026-06-19",
+  "id": "r0089"
+ },
+ {
+  "query_id": "blind5-news-16",
+  "query": "news about Alibaba this week",
+  "window": "the last 7 days",
+  "url": "https://www.tipranks.com/news/weekend-updates/alibaba-stock-cloud-fueled-ai-boom-vs-retail-slump",
+  "title": "Alibaba Stock: Cloud-Fueled AI Boom vs. Retail Slump",
+  "snippet": "Alibaba ( BABA +5.36% ) has been popular among investors this week. Here is a recap of the key news on this stock. Alibaba is drawing renewed attention from Wall Street as analysts bet that surging cl",
+  "date_shown": "2026-10-10",
+  "id": "r0095"
+ },
+ {
+  "query_id": "blind5-howto-12",
+  "query": "how to use redis as a cache",
+  "window": "none",
+  "url": "https://cloud.ibm.com/docs/databases-for-redis-gen2?topic=databases-for-redis-gen2-redis-cache",
+  "title": "Configuring Redis as a cache",
+  "snippet": "# Configuring Redis as a cache\n...\nIBM Cloud&reg; Databases for Redis supports changing the [Redis database configuration](https://cloud.ibm.com/docs/databases-for-redis-gen2?topic=databases-for-redis",
+  "date_shown": "2026-07-14",
+  "id": "r0101"
+ },
+ {
+  "query_id": "blind5-news-14",
+  "query": "news about Emirates airline past month",
+  "window": "the last 31 days",
+  "url": "https://gulfnews.com/business/aviation/emirates-flight-ek31-dubai-london-diverts-after-7700-emergency-alert-details-inside-1.500695629",
+  "title": "Emirates flight EK31 Dubai-London diverts after 7700 emergency alert: Details Inside",
+  "snippet": "Emirates flight EK31 Dubai-London diverts after 7700 emergency alert: Details Inside\n\n# Emirates flight EK31 Dubai-London diverts after 7700 emergency alert: What happened onboard\n\nGeneral emergency c",
+  "date_shown": "2026-10-02",
+  "id": "r0107"
+ },
+ {
+  "query_id": "blind5-news-08",
+  "query": "news about Renault past month",
+  "window": "the last 31 days",
+  "url": "https://www.marketscreener.com/news/renault-jefferies-gives-a-neutral-rating-ce785ddcd18cfe2d",
+  "title": "Renault : Jefferies gives a Neutral rating",
+  "snippet": "In a research note, Jefferies analyst Philippe Houchois has maintained his recommendation on the stock with a Neutral rating. The target price is lowered from EUR 32 to EUR 30.",
+  "date_shown": "2026-10-12",
+  "id": "r0113"
+ },
+ {
+  "query_id": "blind5-howto-13",
+  "query": "how to configure tailwind css dark mode",
+  "window": "none",
+  "url": "https://www.geeksforgeeks.org/css/how-to-enable-dark-mode-in-tailwind-css/",
+  "title": "How to Enable Dark Mode in Tailwind CSS ? - GeeksforGeeks",
+  "snippet": "Tailwind CSS offers built-in features for enabling dark mode, allowing developers to create a dark-themed version of their web pages. By configuring the dark mode setting in the Tailwind configuration",
+  "date_shown": "2026-10-03",
+  "id": "r0119"
+ },
+ {
+  "query_id": "blind5-paper-10",
+  "query": "recent papers on federated learning privacy",
+  "window": "the last 366 days",
+  "url": "https://github.com/mtuann/federated-learning-updated-papers",
+  "title": "Federated Learning Papers - GitHub",
+  "snippet": "Papers related to Federated Learning in all top venues - mtuann/federated-learning-updated-papers",
+  "date_shown": "2026-10-11",
+  "id": "r0125"
+ },
+ {
+  "query_id": "blind5-announcement-02",
+  "query": "what did LG Electronics announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.lgcorp.com/media/release/30632",
+  "title": "Press Release | Media | LG",
+  "snippet": "LG Electronics is expanding chiller production across three manufacturing facilities by establishing a new factory in the United States and expanding production at its existing facilities in Changwon ",
+  "date_shown": "2026-10-02",
+  "id": "r0131"
+ },
+ {
+  "query_id": "blind5-howto-19",
+  "query": "how to set up a postgres connection pool",
+  "window": "none",
+  "url": "https://dev.to/sharafathalivk/postgresql-connection-pooling-explained-how-it-works-and-why-it-matters-31g6",
+  "title": "PostgreSQL Connection Pooling Explained: How It Works and Why It ...",
+  "snippet": "The problem at scale The per-connection cost compounds quickly under load. Max connections ceiling Postgres has a hard limit on simultaneous connections configured by max_connections in postgresql.con",
+  "date_shown": "2026-09-15",
+  "id": "r0137"
+ },
+ {
+  "query_id": "blind5-code-02",
+  "query": "tokio github repository",
+  "window": "none",
+  "url": "https://github.com/rammaruboina-rgb/gh-stats-cli",
+  "title": "rammaruboina-rgb/gh-stats-cli",
+  "snippet": "A Rust CLI tool to fetch and analyze GitHub profile statistics, contributions, and repository insights. Built with async/await, tokio, and GitHub API integration.",
+  "date_shown": "2025-11-16",
+  "id": "r0143"
+ },
+ {
+  "query_id": "blind5-news-07",
+  "query": "news about Stellantis past month",
+  "window": "the last 31 days",
+  "url": "https://www.msn.com/en-us/news/other/1-overlooked-factor-that-could-drive-stellantis-to-double-or-triple-by-2030/ar-AA2dMgdP",
+  "title": "1 overlooked factor that could drive Stellantis to double or triple by 2030",
+  "snippet": "There are plenty of buzzwords and highlights in Stellantis' strategic turnaround, but maybe none more important than a focus on improving vehicle quality across the board. Here's what the company is .",
+  "date_shown": "2026-10-07",
+  "id": "r0149"
+ },
+ {
+  "query_id": "blind5-announcement-18",
+  "query": "Klarna press release this month",
+  "window": "the last 31 days",
+  "url": "https://www.nasdaq.com/press-release/wayfair-and-klarna-deepen-ties-more-flexible-payment-options-across-us-and-canada",
+  "title": "Wayfair and Klarna Deepen Ties With More Flexible Payment Options Across U.S. and Canada | Nasdaq",
+  "snippet": "# Wayfair and Klarna Deepen Ties With More Flexible Payment Options Across U.S. and Canada | Nasdaq\n\nPublished: 2026-10-06T00:00:00Z",
+  "date_shown": "2026-10-06",
+  "id": "r0155"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://github.com/agronholm/apscheduler/",
+  "title": "agronholm/apscheduler",
+  "snippet": "Task scheduling library for Python\n...\n- automation\n- cron\n- python\n- scheduling\n...\nAdvanced Python Scheduler (APScheduler) is a task scheduler and task queue system for\nPython. It can be used solely",
+  "date_shown": "2016-03-27",
+  "id": "r0161"
+ },
+ {
+  "query_id": "blind5-paper-05",
+  "query": "recent papers on graph transformers",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.26855",
+  "title": "Quartet: QUad-branch cross-Attention and Random-walk Traces for Enhancing Transformers on Relational Graphs",
+  "snippet": "Quartet: QUad-branch cross-Attention and Random-walk Traces for Enhancing Transformers on Relational Graphs\n\n# Quartet: QUad-branch cross-Attention and Random-walk Traces for Enhancing Transformers on",
+  "date_shown": "2026-09-22",
+  "id": "r0167"
+ },
+ {
+  "query_id": "blind5-fact-07",
+  "query": "what is the population of New Zealand",
+  "window": "none",
+  "url": "https://www.stats.govt.nz/information-releases/national-population-estimates-at-30-june-2026/",
+  "title": "National population estimates: At 30 June 2026 | Stats NZ",
+  "snippet": "At 30 June 2026, provisional estimates show:\n\n- the estimated resident population of Aotearoa New Zealand was 5,357,300\n- there were 2,699,500 females and 2,657,800 males\n- the median age of females a",
+  "date_shown": "2026-08-18",
+  "id": "r0173"
+ },
+ {
+  "query_id": "blind5-paper-01",
+  "query": "recent papers on large language model agents for software engineering",
+  "window": "the last 366 days",
+  "url": "https://dl.acm.org/doi/abs/10.1145/3796507",
+  "title": "Large Language Model-Based Agents for Software Engineering: A Survey",
+  "snippet": "The recent advance in Large Language Models (LLMs) has shaped a new paradigm of AI agents, i.e., LLM-based agents. Compared to standalone LLMs, LLM-based agents substantially extend the versatility an",
+  "date_shown": "2026-10-10",
+  "id": "r0179"
+ },
+ {
+  "query_id": "blind5-news-19",
+  "query": "news about Infosys past month",
+  "window": "the last 31 days",
+  "url": "https://www.ainvest.com/news/perm-suspension-scare-infosys-real-problem-2610/",
+  "title": "The PERM suspension was a scare. Infosys's real problem is something else entirely.",
+  "snippet": "A few days later, the company said the suspension would not have a material impact. It was not bluffing. During the first nine months of fiscal 2026, Infosys had zero certified PERM filings. Its three",
+  "date_shown": "2026-10-10",
+  "id": "r0185"
+ },
+ {
+  "query_id": "blind5-news-12",
+  "query": "news about Vale past month",
+  "window": "the last 31 days",
+  "url": "https://visnoinvest.com/news/15660/vale-vale3-issues-statement-on-leak-and-action-against-former-board-member",
+  "title": "Vale (VALE3) issues statement on leak and action against former board member",
+  "snippet": "Vale (VALE3) issues statement on leak and action against former board member\n...\nOn Friday, October 9, 2026, Vale (VALE3) released a clarification note detailing the imposition of a removal sanction o",
+  "date_shown": "2026-10-09",
+  "id": "r0191"
+ },
+ {
+  "query_id": "blind5-paper-08",
+  "query": "recent papers on 3d gaussian splatting",
+  "window": "the last 366 days",
+  "url": "https://www.mdpi.com/2313-433X/12/10/483",
+  "title": "DART-3DGS: Distance-Aware Replication and Age-Gated Densification for 3D Gaussian Splatting",
+  "snippet": "# DART-3DGS: Distance-Aware Replication and Age-Gated Densification for 3D Gaussian Splatting\n\nAuthor: Mohannad Adnan Al-Jaafari, Firas Abedi, Qiong Liu, You Yang\nPublished: 2026-10-04T11:46:45Z\nSourc",
+  "date_shown": "2026-10-04",
+  "id": "r0197"
+ },
+ {
+  "query_id": "blind5-announcement-10",
+  "query": "Zscaler official announcement",
+  "window": "the last 31 days",
+  "url": "https://trust.zscaler.com/security-advisories",
+  "title": "Zscaler Trust",
+  "snippet": "Pending Zscaler's official announcement regarding Microsoft Azure Network Adapter (MANA) driver support for Cloud Connector, it is imperative that all Cloud Connector instances continue to utilize Mel",
+  "date_shown": "2026-10-09",
+  "id": "r0203"
+ },
+ {
+  "query_id": "blind5-paper-20",
+  "query": "recent papers on low resource machine translation",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2608.18655",
+  "title": "[2608.18655] TranslatePsy-AfriSLM: High-Quality Data Scaling For Low-Resource Machine Translation",
+  "snippet": "[2608.18655] TranslatePsy-AfriSLM: High-Quality Data Scaling For Low-Resource Machine Translation\n\n [Submitted on 19 Aug 2026]\n\n# Title: TranslatePsy-AfriSLM: High-Quality Data Scaling For Low-Resourc",
+  "date_shown": "2026-08-19",
+  "id": "r0209"
+ },
+ {
+  "query_id": "blind5-paper-11",
+  "query": "recent papers on vision transformers efficiency",
+  "window": "the last 366 days",
+  "url": "https://arxiv.science/abs/2605.01742",
+  "title": "Joint Architecture-Token-Bitwidth Multi-Axis Optimization of Vision Transformers for Semiconductor IC Packaging | arXiv Science",
+  "snippet": "Joint Architecture-Token-Bitwidth Multi-Axis Optimization of Vision Transformers for Semiconductor IC Packaging | arXiv Science\n\n# Joint Architecture-Token-Bitwidth Multi-Axis Optimization of Vision T",
+  "date_shown": "2026-10-08",
+  "id": "r0215"
+ },
+ {
+  "query_id": "blind5-announcement-12",
+  "query": "what did Fortinet announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.fortinet.com/blog/security-operations/sovereign-ai-meets-quantum-ready-defense-with-fortindr",
+  "title": "Sovereign AI Meets Quantum-Ready Defense with FortiNDR | Fortinet Blog",
+  "snippet": "Sovereign AI Meets\n...\nNew FortiNDR Capabilities Strengthen Quantum Readiness, Automate Deception, and Bring AI On-Premises\n\n By Chris Borales | September 22, 2026\n...\nThe latest releases on both plat",
+  "date_shown": "2026-09-22",
+  "id": "r0221"
+ },
+ {
+  "query_id": "blind5-code-15",
+  "query": "node.js orm library",
+  "window": "none",
+  "url": "https://github.com/bridgerust/bridgerust",
+  "title": "bridgerust/bridgerust",
+  "snippet": "High-performance infrastructure libraries built in Rust, with seamless bindings for Python, Node.js, and WebAssembly.",
+  "date_shown": "2026-03-03",
+  "id": "r0227"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://gobyexample.com/json",
+  "title": "Go by Example: JSON",
+  "snippet": "Go offers built-in support for JSON encoding and decoding, including to and from built-in and custom data types.\n...\nOnly exported fields will be encoded/decoded in JSON. Fields must start with capita",
+  "date_shown": "none",
+  "id": "r0233"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://pypi.org/project/httpx/",
+  "title": "httpx",
+  "snippet": "- Author email: Tom Christie <tom@tomchristie.com>\n- License: BSD-3-Clause\n- Python: >=3.8\n- Package URL: https://pypi.org/project/httpx/\n...\n- Changelog: https://github.com/encode/httpx/blob/master/C",
+  "date_shown": "2024-12-06",
+  "id": "r0239"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/abs/2609.24882",
+  "title": "Learning Prognostic Variables for AI Convective Parameterizations via Symbolic Distillation",
+  "snippet": "Hybrid AI-physics climate modeling aims to improve coarse ($∼\\sim$ 100km-resolution) Earth system models by learning to parameterize subgrid processes from high-fidelity data. However, this so far mos",
+  "date_shown": "2026-09-21",
+  "id": "r0245"
+ },
+ {
+  "query_id": "blind5-howto-11",
+  "query": "how to debounce input in react",
+  "window": "none",
+  "url": "https://www.geeksforgeeks.org/reactjs/how-to-debounce-or-throttle-input-changes-in-react/",
+  "title": "How to debounce or throttle input changes in React?",
+  "snippet": "Example: Below is an example of debounce and throttle input changes. We use the useState hook to manage the input value (inputValue) and the debounced (debouncedValue) and throttled (throttledValue) v",
+  "date_shown": "2026-10-09",
+  "id": "r0251"
+ },
+ {
+  "query_id": "blind5-announcement-07",
+  "query": "what did Supabase announce this month",
+  "window": "the last 31 days",
+  "url": "https://www.prnewswire.com/news-releases/supabase-announces-150m-in-new-funding-and-turso-acquisition-302896752.html",
+  "title": "Supabase Announces $150M in New Funding and Turso Acquisition",
+  "snippet": "SAN FRANCISCO, Oct. 2, 2026 /PRNewswire/ -- Supabase, the leader in agentic infrastructure and open source Postgres development platform, today announced $150 million in new funding led by GIC ...",
+  "date_shown": "2026-10-02",
+  "id": "r0257"
+ },
+ {
+  "query_id": "blind5-howto-14",
+  "query": "how to use kubectl port forward",
+  "window": "none",
+  "url": "https://apipark.com/techblog/en/how-to-use-kubectl-port-forward-a-complete-guide/",
+  "title": "How to Use `kubectl port-forward`: A Complete Guide",
+  "snippet": "While a single kubectl port-forward command can only map one local port to one remote port (or multiple local ports to the same remote port, which is redundant), you can run multiple kubectl port-forw",
+  "date_shown": "2026-09-09",
+  "id": "r0263"
+ },
+ {
+  "query_id": "blind5-fact-05",
+  "query": "what is the deepest lake in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Stephen_Keenan",
+  "title": "Stephen Keenan",
+  "snippet": "2017-07-23. Retrieved 2023-10-27. Martin, Laura (2023-07-17). \"' The Deepest Breath': What Happened to Diver Stephen Keenan?\". Esquire. Retrieved 2023-10-27",
+  "date_shown": "2023-10-27",
+  "id": "r0269"
+ },
+ {
+  "query_id": "blind5-paper-08",
+  "query": "recent papers on 3d gaussian splatting",
+  "window": "the last 366 days",
+  "url": "https://arxiv.science/abs/2610.04351",
+  "title": "LoCoSplat: Real-Time Feed-Forward 3D Gaussian Splatting with Minimal 3D Reasoning | arXiv Science",
+  "snippet": "LoCoSplat: Real-Time Feed-Forward 3D Gaussian Splatting with Minimal 3D Reasoning | arXiv Science\n\n# LoCoSplat: Real-Time Feed-Forward 3D Gaussian Splatting with Minimal 3D Reasoning\n...\nFeed-forward ",
+  "date_shown": "2026-10-03",
+  "id": "r0275"
+ },
+ {
+  "query_id": "blind5-announcement-10",
+  "query": "Zscaler official announcement",
+  "window": "the last 31 days",
+  "url": "https://www.zscaler.com/blogs/company-news/zscaler-joins-blueprint-alliance-help-secure-agentic-enterprise",
+  "title": "Zscaler Joins Blueprint Alliance to Secure the Agentic Enterprise",
+  "snippet": "Zscaler Joins Blueprint Alliance to Secure the Agentic Enterprise\n\n# Zscaler Joins the Blueprint Alliance to Help Secure the Agentic Enterprise\n...\n### Introducing the Blueprint Alliance\n...\nThat is w",
+  "date_shown": "2026-09-22",
+  "id": "r0281"
+ },
+ {
+  "query_id": "blind5-code-20",
+  "query": "typescript testing framework",
+  "window": "none",
+  "url": "https://vitest.dev/guide/learn/writing-tests",
+  "title": "Writing Tests | Guide | Vitest",
+  "snippet": "A test verifies that a piece of code ... the expected result. In ... est, you use the `test` function to define ... has a name ... a string describing ... it checks) and a function that contains one o",
+  "date_shown": "2026-06-02",
+  "id": "r0287"
+ },
+ {
+  "query_id": "blind5-fact-15",
+  "query": "who developed the theory of relativity",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Theory_of_relativity",
+  "title": "Theory of relativity",
+  "snippet": "The theory of relativity comprises two physics theories by Albert Einstein: special relativity and general relativity , proposed and published in 1905",
+  "date_shown": "2001-09-29",
+  "id": "r0293"
+ },
+ {
+  "query_id": "blind5-announcement-07",
+  "query": "what did Supabase announce this month",
+  "window": "the last 31 days",
+  "url": "https://supabase.com/blog/supabase-select-2026-recap",
+  "title": "Supabase Select 2026 Recap",
+  "snippet": "Build anything, operate with confidence, scale without limits. Supabase carries your application from prototype to petabyte.",
+  "date_shown": "2026-10-12",
+  "id": "r0299"
+ },
+ {
+  "query_id": "blind5-fact-12",
+  "query": "what is the largest ocean",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Indian_subcontinent",
+  "title": "Indian subcontinent",
+  "snippet": "The Indian subcontinent is a physiographic region of Asia south of the Himalayas which projects into the Indian Ocean between the Bay of Bengal to the",
+  "date_shown": "2003-02-26",
+  "id": "r0305"
+ },
+ {
+  "query_id": "blind5-announcement-18",
+  "query": "Klarna press release this month",
+  "window": "the last 31 days",
+  "url": "https://markets.ft.com/data/announce/detail?dockey=600-202610060830BIZWIRE_USPRX____20261006_BW209456-1",
+  "title": "Wayfair and Klarna Deepen Ties With More Flexible Payment Options Across U.S. and Canada – Company Announcement - FT.com",
+  "snippet": "Wayfair and Klarna Deepen Ties With More Flexible Payment Options Across U.S. and Canada – Company Announcement - FT.com\n\n### Wayfair and Klarna Deepen Ties With More Flexible Payment Options Across U",
+  "date_shown": "2026-10-06",
+  "id": "r0311"
+ },
+ {
+  "query_id": "blind5-fact-05",
+  "query": "what is the deepest lake in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/List_of_world's_deepest_lakes",
+  "title": "List of lakes by depth",
+  "snippet": "Of the listed lakes; 10 have a deepest point above mean sea level. These are: Issyk-Kul, Crater Lake, Quesnel, Sarez, Toba, Tahoe, Kivu, Nahuel Huapi, Van and Poso. The other lakes on the list reaches",
+  "date_shown": "2006-10-10",
+  "id": "r0317"
+ },
+ {
+  "query_id": "blind5-news-18",
+  "query": "news about Baidu past month",
+  "window": "the last 31 days",
+  "url": "https://www.msn.com/en-us/news/other/baidu-inc-bidu-laps-the-stock-market-heres-why/ar-AA2dVgY2",
+  "title": "Baidu Inc. (BIDU) laps the stock market: Here's why",
+  "snippet": "In the latest trading session, Baidu Inc. (BIDU) closed at $85.33, marking a +1.68% move from the previous day. This change outpaced the S&P 500's 0.6% gain on the day. At the same time, the Dow added",
+  "date_shown": "2026-10-09",
+  "id": "r0323"
+ },
+ {
+  "query_id": "blind5-code-02",
+  "query": "tokio github repository",
+  "window": "none",
+  "url": "https://ja.wikipedia.org/wiki/TOKIO",
+  "title": "TOKIO - Wikipedia",
+  "snippet": "TOKIO （トキオ）は、 日本 の 男性アイドルグループ [4] 、 ロックバンド [2]。 1994年 （平成 6年） 9月21日 にデビューし、 2025年 （令和 7年） 6月25日 に解散した [5]。所属事務所は株式会社TOKIO（後述） [注 1][6] 、所属 レコード会社 は ストームレーベルズ であった。",
+  "date_shown": "2026-10-11",
+  "id": "r0329"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://arxiv.org/html/2610.09715",
+  "title": "EC-EarthFlow: Probabilistic emulation of daily transient global climate model simulations with flow matching",
+  "snippet": "EC-EarthFlow: Probabilistic emulation of daily transient global climate model simulations with flow matching\n...\nWe introduce ‘EC-EarthFlow’, a generative flow matching model that emulates simulations",
+  "date_shown": "2026-10-07",
+  "id": "r0335"
+ },
+ {
+  "query_id": "blind5-howto-13",
+  "query": "how to configure tailwind css dark mode",
+  "window": "none",
+  "url": "https://github.com/tailwindlabs/tailwindcss/discussions/10408",
+  "title": "Config for dark mode · tailwindlabs tailwindcss",
+  "snippet": "Reading the dark mode docs I was surprised to see that you can't simply set some variables for color values and let them get applied to all the styles to support dark mode.\n\nHaving to apply classes to",
+  "date_shown": "2023-01-24",
+  "id": "r0341"
+ },
+ {
+  "query_id": "blind5-news-18",
+  "query": "news about Baidu past month",
+  "window": "the last 31 days",
+  "url": "https://uk.finance.yahoo.com/news/baidu-inc-bidu-stock-sinks-204503168.html",
+  "title": "Baidu Inc. (BIDU) Stock Sinks As Market Gains: Here's Why",
+  "snippet": "In the most recent trading session, Baidu Inc. (BIDU) closed at $85.59, indicating a -1.47% shift from the previous trading day.",
+  "date_shown": "2026-10-01",
+  "id": "r0347"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/War_%26_Peace_%282016_TV_series%29",
+  "title": "War & Peace (2016 TV series)",
+  "snippet": "Point and BBC Worldwide. It is a six-part adaptation of the 1869 novel War and Peace by the Russian author Leo Tolstoy, written by Andrew Davies and directed",
+  "date_shown": "2014-01-25",
+  "id": "r0353"
+ },
+ {
+  "query_id": "blind5-fact-03",
+  "query": "who wrote War and Peace",
+  "window": "none",
+  "url": "https://www.bbc.co.uk/programmes/articles/5lrPL2vWJG6Th9zmh1xwqfV/ten-things-you-need-to-know-about-war-and-peace",
+  "title": "BBC Radio 4 - War and Peace - Ten Things You Need to Know About War And Peace",
+  "snippet": "## 1. Why it\n...\nThe length of War and Peace is partly explained by the length of time Tolstoy spent planning, writing and polishing it. The earliest draft storylines found in Tolstoy’s manuscripts da",
+  "date_shown": "2014-12-19",
+  "id": "r0359"
+ },
+ {
+  "query_id": "blind5-news-05",
+  "query": "news about Embraer past month",
+  "window": "the last 31 days",
+  "url": "https://www.corporatejetinvestor.com/news/embraer-41/",
+  "title": "Embraer delivers 41 aircraft in third quarter | Corporate Jet Investor | CJI news",
+  "snippet": "Embraer delivers 41 aircraft in third quarter | Corporate Jet Investor | CJI news\n\n# Embraer delivers 41 aircraft in third quarter\n\n by Fayaz Hussain\n\n October 5, 2026\n\nThe company announced plans to ",
+  "date_shown": "2026-10-05",
+  "id": "r0365"
+ },
+ {
+  "query_id": "blind5-howto-08",
+  "query": "how to use docker volumes",
+  "window": "none",
+  "url": "https://www.baeldung.com/ops/docker-volumes",
+  "title": "Guide to Docker Volumes - Baeldung on Ops",
+  "snippet": "Docker enables us to manage volumes via the docker volume command set. For example, we can give a volume an explicit name resulting in named volumes, or tell Docker to generate a random one for anonym",
+  "date_shown": "2026-10-10",
+  "id": "r0371"
+ },
+ {
+  "query_id": "blind5-howto-11",
+  "query": "how to debounce input in react",
+  "window": "none",
+  "url": "https://www.developerway.com/posts/debouncing-in-react",
+  "title": "How to debounce and throttle in React without losing your mind",
+  "snippet": "Deep dive into debounce and throttle in React. What is debounce and throttle, how to use them in React properly, how to avoid breaking them when state and re-renders are involved.",
+  "date_shown": "2026-10-06",
+  "id": "r0377"
+ },
+ {
+  "query_id": "blind5-news-16",
+  "query": "news about Alibaba this week",
+  "window": "the last 7 days",
+  "url": "https://www.msn.com/en-us/news/other/ai-agent-fleet-likely-from-chinese-firm-tencent-pulled-data-from-rival-alibaba-s-maps/ar-AA2dKplZ",
+  "title": "AI agent fleet likely from Chinese firm Tencent pulled data from rival Alibaba’s maps",
+  "snippet": "Researchers say AI agents on Tencent Cloud used urlquery.net to pull entrance data from Alibaba’s Amap, with 1,810 scans in one day.",
+  "date_shown": "2026-10-07",
+  "id": "r0383"
+ },
+ {
+  "query_id": "blind5-announcement-13",
+  "query": "Autodesk press release this month",
+  "window": "the last 31 days",
+  "url": "https://adsknews.autodesk.com/en/news/motionmaker-maya-fast-company-next-big-things-in-tech/",
+  "title": "MotionMaker in Maya wins Fast Company award",
+  "snippet": "# MotionMaker in Maya wins Fast Company award\n\nAuthor: Autodesk PR\nPublished: 2026-10-06T14:00:03Z\nSource: adsknews.autodesk.com\nLanguage: en\n\n## Story\n\nMotionMaker in Maya wins Fast Company award\n\n# ",
+  "date_shown": "2026-10-06",
+  "id": "r0389"
+ },
+ {
+  "query_id": "blind5-announcement-15",
+  "query": "PayPal official announcement",
+  "window": "the last 31 days",
+  "url": "https://www.prnewswire.com/news-releases/paypal-survey-reveals-holiday-spending-isnt-slowing-down-but-shoppers-are-changing-how-they-spend-302893727.html",
+  "title": "PayPal Survey Reveals Holiday Spending Isn't Slowing Down, But Shoppers Are Changing How They Spend",
+  "snippet": "PayPal Survey Reveals Holiday Spending Isn't Slowing Down, But Shoppers Are Changing How They Spend\n\n# PayPal Survey Reveals Holiday Spending Isn't Slowing Down, But Shoppers Are Changing How They Spe",
+  "date_shown": "2026-09-30",
+  "id": "r0395"
+ },
+ {
+  "query_id": "blind5-announcement-15",
+  "query": "PayPal official announcement",
+  "window": "the last 31 days",
+  "url": "https://nitter.cf/PayPal/status/2102412767307194786",
+  "title": "PayPal (@PayPal): \"We're excited to partner with @Meta to enable PayPal customers to seamlessly shop and check out using their @Muse personal AI agents across P",
+  "snippet": "PayPal (@PayPal): \"We're excited to partner with @Meta to enable PayPal customers to seamlessly shop and check out using their @Muse personal AI agents across PayPal merchants worldwide.\" | teapawt\n..",
+  "date_shown": "2026-09-22",
+  "id": "r0401"
+ },
+ {
+  "query_id": "blind5-fact-01",
+  "query": "who founded Samsung",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Samsung_Galaxy",
+  "title": "Samsung Galaxy",
+  "snippet": "Samsung Galaxy (Korean: 삼성 갤럭시; branded in Japan from 2015 to 2023 only as Galaxy) is a series of mobile computing devices designed, manufactured, and",
+  "date_shown": "none",
+  "id": "r0407"
+ },
+ {
+  "query_id": "blind5-code-20",
+  "query": "typescript testing framework",
+  "window": "none",
+  "url": "https://github.com/suites-dev/suites",
+  "title": "suites-dev/suites-unit",
+  "snippet": "A unit testing framework for TypeScript backends working with inversion of control and dependency injection\n...\n- dependency-injection\n- inversifyjs\n- inversion-of-control\n- ioc\n- ioc-container\n- jest",
+  "date_shown": "none",
+  "id": "r0413"
+ },
+ {
+  "query_id": "blind5-fact-07",
+  "query": "what is the population of New Zealand",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/New_Zealand",
+  "title": "New Zealand",
+  "snippet": "New Zealand (Māori: Aotearoa, pronounced [aɔˈtɛaɾɔa] ) is an island country in the southwestern Pacific Ocean. It comprises two main landmasses— the North",
+  "date_shown": "none",
+  "id": "r0419"
+ },
+ {
+  "query_id": "blind5-news-16",
+  "query": "news about Alibaba this week",
+  "window": "the last 7 days",
+  "url": "https://beijingpost.com/alibaba-reports-weak-retail-profit-as-spending-shifts-toward-artificial-intelligence",
+  "title": "Alibaba Reports Weak Retail Profit as Spending Shifts Toward Artificial Intelligence - Beijing Post",
+  "snippet": "Alibaba Reports Weak Retail Profit as Spending Shifts Toward Artificial Intelligence - Beijing Post\n\nMonday, Oct 12, 2026 Beijing Post \n\n# Alibaba Reports Weak Retail Profit as Spending Shifts Toward ",
+  "date_shown": "2026-10-12",
+  "id": "r0425"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://github.com/gidgethub/gidgethub",
+  "title": "gidgethub/gidgethub",
+  "snippet": "An async GitHub API library for Python",
+  "date_shown": "2026-09-25",
+  "id": "r0431"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://www.britannica.com/topic/list-of-the-smallest-countries-by-area",
+  "title": "List of the smallest countries by area | Maps, Facts, Square Miles, Square Km, & Vatican City | Britannica",
+  "snippet": "How small is small? For some of the world’s countries, the answer is very, very small, even teeny tiny. Vatican City holds the title as the world’s smallest country, with an area of just 0.17 square m",
+  "date_shown": "2024-03-25",
+  "id": "r0437"
+ },
+ {
+  "query_id": "blind5-announcement-15",
+  "query": "PayPal official announcement",
+  "window": "the last 31 days",
+  "url": "https://newsroom.paypal-corp.com/news-product?l=100",
+  "title": "News | PayPal Newsroom",
+  "snippet": "PayPal and Amazon Launch Buy Now, Pay Later for Customers in Germany and Austria This enables the more than 40 million PayPal customers to shop their favorite brands and products on Amazon.de with Pay",
+  "date_shown": "2026-10-11",
+  "id": "r0443"
+ },
+ {
+  "query_id": "blind5-fact-08",
+  "query": "who composed the Moonlight Sonata",
+  "window": "none",
+  "url": "https://www.britannica.com/topic/Moonlight-Sonata",
+  "title": "Moonlight Sonata | Piano Sonata, Op. 27, No. 2 & Classical Music | Britannica",
+  "snippet": "Zoom in\n\n Ludwig van Beethoven Ludwig van Beethoven, lithograph after an 1819 portrait by Ferdinand Schimon, c. 1870. (more) \n\n# Moonlight Sonata\n\nwork by Beethoven\n\nAlso known as: “Piano Sonata No. 1",
+  "date_shown": "2013-05-14",
+  "id": "r0449"
+ },
+ {
+  "query_id": "blind5-howto-14",
+  "query": "how to use kubectl port forward",
+  "window": "none",
+  "url": "https://spacelift.io/blog/kubectl-port-forward",
+  "title": "How to Use Kubectl Port-forward in Kubernetes Applications",
+  "snippet": "Learn what is Kubernetes port forwarding and how to use kubectl port-forward command. See examples including running it in the background.",
+  "date_shown": "2026-10-09",
+  "id": "r0455"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://go.dev/doc/tutorial/json",
+  "title": "Tutorial: Working with JSON - The Go Programming Language",
+  "snippet": "JSON (JavaScript Object Notation) is a simple data interchange format. Syntactically it resembles the objects and lists of JavaScript. It is commonly used for communication with networked API services",
+  "date_shown": "2026-10-09",
+  "id": "r0461"
+ },
+ {
+  "query_id": "blind5-announcement-15",
+  "query": "PayPal official announcement",
+  "window": "the last 31 days",
+  "url": "https://www.prnewswire.com/news/paypal-holdings,-inc./",
+  "title": "PayPal Holdings, Inc. News and Press Releases | PR Newswire",
+  "snippet": "News from PayPal Holdings, Inc. A wide array of domestic and global news stories; news topics include politics/government, business, technology, religion, sports/entertainment, science/nature, and ...",
+  "date_shown": "2026-10-12",
+  "id": "r0467"
+ },
+ {
+  "query_id": "blind5-code-02",
+  "query": "tokio github repository",
+  "window": "none",
+  "url": "https://github.com/tokio-rs/tokio/releases",
+  "title": "Releases · tokio-rs/tokio · GitHub",
+  "snippet": "Releases · tokio-rs/tokio · GitHub\n...\n- Tokio v1.53.1\n- Tokio v1.53.0\n- Tokio v1.52.4\n- Tokio v1.51.4\n- Tokio v1.52.3\n- Tokio v1.51.3\n- Tokio v1.47.5\n- Tokio v1.52.2\n- Tokio v1.51.1\n- Tokio v1.52.1\n.",
+  "date_shown": "none",
+  "id": "r0473"
+ },
+ {
+  "query_id": "blind5-announcement-20",
+  "query": "Roku official announcement",
+  "window": "the last 31 days",
+  "url": "https://blog.roku.com/developer/channel-certification-criteria-updates-october-2026",
+  "title": "Fall 2026 Certification Update",
+  "snippet": "Today, Roku is announcing the latest update to our app certification criteria. This update adds a new requirement prohibiting apps from using Roku devices, connections, or bandwidth for any purpose un",
+  "date_shown": "2026-10-03",
+  "id": "r0479"
+ },
+ {
+  "query_id": "blind5-howto-18",
+  "query": "how to parse json in go",
+  "window": "none",
+  "url": "https://prettyjson.org/learn/parsing-json-in-go-structs-vs-maps",
+  "title": "How to Parse JSON in Go (Structs, Maps & Best Practices)",
+  "snippet": "Learn how to parse JSON in Go using encoding/json. Compare struct-based unmarshaling vs map[string]interface{}, handle optional fields and common pitfalls.",
+  "date_shown": "2026-10-06",
+  "id": "r0485"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://github.com/encode/httpx/blob/master/README.md",
+  "title": "README.md",
+  "snippet": "- Branch: master\n- Repository: encode/httpx\n\n---\n\n \n \n \n\n HTTPX - A next-generation HTTP client for Python. \n\n \n \n \n \n \n \n \n \n\nHTTPX is a fully featured HTTP client library for Python 3. It includes *",
+  "date_shown": "none",
+  "id": "r0491"
+ },
+ {
+  "query_id": "blind5-fact-16",
+  "query": "what is the freezing point of water in fahrenheit",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Supercooling",
+  "title": "Supercooling",
+  "snippet": "Fahrenheit, while developing the Fahrenheit scale. A liquid crossing its standard freezing point will crystallize in the presence of a seed crystal or nucleus",
+  "date_shown": "2003-07-31",
+  "id": "r0497"
+ },
+ {
+  "query_id": "blind5-code-10",
+  "query": "go library for configuration files",
+  "window": "none",
+  "url": "https://pkg.go.dev/github.com/Nadim147c/go-config",
+  "title": "github.com/Nadim147c/go-config",
+  "snippet": "# Go Config Library\n...\nA comprehensive, feature-rich configuration management library for Go applications that supports\nmultiple file formats, environment variables, command-line flags, and advanced ",
+  "date_shown": "none",
+  "id": "r0503"
+ },
+ {
+  "query_id": "blind5-code-03",
+  "query": "httpx python github",
+  "window": "none",
+  "url": "https://github.com/zyv/github-issues-import",
+  "title": "zyv/github-issues-import",
+  "snippet": "Modern, typesafe Python client for GitHub's unofficial API for importing issues",
+  "date_shown": "2026-09-03",
+  "id": "r0509"
+ },
+ {
+  "query_id": "blind5-fact-14",
+  "query": "what is the smallest country in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Vatican_City?wprov=sfla1",
+  "title": "Vatican City",
+  "snippet": "With an area of 44 hectares (109 acres) and a population of about 882 in 2024, it is the smallest sovereign state in the world both by area and by population. It is the only country in the world with ",
+  "date_shown": "2001-10-14",
+  "id": "r0515"
+ },
+ {
+  "query_id": "blind5-howto-20",
+  "query": "how to use matplotlib subplots",
+  "window": "none",
+  "url": "https://matplotlib.org/stable/gallery/subplots%5Faxes%5Fand%5Ffigures/subplots_demo.html",
+  "title": "Create multiple subplots using plt.subplots — Matplotlib 3.11.1 documentation",
+  "snippet": "Create multiple subplots using plt.subplots — Matplotlib 3.11.1 documentation\n...\n# Create multiple subplots using `plt.subplots`#\n\n`pyplot.subplots` creates a figure and a grid of subplots with a sin",
+  "date_shown": "none",
+  "id": "r0521"
+ },
+ {
+  "query_id": "blind5-paper-14",
+  "query": "recent papers on climate modeling with deep learning",
+  "window": "the last 366 days",
+  "url": "https://www.nature.com/articles/s43247-026-03238-z",
+  "title": "Rewiring climate modeling with machine learning emulators - Nature",
+  "snippet": "This paper offers a present perspective on how to rewire climate modeling for the age of artificial intelligence (AI) and machine learning 23, particularly using ML emulators.",
+  "date_shown": "2026-01-29",
+  "id": "r0527"
+ },
+ {
+  "query_id": "blind5-paper-18",
+  "query": "recent papers on embodied ai",
+  "window": "the last 366 days",
+  "url": "https://arxiv.science/abs/2610.11480",
+  "title": "RoboAware: Learning to Coordinate Embodied Skills from Counterfactual Outcomes | arXiv Science",
+  "snippet": "RoboAware: Learning to Coordinate Embodied Skills from Counterfactual Outcomes | arXiv Science\n\n# RoboAware: Learning to Coordinate Embodied Skills from Counterfactual Outcomes\n...\nEmbodied coding age",
+  "date_shown": "2026-10-08",
+  "id": "r0533"
+ },
+ {
+  "query_id": "blind5-news-12",
+  "query": "news about Vale past month",
+  "window": "the last 31 days",
+  "url": "https://thebrazilscope.com/article.php?slug=brazil-court-rulings-revive-brumadinho-criminal-cases-as-vale-reports-remediation-spending",
+  "title": "Brazil court allows Brumadinho criminal cases to proceed",
+  "snippet": "# Brazil court rulings revive Brumadinho criminal cases as Vale reports remediation spending\n\nBrazil’s Superior Court of Justice has allowed criminal proceedings linked to the Brumadinho dam collapse ",
+  "date_shown": "2026-10-05",
+  "id": "r0539"
+ },
+ {
+  "query_id": "blind5-code-12",
+  "query": "python library for scheduling jobs",
+  "window": "none",
+  "url": "https://pypi.org/project/scheduler/",
+  "title": "scheduler",
+  "snippet": "A simple in-process python scheduler library with asyncio, threading and timezone support.\n...\nscheduler, schedule, asyncio, threading, datetime, date, time, timedelta, timezone, timing\n...\n## Descrip",
+  "date_shown": "none",
+  "id": "r0545"
+ },
+ {
+  "query_id": "blind5-announcement-16",
+  "query": "Block latest announcement",
+  "window": "the last 31 days",
+  "url": "https://www.mamamia.com.au/the-block-2026-auction/",
+  "title": "The Block 2026 auction: Candyman controversy, explained. - Mamamia",
+  "snippet": "The Block 2026 auction is looming, and a wild rumour about the Candyman buying House 2 is tearing the cast apart. Here is the real truth.",
+  "date_shown": "2026-10-01",
+  "id": "r0551"
+ },
+ {
+  "query_id": "blind5-fact-05",
+  "query": "what is the deepest lake in the world",
+  "window": "none",
+  "url": "https://en.wikipedia.org/wiki/Lake_Chelan",
+  "title": "Lake Chelan",
+  "snippet": "486 ft (453 m), Lake Chelan is the third deepest lake in the United States behind Crater Lake , the deepest , and Lake Tahoe, the second deepest . Because of",
+  "date_shown": "2004-08-03",
+  "id": "r0557"
+ },
+ {
+  "query_id": "blind5-announcement-07",
+  "query": "what did Supabase announce this month",
+  "window": "the last 31 days",
+  "url": "https://supabase.com/blog/select-2026-scale-without-limits",
+  "title": "Scale without limits: Multigres, OrioleDB, and dbarena",
+  "snippet": "# Scale without limits: Multigres, OrioleDB, and dbarena\n...\nToday at Supabase Select, we announced Multigres for high availability and scalable connection pooling, and OrioleDB for high performance s",
+  "date_shown": "2026-10-02",
+  "id": "r0563"
+ },
+ {
+  "query_id": "blind5-announcement-10",
+  "query": "Zscaler official announcement",
+  "window": "the last 31 days",
+  "url": "https://www.zscaler.com/blogs/partner/zscaler-delivers-same-day-support-macos-27-and-ios-27",
+  "title": "Zscaler Delivers Same-Day Support for macOS 27 and iOS 27",
+  "snippet": "In addition, Zscaler has broadened its Same-Day Support to include Zero Trust Browser for macOS 27, extending Same-Day readiness across another important way customers securely access applications and",
+  "date_shown": "2026-09-28",
+  "id": "r0569"
+ }
+]

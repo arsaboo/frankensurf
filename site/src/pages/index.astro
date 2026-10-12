@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import StitchedWave from "../assets/stitched-wave.svg";
 import stitchedWaveMint from "../assets/stitched-wave-mint.svg?url";
-import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs, searchRanked, searchStats } from "../data/site";
+import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs } from "../data/site";
 
 const repo = "https://github.com/yail259/frankensurf";
 const half = Math.ceil(marquee.length / 2);
@@ -209,20 +209,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
   <section class="container sec" id="search">
     <div class="sec-head" data-reveal>
       <h2><em class="horror">Search,</em> checked.</h2>
-      <p class="sec-sub">Every result checked: on topic, inside your date window, a real page. 120 queries written blind, every search tool on its own. Free, Frankensurf is level with Exa and well ahead of Firecrawl&rsquo;s search.</p>
-    </div>
-    <div class="stats stats-3" data-reveal>
-      {searchStats.map((s) => <div class="stat"><span class="v">{s.value}</span><span class="l">{s.label}</span><span class="n">{s.note}</span></div>)}
-    </div>
-    <div class="panel rank" data-reveal role="list" aria-label="Right results in the top five, mean of 120 queries, each search tool on its own and Frankensurf">
-      {searchRanked.map((r, i) => (
-        <div class:list={["rank-row", { us: r.us }]} role="listitem">
-          <span class="lbl">{r.name}</span>
-          <span class="rank-track" aria-hidden="true"><i style={`--w:${r.right / 5 * 100}%;--i:${i}`}></i></span>
-          <span class="val">{r.right.toFixed(1)} / 5</span>
-        </div>
-      ))}
-      <a class="bars-src" href={sources.searchbench.url}>Right results in the top five, mean of 120 queries · raw rows and script ↗</a>
+      <p class="sec-sub">The same idea for search: free sources first, every result checked for topic and date, and Exa or Firecrawl&rsquo;s search only when you allow paid tools. Measured against them on blind queries, it isn&rsquo;t ahead yet, so there are no numbers here until it is.</p>
     </div>
   </section>
 

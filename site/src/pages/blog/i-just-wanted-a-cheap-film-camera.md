@@ -73,13 +73,6 @@ Then, because I'd spent a day tuning on those 150, I ran it once more on another
 
 ![Share of 150 sites nobody had read correctly, each tool on its own vs Frankensurf](/blog/head-to-head-set7.png)
 
-## Benchmark IV: search
-
-Reading pages was only half of it. My agent's first mistake was ChatGPT's search: stale prices and missed listings. So search got the same treatment. Every result gets checked: is it about the query, is it inside the date window I asked for, is it an actual item and not a homepage or a bot check? If one source's results fail, try the next one and keep whatever passed.
-
-I wrote 120 queries before running any of them (news this week, company announcements, how-tos, code, papers and facts) and ran every search tool on its own against it. With free sources only, Frankensurf found a right result in the top five for every single query, and 96% of what it returned was right. Exa, the best paid search I tested, got 94%, and Firecrawl's search 71%. Exa still finds a few more right results per query (4.7 against 4.4 out of 5, within the noise), mostly company announcements, where Frankensurf would rather hand back fewer results than ones it can't date. Exa costs $9.50 per thousand searches. Frankensurf costs nothing.
-
-![Right results in the top five, mean of 120 fresh queries, each search tool on its own vs Frankensurf](/blog/search-blind4.png)
 
 ## How it works (and what it costs)
 
