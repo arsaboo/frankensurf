@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import StitchedWave from "../assets/stitched-wave.svg";
 import stitchedWaveMint from "../assets/stitched-wave-mint.svg?url";
-import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs } from "../data/site";
+import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs, searchRanked, searchStats } from "../data/site";
 
 const repo = "https://github.com/yail259/frankensurf";
 const half = Math.ceil(marquee.length / 2);
@@ -206,6 +206,25 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
     </div>
   </section>
 
+  <section class="container sec" id="search">
+    <div class="sec-head" data-reveal>
+      <h2>Search, <em class="horror">checked.</em></h2>
+      <p class="sec-sub">Search gets the same treatment as reads: every result is checked (about the query, inside the date window you asked for, an actual item rather than a homepage or a bot check), and when a source's results fail, the next source is tried. 120 queries written before any was run (news this week, company announcements, how-tos, code, papers and facts), each tool on its own and Frankensurf, run once on 12 October 2026. With free sources only, Frankensurf answered every query and 96% of what it returned was right, against 94% for Exa and 71% for Firecrawl's search. Exa still returns a few more right results per query (4.7 against 4.4, within the noise), most of them on company announcements.</p>
+    </div>
+    <div class="stats stats-3" data-reveal>
+      {searchStats.map((s) => <div class="stat"><span class="v">{s.value}</span><span class="l">{s.label}</span><span class="n">{s.note}</span></div>)}
+    </div>
+    <div class="panel rank" data-reveal role="list" aria-label="Right results in the top five, mean of 120 queries, each search tool on its own and Frankensurf">
+      {searchRanked.map((r, i) => (
+        <div class:list={["rank-row", { us: r.us }]} role="listitem">
+          <span class="lbl">{r.name}</span>
+          <span class="rank-track" aria-hidden="true"><i style={`--w:${r.right / 5 * 100}%;--i:${i}`}></i></span>
+          <span class="val">{r.right.toFixed(1)} / 5</span>
+        </div>
+      ))}
+      <a class="bars-src" href={sources.searchbench.url}>Right results in the top five, mean of 120 queries · raw rows and script ↗</a>
+    </div>
+  </section>
 
   <section class="container sec" id="problem">
     <div class="sec-head" data-reveal>

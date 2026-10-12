@@ -30,6 +30,7 @@ export const sources = {
   zyte: { label: "Zyte API docs", url: "https://docs.zyte.com/zyte-api/" },
   apify: { label: "Apify: RAG Web Browser", url: "https://apify.com/apify/rag-web-browser" },
   bench: { label: "Frankensurf tool benchmark, 11 Oct 2026", url: "https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-11" },
+  searchbench: { label: "Frankensurf search benchmark, 12 Oct 2026", url: "https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-12-search" },
 } as const;
 
 export type SourceKey = keyof typeof sources;
@@ -228,6 +229,26 @@ export const failures: { label: string; today: number; target: number; src: Sour
 // tool is also one of Frankensurf's own providers, so each is labelled
 // "<Tool> Only" (Frankensurf against that provider used on its own), never as a
 // rival (owner, 6 Oct 2026).
+// Search, measured 12 Oct 2026 with v0.39 on 120 queries written before any was run
+// and run once (blind set 4; benchmarks/2026-10-12-search/README.md). `right` is the
+// mean number of right results in the top five; a result is right when it is about
+// the query, inside the date window and an item, not a homepage or challenge page.
+export const searchRanked: { name: string; right: number; us: boolean }[] = [
+  { name: "Exa Only", right: 4.68, us: false },
+  { name: "Frankensurf, paid allowed", right: 4.53, us: true },
+  { name: "Frankensurf", right: 4.36, us: true },
+  { name: "Firecrawl Search Only", right: 3.54, us: false },
+  { name: "SearXNG Only", right: 2.92, us: false },
+  { name: "Bing News Only", right: 2.38, us: false },
+  { name: "Wikipedia Only", right: 1.97, us: false },
+  { name: "Bing Only", right: 1.39, us: false },
+];
+export const searchStats = [
+  { value: "100%", label: "of 120 fresh queries get a right result in the top five", note: "Exa Only 100%" },
+  { value: "96%", label: "of the results it returns are right", note: "Exa Only 94% · Firecrawl Search Only 71%" },
+  { value: "$0", label: "per 1,000 searches", note: "Exa Only $9.50 · Firecrawl Search Only $11.40" },
+];
+
 export const usVersus = { all: [144, 150], unseen: 98.6, cost: "$0.98" };
 // The same router with no paid tools at all, on the same sites.
 export const usFree: [number, number] = [132, 150];
