@@ -1,4 +1,4 @@
-# What a new user does, on fresh machines: install from PyPI, set up, read, start
+# What a new user does, on fresh machines: install from PyPI, frankensurf install, read, start
 # the MCP server. Nothing from this checkout is installed; it only supplies the
 # small MCP check script. Push a branch named install-check/<anything>, or run it
 # by hand with a version.
@@ -36,15 +36,25 @@ jobs:
           # A branch named install-check/checkout-* tests this checkout before a release.
           if [[ "$GITHUB_REF_NAME" == *checkout* ]]; then /tmp/fs/bin/pip install ".[mcp]"; else /tmp/fs/bin/pip install "$SPEC"; fi
           /tmp/fs/bin/pip show frankensurf | head -2
-      - name: frankensurf setup
+      - name: frankensurf install (every free tool, one command)
         run: |
-          /tmp/fs/bin/frankensurf setup | tee /tmp/setup.json
-          /tmp/fs/bin/python -c "import json,sys; w=json.load(open('/tmp/setup.json'))['works_here']; print(w); sys.exit(0 if all(v is True for v in w.values()) else 1)"
+          /tmp/fs/bin/frankensurf install --with-deps | tee /tmp/install.json
+          /tmp/fs/bin/python -c "import json,sys; r=json.load(open('/tmp/install.json')); print({k: v['ok'] for k, v in r['installed'].items()}, r.get('works_here')); sys.exit(0 if r['ok'] and all(v is True for v in r['works_here'].values()) else 1)"
+          /tmp/fs/bin/frankensurf install --list
+      - name: The local search engine answers (no Docker)
+        run: |
+          # Upstream engines may refuse a data-centre address; the engine itself must answer.
+          /tmp/fs/bin/frankensurf search-engine status | tee /tmp/engine.json
+          /tmp/fs/bin/python -c "import json,sys; r=json.load(open('/tmp/engine.json')); sys.exit(0 if r['status'] == 'running' and r.get('engine') == 'native' else 1)"
+          /tmp/fs/bin/frankensurf search "pytest github repository" --limit 3 \
+            | /tmp/fs/bin/python -c "import json,sys; r=json.load(sys.stdin)['receipt']; a=[(x['source'], x['status'], x.get('failure')) for x in r['search_attempts']]; print(a); sys.exit(0 if any(s == 'searxng' and f != 'PROVIDER_DOWN' for s, _, f in a) else 1)"
+      - name: frankensurf setup still works (guided install, nothing to ask in CI)
+        run: /tmp/fs/bin/frankensurf setup --no-stealth | tail -5
       - name: Read a plain page
         run: /tmp/fs/bin/frankensurf read https://example.com --explain
       - name: Each browser tool on its own
         run: |
-          for tool in local camoufox scrapling patchright; do
+          for tool in local camoufox scrapling patchright crawl4ai; do
             /tmp/fs/bin/frankensurf read https://news.ycombinator.com/ --provider "$tool" \
               | /tmp/fs/bin/python -c "import json,sys; r=json.load(sys.stdin)['receipt']; f=r.get('failure') or {}; print('$tool', r['status'], f.get('code') or '', (f.get('message') or '')[:300])"
           done

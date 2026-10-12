@@ -54,7 +54,8 @@ def _setup_env(monkeypatch, tmp_path, *, tty):
 
 def _setup(*flags):
     from frankensurf import cli
-    return cli._setup(cli.parse_args(["setup", "--no-stealth", *flags]))
+    # --no-search: the search question is tests/test_local_search.py's; these are about the skill.
+    return cli._setup(cli.parse_args(["setup", "--no-stealth", "--no-search", *flags]))
 
 
 def test_setup_without_a_terminal_does_not_write(monkeypatch, tmp_path):

@@ -8,23 +8,22 @@ import { Steps, Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 Frankensurf is a Python package and needs Python 3.12 or newer. Pick your
 system:
 
-<Aside type="note" title="Setup asks before it touches your agent">
-  `frankensurf setup` asks before it adds the [agent skill](/docs/agents/) to
-  `~/.claude/skills` (the default is no, and scripts and CI are never asked, so
-  nothing is written). Pass `--install-skill` to say yes ahead of time or
-  `--no-install-skill` to skip the question; `frankensurf skill uninstall`
-  removes it.
-</Aside>
+`frankensurf install` fetches every free tool in one go, the way `playwright
+install` fetches browsers. Each lands in its own folder, never in your Python
+environment, and one that fails leaves the others working:
 
-<Aside type="note" title="Setup offers local search, and asks first">
-  Search works without it, but is stronger with a local
-  [SearXNG](/docs/integrations/searxng/). If [Docker](https://docs.docker.com/get-docker/)
-  is running, `frankensurf setup` asks "Start a local search engine (SearXNG in
-  Docker, port 8088)?" (the default is no, and scripts and CI are never asked).
-  Pass `--search` to say yes ahead of time or `--no-search` to skip the
-  question. Without Docker, setup tells you how to get it and carries on.
-  Later: `frankensurf search-engine start`, `stop` or `status`.
-</Aside>
+| Tool | What it adds |
+| --- | --- |
+| `chromium` | Chromium for JavaScript pages |
+| `stealth` | [Camoufox](/docs/integrations/camoufox/), [Scrapling](/docs/integrations/scrapling/) and [Patchright](/docs/integrations/patchright/) |
+| `search` | A local [SearXNG](/docs/integrations/searxng/) on `127.0.0.1:8088`, no Docker |
+| `crawl4ai` | [Crawl4AI](/docs/integrations/crawl4ai/) and its own browsers |
+| `nodriver` | [nodriver](/docs/integrations/nodriver/), only when you name it (AGPL-3.0) |
+
+`frankensurf install search chromium` installs just those, `--with-deps` adds
+the browsers' system libraries on Linux (it asks for sudo, as Playwright does),
+`frankensurf install --list` shows what is installed where, and `frankensurf
+uninstall all` (or `uninstall search`, ...) removes it again.
 
 <Tabs syncKey="os">
 <TabItem label="Linux">
@@ -38,13 +37,11 @@ system:
    pip install "frankensurf[mcp]"
    ```
 
-2. Download Chromium and the free stealth browsers (Camoufox, Scrapling, Patchright). This takes a few minutes.
+2. Install every free tool and the system libraries the browsers need (it asks for sudo). This takes a few minutes.
 
    ```bash
-   frankensurf setup
+   frankensurf install --with-deps
    ```
-
-   If Chromium won't start, install its system libraries: `sudo $(which python) -m playwright install-deps chromium`.
 
 
 3. Read a page, and see each tool it tried.
@@ -63,12 +60,12 @@ system:
 1. Install Python 3.12 or newer if you don't have it, for example with
    [Homebrew](https://brew.sh/): `brew install python@3.12`.
 
-2. Install the package, then Chromium and the free stealth browsers.
+2. Install the package, then every free tool.
 
    ```bash
    python3 -m venv ~/.venvs/frankensurf && source ~/.venvs/frankensurf/bin/activate
    pip install "frankensurf[mcp]"
-   frankensurf setup
+   frankensurf install
    ```
 
 3. Read a page, and see each tool it tried.
@@ -81,8 +78,8 @@ system:
 
 <Aside type="note">
   Each release is installed from PyPI on a fresh macOS machine (Apple silicon)
-  and checked: setup, every browser, a read and the MCP server. `frankensurf
-  setup` ends with `works_here`, which browsers started and read a page on your
+  and checked: install, every browser, a read and the MCP server. `frankensurf
+  install` ends with `works_here`, which browsers started and read a page on your
   machine; please [open an issue](https://github.com/yail259/frankensurf/issues)
   if one doesn't.
 </Aside>
@@ -106,8 +103,7 @@ Frankensurf runs inside WSL (Windows Subsystem for Linux).
    sudo apt install -y python3-venv
    python3 -m venv ~/.venvs/frankensurf && source ~/.venvs/frankensurf/bin/activate
    pip install "frankensurf[mcp]"
-   frankensurf setup
-   sudo $(which python) -m playwright install-deps chromium
+   frankensurf install --with-deps
    frankensurf read "https://www.walmart.com/search?q=air+fryer" --explain
    ```
 
@@ -120,10 +116,20 @@ Your agent on Windows starts the server through WSL; see
 </Tabs>
 
 That is the free stack: plain HTTP, markdown negotiation, Jina Reader, a local
-Chromium and the stealth browsers. No account or key. On the newest
+Chromium, the stealth browsers, Crawl4AI and your own search engine. No account,
+key or Docker. On the newest
 [benchmark](/docs/more/benchmarks/) (150 fresh sites, read once) it reads 88.0% of
 sites, as many as the best paid tool on its own; adding the
-[paid tools](/docs/blocked/paid-tools/) takes it to 96.0%. Skip the stealth browsers with `frankensurf setup --no-stealth`.
+[paid tools](/docs/blocked/paid-tools/) takes it to 96.0%.
+
+<Aside type="note" title="Prefer to be asked? frankensurf setup">
+  `frankensurf setup` is the guided install: Chromium and the stealth browsers
+  (`--no-stealth` skips them), then it asks before installing local search and
+  before adding the [agent skill](/docs/agents/) to `~/.claude/skills` (both
+  default to no, and scripts and CI are never asked). `--search` and
+  `--install-skill` say yes ahead of time; `--no-search` and
+  `--no-install-skill` skip the questions.
+</Aside>
 
 ## As a command-line tool
 
@@ -133,7 +139,7 @@ tool with [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/):
 
 ```bash
 uv tool install "frankensurf[mcp]"     # or: pipx install "frankensurf[mcp]"
-frankensurf setup
+frankensurf install
 frankensurf read "https://news.ycombinator.com" --explain
 ```
 
@@ -141,21 +147,17 @@ frankensurf read "https://news.ycombinator.com" --explain
 
 Working on Frankensurf itself? Install from a clone instead:
 `git clone https://github.com/yail259/frankensurf.git`, then
-`pip install -e '.[test,mcp]'` and `frankensurf setup`.
+`pip install -e '.[test,mcp]'` and `frankensurf install`.
 
 ## Optional extras
 
-Each one adds tools to the [escalation ladder](/docs/blocked/escalation/). The
-scripts are in the repository and run in a shell (on Windows, inside WSL); SearXNG
-and Steel need [Docker](https://docs.docker.com/get-docker/). Local search needs
-no repository: it is part of the package.
+Each one adds tools to the [escalation ladder](/docs/blocked/escalation/).
+Everything free is in `frankensurf install` above; these are the rest.
 
 | Add | Command |
 | --- | --- |
-| Local search ([SearXNG](/docs/integrations/searxng/)) | `frankensurf setup --search` or `frankensurf search-engine start` |
-| Self-hosted browser ([Steel](/docs/integrations/steel/)) | `bash scripts/start-steel.sh` |
-| Stealth browsers ([Camoufox](/docs/integrations/camoufox/), [Scrapling](/docs/integrations/scrapling/), [Patchright](/docs/integrations/patchright/)) | `frankensurf setup` (included above) |
-| [Crawl4AI](/docs/integrations/crawl4ai/) | `bash scripts/install-crawl4ai-provider.sh` |
+| [nodriver](/docs/integrations/nodriver/) (AGPL-3.0, drives your own Chrome) | `frankensurf install nodriver` |
+| Self-hosted browser ([Steel](/docs/integrations/steel/), needs [Docker](https://docs.docker.com/get-docker/)) | `bash scripts/start-steel.sh` (from a clone) |
 | SOCKS connections for [the connection pool](/docs/blocked/egress/) | `pip install "frankensurf[socks]"` (tool install: `uv tool install "frankensurf[mcp,socks]"`) |
 | Paid services | [Add keys](/docs/blocked/paid-tools/) |
 

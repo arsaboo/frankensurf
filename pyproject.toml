@@ -47,7 +47,7 @@ frankensurf-mcp = "frankensurf.mcp_server:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-frankensurf = ["bundled_routes.json", "bundled_route_seeds.json", "bundled_wall_priors.json", "provider_requirements.txt", "skill/SKILL.md", "searxng_settings.yml"]
+frankensurf = ["bundled_routes.json", "bundled_route_seeds.json", "bundled_wall_priors.json", "provider_requirements.txt", "skill/SKILL.md", "searxng_settings.yml", "crawl4ai_requirements.lock.txt", "install_crawl4ai.sh"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

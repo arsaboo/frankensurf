@@ -9,10 +9,10 @@ import pytest
 
 SCRIPT = (
     Path(__file__).parents[1]
-    / "scripts/crawl4ai_install_preflight.py")
+    / "src/frankensurf/crawl4ai_preflight.py")
 INSTALLER = (
     Path(__file__).parents[1]
-    / "scripts/install-crawl4ai-provider.sh")
+    / "src/frankensurf/install_crawl4ai.sh")
 CANARY = (
     Path(__file__).parents[1]
     / "scripts/crawl4ai_isolation_canary.py")
@@ -38,8 +38,8 @@ def _canary_module():
 
 def test_installer_preflight_precedes_every_provider_tree_mutation():
     source = INSTALLER.read_text()
-    preflight = source.index("crawl4ai_install_preflight.py")
-    assert preflight < source.index('python3 -m venv "$provider_dir"')
+    preflight = source.index("crawl4ai_preflight.py")
+    assert preflight < source.index('-m venv "$provider_dir"')
     assert preflight < source.index('mkdir -p "$browser_dir"')
     assert preflight < source.index("-m pip install")
     assert preflight < source.index("-m playwright install chromium")

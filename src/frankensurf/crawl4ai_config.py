@@ -70,7 +70,7 @@ def _sha256_regular_file(path):
 
 
 def _lock_path():
-    return Path(__file__).resolve().parents[2] / "requirements-crawl4ai.lock.txt"
+    return Path(__file__).resolve().with_name("crawl4ai_requirements.lock.txt")
 
 
 def _canonical_distribution(name):

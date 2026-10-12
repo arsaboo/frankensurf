@@ -210,12 +210,12 @@ def _skill_plan(args):
 
 
 def _search_plan(args):
-    """Decide, before the long downloads, whether setup starts the local search engine
-    (SearXNG in Docker). Only the user's yes does: --search, or a "y" at an interactive
-    prompt. Returns (start?, report): the report is what setup's JSON says under "search"."""
+    """Decide, before the long downloads, whether setup installs and starts the local search
+    engine (SearXNG, run natively: no Docker). Only the user's yes does: --search, or a "y"
+    at an interactive prompt. Returns (start?, report): what setup's JSON says under "search"."""
     from . import local_search
     report = local_search.status()
-    if report["status"] in ("running", "no_docker"):
+    if report["status"] == "running":
         return False, report
     if args.no_search:
         report["note"] = "left off (--no-search)"
@@ -223,11 +223,13 @@ def _search_plan(args):
     if args.search:
         return True, report
     if _interactive():
-        if _ask_yes_no(f"Start a local search engine (SearXNG in Docker, port {local_search.PORT})?"):
+        if _ask_yes_no(f"Install a local search engine (SearXNG, about 140 MB, no Docker; "
+                       f"runs on 127.0.0.1:{local_search.PORT})?"):
             return True, report
         report["status"] = "declined"
         return False, report
-    report["note"] = "not started: pass --search to start it (setup only runs Docker with your say-so)"
+    report["note"] = ("not installed: pass --search, or run: frankensurf install search "
+                      "(setup only installs it with your say-so)")
     return False, report
 
 
@@ -261,15 +263,12 @@ def _setup(args):
         skill_report["installed_version"] = skill_report["bundled_version"]
     result["skill"] = skill_report
     if start_search:
-        from . import local_search
-        say("Starting the local search engine")
-        try:
-            search_report = local_search.start()
-        except Exception as error:   # a failed engine start never fails setup
-            search_report = {**search_report, "error": str(error)[:300]}
+        from . import installer
+        # A failed engine install never fails setup (install reports errors, never raises).
+        search_report = installer.install(["search"], log=say)["installed"]["search"]
     result["search"] = search_report
     if sys.platform.startswith("linux"):
-        result["if_chromium_will_not_start"] = "sudo $(which python) -m playwright install-deps chromium"
+        result["if_chromium_will_not_start"] = "frankensurf install --with-deps chromium stealth"
     return result
 
 
@@ -354,6 +353,21 @@ async def run(args):
             result["if_a_browser_does_not_work"] = (
                 "the others still read; FRANKENSURF_DEBUG_WORKERS=1 frankensurf read URL --provider TOOL "
                 "shows why, and https://github.com/yail259/frankensurf/issues takes the report")
+    elif args.operation == "install":
+        from . import installer
+        if args.list:
+            result = installer.listing()
+        else:
+            import sys
+            say = lambda message: print(message, file=sys.stderr, flush=True)
+            result = installer.install(args.urls, with_deps=args.with_deps, log=say)
+            browsers = {name: item for name, item in result["installed"].items()
+                        if name in ("chromium", "stealth") and item["ok"]}
+            if browsers:
+                result["works_here"] = await _browsers_work({"stealth_providers": browsers.get("stealth")})
+    elif args.operation == "uninstall":
+        from . import installer
+        result = installer.uninstall(args.urls)
     elif args.operation == "search-engine":
         from . import local_search
         result = getattr(local_search, args.urls[0])()
@@ -503,10 +517,14 @@ def build_parser():
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
         "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
-        "egress", "plugins", "search-engine"])
+        "egress", "plugins", "search-engine", "install", "uninstall"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
+    parser.add_argument("--with-deps", action="store_true",
+        help="install: also install the browsers' system libraries (Linux; asks for sudo)")
+    parser.add_argument("--list", action="store_true",
+        help="install: list each free tool, whether it is installed and where; installs nothing")
     parser.add_argument("--no-stealth", action="store_true",
         help="setup: skip the free stealth providers (Camoufox, Scrapling, Patchright)")
     parser.add_argument("--query", help="module discover: from a home page, search this and draft from the results")
@@ -518,9 +536,9 @@ def build_parser():
     parser.add_argument("--no-install-skill", action="store_true",
         help="setup: do not install the agent skill, and do not ask")
     parser.add_argument("--search", action="store_true",
-        help="setup: start the local search engine (SearXNG in Docker, port 8088) without asking")
+        help="setup: install and start the local search engine (SearXNG, no Docker) without asking")
     parser.add_argument("--no-search", action="store_true",
-        help="setup: do not start the local search engine, and do not ask")
+        help="setup: do not install the local search engine, and do not ask")
     parser.add_argument("--save", action="store_true",
         help="module discover: save the best drafted module")
     parser.add_argument("--module", metavar="ID",
@@ -701,7 +719,8 @@ def parse_args(argv=None):
             parser.error("skill takes: install [--skill-dir DIR] | uninstall [--skill-dir DIR] | show")
     elif args.operation == "search-engine":
         if args.urls not in (["start"], ["stop"], ["status"]):
-            parser.error("search-engine takes: start | stop | status (local search: SearXNG in Docker, port 8088)")
+            parser.error("search-engine takes: start | stop | status (local search: SearXNG on port 8088; "
+                         "install it with: frankensurf install search)")
     elif args.operation == "egress":
         if args.urls != ["check"]:
             parser.error("egress takes: check")
@@ -712,6 +731,17 @@ def parse_args(argv=None):
                 (len(args.urls) == 4 and args.urls[0] == "trust")
                 or (len(args.urls) == 3 and args.urls[0] in ("untrust", "disable", "enable"))):
             parser.error(usage)
+    elif args.operation in ("install", "uninstall"):
+        from . import installer
+        if args.operation == "uninstall" and not args.urls:
+            parser.error("uninstall: say what to remove: all, "
+                         + ", ".join([*installer.COMPONENTS, *installer.OPTIONAL]))
+        try:
+            installer.resolve(args.urls)
+        except ValueError as error:
+            parser.error(f"{args.operation}: {error}")
+        if args.list and (args.urls or args.with_deps or args.operation != "install"):
+            parser.error("--list takes nothing else: frankensurf install --list")
     elif args.operation == "setup":
         if args.urls:
             parser.error("setup takes no arguments (add --no-stealth to skip the stealth providers)")
@@ -738,6 +768,8 @@ def parse_args(argv=None):
         parser.error(f"{args.operation} requires exactly one URL, trace ID or registration ID")
     if (args.install_skill or args.no_install_skill) and args.operation != "setup":
         parser.error("--install-skill and --no-install-skill are supported only for setup")
+    if (args.with_deps or args.list) and args.operation != "install":
+        parser.error("--with-deps and --list are supported only for install")
     if (args.search or args.no_search) and args.operation != "setup":
         parser.error("--search and --no-search are supported only for setup")
     if args.skill_dir and args.operation not in ("setup", "skill"):

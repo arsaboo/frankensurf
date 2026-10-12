@@ -25,8 +25,13 @@ Python 3.12 or newer, on Linux, macOS, or Windows through WSL (each release is
 installed from PyPI on fresh Ubuntu 24.04 and macOS machines and checked)::
 
   pip install "frankensurf[mcp]"
-  frankensurf setup        # Chromium + the free stealth browsers, a few minutes
+  frankensurf install      # every free tool: browsers, stealth browsers, local search, Crawl4AI
   frankensurf read "https://www.walmart.com/search?q=air+fryer" --explain
+
+Like ``playwright install``: ``frankensurf install search chromium`` installs just
+those, ``--with-deps`` adds the browsers' system libraries on Linux (it asks for
+sudo), ``frankensurf install --list`` shows what is installed where, and
+``frankensurf uninstall all`` removes it again. No Docker needed.
 
 No account or key needed. The read climbs until it gets the real page::
 
@@ -82,8 +87,8 @@ Frankensurf, free (with the local search engine)   3.83                    $0
 
 Free, it beats Firecrawl's search (blind set 6, the 69 queries Firecrawl answered:
 3.78 against 2.91, better on 35 queries and worse on 5). With paid allowed it is level
-with Exa. Without the local search engine ``frankensurf setup`` offers, free search is
-much weaker. Details: `benchmarks/2026-10-13-search <benchmarks/2026-10-13-search/README.md>`_.
+with Exa. Without the local search engine (``frankensurf install search``), free
+search is much weaker. Details: `benchmarks/2026-10-13-search <benchmarks/2026-10-13-search/README.md>`_.
 
 Use it
 ------
@@ -143,16 +148,17 @@ set ``FRANKENSURF_PROXY`` to a proxy you bring.
 
 Search works without any setup (DuckDuckGo, Bing and the topic sources), and is
 stronger with a local SearXNG, which answered about a third of the queries in our
-blind benchmark. ``frankensurf setup`` offers to start one in Docker
-("Start a local search engine (SearXNG in Docker, port 8088)? [y/N]", default no;
-never asked in scripts or CI). ``--search`` says yes in advance and ``--no-search``
-skips the question; ``frankensurf search-engine start|stop|status`` manages it later.
-When a search ran without it, ``receipt.search_routing.local_search`` says so.
+blind benchmark. ``frankensurf install search`` installs one without Docker (SearXNG
+at a pinned, checksum-checked commit, in its own environment, on ``127.0.0.1:8088``);
+search starts it again after a reboot, and ``frankensurf search-engine
+start|stop|status`` manages it. When a search ran without it,
+``receipt.search_routing.local_search`` says so and how to install it.
 
 Agents learn the tools from a bundled skill: the MCP server sends it as its
 instructions, and ``frankensurf skill install`` adds it to ``~/.claude/skills``
-(``frankensurf skill uninstall`` removes it). ``frankensurf setup`` asks before
-installing it and never does in scripts or CI; ``--install-skill`` says yes in advance.
+(``frankensurf skill uninstall`` removes it). ``frankensurf setup``, the guided
+install, asks before installing it and never does in scripts or CI; ``--install-skill``
+says yes in advance.
 
 Reading many pages from one site? Let Frankensurf learn it first::
 
@@ -240,7 +246,7 @@ From a clone::
 
   python3 -m venv .venv
   .venv/bin/pip install -e '.[test,mcp]'
-  .venv/bin/frankensurf setup
+  .venv/bin/frankensurf install
   PYTHONPATH=.:src .venv/bin/pytest -q
 
 The product design is in ``SPEC.rst``; contributor rules are in ``AGENTS.md``.

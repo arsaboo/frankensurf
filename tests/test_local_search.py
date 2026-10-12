@@ -69,6 +69,27 @@ class FakeDocker:
         return [call[0] for call in self.calls]
 
 
+class FakeNative:
+    """Stands in for the native engine: installing it and starting it (no download, no process)."""
+
+    def __init__(self, monkeypatch, *, installed=False, fail=None):
+        self.installed, self.fail, self.installs, self.starts = installed, fail, 0, 0
+        monkeypatch.setattr(local_search, "install_native", self.install)
+        monkeypatch.setattr(local_search, "native_installed", lambda: self.installed)
+        monkeypatch.setattr(local_search, "start_native", self.start)
+
+    def install(self, log=print):
+        if self.fail:
+            raise RuntimeError(self.fail)
+        self.installs += 1
+        self.installed = True
+        return {"status": "installed", "path": "/stand-in/searxng-native", "commit": local_search.NATIVE_COMMIT}
+
+    def start(self, **kwargs):
+        self.starts += 1
+        return {"status": "started", "url": URL, "engine": "native", "pid": 4242}
+
+
 def setup(*flags):
     return cli._setup(parse_args(["setup", "--no-stealth", "--no-install-skill", *flags]))
 
@@ -109,7 +130,8 @@ def test_docker_missing_reports_no_docker(monkeypatch):
     FakeDocker(monkeypatch, installed=False)
     report = local_search.start()
     assert report["status"] == "no_docker" and report["docker"] == "not installed"
-    assert "docs.docker.com" in report["how_to_start"] and "frankensurf search-engine start" in report["how_to_start"]
+    assert report["how_to_start"] == "Run: frankensurf install search (no Docker needed)"
+    assert "docs.docker.com" in report["or_with_docker"] and "frankensurf search-engine start" in report["or_with_docker"]
     assert "free sources" in report["without_it"]
 
 
@@ -202,17 +224,16 @@ def test_stop_only_stops_the_named_container(monkeypatch):
 
 # --- frankensurf setup -----------------------------------------------------------------------
 
-def test_setup_interactive_yes_starts_the_engine(monkeypatch, tmp_path, capsys):
+def test_setup_interactive_yes_installs_and_starts_the_native_engine(monkeypatch, capsys):
     terminal(monkeypatch, True)
-    monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setattr(local_search.Path, "home", lambda: tmp_path)
     fake = FakeDocker(monkeypatch)
+    native = FakeNative(monkeypatch)
     monkeypatch.setattr("builtins.input", lambda *a: "y")
     report = setup()["search"]
-    assert report["status"] == "started" and report["url"] == URL
-    assert "run" in fake.verbs()
+    assert report["ok"] is True and report["engine"]["status"] == "started"
+    assert native.installs == 1 and native.starts == 1 and "run" not in fake.verbs()
     captured = capsys.readouterr()
-    assert "Start a local search engine (SearXNG in Docker, port 8088)? [y/N]" in captured.err
+    assert "Install a local search engine (SearXNG, about 140 MB, no Docker; runs on 127.0.0.1:8088)? [y/N]" in captured.err
     assert captured.out == ""
 
 
@@ -225,13 +246,13 @@ def test_setup_interactive_default_is_no(monkeypatch):
     assert "run" not in fake.verbs()
 
 
-def test_setup_search_flag_starts_without_asking(monkeypatch, tmp_path):
+def test_setup_search_flag_installs_without_asking(monkeypatch):
     terminal(monkeypatch, False)
-    monkeypatch.setattr(local_search.Path, "home", lambda: tmp_path)
-    fake = FakeDocker(monkeypatch)
+    FakeDocker(monkeypatch)
+    native = FakeNative(monkeypatch)
     monkeypatch.setattr("builtins.input", lambda *a: pytest.fail("--search must not prompt"))
-    assert setup("--search")["search"]["status"] == "started"
-    assert "run" in fake.verbs()
+    assert setup("--search")["search"]["ok"] is True
+    assert native.installs == 1
 
 
 def test_setup_without_a_terminal_never_asks_or_starts(monkeypatch):
@@ -270,23 +291,21 @@ def test_setup_with_the_engine_already_running_does_nothing(monkeypatch):
     assert fake.calls == []
 
 
-def test_setup_without_docker_says_how_to_get_it_and_what_search_falls_back_to(monkeypatch):
+def test_setup_search_needs_no_docker(monkeypatch):
     terminal(monkeypatch, True)
     FakeDocker(monkeypatch, installed=False)
-    monkeypatch.setattr("builtins.input", lambda *a: pytest.fail("no docker: nothing to ask"))
+    native = FakeNative(monkeypatch)
+    monkeypatch.setattr("builtins.input", lambda *a: pytest.fail("--search must not prompt"))
     report = setup("--search")["search"]
-    assert report["status"] == "no_docker" and report["url"] == URL
-    assert "docs.docker.com" in report["how_to_start"] and "thinner" in report["without_it"]
+    assert report["ok"] is True and report["engine"]["engine"] == "native" and native.installs == 1
 
 
-def test_setup_json_shape_is_serialisable_and_failures_do_not_fail_setup(monkeypatch, tmp_path):
+def test_setup_json_shape_is_serialisable_and_failures_do_not_fail_setup(monkeypatch):
     terminal(monkeypatch, False)
-    monkeypatch.setattr(local_search.Path, "home", lambda: tmp_path)
     FakeDocker(monkeypatch)
-    monkeypatch.setattr(local_search, "start", lambda: (_ for _ in ()).throw(RuntimeError("boom")))
+    FakeNative(monkeypatch, fail="boom")
     result = setup("--search")
-    assert json.loads(json.dumps(result))["search"]["error"] == "boom"
-    assert {"status", "url", "how_to_start"} <= set(result["search"])
+    assert json.loads(json.dumps(result))["search"] == {"ok": False, "error": "boom"}
     assert "skill" in result and "chromium" in result
 
 
@@ -330,7 +349,15 @@ async def routing(tmp_path, up, **kwargs):
     return result["receipt"]["search_routing"]
 
 
-async def test_receipt_says_local_search_was_not_running(tmp_path):
+async def test_receipt_says_how_to_install_local_search_when_there_is_none(tmp_path):
+    note = (await routing(tmp_path, up=False))["local_search"]
+    assert note["status"] == "not_installed"
+    assert "SearXNG" in note["note"] and "thinner" in note["note"] and "no Docker" in note["note"]
+    assert note["install_with"] == "frankensurf install search"
+
+
+async def test_receipt_says_local_search_was_not_running(monkeypatch, tmp_path):
+    FakeNative(monkeypatch, installed=True)
     note = (await routing(tmp_path, up=False))["local_search"]
     assert note["status"] == "not_running"
     assert "SearXNG" in note["note"] and "thinner" in note["note"]
