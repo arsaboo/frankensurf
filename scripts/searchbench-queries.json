@@ -1,6 +1,6 @@
 {
  "schema": "frankensurf.searchbench-queries/v1",
- "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once. Set blind2 (30 queries, new companies, varied phrasing) was written on 12 Oct 2026 before the announcement-precision change was measured, and run once. Set blind3 (60 queries, 10 per kind, entities in no other set) was written at 16:46 AEDT on 12 Oct 2026, before v0.39 was measured, and run once. Set blind4 (120 queries, 20 per kind, no query or company from an earlier set) was written at 21:34 AEDT on 12 Oct 2026, after v0.39.0 was released and before it was measured, and run once. Set blind5 (120 queries, 20 per kind, no query or company from an earlier set) was written at 23:03 AEDT on 12 Oct 2026 (sha256 01d9a0d1 of the generated file), before the v0.40 fixes were written, and run once. Set blind6 (120 queries, 20 per kind, no query or company from an earlier set) was written at 00:41 AEDT on 13 Oct 2026 (sha256 56a85b73 of the generated file), before any search-v2 change was measured, and run once; it is judged by the blind review.",
+ "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once. Set blind2 (30 queries, new companies, varied phrasing) was written on 12 Oct 2026 before the announcement-precision change was measured, and run once. Set blind3 (60 queries, 10 per kind, entities in no other set) was written at 16:46 AEDT on 12 Oct 2026, before v0.39 was measured, and run once. Set blind4 (120 queries, 20 per kind, no query or company from an earlier set) was written at 21:34 AEDT on 12 Oct 2026, after v0.39.0 was released and before it was measured, and run once. Set blind5 (120 queries, 20 per kind, no query or company from an earlier set) was written at 23:03 AEDT on 12 Oct 2026 (sha256 01d9a0d1 of the generated file), before the v0.40 fixes were written, and run once. Set blind6 (120 queries, 20 per kind, no query or company from an earlier set) was written at 00:41 AEDT on 13 Oct 2026 (sha256 56a85b73 of the generated file), before any search-v2 change was measured, and run once; it is judged by the blind review. Set blind7 (120 queries, 20 per kind, no query or company from an earlier set) was written at 05:56 AEDT on 13 Oct 2026 (sha256 6962c27f of the generated file), after blind6 ran and before any blind6 result was examined, and run once with the release candidate; it is judged by the blind review.",
  "shuffle_seed": 20261012,
  "queries": [
   {
@@ -7067,6 +7067,1348 @@
    "query": "what is the atomic number of carbon",
    "entity_terms": [
     "carbon"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-announcement-01",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Webflow latest announcement",
+   "entity_terms": [
+    "webflow"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-02",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "what did Squarespace announce this month",
+   "entity_terms": [
+    "squarespace"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-03",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Wix press release this month",
+   "entity_terms": [
+    "wix"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-04",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "HubSpot newest product launch",
+   "entity_terms": [
+    "hubspot"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-05",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Zendesk official announcement",
+   "entity_terms": [
+    "zendesk"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-06",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Asana latest announcement",
+   "entity_terms": [
+    "asana"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-07",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "what did Monday.com announce this month",
+   "entity_terms": [
+    "monday"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-08",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Miro press release this month",
+   "entity_terms": [
+    "miro"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-09",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Airtable newest product launch",
+   "entity_terms": [
+    "airtable"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-10",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "1Password official announcement",
+   "entity_terms": [
+    "1password"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-11",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Bitwarden latest announcement",
+   "entity_terms": [
+    "bitwarden"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-12",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "what did Mozilla Firefox announce this month",
+   "entity_terms": [
+    "firefox|mozilla"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-13",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Brave Software press release this month",
+   "entity_terms": [
+    "brave"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-14",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Vivaldi newest product launch",
+   "entity_terms": [
+    "vivaldi"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-15",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Logitech G official announcement",
+   "entity_terms": [
+    "logitech"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-16",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Razer latest announcement",
+   "entity_terms": [
+    "razer"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-17",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "what did Corsair announce this month",
+   "entity_terms": [
+    "corsair"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-18",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Raspberry Pi press release this month",
+   "entity_terms": [
+    "raspberry pi"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-19",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Arduino newest product launch",
+   "entity_terms": [
+    "arduino"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-announcement-20",
+   "set": "blind7",
+   "category": "announcement",
+   "query": "Framework Computer official announcement",
+   "entity_terms": [
+    "framework"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind7-news-01",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Fujitsu past month",
+   "entity_terms": [
+    "fujitsu"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-02",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Kyocera past month",
+   "entity_terms": [
+    "kyocera"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-03",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Olympus past month",
+   "entity_terms": [
+    "olympus|om system"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-04",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Nikon past month",
+   "entity_terms": [
+    "nikon"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-05",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Bridgestone past month",
+   "entity_terms": [
+    "bridgestone"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-06",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Michelin past month",
+   "entity_terms": [
+    "michelin"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-07",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Continental AG past month",
+   "entity_terms": [
+    "continental"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-08",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Bosch this week",
+   "entity_terms": [
+    "bosch"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-09",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Thales past month",
+   "entity_terms": [
+    "thales"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-10",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Safran past month",
+   "entity_terms": [
+    "safran"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-11",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Saab past month",
+   "entity_terms": [
+    "saab"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-12",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Embraer rival Bombardier past month",
+   "entity_terms": [
+    "bombardier"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-13",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Nissan this week",
+   "entity_terms": [
+    "nissan"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-14",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Mazda past month",
+   "entity_terms": [
+    "mazda"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-15",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Suzuki past month",
+   "entity_terms": [
+    "suzuki"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-16",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Tata Steel past month",
+   "entity_terms": [
+    "tata steel|tata"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-17",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Reliance Industries this week",
+   "entity_terms": [
+    "reliance"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-18",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Wipro past month",
+   "entity_terms": [
+    "wipro"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-19",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Grab Holdings past month",
+   "entity_terms": [
+    "grab"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-news-20",
+   "set": "blind7",
+   "category": "news",
+   "query": "news about Sea Limited past month",
+   "entity_terms": [
+    "sea limited|shopee|sea"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind7-howto-01",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to remove duplicates from a list in python",
+   "entity_terms": [
+    "duplicat*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-02",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to cherry pick a commit in git",
+   "entity_terms": [
+    "cherry"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-03",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to make a div sticky in css",
+   "entity_terms": [
+    "sticky"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-04",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to parse command line arguments in python",
+   "entity_terms": [
+    "argparse|argument*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-05",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to create a cron job in kubernetes",
+   "entity_terms": [
+    "cronjob|cron"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-06",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to use promises in javascript",
+   "entity_terms": [
+    "promise*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-07",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to rename a column in pandas",
+   "entity_terms": [
+    "rename"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-08",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to set up a python logging config",
+   "entity_terms": [
+    "logging"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-09",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to write a dockerfile healthcheck",
+   "entity_terms": [
+    "healthcheck"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-10",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to use lifetimes in rust",
+   "entity_terms": [
+    "lifetime*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-11",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to configure prettier with eslint",
+   "entity_terms": [
+    "prettier"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-12",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to create a foreign table in postgres",
+   "entity_terms": [
+    "foreign"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-13",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to use css variables",
+   "entity_terms": [
+    "variable*|custom propert*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-14",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to debug a node.js app in vscode",
+   "entity_terms": [
+    "debug*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-15",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to write a makefile",
+   "entity_terms": [
+    "makefile"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-16",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to use go channels",
+   "entity_terms": [
+    "channel*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-17",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to sort an array of objects in javascript",
+   "entity_terms": [
+    "sort*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-18",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to use react context",
+   "entity_terms": [
+    "context"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-19",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to compress a folder with tar",
+   "entity_terms": [
+    "tar"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-howto-20",
+   "set": "blind7",
+   "category": "howto",
+   "query": "how to check open ports on linux",
+   "entity_terms": [
+    "port*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind7-code-01",
+   "set": "blind7",
+   "category": "code",
+   "query": "requests python github repo",
+   "entity_terms": [
+    "requests"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-02",
+   "set": "blind7",
+   "category": "code",
+   "query": "axios github repository",
+   "entity_terms": [
+    "axios"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-03",
+   "set": "blind7",
+   "category": "code",
+   "query": "fastapi source code",
+   "entity_terms": [
+    "fastapi"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-04",
+   "set": "blind7",
+   "category": "code",
+   "query": "angular github repo",
+   "entity_terms": [
+    "angular"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-05",
+   "set": "blind7",
+   "category": "code",
+   "query": "nuxt github",
+   "entity_terms": [
+    "nuxt"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-06",
+   "set": "blind7",
+   "category": "code",
+   "query": "laravel github repository",
+   "entity_terms": [
+    "laravel"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-07",
+   "set": "blind7",
+   "category": "code",
+   "query": "numpy alternative jax github",
+   "entity_terms": [
+    "jax"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-08",
+   "set": "blind7",
+   "category": "code",
+   "query": "rust crate for http servers",
+   "entity_terms": [
+    "http|server*|axum|actix|hyper"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-09",
+   "set": "blind7",
+   "category": "code",
+   "query": "python library for date parsing",
+   "entity_terms": [
+    "date*|dateutil|pendulum|arrow"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-10",
+   "set": "blind7",
+   "category": "code",
+   "query": "javascript library for drag and drop",
+   "entity_terms": [
+    "drag"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-11",
+   "set": "blind7",
+   "category": "code",
+   "query": "go library for database migrations",
+   "entity_terms": [
+    "migrat*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-12",
+   "set": "blind7",
+   "category": "code",
+   "query": "python library for retries with backoff",
+   "entity_terms": [
+    "retr*|backoff|tenacity"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-13",
+   "set": "blind7",
+   "category": "code",
+   "query": "rust crate for error handling",
+   "entity_terms": [
+    "error*|anyhow|thiserror"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-14",
+   "set": "blind7",
+   "category": "code",
+   "query": "node.js library for scheduling cron jobs",
+   "entity_terms": [
+    "cron|schedul*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-15",
+   "set": "blind7",
+   "category": "code",
+   "query": "python library for markdown parsing",
+   "entity_terms": [
+    "markdown"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-16",
+   "set": "blind7",
+   "category": "code",
+   "query": "remix github repo",
+   "entity_terms": [
+    "remix"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-17",
+   "set": "blind7",
+   "category": "code",
+   "query": "solidjs github repository",
+   "entity_terms": [
+    "solid"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-18",
+   "set": "blind7",
+   "category": "code",
+   "query": "htmx alternative alpine js github",
+   "entity_terms": [
+    "alpine"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-19",
+   "set": "blind7",
+   "category": "code",
+   "query": "python library for async http",
+   "entity_terms": [
+    "aiohttp|httpx|async"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-code-20",
+   "set": "blind7",
+   "category": "code",
+   "query": "typescript orm library",
+   "entity_terms": [
+    "orm|typeorm|prisma|drizzle|mikro"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind7-paper-01",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on sparse attention",
+   "entity_terms": [
+    "sparse"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-02",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on vision language action models",
+   "entity_terms": [
+    "vision",
+    "action"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-03",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on llm agents tool use",
+   "entity_terms": [
+    "tool"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-04",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on diffusion language models",
+   "entity_terms": [
+    "diffusion"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-05",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on test time compute scaling",
+   "entity_terms": [
+    "test-time|test time"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-06",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on mechanistic interpretability",
+   "entity_terms": [
+    "interpretab*|mechanistic"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-07",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on federated learning for healthcare",
+   "entity_terms": [
+    "federated"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-08",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on protein design with generative models",
+   "entity_terms": [
+    "protein"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-09",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on weather forecasting foundation models",
+   "entity_terms": [
+    "weather|forecast*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-10",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on code llm evaluation",
+   "entity_terms": [
+    "code"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-11",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on long video understanding",
+   "entity_terms": [
+    "video"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-12",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on speech synthesis",
+   "entity_terms": [
+    "speech|tts|synthesis"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-13",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on graph neural networks for recommendation",
+   "entity_terms": [
+    "graph",
+    "recommend*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-14",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on reinforcement learning for robotics",
+   "entity_terms": [
+    "robot*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-15",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on data contamination in benchmarks",
+   "entity_terms": [
+    "contamination"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-16",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on on-device language models",
+   "entity_terms": [
+    "on-device|mobile|edge"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-17",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on retrieval augmented generation for question answering",
+   "entity_terms": [
+    "retrieval|rag"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-18",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on image segmentation foundation models",
+   "entity_terms": [
+    "segment*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-19",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on multilingual language models",
+   "entity_terms": [
+    "multilingual"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-paper-20",
+   "set": "blind7",
+   "category": "paper",
+   "query": "recent papers on agent safety",
+   "entity_terms": [
+    "safety|safe"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind7-fact-01",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who founded Sony",
+   "entity_terms": [
+    "sony"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-02",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what is the capital of Chile",
+   "entity_terms": [
+    "chile|santiago"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-03",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who wrote Moby Dick",
+   "entity_terms": [
+    "moby"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-04",
+   "set": "blind7",
+   "category": "fact",
+   "query": "when was the Taj Mahal built",
+   "entity_terms": [
+    "taj mahal"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-05",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what is the deepest point in the ocean",
+   "entity_terms": [
+    "mariana|challenger|deepest"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-06",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who discovered DNA structure",
+   "entity_terms": [
+    "dna"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-07",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what is the population of Australia",
+   "entity_terms": [
+    "australia"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-08",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who composed the Ninth Symphony",
+   "entity_terms": [
+    "ninth|beethoven"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-09",
+   "set": "blind7",
+   "category": "fact",
+   "query": "how tall is the Statue of Liberty",
+   "entity_terms": [
+    "statue of liberty"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-10",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what year did the first iPhone come out",
+   "entity_terms": [
+    "iphone"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-11",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who invented the airplane",
+   "entity_terms": [
+    "airplane|wright"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-12",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what is the hottest planet",
+   "entity_terms": [
+    "venus|planet"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-13",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who painted Guernica",
+   "entity_terms": [
+    "guernica"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-14",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what is the largest country by area",
+   "entity_terms": [
+    "russia|largest"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-15",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who formulated the laws of motion",
+   "entity_terms": [
+    "motion|newton"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-16",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what is the atomic number of oxygen",
+   "entity_terms": [
+    "oxygen"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-17",
+   "set": "blind7",
+   "category": "fact",
+   "query": "who wrote Frankenstein",
+   "entity_terms": [
+    "frankenstein"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-18",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what currency does South Korea use",
+   "entity_terms": [
+    "won|korea"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-19",
+   "set": "blind7",
+   "category": "fact",
+   "query": "when did the Roman Empire fall",
+   "entity_terms": [
+    "roman"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind7-fact-20",
+   "set": "blind7",
+   "category": "fact",
+   "query": "what is the chemical formula for water",
+   "entity_terms": [
+    "water|h2o"
    ],
    "needs_specific": false,
    "vertical": "reference"

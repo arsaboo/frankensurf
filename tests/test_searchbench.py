@@ -198,7 +198,7 @@ def test_query_file_is_balanced_and_well_formed():
     queries = data["queries"]
     assert data["shuffle_seed"] and len({q["id"] for q in queries}) == len(queries)
     assert {q["category"] for q in queries} == {"news", "announcement", "howto", "paper", "code", "fact"}
-    assert {q["set"] for q in queries} == {"dev", "heldout", "blind2", "blind3", "blind4", "blind5", "blind6"}
+    assert {q["set"] for q in queries} == {"dev", "heldout", "blind2", "blind3", "blind4", "blind5", "blind6", "blind7"}
     for q in queries:
         assert q["entity_terms"] and isinstance(q["needs_specific"], bool)
         assert q.get("recency", "week") in searchbench.RECENCY
