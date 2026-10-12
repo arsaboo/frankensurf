@@ -905,12 +905,24 @@ _MARKET_PHRASE = re.compile(r"\b(?:outperform(?:s|ed|ing)?|underperform(?:s|ed|i
                             r"price targets?|broader market|here(?:'s| is) what you need to know)\b", re.I)
 
 
+# With a ticker in the title, any trading word marks a market blurb ("(GE) stock sinks as market
+# gains", "Stock (GE) Moved Up by 3.07%"); some phrases mark one even without a ticker.
+_TRADING_WORD = re.compile(r"\b(?:stocks?|shares?|investors?|market|trading|moved (?:up|down)|"
+                           r"here(?:'s| is) why|why it'?s moving|\d+(?:\.\d+)?%)", re.I)
+_BLURB_PHRASE = re.compile(r"\b(?:buying opportunity|attracting investor attention|why it'?s moving|"
+                           r"stock (?:sinks|soars|plunges|climbs|slides|tumbles|rallies)|"
+                           r"shares (?:sink|soar|plunge|climb|slide|tumble|rally)|moved (?:up|down) by \d)", re.I)
+
+
 def stock_blurb(title) -> bool:
     """Whether the title is an auto-generated stock blurb: a ticker in capitals in parentheses
-    ("(VALE)", "(NYSE: X)") together with a market phrase (outperforms, trending stock, investors
-    heavily search, price target, broader market, shares fall, here is what you need to know)."""
+    ("(VALE)", "(NYSE: X)") together with a market or trading word (outperforms, trending stock,
+    shares fall, stock sinks, moved up by 3%, here is why), or a phrase only such blurbs use
+    ("is this a buying opportunity", "attracting investor attention", "why it's moving")."""
     title = str(title or "")
-    return bool(_TICKER.search(title) and _MARKET_PHRASE.search(title))
+    if _BLURB_PHRASE.search(title):
+        return True
+    return bool(_TICKER.search(title) and (_MARKET_PHRASE.search(title) or _TRADING_WORD.search(title)))
 
 
 _POLICY_URL = re.compile(r"/(?:legal|policy|policies|terms|terms-of-service|terms-of-use|privacy|privacy-policy|tos|"

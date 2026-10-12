@@ -241,13 +241,15 @@ def test_stock_quote_policy_docs_and_listing_pages_rank_below_ordinary_results()
             row("https://blog.example/acme-hires", "Acme hires a new chief executive",
                 "in the company's announcement", published=fresh)]
     order, scores = relevance_order("Acme announcement", rows, recency="month")
-    assert len(order) == 6
+    # (Changed with the wider stock-blurb rule: a ticker with "share price" is a market blurb, so the
+    # quote page fails outright instead of ranking last.)
+    assert len(order) == 5 and "https://finance.example/quote/ACME" not in order
     assert order[0] == "https://blog.example/acme-hires"
-    # Stock quotes and policy pages are last, even the policy page on the company's own domain.
-    assert order[-2:] == ["https://acme.com/legal/privacy", "https://finance.example/quote/ACME"]
+    # Policy pages are last, even the policy page on the company's own domain.
+    assert order[-1] == "https://acme.com/legal/privacy"
     for url in order[1:]:
         assert scores[url] < scores["https://blog.example/acme-hires"]
-    assert scores["https://acme.com/legal/privacy"] < 0 and scores["https://finance.example/quote/ACME"] < 0
+    assert scores["https://acme.com/legal/privacy"] < 0
 
 
 def test_the_penalties_do_not_apply_when_the_query_asks_for_that_kind_of_page():

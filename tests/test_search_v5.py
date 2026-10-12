@@ -260,3 +260,18 @@ async def test_a_paid_source_that_times_out_leaves_the_free_behaviour(monkeypatc
     assert [url[8] for url in urls(result)] == ["f", "f", "f"]
     statuses = {attempt["source"]: attempt["status"] for attempt in result["receipt"]["search_attempts"]}
     assert statuses["exa"] == "cancelled"
+
+
+def test_market_blurbs_with_a_ticker_and_a_trading_word_or_a_blurb_phrase():
+    from frankensurf.search_checks import stock_blurb
+    for title in ["GE Aerospace (GE) stock sinks as market gains: Here's why",
+                  "General Electric Co Stock (GE) Moved Up by 3.07% on Sep 16",
+                  "GE Aerospace down 15% in 3 months: Is this a buying opportunity?",
+                  "GE Aerospace (GE) is Attracting Investor Attention: Here is What You Should Know",
+                  "GE Aerospace (GE) Stock News: Why It's Moving, Sep 2026"]:
+        assert stock_blurb(title), title
+    for title in ["GE Aerospace ships four more engines for Tejas Mk-1A",
+                  "GE Aerospace commits $225M to modernize Niskayuna research center",
+                  "Reuters: GE Aerospace says GE9X mid-seal issue won't delay 777X",
+                  "Nvidia (NVDA) unveils new GPU architecture at developer conference"]:
+        assert not stock_blurb(title), title
