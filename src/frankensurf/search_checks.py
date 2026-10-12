@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qsl, unquote, urlparse
 
 from .completeness import _STOPWORDS, _WORD
-from .search import RECENCY, github_parts, parse_date
+from .search import RECENCY, _wiki_key, github_parts, parse_date, reference_topic
 
 # Words that say how fresh or what kind of page, never what the query is about.
 _QUERY_FILLER = frozenset({
@@ -49,7 +49,14 @@ _INDEX_SEGMENTS = frozenset({
     "new", "news", "newsroom", "press", "press-releases", "press-release-archive", "releases",
     "release-notes", "changelog", "announcements", "updates", "headlines", "blog", "blogs", "articles",
     "stories", "archive", "archives", "category", "categories", "tag", "tags", "topics", "latest",
-    "whats-new", "insights", "media", "events", "news-types"})
+    "whats-new", "insights", "media", "events", "news-types",
+    # A site's own sections and account pages: an index of things, never one dated item.
+    "overview", "financials", "filings", "sec-filings", "quarterly-results", "results", "presentations",
+    "governance", "careers", "pricing", "platform", "services", "products", "solutions", "signin", "sign-in",
+    "login", "account", "support", "help", "c"})
+# Query keys that page or size a listing (?l=100, ?page=2); an article path keeps its page numbers.
+_LISTING_KEYS = frozenset({"l", "page", "pagenum", "page_num", "per_page", "perpage", "offset", "limit"})
+_FORGE_HOSTS = frozenset({"github.com", "gitlab.com", "bitbucket.org", "codeberg.org"})
 # Hyphenated runs of these ("news-press-releases", "press-release-archive") are listings
 # too, when every word is one and at least one is a strong (plural or section) word:
 # "new-release" can be a title, "news-types" cannot.
@@ -88,6 +95,8 @@ _URL_MONTH = re.compile(r"/((?:19|20)\d\d)/(0[1-9]|1[0-2])(?:/|$)")
 _URL_MONTH_NAME = re.compile(r"/((?:19|20)\d\d)/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*(?:/(?:(\d\d)(\d\d)(?!\d))?|$)", re.I)
 # A compact stamp opening a path segment: 20261006 or 20261006057924.
 _URL_STAMP = re.compile(r"/((?:19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?:\d{6})?(?!\d)")
+# A new-style arXiv identifier, YYMM.NNNNN (/abs/2410.04941, /pdf/2410.04941v2): the month it was submitted.
+_URL_ARXIV = re.compile(r"/(\d\d)(0[1-9]|1[0-2])\.(\d{4,5})(?:v\d+)?(?:\.pdf)?(?:/|$)")
 
 
 def _stem(word):
@@ -186,12 +195,17 @@ def url_kind(url: str) -> str:
         return "homepage"
     if "tag" in query or "category" in query:
         return "tag_listing"
+    host = (parsed.hostname or "").lower().removeprefix("www.")
+    if host in _FORGE_HOSTS and len(segments) == 2:
+        return "item"  # owner/name: a repository, whatever the name is (platform, help, c)
+    if query & _LISTING_KEYS and not article_like(url):
+        return "tag_listing"
     for position, part in enumerate(segments):
-        if part in _LISTING_SEGMENTS and position >= len(segments) - 2:
+        if (part in _LISTING_SEGMENTS or part == "c") and position >= len(segments) - 2:
             return "tag_listing"
     if len(index) == 1 and index[0].split(".")[0] in _SECTION_SEGMENTS:
         return "tag_listing"
-    if _is_listing_path([re.sub(r"\.(?:html?|php)$", "", part) for part in index]):
+    if _is_listing_path([re.sub(r"\.(?:html?|php|aspx?)$", "", part) for part in index]):
         return "tag_listing"
     return "item"
 
@@ -244,6 +258,12 @@ def _url_date(url):
             return _day_end(year, month, calendar.monthrange(year, month)[1])
         if match := _URL_STAMP.search(path):
             return _day_end(int(match[1]), int(match[2]), int(match[3]))
+        if match := _URL_ARXIV.search(path):
+            # arXiv started in 2007; the identifier's month is the date, taken as the month's last day.
+            year, month = 2000 + int(match[1]), int(match[2])
+            # YYMM.NNNNN since 2015; the first eight years numbered papers with four digits.
+            if (len(match[3]) == 5 and year >= 2015) or (len(match[3]) == 4 and 2007 <= year < 2015):
+                return _day_end(year, month, calendar.monthrange(year, month)[1])
     except ValueError:
         return None
     return None
@@ -268,6 +288,45 @@ def published(item: dict, now=None):
     # A month-only date (/2026/10/) counts as the month's last day for the window,
     # but is never reported as a day still to come.
     return (min(when, now), "url") if when is not None else (None, None)
+
+
+# Path segments that hold dated items: what follows one of them, a slug or an id, is an item.
+_ARTICLE_SECTIONS = frozenset({
+    "news", "newsroom", "press", "press-releases", "press-release", "news-releases", "blog", "blogs", "stories",
+    "story", "announcements", "announcement", "releases", "release", "articles", "article", "updates", "update",
+    "insights", "media"})
+
+
+def _slug_words(segment):
+    return [word for word in segment.split("-") if word]
+
+
+def _is_item_id(segment):
+    return bool(re.fullmatch(r"\d{5,}", segment)
+                or re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", segment)
+                or (re.fullmatch(r"[a-z0-9]{8,}", segment) and re.search(r"\d", segment)
+                    and re.search(r"[a-z]", segment)))
+
+
+def article_like(url) -> bool:
+    """Whether the URL's path looks like one article, release or post, from the path alone: a
+    date in it (2026/10/12, 20261012, an arXiv id), a news, press, blog, stories, announcements,
+    releases, articles, updates, insights or media segment followed by a slug of three or more
+    hyphenated words or an id, or a long slug of four or more hyphenated words anywhere. Product,
+    pricing, careers, platform, services, sign-in, account, overview, financials, filings, results,
+    events, governance, category and listing pages, profiles and homepages are not."""
+    parsed = urlparse(str(url or ""))
+    if _url_date(url) is not None:
+        return True
+    segments = [re.sub(r"\.[a-z0-9]{2,5}$", "", unquote(part).lower()) for part in parsed.path.split("/") if part]
+    keys = {key.lower() for key, _ in parse_qsl(parsed.query)}
+    for position, part in enumerate(segments):
+        if part in _ARTICLE_SECTIONS:
+            if keys & _ID_KEYS:
+                return True
+            if any(len(_slug_words(later)) >= 3 or _is_item_id(later) for later in segments[position + 1:]):
+                return True
+    return any(len(_slug_words(part)) >= 4 for part in segments)
 
 
 def window_bounds(recency=None, since=None, until=None, now=None):
@@ -578,7 +637,7 @@ def query_kinds(query: str, *, vertical=None, recency=None) -> frozenset:
 _LANGS = (r"(?:python|rust|golang|go|javascript|typescript|node\.js|nodejs|java|ruby|php|c\+\+|c#|swift|"
           r"kotlin)")
 _LANG_LIB = re.compile(r"(?<![\w.+#])" + _LANGS + r"\s+(?:libraries|library|packages?|crates?|modules?|gems?|"
-                       r"frameworks?|sdks?)\b", re.I)
+                       r"frameworks?|sdks?)\b|(?<![\w.+#])" + _LANGS + r"(?:\s+[\w.+#-]+){1,2}\s+frameworks?\b", re.I)
 # Languages whose name is only a language, and those whose name is also a word (python, rust,
 # go, java, ruby, swift): the second kind only counts beside an error word or after "in".
 _LANG_SURE = re.compile(r"(?<![\w.+#])(?:javascript|typescript|golang|node\.js|nodejs|php|c\+\+|c#|kotlin)"
@@ -694,6 +753,17 @@ class QueryContext:
     announce: bool        # asks for news or announcements (a window, or words like latest, press)
     papers: bool
     asks: frozenset       # the kinds of page the query asks for outright: policy, stock, docs, security
+    words: frozenset = frozenset()   # the query's words, lowercased
+    code: bool = False            # a code query: the code vertical, or words like github, repo, library
+    repo: bool = False            # asks for the repository itself (github, repo, repository), not for docs
+    lookup: bool = False          # a code query for a project by name ("httpx python github")
+    need: bool = False            # a code query for something that does a job ("library for X", "X framework")
+    languages: tuple = ()         # programming languages the query names, lowercased
+    lookup_terms: tuple = ()      # a name lookup's project words, as written
+
+
+_REPO_WORDS = frozenset({"github", "gitlab", "bitbucket", "codeberg", "repo", "repos", "repository",
+                         "repositories"})
 
 
 def _joined_names(named, cased, raw):
@@ -718,9 +788,16 @@ def query_context(query: str, *, recency=None, vertical=None) -> QueryContext:
     words = _query_words(query)
     terms = tuple(key_terms(query))
     names = _joined_names(named, cased, raw_terms(query))
-    if vertical == "code" or words & _CODE_WORDS:
+    asks = frozenset(name for name, group in _ASKS.items() if words & group)
+    code =vertical == "code" or bool(words & _CODE_WORDS)
+    lookup = need = False
+    languages, lookup_terms = (), ()
+    if code:
         found = github_parts(query)
+        lookup, need = found["name_lookup"], not found["name_lookup"]
+        languages = tuple(found["languages"])
         if found["name_lookup"]:
+            lookup_terms = tuple(found["terms"])
             # A project by name ("httpx python github"): the project is the topic, the language
             # and the platform are not, and the repository carrying its name is canonical.
             terms = tuple(_stem(word) if len(word) > 2 else word for word in found["terms"])
@@ -730,7 +807,8 @@ def query_context(query: str, *, recency=None, vertical=None) -> QueryContext:
         names=frozenset(name for name in names if len(name) >= 2),
         announce=bool(recency) or bool(words & _ANNOUNCE_WORDS) or vertical == "news",
         papers=vertical == "papers" or bool(words & _PAPER_WORDS),
-        asks=frozenset(name for name, group in _ASKS.items() if words & group))
+        asks=asks, words=frozenset(words), code=code, repo=bool(words & _REPO_WORDS) and code and not asks,
+        lookup=lookup, need=need, languages=languages, lookup_terms=lookup_terms)
 
 
 # Generic patterns for pages that are not what a search is after.
@@ -798,6 +876,58 @@ def _canonical(ctx, url, host, item):
         ctx.named, ctx.cased, host) else 0.0
 
 
+# Repositories that are about using or measuring something else, not the thing itself.
+_EXAMPLE_TOKENS = frozenset({"demo", "demos", "example", "examples", "sample", "samples", "template", "templates",
+                             "starter", "starters", "boilerplate", "tutorial", "tutorials", "benchmark",
+                             "benchmarks", "awesome"})
+_GUIDE_TITLE = re.compile(r"\b(?:how to|how do|guide to|a guide|beginner'?s?|tutorial|step[- ]by[- ]step|"
+                          r"getting started|introduction to|learn(?:ing)?)\b", re.I)
+_LIBRARY_TITLE = re.compile(r"\b(?:libraries|library|packages?|crates?|frameworks?|modules?|sdks?|toolkits?)\b", re.I)
+_LIBRARY_URL = re.compile(r"/(?:packages?|project|projects|crates?|libraries|library|pkg)(?:/|$)|"
+                          r"^(?:pypi\.org|crates\.io|npmjs\.com|pkg\.go\.dev|libraries\.io|rubygems\.org|"
+                          r"mvnrepository\.com|packagist\.org|nuget\.org)$")
+_GUIDE_ASKED = frozenset({"guide", "tutorial", "tutorials", "how", "learn", "beginner", "beginners", "intro",
+                          "introduction"})
+
+
+def _code_adjustment(item, ctx, url, host, title):
+    """How a result suits a code query. A query for the repository (github, repo) prefers
+    repository pages (owner/name) to an organisation's page or a project's website; demos, examples,
+    templates, starters, tutorials, benchmarks and awesome-lists go last unless asked for; for a
+    name lookup the repository of that name leads and other repositories rank below any whose
+    owner/name does not hold the name as a word; for a need ("library for X") popular repositories
+    and pages that name libraries lead and how-to guides follow them."""
+    parts = _repo_parts(item)
+    delta = 0.0
+    segments = [part for part in urlparse(url).path.split("/") if part]
+    if parts:
+        owner, name = parts
+        if ctx.repo:
+            delta += 2.0
+        if _EXAMPLE_TOKENS & set(re.split(r"[-_.\s]+", name.lower())) and not ctx.words & _EXAMPLE_TOKENS:
+            delta -= 20.0
+        if ctx.lookup and ctx.lookup_terms:
+            tokens = set(re.split(r"[^a-z0-9]+", (owner + "/" + name).lower()))
+            if not all(token in tokens for term in ctx.lookup_terms for token in re.split(r"[^a-z0-9]+", term.lower())
+                       if token):
+                delta -= 10.0
+        if ctx.need:
+            stars = _stars(item)
+            if stars and stars > 0:
+                delta += min(3.0, math.log10(stars + 1) / 1.5)
+        return delta
+    if ctx.repo and len(segments) <= 1:
+        # An organisation's page or a project's front page, when the repository was asked for.
+        delta -= 12.0
+    if ctx.need and "docs" not in ctx.asks:
+        if _LIBRARY_TITLE.search(title) or _LIBRARY_URL.search(unquote(urlparse(url).path.lower())) \
+                or _LIBRARY_URL.search(host):
+            delta += 1.5
+        if _GUIDE_TITLE.search(title) and not ctx.words & _GUIDE_ASKED:
+            delta -= 3.0
+    return delta
+
+
 def relevance(item: dict, ctx: QueryContext) -> float:
     """How well a result answers the query, for ordering results of the same tier. Strongest
     first: the entity (or every key term) in the title; the result being the thing itself (its
@@ -836,6 +966,8 @@ def relevance(item: dict, ctx: QueryContext) -> float:
             score += 2.0
         if _PRESS_URL.search(path) and url_kind(url) == "item":
             score += 1.0
+    if ctx.code:
+        score += _code_adjustment(item, ctx, url, host, title)
     # The penalties outweigh everything above (at most about 11), so a page of an unwanted
     # kind ranks below every ordinary passing result, even on the entity's own domain.
     asks = ctx.asks
@@ -909,9 +1041,67 @@ def unrelated_set(query: str, results) -> bool:
     return True
 
 
+def _repo_parts(item):
+    """(owner, name) of a result on a code forge that is a repository page (exactly two path
+    segments), else None."""
+    parsed = urlparse(str(item.get("url") or ""))
+    host = (parsed.hostname or "").lower().removeprefix("www.")
+    segments = [unquote(part) for part in parsed.path.split("/") if part]
+    if host in _FORGE_HOSTS and len(segments) == 2:
+        return segments[0], segments[1]
+    return None
+
+
+def _stars(item):
+    extra = item.get("extra") if isinstance(item.get("extra"), dict) else {}
+    for key in ("stargazers_count", "stars"):
+        if isinstance(extra.get(key), (int, float)) and not isinstance(extra.get(key), bool):
+            return extra[key]
+    return None
+
+
+# Reasons that say the repository itself is not wanted, wherever its page was found.
+REPO_UNWANTED = frozenset({"fork", "archived", "wrong_language", "low_stars"})
+
+# A repository of the wrong kind or size for what the query wants.
+MIN_STARS_NEED = 500
+MIN_STARS_LOOKUP = 100
+
+
+def _repo_reasons(item, ctx):
+    """Why a GitHub repository result (one that carries the source's own fork, archived,
+    language and stars) is not what a code query wants: a fork or an archived repository; a
+    language that is known and is not the one the query names; too few stars for a need
+    ("library for X", "X framework": 500) or for a name lookup that is not the repository of that
+    name (100). Fields the source did not give are not held against it."""
+    extra = item.get("extra") if isinstance(item.get("extra"), dict) else {}
+    reasons = []
+    if extra.get("fork") is True:
+        reasons.append("fork")
+    if extra.get("archived") is True:
+        reasons.append("archived")
+    if ctx is None or not ctx.code:
+        return reasons
+    language = extra.get("language")
+    if ctx.languages and isinstance(language, str) and language.strip() \
+            and language.strip().lower() not in ctx.languages:
+        reasons.append("wrong_language")
+    stars = _stars(item)
+    if stars is not None:
+        if ctx.need and stars < MIN_STARS_NEED:
+            reasons.append("low_stars")
+        elif ctx.lookup and stars < MIN_STARS_LOOKUP:
+            parts = _repo_parts(item)
+            if not (parts and parts[1].lower().replace("-", "") in ctx.names):
+                reasons.append("low_stars")
+    return reasons
+
+
 def check_result(item: dict, terms, *, since=None, until=None, specific=True, now=None, named=(),
-                 cased=()) -> dict:
-    """One result's verdict: passed, the reasons it did not, and the check fields."""
+                 cased=(), article=False, ctx=None) -> dict:
+    """One result's verdict: passed, the reasons it did not, and the check fields. With
+    article (an announcement query in a window), a result passes only with a verified date in
+    the window or an article-like path (see article_like); anything else fails as not_article."""
     now = now or datetime.now(timezone.utc)
     url, title = str(item.get("url") or ""), str(item.get("title") or "")
     reasons = []
@@ -935,9 +1125,74 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
     lowered = title.lower()
     if any(word in lowered for word in _CHALLENGE):
         reasons.append("challenge_page")
+    if article and in_window is not True and not article_like(url):
+        reasons.append("not_article")
+    reasons.extend(_repo_reasons(item, ctx))
     return {"url": url, "passed": not reasons, "reasons": reasons, "in_window": in_window,
             "on_query": on_query, "published": when.strftime("%Y-%m-%dT%H:%M:%SZ") if when else None,
             "date_source": origin, "kind": kind}
+
+
+# --- how far to trust a source, when paid ones are in the mix
+
+# What a source's results are worth before the checks, as the chance one is useful. Paid sources
+# bring their own measured rate (the bundled priors); these are the free ones.
+FREE_SOURCE_PRIORS = {"searxng": 0.75, "bing_news_rss": 0.6, "wikipedia": 0.6, "github": 0.5, "arxiv": 0.8,
+                      "stack_exchange": 0.7}
+DEFAULT_SOURCE_PRIOR = 0.5
+# A prior difference of 0.2 (the best paid source over SearXNG) is worth about 0.9 of relevance:
+# enough to break a tie, not enough to beat a canonical result (3 or more) or a verified date.
+PRIOR_WEIGHT = 4.0
+HIGH_STARS = 1000
+
+
+def topic_matches(query: str, title) -> bool:
+    """Whether a reference article's title is the query's topic: equal to it, or equal once a
+    trailing parenthetical is dropped ("Moonlight Sonata", "Samsung (company)"). The topic of
+    "who founded X" or "population of X" is X."""
+    topic = _wiki_key(reference_topic(query))
+    return bool(topic) and _wiki_key(title) == topic
+
+
+def source_prior(source, item: dict, query: str, ctx: QueryContext, paid_rate=None) -> float:
+    """The prior for one result from one source: a paid source's measured rate, else the free
+    default (SearXNG 0.75, Bing News 0.6, Wikipedia 0.6, GitHub 0.5, arXiv 0.8, Stack Exchange 0.7,
+    others 0.5). A Wikipedia article titled for the topic is 0.9; a GitHub repository that is the
+    project asked for, or has HIGH_STARS stars, is 0.85."""
+    if paid_rate is not None:
+        return float(paid_rate)
+    prior = FREE_SOURCE_PRIORS.get(source, DEFAULT_SOURCE_PRIOR)
+    if source == "wikipedia" and topic_matches(query, item.get("title")):
+        return 0.9
+    if source == "github":
+        url = str(item.get("url") or "")
+        host = (urlparse(url).hostname or "").lower()
+        stars = _stars(item)
+        if (ctx.names and _canonical(ctx, url, host, item) >= 3.0) or (stars or 0) >= HIGH_STARS:
+            return 0.85
+    return prior
+
+
+def demote_off_topic(query: str, items, specialist_only) -> list:
+    """For a fact question: a specialist's (Wikipedia's) result whose title is not the topic goes
+    below every other result, so it fills a slot only when nothing else is left. specialist_only
+    is the set of canonical URLs that only specialist sources returned."""
+    first, last = [], []
+    for item in items:
+        off = canonical_url(item.get("url") or "") in specialist_only and not topic_matches(query, item.get("title"))
+        (last if off else first).append(item)
+    return first + last
+
+
+def demote_unconfirmed_repos(items, confirmed) -> list:
+    """For a code query that names a language: repository pages (owner/name) that only a web
+    engine returned go after the ones the code source returned, which searched in that language.
+    confirmed is the set of canonical URLs the code source returned."""
+    first, last = [], []
+    for item in items:
+        unconfirmed = _repo_parts(item) is not None and canonical_url(item.get("url") or "") not in confirmed
+        (last if unconfirmed else first).append(item)
+    return first + last
 
 
 def counted(dated: int, undated: int, need: int, weigh_undated: bool) -> int:
@@ -948,12 +1203,18 @@ def counted(dated: int, undated: int, need: int, weigh_undated: bool) -> int:
 
 
 def check_results(query: str, results, *, limit: int = 10, recency=None, since=None, until=None,
-                  now=None, min_good: int = 3, weigh_undated: bool = False, vertical=None) -> dict:
+                  now=None, min_good: int = 3, weigh_undated: bool = False, vertical=None,
+                  priors=None) -> dict:
     """Verdict per result and for the set. good: at least min(min_good, limit)
     results pass; weak: some do; empty: none do. Repeats of a page already seen
     fail as duplicates. With weigh_undated, passing results of a windowed query
     whose date is unknown count at most half the quota (see counted). Every verdict also
-    carries "relevance" (see relevance), which orders results within a tier."""
+    carries "relevance" (see relevance), which orders results within a tier.
+
+    A windowed announcement query (announce, announcement, press release, launch) only accepts
+    a result with a verified in-window date or an article-like path (see article_like); the
+    rest fail as not_article. priors, {"source": id, "paid_rate": rate or None}, adds each
+    verdict's "prior" (see source_prior) for the merge to weigh when paid sources are in play."""
     now = now or datetime.now(timezone.utc)
     since, until = window_bounds(recency, since, until, now)
     context = query_context(query, recency="window" if (since is not None or until is not None) else None,
@@ -963,11 +1224,15 @@ def check_results(query: str, results, *, limit: int = 10, recency=None, since=N
     named = [phrase for phrase, _ in runs]
     cased = [tokens for _, tokens in runs]
     specific = _asks_specific(terms, bool(recency or since or until), query, named)
+    article = bool((since is not None or until is not None) and _ANNOUNCE.search(str(query or "")))
     verdicts, seen, counts = [], set(), {}
     for item in results:
         verdict = check_result(item, terms, since=since, until=until, specific=specific, now=now, named=named,
-                               cased=cased)
+                               cased=cased, article=article, ctx=context)
         verdict["relevance"] = relevance(item, context)
+        if priors:
+            verdict["prior"] = round(source_prior(priors.get("source"), item, str(query or ""), context,
+                                                  priors.get("paid_rate")), 3)
         key = canonical_url(verdict["url"])
         if key in seen:
             verdict["reasons"].append("duplicate")
@@ -1003,7 +1268,7 @@ def annotate(results, report: dict) -> list[dict]:
     for item, verdict in zip(results, report["results"]):
         row = {**item, "check": {key: verdict[key] for key in
                                  ("passed", "reasons", "in_window", "on_query", "published", "date_source", "kind",
-                                  "relevance") if key in verdict}}
+                                  "relevance", "prior") if key in verdict}}
         if report["windowed"] and verdict["published"] and not item.get("published"):
             row["published"] = verdict["published"]
         rows.append(row)
@@ -1011,7 +1276,10 @@ def annotate(results, report: dict) -> list[dict]:
 
 
 def _relevance(item):
-    return (item.get("check") or {}).get("relevance") or 0.0
+    """The ordering score: relevance, plus the source prior's weight when the check has one
+    (only when paid sources were allowed)."""
+    check = item.get("check") or {}
+    return (check.get("relevance") or 0.0) + PRIOR_WEIGHT * (check.get("prior") or 0.0)
 
 
 def accepted(results, report: dict) -> list[dict]:
@@ -1044,6 +1312,10 @@ def merge_results(groups, *, windowed=False, limit=None) -> list[dict]:
                 known = fused[key].get("check") or {}
                 if known.get("published") is None and (item.get("check") or {}).get("published"):
                     fused[key]["check"] = item["check"]
+                # A page several sources return takes the best of their priors.
+                better = (item.get("check") or {}).get("prior") or 0.0
+                if better > ((fused[key].get("check") or {}).get("prior") or 0.0):
+                    fused[key]["check"] = {**(fused[key].get("check") or {}), "prior": better}
             fused[key]["fusion"]["score"] += 1.0 / (60 + rank + 1)
             fused[key]["fusion"]["sources"].append({"source": source, "rank": rank + 1})
     merged = sorted((fused[key] for key in order), key=lambda item: (_tier(item) if windowed else 0,
@@ -1154,7 +1426,8 @@ async def read_dates(urls, read, *, timeout: float, gap: float, memo: dict) -> d
 
 
 async def enrich_dates(query, items, report, read, *, limit, budget, memo, timeout, gap, recency=None,
-                       since=None, until=None, now=None, min_good=3, weigh_undated=True, vertical=None):
+                       since=None, until=None, now=None, min_good=3, weigh_undated=True, vertical=None,
+                       priors=None):
     """Give undated results that would make the top `limit` a verified date by
     reading their pages (see read_dates), then check the set again, so results
     that are provably outside the window drop out. Returns (items, report, stats)
@@ -1180,7 +1453,7 @@ async def enrich_dates(query, items, report, read, *, limit, budget, memo, timeo
     if not pages:
         return items, report, stats
     again = check_results(query, revised, limit=limit, recency=recency, since=since, until=until, now=now,
-                          min_good=min_good, weigh_undated=weigh_undated, vertical=vertical)
+                          min_good=min_good, weigh_undated=weigh_undated, vertical=vertical, priors=priors)
     for verdict in again["results"]:
         if canonical_url(verdict["url"]) in pages and verdict["published"]:
             verdict["date_source"] = "page"

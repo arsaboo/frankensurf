@@ -6139,8 +6139,9 @@ class Runtime:
                                              exclude_domains=exclude_domains, recency=recency,
                                              region=region, vertical=vertical)
         from .search import MAX_EXCLUDE_OPERATORS, REGISTRY, VERTICALS, filter_results, normalize_options
-        from .search_checks import (accepted, annotate, check_results, enrich_dates, good_count,
-                                    infer_vertical, merge_results, query_kinds)
+        from .search_checks import (accepted, annotate, canonical_url, check_results, demote_off_topic,
+                                    demote_unconfirmed_repos, enrich_dates, good_count, infer_vertical,
+                                    merge_results, query_context, query_kinds, REPO_UNWANTED)
         from .search_plugins import SearchRequest, SearchServices
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise ValueError("Invalid search query")
@@ -6225,6 +6226,25 @@ class Runtime:
         qtype = _search_query_type(vertical, options)
         order, order_notes = self._search_order(candidates, qtype, policy, source)
         paid_ids = {item["id"] for item in self.searches.inspect() if item["paid"]}
+        # With paid sources allowed, each result carries its source's quality prior (the bundled
+        # measured rate for a paid one, a default for a free one) and the merge weighs it with
+        # relevance, so the best source's passing results lead. Without paid, ordering is unchanged.
+        weigh_sources = bool(ladder and policy.allow_paid_fallbacks and any(item in paid_ids for item in order))
+        prior_facts = _paid_priors() if weigh_sources and policy.use_wall_priors else {}
+        search_manifests = {item["id"]: item for item in self.searches.inspect()} if weigh_sources else {}
+
+        def source_priors(identifier):
+            if not weigh_sources:
+                return None
+            rate = None
+            if identifier in paid_ids:
+                fact = next((prior_facts[name] for name in (
+                    identifier, search_manifests.get(identifier, {}).get("transport_provider"),
+                    identifier.removesuffix("_search")) if name in prior_facts), {})
+                overall = fact.get("overall")
+                if overall and overall[1]:
+                    rate = overall[0] / overall[1]
+            return {"source": identifier, "paid_rate": rate}
         # A last-resort source (bing_rss) is asked only when the others are spent: it never
         # races, and it never fills.
         last_resort = {item for item in order if REGISTRY.get(item, {}).get("last_resort")}
@@ -6449,7 +6469,7 @@ class Runtime:
                                           if options else (response["results"], {}))
                         report = check_results(query, items, limit=limit, recency=recency, now=now,
                                                min_good=policy.search_good_results, weigh_undated=enrich,
-                                               vertical=vertical)
+                                               vertical=vertical, priors=source_priors(identifier))
                         # N pages per source's result set, 2N for the whole search.
                         spare = min(policy.search_date_reads, 2 * policy.search_date_reads - date_reads["tried"])
                         if enrich and spare > 0 and deadline - time.monotonic() > 2:
@@ -6458,7 +6478,8 @@ class Runtime:
                                 query, items, report, date_read, limit=limit, budget=spare, memo=date_memo,
                                 timeout=policy.search_date_read_timeout_seconds,
                                 gap=policy.origin_min_interval_seconds, recency=recency, now=now,
-                                min_good=policy.search_good_results, vertical=vertical)
+                                min_good=policy.search_good_results, vertical=vertical,
+                                priors=source_priors(identifier))
                             for key in ("tried", "dated", "dropped"):
                                 date_reads[key] += found[key]
                             date_reads["cost_usd"] += found["cost_usd"]
@@ -6530,6 +6551,33 @@ class Runtime:
             if verified:
                 held = [item for item in everything if (item.get("check") or {}).get("in_window") is not True]
                 final = verified
+        if ladder and pool:
+            # A repository the code source showed to be a fork, archived, in another language or too
+            # small is not wanted when a web engine returns its page too.
+            unwanted = {canonical_url(verdict["url"]) for rung in rungs.values()
+                        for verdict in rung["report"]["results"] if set(verdict["reasons"]) & REPO_UNWANTED}
+            if unwanted:
+                final = [item for item in final if canonical_url(item.get("url") or "") not in unwanted]
+                held = [item for item in held if canonical_url(item.get("url") or "") not in unwanted]
+        if ladder and pool and vertical in ("reference", "code"):
+            origin = {}
+            for name, rung in rungs.items():
+                for item in rung["kept"]:
+                    origin.setdefault(canonical_url(item.get("url") or ""), set()).add(name)
+            if vertical == "reference":
+                # A specialist's article that is not the question's topic ranks below every web result
+                # that passed, so it fills a slot only when nothing else is left.
+                special = {name for name in rungs if verticals.get(name) == "reference"}
+                specialist_only = {key for key, names in origin.items() if names <= special}
+                if specialist_only:
+                    final = demote_off_topic(query, final, specialist_only)
+            elif query_context(query, vertical=vertical).languages and any(
+                    verticals.get(name) == "code" for name in rungs):
+                # The query names a language and the code source (which searched in it) answered:
+                # a repository page only a web engine returned has no known language, so it
+                # follows the confirmed ones.
+                final = demote_unconfirmed_repos(final, {key for key, names in origin.items() if any(
+                    verticals.get(name) == "code" for name in names)})
         final = final[:limit]
         if winner is None and final:
             winner = "merged" if len(pool) > 1 else pool[0][0]

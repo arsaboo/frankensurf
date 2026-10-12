@@ -255,6 +255,12 @@ def github_parts(query: str) -> dict:
             need = True
         elif low in _GH_FILLER:
             continue
+        elif low in ("framework", "frameworks"):
+            # "typescript testing framework" asks for a thing that does a job: a need, and the
+            # word stays in the search ("testing framework" is the phrase people name it by).
+            need = True
+            if low not in terms:
+                terms.append(low)
         elif low == "go" and any(item in _GH_PLATFORM for item in neighbours):
             languages.append("go")
         elif low in _GH_LANGUAGES:
@@ -317,6 +323,22 @@ def wiki_topic(query: str) -> str:
             continue
         kept.append(word)
     return " ".join(kept) or str(query).strip()
+
+
+_WIKI_OF = re.compile(
+    r"^(?:the\s+)?(?:(?:current|total|official|estimated)\s+)?(?:population|capital|president|prime minister|founders?|"
+    r"inventor|author|meaning|definition|height|area|currency|flag|languages?|leader|ceo|director|creator|composer|"
+    r"artist|age|size|length|depth|climate|monarch|anthem|motto|origin|name|symbol|formula|boiling point|"
+    r"melting point)\s+of\s+(?:the\s+)?(.+)$", re.I)
+
+
+def reference_topic(query: str) -> str:
+    """The thing a fact question is about: wiki_topic, and for "<property> of X" (population of,
+    capital of, founder of) X. "who founded Samsung" is Samsung; "population of New Zealand" is
+    New Zealand."""
+    topic = wiki_topic(query)
+    found = _WIKI_OF.match(topic)
+    return found.group(1).strip() if found else topic
 
 
 def _wiki_key(text):
@@ -403,6 +425,10 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
                      "snippet": item.findtext("description") or "",
                      "engines": ["bing_news" if source == "bing_news_rss" else "bing"],
                      "indexed_date": item.findtext("pubDate"), "published": _iso(item.findtext("pubDate"))}
+            if source == "bing_rss":
+                # Bing's web results carry the crawl time as pubDate (every page of a site comes back
+                # "published" days ago), not a publication date: it stays indexed_date only.
+                entry["published"] = None
             publisher = next((child.text for child in item if child.tag.endswith("}Source")), None)
             if publisher:
                 entry["extra"] = {"publisher": publisher}
@@ -445,12 +471,17 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
         rows = structured.get("items") if isinstance(structured, dict) else None
         if not isinstance(rows, list): raise ValueError("Expected GitHub items")
         for row in rows:
-            if isinstance(row, dict) and row.get("html_url"):
+            # A fork or an archived repository is never the project people mean.
+            if isinstance(row, dict) and row.get("html_url") and not row.get("fork") and not row.get("archived"):
                 found.append({"url": row["html_url"], "title": row.get("full_name") or "",
                               "snippet": row.get("description") or "", "engines": ["github"],
                               "indexed_date": row.get("pushed_at"),
                               "published": _iso(row.get("pushed_at") or row.get("created_at")),
-                              "extra": {"stars": row.get("stargazers_count"), "created_at": _iso(row.get("created_at"))}})
+                              "extra": {"stars": row.get("stargazers_count"),
+                                        "stargazers_count": row.get("stargazers_count"),
+                                        "fork": row.get("fork"), "archived": row.get("archived"),
+                                        "language": row.get("language"),
+                                        "created_at": _iso(row.get("created_at"))}})
     elif source == "arxiv":
         try: root = ET.fromstring(content)
         except ET.ParseError as exc: raise ValueError("Expected arXiv Atom") from exc

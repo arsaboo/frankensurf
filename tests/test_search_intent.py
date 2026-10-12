@@ -24,6 +24,8 @@ CASES = [
     ("TypeScript library for validation", "code"),
     ("C++ library for matrices", "code"),
     ("ruby gem for pagination", "code"),
+    ("typescript testing framework", "code"),
+    ("python web framework", "code"),
     # papers
     ("papers on retrieval augmented generation", "papers"),
     ("paper on diffusion models", "papers"),

@@ -204,7 +204,20 @@ A result fails when it:
   capitalised *The* (*The Block*) or following another capitalised word (*Cinder
   Block*), is `wrong_entity`. Possessives (*Dorsey's Block*), corporate suffixes
   (*Block, Inc.*) and freshness words don't count as a longer name;
-- repeats another result's page.
+- repeats another result's page;
+- for an announcement query in a window (*announce*, *announcement*, *press
+  release*, *launch*), is not an article: it passes only with a verified in-window
+  date or an article-like path (a date in the path; a `news`, `press`, `blog`,
+  `stories`, `announcements`, `releases`, `articles`, `updates`, `insights` or
+  `media` segment followed by a slug of three or more hyphenated words or an id;
+  or any slug of four or more words). Product, pricing, careers, platform, sign-in,
+  investor overview, filings, results and category pages, listings (`?l=`,
+  `?page=`), profiles and homepages fail as `not_article`, so the ladder climbs
+  instead of returning them;
+- for a code query, is a fork or an archived repository, is in a language the query
+  does not name (when it names one and GitHub knows the repository's), or has too
+  few stars: under 500 for a need (*library for X*, *X framework*), under 100 for a
+  name lookup unless the repository carries the name.
 
 With a `recency` window, results that carry no date are not left to guess at:
 the pages of up to `search_date_reads` (default 6) undated results that would make
@@ -257,6 +270,34 @@ aggregator pages (the same); and *awesome-* lists and paper digests (for paper
 queries). They rank below every ordinary passing result. The source's own order
 breaks ties.
 
+Code queries add their own ordering. A query that asks for the repository (*github*,
+*repo*) prefers repository pages (`owner/name`) to an organisation's page or a
+project's website; repositories named *demo*, *example(s)*, *sample(s)*,
+*template*, *starter*, *boilerplate*, *tutorial*, *benchmark(s)* or *awesome-\**
+go last unless the query asks for them. For a name lookup (*httpx python github*)
+the repository whose name is the project, owner first, leads, and repositories whose
+owner/name does not hold the name as a word rank below those that do. For a need,
+popular repositories and pages that name libraries lead, and a how-to guide
+follows them.
+
+For a fact question in the reference vertical, a Wikipedia article whose title is
+not the question's topic (the topic of *who founded X* or *population of X* is X)
+ranks below every passing web result, so it fills a slot only when nothing else is
+left.
+
+#### Source priors with paid search allowed
+
+When paid sources are allowed, each result also carries the quality prior of the
+source it came from (`check.prior`), weighed with relevance in the merge. A paid
+source's prior is its bundled measured rate (`paid` in `bundled_wall_priors.json`);
+free sources use defaults (SearXNG 0.75, arXiv 0.8, Stack Exchange 0.7, Bing News
+and Wikipedia 0.6, GitHub 0.5, others 0.5), with Wikipedia 0.9 when the title is the
+topic and GitHub 0.85 for the project asked for or a repository with 1000 stars. A
+passing result of the best source therefore outranks a free one of similar
+relevance; a canonical free result, or one with a verified date against an undated
+paid one, can still lead. Results that fail the checks never count, whoever
+returned them. Without paid sources the ordering is unchanged.
+
 ### Paid search in parallel
 
 With `allow_paid_fallbacks`, a news (`vertical="news"`), announcement
@@ -282,7 +323,8 @@ or not), which source passed the checks and tries it first next time
 (`search_learned_routing`, stored in `search-stats.json` in the state directory).
 
 Every result carries `check` (`passed`, `reasons`, `in_window`, `on_query`,
-`published`, `date_source`, `kind`, `relevance`), and the receipt says what
+`published`, `date_source`, `kind`, `relevance`, and `prior` when paid sources are
+allowed), and the receipt says what
 happened:
 
 ```json

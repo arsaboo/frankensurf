@@ -202,13 +202,15 @@ def test_title_matches_outrank_snippet_only_matches_and_stay_in_the_sources_orde
 
 def test_the_repository_named_for_the_project_comes_first():
     rows = [row("https://github.com/LizDodion/NestJsSwaggerExample", "LizDodion/NestJsSwaggerExample",
-                "an example that uses fastify", extra={"stars": 3}),
+                "an example that uses fastify", extra={"stars": 150}),
             row("https://github.com/someone/fastify", "someone/fastify", "my copy", extra={"stars": 0}),
             row("https://github.com/fastify/fastify", "fastify/fastify", "Fast web framework", extra={"stars": 30000}),
             row("https://github.com/fastify/fastify-cors", "fastify/fastify-cors", "", extra={"stars": 500})]
     order, _ = relevance_order("fastify github repo", rows)
     assert order[0] == "https://github.com/fastify/fastify"
     assert order[1] == "https://github.com/someone/fastify"       # the name, but no stars
+    # (Changed with search v2.2: it had 3 stars, and a name lookup now drops other repositories
+    # under 100 stars; with 150 it passes and still ranks last, being neither the name nor a project.)
     assert order[-1] == "https://github.com/LizDodion/NestJsSwaggerExample"
 
 
@@ -228,12 +230,16 @@ def test_the_entitys_own_domain_is_canonical_and_official_for_announcements():
 
 
 def test_stock_quote_policy_docs_and_listing_pages_rank_below_ordinary_results():
-    rows = [row("https://finance.example/quote/ACME", "Acme Corp (ACME) share price"),
-            row("https://acme.com/legal/privacy", "Privacy Policy - Acme"),
-            row("https://acme.com/docs/release-notes/v4-2", "Acme release notes"),
-            row("https://acme.com/security/advisories", "Acme security advisories"),
-            row("https://news.example/acme-tag", "Acme: latest news, breaking headlines and updates"),
-            row("https://blog.example/acme-hires", "Acme hires a new chief executive", "in the company's announcement")]
+    # (Changed with search v2.2: the rows carry a date, since an announcement query in a window now
+    # accepts only dated or article-like pages and this test is about how the passing ones rank.)
+    fresh = (NOW - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = [row("https://finance.example/quote/ACME", "Acme Corp (ACME) share price", published=fresh),
+            row("https://acme.com/legal/privacy", "Privacy Policy - Acme", published=fresh),
+            row("https://acme.com/docs/release-notes/v4-2", "Acme release notes", published=fresh),
+            row("https://acme.com/security/advisories", "Acme security advisories", published=fresh),
+            row("https://news.example/acme-tag", "Acme: latest news, breaking headlines and updates", published=fresh),
+            row("https://blog.example/acme-hires", "Acme hires a new chief executive",
+                "in the company's announcement", published=fresh)]
     order, scores = relevance_order("Acme announcement", rows, recency="month")
     assert len(order) == 6
     assert order[0] == "https://blog.example/acme-hires"
@@ -290,15 +296,17 @@ def test_the_tv_show_is_not_the_company():
             row("https://www.theblock.co/post/1", "The Block: crypto news", "latest announcement"),
             row("https://example.com/news/2026/10/cinder", "Cinder Block prices rise across the market", "announcement"),
             row("https://news.example.com/2026/10/12/mixed", "Watch The Block Mount Eliza finale and more"),
-            row("https://block.xyz/inside/q3-results", "Block announces third quarter results"),
+            # (Changed with search v2.2: the old /inside/q3-results is no article path; this one is.)
+            row("https://block.xyz/inside/block-announces-third-quarter-results", "Block announces third quarter results"),
             row("https://investors.block.xyz/news/2026/10/new-product", "Block, Inc. Announces New Product"),
             row("https://news.example.com/2026/10/12/dorsey", "Jack Dorsey's Block unveils a bitcoin miner"),
             row("https://news.example.com/2026/10/12/wallet", "Latest Block announcement: a new hardware wallet")]
     got = verdicts("Block latest announcement", rows, recency="month")
     for url in ("https://www.9now.com.au/the-block", "https://www.theblock.co/post/1",
                 "https://example.com/news/2026/10/cinder", "https://news.example.com/2026/10/12/mixed"):
-        assert got[url] == (False, ["wrong_entity"]), url
-    for url in ("https://block.xyz/inside/q3-results", "https://investors.block.xyz/news/2026/10/new-product",
+        # (not_article may come with it: these URLs carry no date and no article path.)
+        assert got[url][0] is False and "wrong_entity" in got[url][1], url
+    for url in ("https://block.xyz/inside/block-announces-third-quarter-results","https://investors.block.xyz/news/2026/10/new-product",
                 "https://news.example.com/2026/10/12/dorsey", "https://news.example.com/2026/10/12/wallet"):
         assert got[url] == (True, []), url
 
