@@ -4,7 +4,7 @@ Each plugin wraps one mature hosted API: Jina Reader (keyless T1 fetch and
 extract), Cloudflare Browser Run (rendered HTML), Firecrawl, fastCRW and
 Apify's RAG Web Browser (extraction), ZenRows, Scrapfly, Bright Data Web
 Unlocker and Zyte (the unblocker rung), Skyvern (an agent task, explicit only),
-and the Exa, Brave, Tavily and Parallel search transports. The T2 managed
+and the Exa, Brave, Tavily, Parallel and Firecrawl search transports. The T2 managed
 browsers live in ``managed_browsers.py`` and register here, after Jina. They only make
 the API call and return the page or API bytes; Core keeps routing, pacing,
 policy, receipts and evidence.
@@ -771,6 +771,46 @@ class ParallelTransport(_SearchTransport):
         return result
 
 
+class FirecrawlSearchTransport(_SearchTransport):
+    """Firecrawl search: web results with optional time filtering (``tbs``)."""
+    required_settings = ("firecrawl_api_key",)
+    ENDPOINT = "https://api.firecrawl.dev/v2/search"
+    TBS = {"day": "qdr:d", "week": "qdr:w", "month": "qdr:m", "year": "qdr:y"}
+
+    @classmethod
+    def _body(cls, query, count, options):
+        from .search import _operators
+        body = {"query": _operators(query, options)[:500], "limit": min(count, 100)}
+        if options.get("recency"):
+            body["tbs"] = cls.TBS[options["recency"]]
+        if "-" in options.get("region", ""):
+            body["country"] = options["region"].split("-")[1].upper()
+        return body
+
+    def __init__(self):
+        self.manifest = _manifest("firecrawl_search_api", "1", paid=True, route_scope_required=True)
+
+    async def acquire(self, request, services):
+        query, count = self._query(request.url)
+        body = self._body(query, count, self._options(request.url))
+        status, _, raw = await _call(
+            "POST", self.ENDPOINT, request.policy,
+            headers={"Authorization": "Bearer " + self._required("firecrawl_api_key")},
+            json_body=body)
+        error = _service_status(status, "Firecrawl")
+        if error:
+            raise error
+        result = _page(request.url, _decode(raw), "application/json", 200)
+        # Search is 2 credits per 10 results (list price, Oct 2026); the credit
+        # price is shared with Firecrawl reads unless the owner sets a per-query price.
+        credits = 2 * -(-body["limit"] // 10)
+        if _setting("firecrawl_search_cost_per_query"):
+            result["cost_usd"] = _rate("firecrawl_search_cost_per_query", 0.0)
+        else:
+            result["cost_usd"] = round(credits * _rate("firecrawl_usd_per_credit", 0.0038), 6)
+        return result
+
+
 def _since(recency):
     from datetime import datetime, timedelta, timezone
     from .search import RECENCY
@@ -781,7 +821,8 @@ def search_url(transport, query, limit, options=None):
     """The Core read URL for a search transport (the plugin turns it into the API call).
     Search options ride along as parameters; each transport applies them natively."""
     endpoint = {"exa_api": ExaTransport.ENDPOINT, "brave_api": BraveTransport.ENDPOINT,
-                "tavily_api": TavilyTransport.ENDPOINT, "parallel_api": ParallelTransport.ENDPOINT}[transport]
+                "tavily_api": TavilyTransport.ENDPOINT, "parallel_api": ParallelTransport.ENDPOINT,
+                "firecrawl_search_api": FirecrawlSearchTransport.ENDPOINT}[transport]
     url = endpoint + "?q=" + quote(query, safe="") + "&count=" + str(limit)
     options = options or {}
     for key in ("site", "recency", "region"):
@@ -804,7 +845,7 @@ HOSTED_PROVIDERS = (JinaReaderProvider, CloudflareBrowserRunProvider, FirecrawlP
                     FastCrwProvider, ApifyRagBrowserProvider, ZenRowsProvider,
                     ScrapflyProvider, BrightDataUnlockerProvider, ZyteProvider,
                     SkyvernProvider, ExaTransport, BraveTransport, TavilyTransport,
-                    ParallelTransport, InternetArchiveProvider)
+                    ParallelTransport, FirecrawlSearchTransport, InternetArchiveProvider)
 
 
 def register(registry):

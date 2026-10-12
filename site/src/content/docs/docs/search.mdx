@@ -6,13 +6,20 @@ description: Search the web with attributed results and automatic fallback acros
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
 `search` returns ranked results with their URL, title and snippet. Every result
-says which source found it.
+says which source found it, and every result is checked: inside the date window
+you asked for, about what you asked for, and an actual item rather than a
+homepage, listing or challenge page.
 
 - Free by default: your own [SearXNG](/docs/integrations/searxng/), then
-  [DuckDuckGo](/docs/integrations/duckduckgo/) and [Bing](/docs/integrations/bing/).
-- Paid sources [Exa](/docs/integrations/exa/), [Brave](/docs/integrations/brave/),
-  [Tavily](/docs/integrations/tavily/) and [Parallel](/docs/integrations/parallel/)
-  join when their keys are set and you allow paid tools.
+  [DuckDuckGo](/docs/integrations/duckduckgo/) and [Bing](/docs/integrations/bing/),
+  plus Wikipedia, Hacker News, Stack Exchange, GitHub, arXiv, Open Library, and
+  `site_watch`, which reads a site's own feeds and sitemaps.
+- When a source's results fail the checks, Frankensurf climbs to the next one
+  and merges what passed ([the search ladder](#the-search-ladder)).
+- Paid sources [Exa](/docs/integrations/exa/), Firecrawl search,
+  [Brave](/docs/integrations/brave/), [Tavily](/docs/integrations/tavily/) and
+  [Parallel](/docs/integrations/parallel/) join when their keys are set and you
+  allow paid tools, cheapest likely success first.
 - Name a source and Frankensurf uses only that one, never a substitute.
 
 ## Usage
@@ -85,7 +92,7 @@ frankensurf search film camera repair --recency week --region en-AU \
 ```
 
 - `site`: only results from one domain (its subdomains too).
-- `exclude_domains`: up to 200 domains that never come back.
+- `exclude_domains`: up to 200 domains that never come back. Subdomains match too (excluding `example.com` drops `news.example.com`). Engines get only the first few as `-site:` operators (`search_exclude_operators`, default 3); the full list is enforced on the results, and the search asks for extra results so the limit is still met.
 - `recency`: `day`, `week`, `month` or `year`.
 - `region`: language and country, like `en-AU` or `de`.
 
@@ -113,6 +120,58 @@ many results had no date to check.
 | `books` | Open Library | |
 
 All of these are official, keyless public APIs.
+
+## The search ladder
+
+An automatic search (no `source`) does not stop at the first source that answers.
+It checks every result set the way a read checks a page, and climbs to the next
+source until a set is good: at least `min(3, limit)` results (`search_good_results`)
+that pass.
+
+A result fails when it:
+
+- is provably outside the `recency` window (its own date, a date the snippet
+  leads with, "3 days ago", or a `/2026/10/12/` URL path; an unknown date is not a
+  failure, it only ranks below dated in-window results);
+- shares no key term with the query (stopwords and words like *news*, *latest*,
+  *this week* don't count);
+- is a homepage, search page, tag listing or challenge page, when the query asks
+  for specific items;
+- repeats another result's page.
+
+Weak sets are not wasted: passing results from earlier sources are carried up,
+merged and deduplicated, and the search ends as soon as the sources together have
+enough. Paid sources join only with `allow_paid_fallbacks`, after
+`search_paid_after_weak` free sources (default 2) came back weak, cheapest
+likely success first. A free source with no answer after
+`search_hedge_after_seconds` (default 3) is raced by the next free one; the first
+set that passes wins. `search_max_seconds` and `search_max_sources` cap the climb.
+
+FrankenSurf remembers, per kind of query (vertical, recency or not, site filter
+or not), which source passed the checks and tries it first next time
+(`search_learned_routing`, stored in `search-stats.json` in the state directory).
+
+Every result carries `check` (`passed`, `in_window`, `on_query`, `published`,
+`date_source`, `kind`), and the receipt says what happened:
+
+```json
+{
+  "search_ladder": {"enabled": true, "query_type": "news|recent|open",
+                    "order": ["bing_news_rss", "duckduckgo_html"],
+                    "winner": "merged", "stopped": "good", "hedged": []},
+  "search_checks": {"verdict": "good", "need": 3, "passed": 3,
+                    "reasons": {"off_query": 2, "out_of_window": 1},
+                    "unknown_dates": 1,
+                    "results": [{"url": "https://example.com/2026/10/11/story", "source": "bing_news_rss",
+                                 "in_window": true, "on_query": true,
+                                 "published": "2026-10-11T23:59:59Z", "date_source": "url", "kind": "item"}]},
+  "search_attempts": [{"source": "bing_news_rss", "status": "observed", "count": 10, "passed": 2,
+                       "check": "weak", "cost_usd": 0, "latency_ms": 412}]
+}
+```
+
+`search_ladder: false` restores the first-answer behaviour. An explicit `source`
+is asked once and its results are annotated but never dropped.
 
 ## Merge mode
 

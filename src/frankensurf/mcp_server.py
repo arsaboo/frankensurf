@@ -337,7 +337,7 @@ async def search(query: str, source: str | None = None, limit: int = 10,
     (receipt.search_options says what was dropped). vertical picks the kind of
     source: web, news (Bing News), reference (Wikipedia), discussions (Hacker
     News), qa (Stack Overflow), code (GitHub), papers (arXiv), books (Open
-    Library). mode="merge" asks every eligible source at once and fuses them.
+    Library), site (one site's own feeds and sitemaps; pass site=). mode="merge" asks every eligible source at once and fuses them.
     """
     config = ({"base_url": os.environ["FRANKENSURF_SEARCH_URL"]}
               if os.getenv("FRANKENSURF_SEARCH_URL") and source in (None, "searxng") else None)

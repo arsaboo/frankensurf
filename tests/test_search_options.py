@@ -90,8 +90,8 @@ async def test_router_routes_by_vertical_and_filters_results(tmp_path):
         seen.append(str(request.url))
         if "hn.algolia.com" in str(request.url):
             return httpx.Response(200, json={"hits": [
-                {"objectID": "1", "title": "Keep", "url": "https://blog.example.com/a", "created_at": "2026-10-08T00:00:00Z"},
-                {"objectID": "2", "title": "Drop", "url": "https://spam.com/b", "created_at": "2026-10-08T00:00:00Z"}]})
+                {"objectID": "1", "title": "Keep rust", "url": "https://blog.example.com/a", "created_at": "2026-10-08T00:00:00Z"},
+                {"objectID": "2", "title": "Drop rust", "url": "https://spam.com/b", "created_at": "2026-10-08T00:00:00Z"}]})
         return httpx.Response(500)
     async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
         result = await web.search("rust", vertical="discussions", exclude_domains=["spam.com"], limit=5)

@@ -154,6 +154,15 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `search_source_timeout_seconds` | `8` | Time per source; `None` uses the operation timeout. |
 | `search_terminal_failures` | `POLICY_DENIED`, `BUDGET_EXHAUSTED` | Failures that stop search fallback. |
 | `search_merge_sources` | `4` | Sources asked at once by `search(mode="merge")`. |
+| `search_ladder` | `True` | An automatic search climbs sources until a result set passes the checks (on the query, inside the date window, real pages, deduplicated), carrying passing results up; false keeps the first answer. |
+| `search_good_results` | `3` | Passing results that make a set good (or the limit, if lower). |
+| `search_hedge_after_seconds` | `3.0` | After this long without an answer, the next free search source starts beside the current one; 0 turns it off. |
+| `search_hedge_racers` | `2` | Search sources running at once while racing, 1 to 3. Paid sources never race. |
+| `search_max_seconds` | `30.0` | Ceiling for one whole search, in seconds. |
+| `search_max_sources` | `6` | Ceiling on search sources started in one search. |
+| `search_paid_after_weak` | `2` | Weak or empty free sources before allowed paid search sources join, cheapest likely success first; 0 leaves them until every free source has been tried. |
+| `search_learned_routing` | `True` | Try first the source that most often passed the checks for this kind of query (vertical, recency, site filter). |
+| `search_exclude_operators` | `3` | Most -site: operators sent to an engine; the whole exclude list is enforced on the results either way. |
 | `max_pages` | `2` | Most pages `paginate` follows. |
 
 ## Browser agent

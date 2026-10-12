@@ -160,7 +160,7 @@ _RECEIPT_KEYS = {
     # Fields later Core reads add: completeness checks, second opinions,
     # next-step hints, profiles and the try-harder lever.
     "completeness", "second_opinion", "next_step", "profile", "try_harder",
-    "if_not_right",
+    "if_not_right", "quality",
 }
 
 
@@ -277,7 +277,7 @@ def _copy_search_bundle(result, request, identifier, manifest):
         if (type(item) is not dict
                 or not {"url", "title", "snippet", "engines", "indexed_date", "listing_state",
                         "verification", "query_attribution"} <= set(item)
-                or set(item) - {"url", "title", "snippet", "engines", "indexed_date",
+                or set(item) - {"url", "title", "snippet", "engines", "indexed_date", "published",
                                 "listing_state", "verification", "query_attribution", "extra"}
                 or item.get("listing_state") != "unknown"
                 or item.get("verification") != "indexed_discovery"
@@ -299,6 +299,8 @@ def _copy_search_bundle(result, request, identifier, manifest):
                   "listing_state": "unknown",
                   "verification": "indexed_discovery",
                   "query_attribution": item_attribution}
+        if item.get("published") is not None:
+            copied["published"] = _text(item["published"], maximum)
         if "extra" in item:
             copied["extra"] = _copy_extra(item["extra"], maximum)
         results.append(copied)
@@ -744,7 +746,7 @@ class HttpSearchPlugin:
 
 
 class HostedSearchPlugin:
-    """A keyed search API (Exa, Brave, Tavily, Parallel) read through its Core transport provider."""
+    """A keyed search API (Exa, Brave, Tavily, Parallel, Firecrawl) read through its Core transport provider."""
 
     def __init__(self, identifier, transport, key):
         self.manifest = SearchManifest(identifier, "1", paid=True,
@@ -757,6 +759,7 @@ class HostedSearchPlugin:
 
     def _normalize(self, structured, limit):
         import re
+        from .search import _iso
         found = []
         if self.manifest.id == "exa":
             rows = structured.get("results") if isinstance(structured, dict) else None
@@ -770,7 +773,26 @@ class HostedSearchPlugin:
                            if isinstance(highlights, list) else (row.get("text") or "")[:500])
                 found.append({"url": row["url"], "title": row.get("title") or "",
                               "snippet": snippet, "engines": ["exa"],
-                              "indexed_date": row.get("publishedDate")})
+                              "indexed_date": row.get("publishedDate"),
+                              "published": _iso(row.get("publishedDate"))})
+        elif self.manifest.id == "firecrawl_search":
+            data = structured.get("data") if isinstance(structured, dict) else None
+            # v2 groups results by source ({"web": [...], "news": [...]}); v1 returned a list.
+            rows = (data if isinstance(data, list) else
+                    [row for group in ("web", "news") for row in (data.get(group) or [])
+                     if isinstance(row, dict)] if isinstance(data, dict) else None)
+            if rows is None:
+                raise ValueError("Expected Firecrawl results")
+            for row in rows:
+                if not isinstance(row, dict) or not isinstance(row.get("url"), str):
+                    continue
+                metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+                when = (row.get("date") or metadata.get("publishedTime")
+                        or metadata.get("article:published_time") or metadata.get("modifiedTime"))
+                found.append({"url": row["url"], "title": row.get("title") or metadata.get("title") or "",
+                              "snippet": (row.get("description") or metadata.get("description") or "")[:500],
+                              "engines": ["firecrawl_search"], "indexed_date": when,
+                              "published": _iso(when)})
         elif self.manifest.id in ("tavily", "parallel"):
             rows = structured.get("results") if isinstance(structured, dict) else None
             if not isinstance(rows, list):
@@ -783,7 +805,8 @@ class HostedSearchPlugin:
                            if isinstance(excerpts, list) else row.get("content") or "")
                 found.append({"url": row["url"], "title": row.get("title") or "",
                               "snippet": snippet, "engines": [self.manifest.id],
-                              "indexed_date": row.get("published_date") or row.get("publish_date")})
+                              "indexed_date": row.get("published_date") or row.get("publish_date"),
+                              "published": _iso(row.get("published_date") or row.get("publish_date"))})
         else:
             web = structured.get("web") if isinstance(structured, dict) else None
             rows = web.get("results") if isinstance(web, dict) else None
@@ -795,7 +818,11 @@ class HostedSearchPlugin:
                 snippet = re.sub(r"<[^>]+>", "", row.get("description") or "")
                 found.append({"url": row["url"], "title": row.get("title") or "",
                               "snippet": snippet, "engines": ["brave"],
-                              "indexed_date": row.get("page_age") or row.get("age")})
+                              "indexed_date": row.get("page_age") or row.get("age"),
+                              "published": _iso(row.get("page_age"))})
+        for item in found:
+            if item.get("published") is None:
+                item.pop("published", None)
         return found[:limit]
 
     async def search(self, request, services):
@@ -839,3 +866,6 @@ DEFAULT_SEARCHES.register(HostedSearchPlugin("exa", "exa_api", "exa_api_key"))
 DEFAULT_SEARCHES.register(HostedSearchPlugin("brave", "brave_api", "brave_api_key"))
 DEFAULT_SEARCHES.register(HostedSearchPlugin("tavily", "tavily_api", "tavily_api_key"))
 DEFAULT_SEARCHES.register(HostedSearchPlugin("parallel", "parallel_api", "parallel_api_key"))
+DEFAULT_SEARCHES.register(HostedSearchPlugin("firecrawl_search", "firecrawl_search_api", "firecrawl_api_key"))
+from .site_watch import SiteWatchPlugin
+DEFAULT_SEARCHES.register(SiteWatchPlugin())
