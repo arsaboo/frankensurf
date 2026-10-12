@@ -194,8 +194,12 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
         terms = query + (" pushed:>" + since.date().isoformat() if since else "")
         params = {"q": terms, "per_page": 30}
     elif source == "arxiv":
-        params = {"search_query": _arxiv_query(query), "max_results": 30,
-                  "sortBy": "submittedDate" if since else "relevance", "sortOrder": "descending"}
+        # Relevance within the window: sorted by date, any paper that mentions the
+        # words anywhere outranks the ones about the topic.
+        terms = _arxiv_query(query)
+        if since:
+            terms += " AND submittedDate:[%s TO %s]" % (since.strftime("%Y%m%d%H%M"), now.strftime("%Y%m%d%H%M"))
+        params = {"search_query": terms, "max_results": 30, "sortBy": "relevance", "sortOrder": "descending"}
     else:  # open_library
         params = {"q": query, "limit": 30}
     url = base.rstrip("/") + definition["path"] + "?" + urlencode(params, quote_via=quote)
@@ -208,13 +212,17 @@ _ARXIV_FILLER = frozenset({"a", "an", "the", "of", "on", "in", "for", "to", "and
 def _arxiv_query(query):
     """arXiv applies a field prefix to one term only, so "all:recent papers on X"
     matches almost anything and, sorted by date, returns the newest papers. Every
-    topic word gets its own prefix and all must match."""
+    topic word gets its own prefix and all must match; the words as a phrase rank first."""
     from .completeness import _STOPWORDS
     from .search_checks import _QUERY_FILLER
     words = [word for word in re.findall(r"[\w][\w\-]*", query.lower())
              if word not in _STOPWORDS and word not in _QUERY_FILLER and word not in _ARXIV_FILLER
              and not re.fullmatch(r"(19|20)\d\d", word)]
-    return " AND ".join("all:" + word for word in words[:8]) or "all:" + query
+    words = words[:8]
+    if not words:
+        return "all:" + query
+    every = " AND ".join("all:" + word for word in words)
+    return '(all:"%s" OR (%s))' % (" ".join(words), every) if len(words) > 1 else every
 
 
 def _iso(value):

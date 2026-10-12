@@ -310,4 +310,6 @@ def test_arxiv_query_prefixes_every_topic_word():
     from frankensurf.search import build_search
     url, _ = build_search("recent papers on mixture of experts", "arxiv", {"recency": "year"})
     assert "all%3Amixture%20AND%20all%3Aexperts" in url
+    assert "all%3A%22mixture%20experts%22%20OR" in url and "sortBy=relevance" in url
+    assert "submittedDate%3A%5B" in url
     assert "recent" not in url.split("search_query=")[1].split("&")[0]
