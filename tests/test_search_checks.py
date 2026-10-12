@@ -5,7 +5,7 @@ import pytest
 
 from frankensurf.search import build_search, filter_results, normalize_options
 from frankensurf.search_checks import (accepted, annotate, canonical_url, check_result, check_results,
-                                       key_terms, merge_results, published, url_kind)
+                                       counted, extract_published, key_terms, merge_results, published, url_kind)
 
 NOW = datetime(2026, 10, 12, 12, 0, tzinfo=timezone.utc)
 
@@ -73,12 +73,12 @@ def test_published_ignores_dates_buried_in_the_text_and_future_source_dates():
 
 
 def test_window_fails_provably_old_results_and_leaves_unknown_dates_alone():
-    results = [item("https://a.test/new", "rust release", "", "2026-10-10T00:00:00Z"),
+    results = [item("https://a.test/newer-rust-release", "rust release", "", "2026-10-10T00:00:00Z"),
                item("https://b.test/old", "rust release", "", "2026-08-01T00:00:00Z"),
                item("https://c.test/unknown", "rust release", "no date")]
     report = check_results("rust release", results, limit=10, recency="week", now=NOW)
     verdicts = {row["url"]: row for row in report["results"]}
-    assert verdicts["https://a.test/new"]["in_window"] is True and verdicts["https://a.test/new"]["passed"]
+    assert verdicts["https://a.test/newer-rust-release"]["in_window"] is True and verdicts["https://a.test/newer-rust-release"]["passed"]
     assert verdicts["https://b.test/old"]["in_window"] is False
     assert verdicts["https://b.test/old"]["reasons"] == ["out_of_window"]
     assert verdicts["https://c.test/unknown"]["in_window"] is None and verdicts["https://c.test/unknown"]["passed"]
@@ -275,3 +275,90 @@ def test_post_filter_enforces_the_whole_list_with_subdomain_matching():
     assert [row["url"] for row in kept] == ["https://notsite02.example/e", "https://site02.example.org/f",
                                             "https://keep.test/g"]
     assert dropped["excluded"] == 4
+
+
+@pytest.mark.parametrize("url", [
+    "https://aws.example/new/",
+    "https://example.com/company/newsroom/",
+    "https://example.com/company/newsroom/press-release-archive/",
+    "https://dev.example.com/changelog/",
+    "https://example.com/headlines/",
+    "https://example.com/news-types/news/",
+    "https://community.example.com/c/announcements/22",
+    "https://example.com/quote/stock/ACME-123/news-press-releases/",
+    "https://example.com/press/press-releases/",
+    "https://example.com/en/whats-new",
+    "https://example.com/docs/release-notes/",
+    "https://example.com/blog/2026/",
+    "https://example.com/events/2/",
+    "https://aggregator.example/news/amd",
+    "https://aggregator.example/news/acme-corp",
+])
+def test_url_kind_catches_index_pages_by_their_last_segment(url):
+    assert url_kind(url) == "tag_listing"
+
+
+@pytest.mark.parametrize("url", [
+    "https://example.com/press/press-releases/2026/acme-announces-new-widget",
+    "https://example.com/news/2026/09/launching-x/",
+    "https://example.com/news/launching-meta-enterprise-platform/",
+    "https://example.com/news/12345",
+    "https://example.com/news/acme-launches-widget-2",
+    "https://example.com/blog/how-we-built-it",
+    "https://example.com/blog/2026/10/12/new-release",
+    "https://example.com/c/announcements/22/release-of-widget",
+    "https://example.com/newsletter-signup-guide",
+    "https://example.com/events/2026-conference-recap",
+])
+def test_url_kind_leaves_real_items_alone(url):
+    assert url_kind(url) == "item"
+
+
+def test_listing_paths_only_fail_when_the_query_asks_for_specific_items():
+    page = item("https://example.com/changelog/", "acme changelog")
+    assert check_result(page, ["acme"], specific=True, now=NOW)["reasons"] == ["tag_listing"]
+    assert check_result(page, ["acme"], specific=False, now=NOW)["passed"]
+
+
+PAGE = """<html><head>%s</head><body>%s</body></html>"""
+
+
+@pytest.mark.parametrize("head,body,origin", [
+    ('<meta property="article:published_time" content="2026-10-01T08:00:00Z">', "", "meta:article:published_time"),
+    ('<meta name="date" content="2026-10-01">', "", "meta:date"),
+    ('<script type="application/ld+json">{"@graph":[{"@type":"NewsArticle","datePublished":"2026-10-01T08:00:00+00:00"}]}</script>',
+     "", "jsonld"),
+    ("", '<span itemprop="datePublished" content="2026-10-01"></span>', "itemprop"),
+    ("", '<time datetime="2026-10-01T08:00:00Z">Oct 1</time>', "time"),
+])
+def test_extract_published_reads_page_metadata(head, body, origin):
+    when, found = extract_published(PAGE % (head, body), NOW)
+    assert (when.year, when.month, when.day) == (2026, 10, 1) and found == origin
+
+
+def test_extract_published_ignores_modified_dates_the_future_and_non_pages():
+    modified = PAGE % ('<meta property="article:modified_time" content="2026-10-01T08:00:00Z">'
+                       '<script type="application/ld+json">{"dateModified": "2026-10-01"}</script>', "")
+    assert extract_published(modified, NOW) == (None, None)
+    future = PAGE % ('<meta property="article:published_time" content="2031-01-01T00:00:00Z">', "")
+    assert extract_published(future, NOW) == (None, None)
+    assert extract_published(None, NOW) == (None, None) and extract_published("plain text", NOW) == (None, None)
+    assert extract_published(PAGE % ("<script type='application/ld+json'>{broken</script>", ""), NOW) == (None, None)
+
+
+def test_undated_results_count_for_at_most_half_the_quota_when_weighed():
+    assert counted(0, 5, 3, True) == 1 and counted(2, 5, 3, True) == 3 and counted(0, 5, 3, False) == 5
+    undated = [item("https://s%d.test/rust/%d" % (index, index), "rust news") for index in range(5)]
+    assert check_results("rust", undated, limit=10, recency="week", now=NOW)["verdict"] == "good"
+    weighed = check_results("rust", undated, limit=10, recency="week", now=NOW, weigh_undated=True)
+    assert weighed["verdict"] == "weak" and weighed["passed"] == 5 and weighed["counted"] == 1
+    assert check_results("rust", undated, limit=10, now=NOW, weigh_undated=True)["verdict"] == "good"
+
+
+def test_annotate_sets_published_from_a_snippet_or_url_date_only_for_windowed_checks():
+    results = [item("https://a.test/2026/10/11/story", "rust"), item("https://b.test/x", "rust", "2 days ago - rust")]
+    windowed = annotate(results, check_results("rust", results, limit=5, recency="week", now=NOW))
+    assert [row["published"] for row in windowed] == ["2026-10-11T23:59:59Z", "2026-10-10T12:00:00Z"]
+    assert [row["check"]["date_source"] for row in windowed] == ["url", "snippet"]
+    plain = annotate(results, check_results("rust", results, limit=5, now=NOW))
+    assert [row["published"] for row in plain] == [None, None]

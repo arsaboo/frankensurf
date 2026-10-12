@@ -6,11 +6,15 @@ snippet, indexed_date); the router in Runtime.search decides what to do next.
 A result fails when it is provably outside the date window, shares no key term
 with the query, is a homepage, search page, tag listing or challenge page where
 the query asked for specific items, or repeats another result's page. An
-unknown date is "unknown", not a failure; it only ranks below dated results.
+unknown date is "unknown", not a failure; it only ranks below dated results,
+and enrich_dates reads the pages of undated results to find out.
 """
 from __future__ import annotations
+import asyncio
 import calendar
+import json
 import re
+import time
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qsl, unquote, urlparse
 
@@ -37,6 +41,25 @@ _LISTING_SEGMENTS = frozenset({"tag", "tags", "tagged", "category", "categories"
 _SECTION_SEGMENTS = frozenset({"news", "blog", "blogs", "articles", "posts", "products", "shop", "store",
                                "stories", "videos", "reviews", "forum", "forums", "community", "latest",
                                "trending", "popular", "all", "index", "home", "default"})
+# Words that name an index of items, not an item: the last path segment of a listing.
+_INDEX_SEGMENTS = frozenset({
+    "new", "news", "newsroom", "press", "press-releases", "press-release-archive", "releases",
+    "release-notes", "changelog", "announcements", "updates", "headlines", "blog", "blogs", "articles",
+    "stories", "archive", "archives", "category", "categories", "tag", "tags", "topics", "latest",
+    "whats-new", "insights", "media", "events", "news-types"})
+# Hyphenated runs of these ("news-press-releases", "press-release-archive") are listings
+# too, when every word is one and at least one is a strong (plural or section) word:
+# "new-release" can be a title, "news-types" cannot.
+_STRONG_TOKENS = frozenset({
+    "news", "newsroom", "press", "releases", "notes", "changelog", "announcements", "updates", "headlines",
+    "blog", "blogs", "articles", "stories", "archive", "archives", "categories", "tags", "topics", "latest",
+    "insights", "media", "events", "types"})
+_INDEX_TOKENS = _STRONG_TOKENS | {"new", "release", "note", "announcement", "update", "headline", "article",
+                                  "story", "category", "tag", "topic", "whats", "insight", "event", "type", "and"}
+# Ids, page numbers and years that can follow an index word: /c/announcements/22.
+_SHORT_ID = re.compile(r"\d{1,4}")
+# An aggregator's entity page: /news/<one or two letters-only words>.
+_ENTITY_SLUG = re.compile(r"[a-z]+(?:-[a-z]+)?")
 _ID_KEYS = frozenset({"id", "p", "v", "item", "story", "article", "post", "tid", "t", "pid", "sku"})
 _LOCALE = re.compile(r"[a-z]{2}(?:[-_][a-z]{2})?")
 _CHALLENGE = ("just a moment", "attention required", "access denied", "verify you are human",
@@ -88,6 +111,27 @@ def canonical_url(url: str) -> str:
     return host + path + ("?" + query if query else "")
 
 
+def _is_index_segment(part):
+    if part in _INDEX_SEGMENTS:
+        return True
+    tokens = re.split(r"[-_]", part)
+    return (2 <= len(tokens) <= 4 and all(token in _INDEX_TOKENS for token in tokens)
+            and any(token in _STRONG_TOKENS for token in tokens))
+
+
+def _is_listing_path(segments):
+    """An index word ends the path (short numeric ids aside), or it is an
+    aggregator's /news/<one short entity>. Real article slugs have three or more
+    title words or sit under a date path."""
+    trimmed = list(segments)
+    while trimmed and _SHORT_ID.fullmatch(trimmed[-1]):
+        trimmed.pop()
+    if trimmed and _is_index_segment(trimmed[-1]):
+        return True
+    return (len(segments) >= 2 and segments[-2] == "news" and len(segments[-1]) <= 24
+            and _ENTITY_SLUG.fullmatch(segments[-1]) is not None)
+
+
 def url_kind(url: str) -> str:
     """item, homepage, search_page or tag_listing, from the URL alone."""
     parsed = urlparse(str(url or ""))
@@ -108,6 +152,8 @@ def url_kind(url: str) -> str:
         if part in _LISTING_SEGMENTS and position >= len(segments) - 2:
             return "tag_listing"
     if len(index) == 1 and index[0].split(".")[0] in _SECTION_SEGMENTS:
+        return "tag_listing"
+    if _is_listing_path([re.sub(r"\.(?:html?|php)$", "", part) for part in index]):
         return "tag_listing"
     return "item"
 
@@ -217,11 +263,19 @@ def check_result(item: dict, terms, *, since=None, until=None, specific=True, no
             "date_source": origin, "kind": kind}
 
 
+def counted(dated: int, undated: int, need: int, weigh_undated: bool) -> int:
+    """How many passing results count toward "good". An undated result is weaker
+    than a dated one, so with weigh_undated they count at most half the quota
+    (need // 2): a set of undated filler cannot end the search alone."""
+    return dated + (min(undated, need // 2) if weigh_undated else undated)
+
+
 def check_results(query: str, results, *, limit: int = 10, recency=None, since=None, until=None,
-                  now=None, min_good: int = 3) -> dict:
+                  now=None, min_good: int = 3, weigh_undated: bool = False) -> dict:
     """Verdict per result and for the set. good: at least min(min_good, limit)
     results pass; weak: some do; empty: none do. Repeats of a page already seen
-    fail as duplicates."""
+    fail as duplicates. With weigh_undated, passing results of a windowed query
+    whose date is unknown count at most half the quota (see counted)."""
     now = now or datetime.now(timezone.utc)
     since, until = window_bounds(recency, since, until, now)
     terms = key_terms(query)
@@ -241,8 +295,10 @@ def check_results(query: str, results, *, limit: int = 10, recency=None, since=N
     passed = sum(1 for verdict in verdicts if verdict["passed"])
     need = max(1, min(min_good, limit))
     windowed = since is not None or until is not None
-    return {"verdict": "good" if passed >= need else "weak" if passed else "empty",
-            "passed": passed, "need": need, "total": len(verdicts), "terms": terms,
+    undated = sum(1 for verdict in verdicts if verdict["passed"] and verdict["in_window"] is None)
+    weighed = counted(passed - undated, undated, need, weigh_undated and windowed)
+    return {"verdict": "good" if weighed >= need else "weak" if passed else "empty",
+            "passed": passed, "counted": weighed, "need": need, "total": len(verdicts), "terms": terms,
             "reasons": counts, "windowed": windowed,
             "unknown_dates": sum(1 for verdict in verdicts if windowed and verdict["in_window"] is None),
             "results": verdicts}
@@ -255,10 +311,17 @@ def _tier(item):
 
 def annotate(results, report: dict) -> list[dict]:
     """Every result with its check fields under "check" (passed, reasons,
-    in_window, on_query, published, date_source, kind)."""
-    return [{**item, "check": {key: verdict[key] for key in
-                               ("passed", "reasons", "in_window", "on_query", "published", "date_source", "kind")}}
-            for item, verdict in zip(results, report["results"])]
+    in_window, on_query, published, date_source, kind). When a window was asked
+    for and the source gave no date, a date found in the snippet or URL is also
+    set as the result's "published"."""
+    rows = []
+    for item, verdict in zip(results, report["results"]):
+        row = {**item, "check": {key: verdict[key] for key in
+                                 ("passed", "reasons", "in_window", "on_query", "published", "date_source", "kind")}}
+        if report["windowed"] and verdict["published"] and not item.get("published"):
+            row["published"] = verdict["published"]
+        rows.append(row)
+    return rows
 
 
 def accepted(results, report: dict) -> list[dict]:
@@ -295,3 +358,138 @@ def merge_results(groups, *, windowed=False, limit=None) -> list[dict]:
     for item in merged:
         item["fusion"]["score"] = round(item["fusion"]["score"], 5)
     return merged[:limit] if limit else merged
+
+
+def good_count(items, need: int, windowed: bool, weigh_undated: bool = True) -> int:
+    """counted() over annotated results: dated passing ones in full, undated ones
+    at most half the quota."""
+    undated = sum(1 for item in items if windowed and (item.get("check") or {}).get("in_window") is None)
+    return counted(len(items) - undated, undated, need, weigh_undated and windowed)
+
+
+# --- reading a page for its publication date
+
+# Meta tags that name when a page was first published; modified dates are never used.
+_META_DATES = frozenset({
+    "article:published_time", "og:article:published_time", "datepublished", "date", "dc.date",
+    "dc.date.issued", "dcterms.date", "citation_publication_date", "citation_date", "citation_online_date",
+    "publish-date", "pubdate", "parsely-pub-date", "sailthru.date", "publication_date", "article.published",
+    "og:published_time"})
+_PAGE_CHARS = 400_000
+
+
+def extract_published(html, now=None):
+    """(when, where) from a page's own metadata: a published-time meta tag, JSON-LD
+    datePublished, an itemprop or a <time datetime>. (None, None) when the page
+    gives none or one in the future. Never a modified date."""
+    if not isinstance(html, str) or "<" not in html:
+        return None, None
+    from bs4 import BeautifulSoup
+    latest = (now or datetime.now(timezone.utc)) + timedelta(days=2)
+
+    def found(value, origin):
+        when = parse_date(value)
+        return (when, origin) if when is not None and when <= latest else None
+
+    soup = BeautifulSoup(html[:_PAGE_CHARS], "html.parser")
+    for tag in soup.find_all("meta"):
+        key = str(tag.get("property") or tag.get("name") or tag.get("itemprop") or "").lower()
+        if key in _META_DATES and (hit := found(tag.get("content"), "meta:" + key)):
+            return hit
+    for script in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = json.loads(script.string or script.get_text() or "")
+        except ValueError:
+            continue
+        stack = [data]
+        while stack:
+            node = stack.pop(0)
+            if isinstance(node, dict):
+                if hit := found(node.get("datePublished"), "jsonld"):
+                    return hit
+                stack.extend(node.values())
+            elif isinstance(node, list):
+                stack.extend(node)
+    for tag in soup.find_all(attrs={"itemprop": "datePublished"}):
+        if hit := found(tag.get("content") or tag.get("datetime") or tag.get_text(strip=True), "itemprop"):
+            return hit
+    for tag in soup.find_all("time"):
+        if hit := found(tag.get("datetime"), "time"):
+            return hit
+    return None, None
+
+
+def date_targets(items, limit: int, budget: int, memo: dict) -> list[int]:
+    """Indexes (into the annotated, accepted results) of the undated ones that
+    would land in the top `limit` and have not been read yet, at most `budget`."""
+    chosen = []
+    for position, item in enumerate(items[:limit]):
+        if len(chosen) >= budget:
+            break
+        if (item.get("check") or {}).get("in_window") is None and canonical_url(item["url"]) not in memo:
+            chosen.append(position)
+    return chosen
+
+
+async def read_dates(urls, read, *, timeout: float, gap: float, memo: dict) -> dict:
+    """Read these pages at once and record each one's publication date (or None)
+    in memo, by canonical URL. read(url) is the read path (paced per origin there);
+    a failed or slow read is just an undated page. Returns {tried, dated, cost_usd}."""
+    ahead = {}
+
+    async def one(url):
+        host = urlparse(url).hostname or ""
+        # Reads to one origin are spaced by the read path; allow for the wait.
+        allowance = timeout + gap * ahead.get(host, 0)
+        ahead[host] = ahead.get(host, 0) + 1
+        try:
+            result = await asyncio.wait_for(read(url), allowance + 1)
+        except Exception:
+            return None, 0.0
+        receipt = result.get("receipt") or {} if isinstance(result, dict) else {}
+        if receipt.get("status") != "observed":
+            return None, 0.0
+        cost = receipt.get("cost_usd")
+        return extract_published(result.get("content"))[0], float(cost) if isinstance(cost, (int, float)) else 0.0
+
+    outcomes = await asyncio.gather(*(one(url) for url in urls))
+    cost = 0.0
+    for url, (when, spent) in zip(urls, outcomes):
+        memo[canonical_url(url)] = when
+        cost += spent
+    return {"tried": len(urls), "dated": sum(1 for when, _ in outcomes if when is not None), "cost_usd": cost}
+
+
+async def enrich_dates(query, items, report, read, *, limit, budget, memo, timeout, gap, recency=None,
+                       since=None, until=None, now=None, min_good=3, weigh_undated=True):
+    """Give undated results that would make the top `limit` a verified date by
+    reading their pages (see read_dates), then check the set again, so results
+    that are provably outside the window drop out. Returns (items, report, stats)
+    where stats is {tried, dated, dropped, cost_usd}; items are the raw results
+    (with "published" and the verdict's date_source "page" set on the dated)."""
+    stats = {"tried": 0, "dated": 0, "dropped": 0, "cost_usd": 0.0}
+    rows = annotate(items, report)
+    keep = [(item, row) for item, row in zip(items, rows) if row["check"]["passed"]]
+    ordered = sorted(keep, key=lambda pair: _tier(pair[1])) if report["windowed"] else keep
+    chosen = date_targets([row for _, row in ordered], limit, budget, memo)
+    urls = [ordered[position][0]["url"] for position in chosen]
+    if urls:
+        stats.update(await read_dates(urls, read, timeout=timeout, gap=gap, memo=memo))
+    # Every result a page date is now known for, this read or an earlier one.
+    pages = {}
+    revised = []
+    for item in items:
+        when = memo.get(canonical_url(item.get("url") or ""))
+        if when is not None and published(item, now)[0] is None:
+            pages[canonical_url(item["url"])] = True
+            item = {**item, "published": when.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+        revised.append(item)
+    if not pages:
+        return items, report, stats
+    again = check_results(query, revised, limit=limit, recency=recency, since=since, until=until, now=now,
+                          min_good=min_good, weigh_undated=weigh_undated)
+    for verdict in again["results"]:
+        if canonical_url(verdict["url"]) in pages and verdict["published"]:
+            verdict["date_source"] = "page"
+            stats["dropped"] += 1 if verdict["in_window"] is False else 0
+    return revised, again, stats

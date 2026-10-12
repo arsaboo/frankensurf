@@ -424,7 +424,9 @@ async def test_exclude_operator_cap_policy_reaches_http_engines(tmp_path):
                                          ("search_max_seconds", 0), ("search_max_sources", 0),
                                          ("search_good_results", 0), ("search_paid_after_weak", -1),
                                          ("search_exclude_operators", -1), ("search_ladder", 1),
-                                         ("search_learned_routing", "yes"), ("search_hedge_after_seconds", -1)])
+                                         ("search_learned_routing", "yes"), ("search_hedge_after_seconds", -1),
+                                         ("search_date_reads", -1), ("search_date_reads", 21),
+                                         ("search_date_reads", True), ("search_date_read_timeout_seconds", 0)])
 def test_policy_validates_ladder_settings(field, value):
     with pytest.raises(ValueError):
         WebPolicy(**{field: value})
@@ -436,6 +438,7 @@ def test_policy_defaults():
             policy.search_hedge_racers, policy.search_max_seconds, policy.search_max_sources,
             policy.search_paid_after_weak, policy.search_learned_routing, policy.search_exclude_operators) == (
         True, 3, 3.0, 2, 30.0, 6, 2, True, 3)
+    assert (policy.search_date_reads, policy.search_date_read_timeout_seconds) == (6, 5.0)
 
 
 async def test_a_sources_transport_provider_wins_over_provider_candidates(monkeypatch, tmp_path):
@@ -450,3 +453,140 @@ async def test_a_sources_transport_provider_wins_over_provider_candidates(monkey
     install(monkeypatch, Fake("hosted", good(4), transport="hosted_api"))
     await run(tmp_path, policy=WebPolicy(provider="http"))
     assert SEEN_POLICY["hosted"] == ("hosted_api", None)
+
+
+# --- date enrichment: undated results are read for their publication date ------
+
+def stamp(days_ago):
+    return (datetime.now(timezone.utc) - timedelta(days=days_ago)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def page_with(date=None, jsonld=False):
+    if date is None:
+        return "<html><head><title>t</title></head><body>no date here at all</body></html>"
+    meta = ('<script type="application/ld+json">{"@type":"NewsArticle","datePublished":"%s"}</script>' % date if jsonld
+            else '<meta property="article:published_time" content="%s">' % date)
+    return "<html><head><title>t</title>%s</head><body>some article text</body></html>" % meta
+
+
+class Site:
+    """Synthetic pages by host, counting the requests made to them."""
+
+    def __init__(self, pages):
+        self.pages, self.hits = pages, []
+
+    def __call__(self, request):
+        import httpx
+        self.hits.append(request.url.host)
+        body = self.pages.get(request.url.host)
+        if body is None:
+            return httpx.Response(500, text="boom")
+        return httpx.Response(200, text=body, headers={"content-type": "text/html"})
+
+
+async def run_dated(tmp_path, site, query="rust async", policy=None, **kwargs):
+    import httpx
+    async with Runtime(tmp_path, transport=httpx.MockTransport(site)) as web:
+        return await web.search(query, policy=policy or WebPolicy(provider="http", origin_min_interval_seconds=0),
+                                **kwargs)
+
+
+async def test_page_dates_keep_the_in_window_drop_the_old_and_tolerate_failures(monkeypatch, tmp_path):
+    # s0 meta in window, s1 JSON-LD in window, s2 months old, s3 server error, s4 no date.
+    site = Site({"s0.test": page_with(stamp(3)), "s1.test": page_with(stamp(10), jsonld=True),
+                 "s2.test": page_with(stamp(150)), "s4.test": page_with()})
+    install(monkeypatch, Fake("one", good(5)))
+    result = await run_dated(tmp_path, site, recency="month", limit=5)
+    urls = [row["url"].split("/")[2] for row in result["results"]]
+    assert urls == ["s0.test", "s1.test", "s3.test", "s4.test"]  # verified first, still-undated after, s2 dropped
+    by_host = {row["url"].split("/")[2]: row for row in result["results"]}
+    assert by_host["s0.test"]["published"][:10] == stamp(3)[:10] and by_host["s1.test"]["published"][:10] == stamp(10)[:10]
+    assert by_host["s0.test"]["check"]["date_source"] == "page" and by_host["s0.test"]["check"]["in_window"] is True
+    assert not by_host["s3.test"].get("published") and by_host["s3.test"]["check"]["in_window"] is None
+    checks = result["receipt"]["search_checks"]
+    assert checks["date_reads"]["tried"] == 5 and checks["date_reads"]["dated"] == 3
+    assert checks["date_reads"]["dropped"] == 1 and checks["date_reads"]["cost_usd"] == 0
+    assert checks["date_reads"]["latency_ms"] >= 0
+    assert [row["date_source"] for row in checks["results"]] == ["page", "page", None, None]
+    assert checks["verdict"] == "good"  # two verified plus one undated (half the quota of 3)
+    assert sorted(site.hits) == ["s0.test", "s1.test", "s2.test", "s3.test", "s4.test"]
+
+
+async def test_date_reads_stop_at_the_cap_and_only_cover_results_in_the_top(monkeypatch, tmp_path):
+    site = Site({"s%d.test" % index: page_with(stamp(2)) for index in range(12)})
+    install(monkeypatch, Fake("one", good(12)))
+    result = await run_dated(tmp_path, site, recency="month", limit=10,
+                             policy=WebPolicy(provider="http", origin_min_interval_seconds=0, search_date_reads=4))
+    assert len(site.hits) == 4 and result["receipt"]["search_checks"]["date_reads"]["tried"] == 4
+    dated = [row for row in result["results"] if row["check"]["date_source"] == "page"]
+    assert len(dated) == 4 and len(result["results"]) == 10
+    # Only results that would make the top `limit` are read: a limit of 2 reads 2 pages.
+    site.hits.clear()
+    install(monkeypatch, Fake("one", good(12)))
+    result = await run_dated(tmp_path, site, recency="month", limit=2)
+    assert len(site.hits) == 2 and result["receipt"]["search_checks"]["date_reads"]["tried"] == 2
+
+
+async def test_date_reads_are_off_without_a_window_an_explicit_source_or_a_zero_cap(monkeypatch, tmp_path):
+    site = Site({"s%d.test" % index: page_with(stamp(2)) for index in range(6)})
+    install(monkeypatch, Fake("one", good(5)))
+    result = await run_dated(tmp_path, site)
+    assert site.hits == [] and "date_reads" not in result["receipt"]["search_checks"]
+    result = await run_dated(tmp_path, site, recency="month", source="one")
+    assert site.hits == [] and "date_reads" not in result["receipt"]["search_checks"]
+    result = await run_dated(tmp_path, site, recency="month",
+                             policy=WebPolicy(provider="http", search_date_reads=0))
+    assert site.hits == [] and "date_reads" not in result["receipt"]["search_checks"]
+    assert all(not row.get("published") for row in result["results"])
+
+
+async def test_undated_filler_does_not_end_the_search(monkeypatch, tmp_path):
+    # Pages that cannot be dated count for at most half the quota, so the ladder climbs.
+    site = Site({"s%d.test" % index: page_with() for index in range(5)}
+                | {"t%d.test" % index: page_with(stamp(1)) for index in range(5)})
+    install(monkeypatch, Fake("filler", good(5)), Fake("dated", good(5, "t")), Fake("never", good(5, "u")))
+    result = await run_dated(tmp_path, site, recency="month", limit=5)
+    assert CALLS == ["filler", "dated"]
+    assert result["receipt"]["search_ladder"]["winner"] == "dated"
+    assert [row["check"]["date_source"] for row in result["results"]] == ["page"] * 5
+
+
+async def test_a_page_dated_outside_the_window_leaves_the_set_weak_and_the_ladder_climbing(monkeypatch, tmp_path):
+    site = Site({"s%d.test" % index: page_with(stamp(300)) for index in range(5)}
+                | {"t%d.test" % index: page_with(stamp(2)) for index in range(5)})
+    install(monkeypatch, Fake("stale", good(5)), Fake("fresh", good(5, "t")))
+    result = await run_dated(tmp_path, site, recency="week", limit=5,
+                             policy=WebPolicy(provider="http", origin_min_interval_seconds=0, search_date_reads=20))
+    assert CALLS == ["stale", "fresh"]
+    assert all(row["url"].split("/")[2].startswith("t") for row in result["results"])
+    reads = result["receipt"]["search_checks"]["date_reads"]
+    assert reads["tried"] == 10 and reads["dropped"] == 5 and reads["dated"] == 10  # 5 stale pages read, 5 fresh
+
+
+async def test_snippet_and_url_dates_are_set_as_published_without_reading_pages(monkeypatch, tmp_path):
+    site = Site({})
+    rows = [{"url": "https://a.test/2026/10/09/rust-async-story", "title": "rust async", "snippet": ""},
+            {"url": "https://b.test/rust/async", "title": "rust async", "snippet": "2 days ago - rust async"}]
+    install(monkeypatch, Fake("one", rows + good(2, "c", date=stamp(1))))
+    result = await run_dated(tmp_path, site, recency="month", limit=4,
+                             policy=WebPolicy(provider="http", search_date_reads=0))
+    by_host = {row["url"].split("/")[2]: row for row in result["results"]}
+    assert by_host["a.test"]["published"] == "2026-10-09T23:59:59Z" and by_host["a.test"]["check"]["date_source"] == "url"
+    assert by_host["b.test"]["published"] is not None and by_host["b.test"]["check"]["date_source"] == "snippet"
+    assert site.hits == []
+
+
+async def test_date_reads_use_the_cheap_provider_even_when_paid_tools_are_allowed(monkeypatch, tmp_path):
+    seen = []
+
+    async def spy(self, url, policy=None, *args, **kwargs):
+        seen.append((policy.provider, policy.provider_candidates, policy.allow_paid_fallbacks, policy.identity,
+                     policy.timeout_seconds))
+        return {"content": page_with(stamp(1)), "receipt": {"status": "observed", "cost_usd": 0}}
+    monkeypatch.setattr(Runtime, "read", spy)
+    install(monkeypatch, Fake("one", good(4)))
+    policy = WebPolicy(allow_paid_fallbacks=True, provider_candidates=("http", "zyte"), identity="me",
+                       search_date_read_timeout_seconds=2.5)
+    result = await run(tmp_path, policy=policy, recency="month", limit=4)
+    assert seen and set(seen) == {("http", None, False, None, 2.5)}
+    assert result["receipt"]["search_checks"]["date_reads"]["dated"] == len(seen)
