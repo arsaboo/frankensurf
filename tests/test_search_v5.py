@@ -282,3 +282,29 @@ def test_a_forge_repository_page_is_never_a_search_page():
     assert url_kind("https://github.com/tanstack/query") == "item"
     assert url_kind("https://github.com/owner/search") == "item"
     assert url_kind("https://github.com/search?q=query") == "search_page"
+
+
+def test_reserved_forge_paths_are_listings():
+    from frankensurf.search_checks import url_kind
+    assert url_kind("https://github.com/topics/svelte-kit") == "tag_listing"
+    assert url_kind("https://github.com/trending/vue") == "tag_listing"
+    assert url_kind("https://github.com/sveltejs/kit") == "item"
+
+
+def test_kind_and_question_words_are_not_the_topic():
+    from frankensurf.search_checks import key_terms
+    assert key_terms("eBay latest announcement") == ["ebay"]
+    assert key_terms("who wrote The Odyssey") == ["odyssey"]
+    assert key_terms("DoorDash newest product launch") == ["doordash"]
+
+
+def test_an_anchored_answer_keeps_paid_results_that_share_a_term():
+    from frankensurf.search_checks import anchored_answer
+    paid = [{"url": "https://www.britannica.com/biography/Homer-Greek-poet", "title": "Homer | Greek poet",
+             "snippet": "Homer, presumed author of the Iliad and the Odyssey",
+             "check": {"passed": False, "reasons": ["off_query"]}},
+            {"url": "https://example.org/unrelated", "title": "Something else", "snippet": "nothing",
+             "check": {"passed": False, "reasons": ["off_query"]}}]
+    results, receipt = anchored_answer("who wrote The Odyssey", "exa", paid, [], limit=5, vertical="reference")
+    assert [r["url"] for r in results] == ["https://www.britannica.com/biography/Homer-Greek-poet"]
+    assert [r["reason"] for r in receipt["replaced"]] == ["off_query"]

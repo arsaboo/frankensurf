@@ -57,6 +57,9 @@ _INDEX_SEGMENTS = frozenset({
 # Query keys that page or size a listing (?l=100, ?page=2); an article path keeps its page numbers.
 _LISTING_KEYS = frozenset({"l", "page", "pagenum", "page_num", "per_page", "perpage", "offset", "limit"})
 _FORGE_HOSTS = frozenset({"github.com", "gitlab.com", "bitbucket.org", "codeberg.org"})
+_FORGE_RESERVED = frozenset({"topics", "trending", "orgs", "collections", "marketplace", "sponsors", "features",
+                             "explore", "settings", "about", "pricing", "enterprise", "apps", "login",
+                             "signup", "events", "readme", "customer-stories", "solutions", "resources"})
 # Hyphenated runs of these ("news-press-releases", "press-release-archive") are listings
 # too, when every word is one and at least one is a strong (plural or section) word:
 # "new-release" can be a title, "news-types" cannot.
@@ -125,7 +128,13 @@ _WEAK_WORDS = frozenset({
     "created", "get", "gets", "getting", "set", "sets", "setting", "do", "does", "doing", "write", "writes",
     "writing", "add", "adds", "adding", "run", "runs", "running", "find", "finds", "need", "needs", "want",
     "wants", "work", "works", "working", "best", "good", "simple", "easy", "example", "examples", "tutorial",
-    "tutorials", "guide", "guides", "way", "ways", "paper", "papers", "preprint", "preprints", "arxiv"})
+    "tutorials", "guide", "guides", "way", "ways", "paper", "papers", "preprint", "preprints", "arxiv",
+    # The kind of page an announcement query wants, not its topic.
+    "announcement", "announcements", "announce", "announces", "announced", "press", "release", "releases",
+    "launch", "launches", "launched", "newest", "official", "product", "products",
+    # The verb of a fact question: the page that answers it names the answer, not the verb.
+    "wrote", "written", "invented", "founded", "painted", "composed", "discovered", "built", "developed",
+    "proposed", "formulated", "directed", "designed", "created"})
 
 
 def key_terms(query: str) -> list[str]:
@@ -203,6 +212,8 @@ def url_kind(url: str) -> str:
     segments = [unquote(part).lower() for part in parsed.path.split("/") if part]
     query = {key.lower() for key, _ in parse_qsl(parsed.query)}
     host = (parsed.hostname or "").lower().removeprefix("www.")
+    if host in _FORGE_HOSTS and segments and segments[0] in _FORGE_RESERVED:
+        return "tag_listing"  # topics/x, trending/x, orgs/x: GitHub's own pages, not a repository
     if host in _FORGE_HOSTS and len(segments) == 2 and not query & _SEARCH_KEYS:
         return "item"  # owner/name: a repository, whatever the name is (query, search, platform)
     if query & _SEARCH_KEYS and len(segments) < 3:
@@ -1592,12 +1603,20 @@ def anchored_answer(query: str, source: str, anchored, others, *, limit: int, ve
     ctx = query_context(query, vertical=vertical)
     unwanted = unwanted or {}
 
+    terms = key_terms(query)
+
+    def shares_a_term(item):
+        text = " ".join(str(item.get(key) or "") for key in ("title", "snippet", "url")).lower()
+        return any(re.search(r"(?<![a-z0-9])" + re.escape(term), text) for term in terms)
+
     def failure(item):
         check = item.get("check") or {}
         reasons = list(check.get("reasons") or [])
+        if "off_query" in reasons and shares_a_term(item):
+            reasons.remove("off_query")
         if reasons:
             return reasons[0]
-        if check.get("passed") is False:
+        if check.get("passed") is False and "off_query" not in (check.get("reasons") or []):
             return "failed"
         reason = unwanted.get(canonical_url(item.get("url") or ""))
         if reason:

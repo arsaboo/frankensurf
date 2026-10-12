@@ -614,9 +614,10 @@ def test_dropping_corporate_suffixes_keeps_whole_word_and_snippet_protection(que
 
 
 def test_a_lone_core_word_in_a_snippet_needs_another_query_term():
-    query = "Arm Holdings latest announcement"
-    assert on_query(query, "https://a.test/x/1", "Chip news", "Arm posted an announcement") is True
-    assert on_query(query, "https://a.test/x/1", "Chip news", "Arm posted a thing") is False
+    # (Changed: "announcement" now names the kind of page, not the topic, so the second term is a topic word.)
+    query = "Arm Holdings chip announcement"
+    assert on_query(query, "https://a.test/x/1", "Industry news", "Arm posted a new chip design") is True
+    assert on_query(query, "https://a.test/x/1", "Industry news", "Arm posted a thing") is False
 
 
 def test_a_domain_equal_to_the_entity_run_together_matches():
