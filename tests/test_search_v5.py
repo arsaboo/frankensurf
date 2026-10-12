@@ -247,13 +247,16 @@ async def test_a_paid_source_that_fails_leaves_the_free_behaviour(monkeypatch, t
 
 async def test_a_paid_source_that_times_out_leaves_the_free_behaviour(monkeypatch, tmp_path):
     import frankensurf.runtime as runtime
-    monkeypatch.setattr(runtime, "_RACE_GRACE_SECONDS", 0.2)
+    # (Changed with search_paid_wait_seconds: the paid source is waited for that long, not the race
+    # grace; the timeout now records anchor null with the note paid_timeout.)
+    monkeypatch.setattr(runtime, "_paid_priors", lambda: {"exa": {"overall": [0, 0], "cost_usd": 0.005}})
     free = dated(3, "f")
     install(monkeypatch, Fake("free", free), Fake("exa", dated(3, "e"), paid=True, cost=0.005, delay=30))
-    result = await run(tmp_path, recency="week", limit=3, policy=paid_policy())
+    result = await run(tmp_path, recency="week", limit=3, policy=paid_policy(search_paid_wait_seconds=0.3))
     assert "exa" in CALLS
     ladder = result["receipt"]["search_ladder"]
-    assert "anchor" not in ladder
+    assert ladder["anchor"] is None and ladder["notes"] == ["paid_timeout"]
+    assert result["receipt"]["cost_usd"] == 0.005
     assert [url[8] for url in urls(result)] == ["f", "f", "f"]
     statuses = {attempt["source"]: attempt["status"] for attempt in result["receipt"]["search_attempts"]}
     assert statuses["exa"] == "cancelled"
