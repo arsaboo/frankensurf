@@ -113,7 +113,7 @@ h1 em.horror { display: inline-block; font-size: 1.04em; line-height: 0.95; padd
 }
 
 /* ---------- router window ---------- */
-.window-wrap { position: relative; z-index: 3; margin-top: -110px; perspective: 1800px; }
+.window-wrap { position: relative; z-index: 3; margin-top: 56px; perspective: 1800px; }
 .window { position: relative; border-radius: 16px; background: linear-gradient(180deg, rgba(20, 22, 25, 0.94), rgba(12, 14, 16, 0.97)); border: 1px solid var(--line-2); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 40px 120px -20px rgba(0, 0, 0, 0.9); overflow: hidden; transform-origin: 50% 0; }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -157,7 +157,7 @@ pre.code { margin: 0; font: 13px/1.7 var(--mono); color: var(--fg-2); white-spac
 .summary { display: flex; gap: 18px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-left: auto; min-height: 18px; }
 .summary em { font-style: normal; color: var(--fg); }
 @media (max-width: 860px) {
-  .window-wrap { margin-top: -40px; }
+  .window-wrap { margin-top: 40px; }
   .w-body { grid-template-columns: minmax(0, 1fr); }
   .w-left { border-right: 0; border-bottom: 1px solid var(--line); }
   .w-bar .w-title { display: none; }
@@ -166,7 +166,7 @@ pre.code { margin: 0; font: 13px/1.7 var(--mono); color: var(--fg-2); white-spac
 }
 
 /* ---------- marquee ---------- */
-.marquee-sec { padding-block: 100px 20px; }
+.marquee-sec { position: relative; z-index: 2; margin-top: -72px; padding-block: 0 8px; }
 .marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); display: grid; gap: 14px; }
 .track { display: flex; gap: 48px; width: max-content; animation: marq 60s linear infinite; }
 .track.rev { animation-direction: reverse; animation-duration: 75s; }
@@ -216,6 +216,41 @@ h2 { margin: 0; font-weight: 600; font-size: clamp(34px, 4.6vw, 58px); line-heig
 @media (max-width: 860px) { .facts { grid-template-columns: minmax(0, 1fr); } }
 
 /* how */
+/* router as a snake: one path through the tools, cheapest first */
+.snake { margin: 0 0 28px; padding: 22px 24px 18px; border: 1px solid var(--line); border-radius: 18px; background: rgba(16, 19, 22, 0.6); }
+.snake-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.snake-svg.narrow { display: none; }
+@media (max-width: 700px) { .snake { padding: 16px 12px 14px; } .snake-svg.wide { display: none; } .snake-svg.narrow { display: block; } }
+.snake-path { fill: none; stroke: var(--line-2); stroke-width: 2; stroke-dasharray: 6 8; }
+.snake-trail { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; opacity: 0.85; }
+.snake-start { fill: var(--accent); }
+.snake-arrow { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.snake-end { font: 600 14px var(--mono); fill: var(--fg-2); }
+.snake-dot { fill: var(--accent); filter: drop-shadow(0 0 8px rgba(154, 240, 176, 0.9)); }
+.snake-node rect { fill: #0d1013; stroke: var(--line-2); stroke-width: 1.2; transition: stroke 0.25s, fill 0.25s; }
+.snake-node.paid rect { stroke: rgba(255, 211, 107, 0.45); stroke-dasharray: 5 4; }
+.snake-node.human rect { stroke: rgba(201, 210, 204, 0.4); stroke-dasharray: 2 4; }
+.snake-name { font: 500 15px var(--sans); fill: var(--fg); }
+.snake-cost { font: 12px var(--mono); fill: var(--accent); }
+.snake-node.paid .snake-cost { fill: rgba(255, 211, 107, 0.85); }
+.snake-node.human .snake-cost { fill: var(--dim); }
+.snake-note { font: 12.5px var(--mono); fill: var(--dim); }
+.snake-node.trying rect { stroke: rgba(255, 211, 107, 0.9); fill: #19170f; }
+.snake-node.fail rect { stroke: rgba(240, 122, 110, 0.75); }
+.snake-node.fail .snake-name { fill: var(--dim); }
+.snake-node.fail .snake-note { fill: rgba(240, 122, 110, 0.95); }
+.snake-node.ok rect { stroke: var(--accent); fill: #111c16; }
+.snake-node.ok .snake-name, .snake-node.ok .snake-note { fill: var(--accent); }
+.snake-caption { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; margin-top: 10px; font: 13px var(--mono); color: var(--dim); min-height: 1.6em; }
+.snake-caption code { color: var(--fg); font: 600 13px var(--mono); overflow-wrap: anywhere; }
+.snake-caption span { overflow-wrap: anywhere; }
+/* phones: the box styles and the legend say free or paid; the boxes keep just the name */
+.snake-svg.narrow .snake-cost { display: none; }
+.snake-caption span { color: var(--accent); }
+.snake-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0; font: 12px var(--mono); color: var(--dim); }
+.snake-legend span::before { content: ""; display: inline-block; width: 18px; height: 0; margin-right: 8px; vertical-align: middle; border-top: 1.5px solid var(--line-2); }
+.snake-legend .lg-paid::before { border-top: 1.5px dashed rgba(255, 211, 107, 0.7); }
+.snake-legend .lg-you::before { border-top: 1.5px dotted rgba(201, 210, 204, 0.6); }
 .how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .how .panel { padding: 24px; display: flex; flex-direction: column; gap: 10px; }
 .how h3 { margin: auto 0 0; padding-top: 20px; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
@@ -394,7 +429,7 @@ section[id], main[id] { scroll-margin-top: 100px; }
   .actions { margin-top: 24px; gap: 10px; }
   .sec { padding-top: 88px; }
   .sec-head { margin-bottom: 28px; }
-  .marquee-sec { padding-top: 48px; }
+  .marquee-sec { margin-top: -24px; padding-top: 0; }
   .w-bar { height: auto; padding: 10px; }
   .w-dots { display: none; }
   .w-bar .seg { width: 100%; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
