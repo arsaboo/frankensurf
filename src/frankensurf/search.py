@@ -37,6 +37,9 @@ REGISTRY = {
 VERTICALS = ("web", "news", "reference", "discussions", "qa", "code", "papers", "books", "site")
 RECENCY = {"day": 1, "week": 7, "month": 31, "year": 366}
 _OPTION_KEYS = {"site", "exclude_domains", "recency", "region"}
+# Most -site: operators put in a query (WebPolicy.search_exclude_operators); the
+# full exclude list is enforced on the results by filter_results.
+MAX_EXCLUDE_OPERATORS = 3
 _HOST = re.compile(r"(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}")
 _REGION = re.compile(r"[a-z]{2}(?:-[A-Z]{2})?")
 
@@ -123,15 +126,16 @@ def parse_date(value):
         return None
 
 
-def _operators(query, options, *, exclude=True):
+def _operators(query, options, *, exclude=True, max_exclude=MAX_EXCLUDE_OPERATORS):
     """site: and -site: operators, for engines that read them in the query."""
     parts = [query]
     if options.get("site"):
         parts.append("site:" + options["site"])
     if exclude:
-        # Engines cap query length; the router's filter still drops the rest.
+        # Engines return nothing for a long -site: list, so only the first few go
+        # in the query; the router's filter drops every excluded domain afterwards.
         budget = 1500 - len(query)
-        for domain in options.get("exclude_domains", ()):
+        for domain in list(options.get("exclude_domains", ()))[:max_exclude]:
             term = "-site:" + domain
             if budget - len(term) - 1 < 0:
                 break
@@ -144,8 +148,10 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
     if source not in REGISTRY: raise ValueError("Unknown search adapter")
     if not isinstance(query, str) or not query.strip() or len(query) > 2000: raise ValueError("Invalid search query")
     config = config or {}
-    if set(config) - {"base_url", "engines", "language"} - _OPTION_KEYS: raise ValueError("Unknown engine configuration")
+    if set(config) - {"base_url", "engines", "language", "max_exclude_operators"} - _OPTION_KEYS: raise ValueError("Unknown engine configuration")
     options = normalize_options(**{key: config.get(key) for key in _OPTION_KEYS})
+    max_exclude = config.get("max_exclude_operators", MAX_EXCLUDE_OPERATORS)
+    if type(max_exclude) is not int or not 0 <= max_exclude <= 20: raise ValueError("max_exclude_operators is 0 to 20")
     definition = REGISTRY[source]
     region = options.get("region") or config.get("language") or "en-AU"
     lang, _, country = region.partition("-")
@@ -159,15 +165,15 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
     since = now - timedelta(days=RECENCY[options["recency"]]) if options.get("recency") else None
     recency = options.get("recency")
     if source == "searxng":
-        params = {"q": _operators(query, options), "format": "json", "language": region}
+        params = {"q": _operators(query, options, max_exclude=max_exclude), "format": "json", "language": region}
         if config.get("engines"): params["engines"] = config["engines"]
         if recency: params["time_range"] = recency
     elif source == "duckduckgo_html":
-        params = {"q": _operators(query, options)}
+        params = {"q": _operators(query, options, max_exclude=max_exclude)}
         if recency: params["df"] = recency[0]
         if country: params["kl"] = country.lower() + "-" + lang
     elif source in ("bing_rss", "bing_news_rss"):
-        params = {"q": _operators(query, options), "format": "rss"}
+        params = {"q": _operators(query, options, max_exclude=max_exclude), "format": "rss"}
         if country: params.update(cc=country, setlang=lang)
         if recency and source == "bing_rss":
             params["filters"] = 'ex1:"ez%d"' % {"day": 1, "week": 2, "month": 3}.get(recency, 5)

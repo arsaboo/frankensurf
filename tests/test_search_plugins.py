@@ -32,7 +32,7 @@ async def test_omitted_source_falls_back_with_exact_attribution_and_attempts(tmp
             return httpx.Response(200, text=ddg(), headers={"content-type": "text/html"})
         raise AssertionError("Bing must not run after a verified source success")
     async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
-        result = await web.search("used bike")
+        result = await web.search("used bike", policy=WebPolicy(search_good_results=1))
     assert requested == ["127.0.0.1", "html.duckduckgo.com"]
     assert result["source"] == "duckduckgo_html"
     assert result["results"][0]["query_attribution"]["source"] == "duckduckgo_html"
@@ -88,7 +88,7 @@ async def test_policy_selects_and_orders_registered_sources(tmp_path, policy, ex
                                   headers={"content-type": "application/rss+xml"})
         return httpx.Response(200, text=ddg(), headers={"content-type": "text/html"})
     async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
-        result = await web.search("used bike", policy=policy)
+        result = await web.search("used bike", policy=replace(policy, search_good_results=1))
     assert result["source"] == expected
     assert len(hosts) == 1
 
@@ -115,7 +115,7 @@ async def test_partial_verified_source_does_not_silently_change_source(tmp_path)
         calls.append(request.url.host)
         return httpx.Response(200, json=body)
     async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
-        result = await web.search("used bike")
+        result = await web.search("used bike", policy=WebPolicy(search_good_results=1))
     assert calls == ["127.0.0.1"]
     assert result["source"] == "searxng" and result["coverage"] == "partial"
     assert result["upstream_failures"] == [["brave", "rate limited"]]

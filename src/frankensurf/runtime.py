@@ -226,6 +226,31 @@ class WebPolicy:
     search_source_timeout_seconds: float | None = 8
     # Sources asked at once by search(mode="merge").
     search_merge_sources: int = 4
+    # The search ladder: an automatic search climbs sources until one result set
+    # passes the checks (search_checks: on the query, inside the date window, real
+    # pages, deduplicated; search_good_results of them, or the limit if lower)
+    # instead of stopping at the first answer, carrying the passing results of
+    # weak sets up with it. False keeps the first answer.
+    search_ladder: bool = True
+    search_good_results: int = 3
+    # When the source being tried has no answer after this many seconds, the next
+    # free source starts beside it (up to search_hedge_racers at once); the first
+    # set that passes wins and the rest are cancelled. 0 turns it off.
+    search_hedge_after_seconds: float = 3.0
+    search_hedge_racers: int = 2
+    # Whole-search ceilings: seconds, and sources started.
+    search_max_seconds: float = 30.0
+    search_max_sources: int = 6
+    # With allow_paid_fallbacks, paid search sources (cheapest likely success
+    # first) join the ladder once this many free sources have come back weak or
+    # empty; 0 leaves them until every free source has been tried.
+    search_paid_after_weak: int = 2
+    # Try first the source that most often passed the checks for this kind of query
+    # (vertical, recency or not, site filter or not), learned on this machine.
+    search_learned_routing: bool = True
+    # Most -site: operators sent to an engine; the whole exclude list is enforced
+    # on the results either way.
+    search_exclude_operators: int = 3
     search_terminal_failures: tuple[str, ...] = ("POLICY_DENIED", "BUDGET_EXHAUSTED")
     browser_agent_max_steps: int = 40
     browser_agent_max_model_calls: int = 40
@@ -382,6 +407,22 @@ class WebPolicy:
         _require(type(self.auto_items) is bool, "auto_items must be a boolean")
         _require(_is_int(self.search_merge_sources, 1) and self.search_merge_sources <= 10,
                  "search_merge_sources must be an integer from 1 to 10")
+        _require(type(self.search_ladder) is bool, "search_ladder must be a boolean")
+        _require(type(self.search_learned_routing) is bool, "search_learned_routing must be a boolean")
+        _require(_is_int(self.search_good_results, 1) and self.search_good_results <= 100,
+                 "search_good_results must be an integer from 1 to 100")
+        _require(_is_number(self.search_hedge_after_seconds),
+                 "search_hedge_after_seconds must be finite and nonnegative")
+        _require(_is_int(self.search_hedge_racers, 1) and self.search_hedge_racers <= 3,
+                 "search_hedge_racers must be 1 to 3")
+        _require(_is_number(self.search_max_seconds, positive=True),
+                 "search_max_seconds must be positive and finite")
+        _require(_is_int(self.search_max_sources, 1) and self.search_max_sources <= 20,
+                 "search_max_sources must be an integer from 1 to 20")
+        _require(_is_int(self.search_paid_after_weak, 0) and self.search_paid_after_weak <= 20,
+                 "search_paid_after_weak must be an integer from 0 to 20")
+        _require(_is_int(self.search_exclude_operators, 0) and self.search_exclude_operators <= 20,
+                 "search_exclude_operators must be an integer from 0 to 20")
         _require(type(self.capture_json_responses) is bool,
                  "capture_json_responses must be a boolean")
         _require(type(self.prefer_markdown) is bool, "prefer_markdown must be a boolean")
@@ -1586,6 +1627,13 @@ def _navigation_failure(message):
     if "ERR_NAME_NOT_RESOLVED" in message:
         return "NOT_FOUND"
     return None
+
+
+def _search_query_type(vertical, options):
+    """A coarse kind of query for learning which search source suits it:
+    vertical, recency or not, site filter or not."""
+    return "%s|%s|%s" % (vertical, "recent" if options.get("recency") else "any",
+                         "site" if options.get("site") else "open")
 
 
 def _result_key(url):
@@ -5877,6 +5925,86 @@ class Runtime:
             self.state_dir, ("traces", trace_id + ".json"),
             json.dumps(trace, ensure_ascii=False, indent=2).encode())
 
+    def _search_stats_path(self):
+        return self.state_dir / "search-stats.json"
+
+    def _search_stats(self):
+        """{query type: {source: [passed the checks, tried, cost so far]}}."""
+        try:
+            return json.loads(self._search_stats_path().read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+
+    def _learn_search(self, qtype, tried):
+        """After a search: which sources were tried for this kind of query, and which of
+        them passed the checks on their own. tried is [(source, passed, cost_usd)]."""
+        try:
+            stats = self._search_stats()
+            sources = stats.setdefault(qtype, {})
+            for name, passed, cost in tried:
+                wins, tries, spent = (list(sources.get(name) or []) + [0, 0, 0])[:3]
+                sources[name] = [wins + (1 if passed else 0), tries + 1,
+                                 round(spent + (cost if isinstance(cost, (int, float)) else 0), 6)]
+            fd, temporary = tempfile.mkstemp(prefix=".search-stats-", dir=self.state_dir)
+            with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                json.dump(stats, stream)
+            os.replace(temporary, self._search_stats_path())
+        except (OSError, ValueError, TypeError):
+            pass  # A hint only: losing it costs one slower search.
+
+    def _search_order(self, candidates, qtype, policy, source, minimum=2, hopeless=6):
+        """The ladder's order: free sources first, the one that most often passed the
+        checks for this kind of query leading and those that never did last; paid
+        sources (cheapest likely success first) once search_paid_after_weak free ones
+        are behind. An explicit source or candidate route keeps its own order.
+        Learned from this machine's own searches, never from site names."""
+        if source is not None or policy.search_source_candidates is not None:
+            return list(candidates), {}
+        paid_ids = {item["id"] for item in self.searches.inspect() if item["paid"]}
+        free = [item for item in candidates if item not in paid_ids]
+        paid = [item for item in candidates if item in paid_ids]
+        stats = self._search_stats().get(qtype) or {}
+        notes = {}
+        if policy.search_learned_routing and len(free) > 1:
+            pinned = [item for item in free if item in policy.search_source_prefer]
+            rest = [item for item in free if item not in pinned]
+
+            def counts(name):
+                return (list(stats.get(name) or []) + [0, 0])[:2]
+            rated = sorted(((name, (counts(name)[0] + 1) / (counts(name)[1] + 2)) for name in rest
+                            if counts(name)[1] >= minimum), key=lambda pair: -pair[1])
+            ahead = [name for name, rate in rated if rate >= 0.5]
+            last = [name for name in rest if counts(name)[0] == 0 and counts(name)[1] >= hopeless]
+            free = pinned + ahead + [name for name in rest if name not in ahead and name not in last] + last
+            if ahead:
+                notes["learned_first"] = ahead[0]
+            if last:
+                notes["learned_last"] = last
+        if paid:
+            paid = self._rank_search_paid(paid, stats, policy)
+            notes["paid_order"] = paid
+        after = policy.search_paid_after_weak or len(free)
+        return free[:after] + paid + free[after:], notes
+
+    def _rank_search_paid(self, sources, stats, policy):
+        """Paid search sources, cheapest likely success first: the bundled or measured
+        cost per search over the chance it passes the checks for this kind of query.
+        Sources with no known cost follow those with one."""
+        facts = _paid_priors() if policy.use_wall_priors else {}
+        manifests = {item["id"]: item for item in self.searches.inspect()}
+
+        def key(index_source):
+            index, name = index_source
+            wins, tries, *spent = (list(stats.get(name) or []) + [0, 0])
+            rate = (wins + 1) / (tries + 2)
+            fact = next((facts[item] for item in (name, manifests.get(name, {}).get("transport_provider"),
+                                                  name.removesuffix("_search")) if item in facts), {})
+            cost = fact.get("cost_usd")
+            if cost is None and tries and spent and spent[0]:
+                cost = spent[0] / tries
+            return (cost is None, (cost / rate) if cost is not None else -rate, index)
+        return [name for _index, name in sorted(enumerate(sources), key=key)]
+
     async def search(self, query: str, source: str | None = None, limit: int = 10,
                      engine_config: dict | None = None, policy: WebPolicy | None = None, *,
                      site: str | None = None, exclude_domains: list[str] | None = None,
@@ -5899,7 +6027,8 @@ class Runtime:
             return await self._search_merged(query, limit, engine_config, policy, site=site,
                                              exclude_domains=exclude_domains, recency=recency,
                                              region=region, vertical=vertical)
-        from .search import VERTICALS, filter_results, normalize_options
+        from .search import MAX_EXCLUDE_OPERATORS, VERTICALS, filter_results, normalize_options
+        from .search_checks import accepted, annotate, check_results, merge_results
         from .search_plugins import SearchRequest, SearchServices
         if not isinstance(query, str) or not query.strip() or len(query) > 2000:
             raise ValueError("Invalid search query")
@@ -5908,11 +6037,14 @@ class Runtime:
         if vertical not in VERTICALS:
             raise ValueError("vertical must be one of: " + ", ".join(VERTICALS))
         options = normalize_options(site, exclude_domains, recency, region)
-        # Ask for a few more when results will be filtered, then trim.
-        fetch_limit = min(100, limit + 10) if options else limit
         if source is not None and not self.searches.contains(source):
             raise ValueError("Unknown search source")
         policy = policy or WebPolicy()
+        # Ask for a few more when results will be filtered, then trim; a long exclude
+        # list is mostly enforced on the results, so ask for more still.
+        fetch_limit = min(100, limit + 10) if options else limit
+        if len(options.get("exclude_domains", ())) > policy.search_exclude_operators:
+            fetch_limit = min(100, 2 * limit + 10)
         started = time.monotonic()
         from .actions import require_action
         try:
@@ -5940,20 +6072,32 @@ class Runtime:
         last_bundle = None
         last_bundle_binding_id = None
         services = SearchServices(read=self.read)
-        for identifier in candidates:
+        # The ladder climbs only on an automatic search; an explicit source is asked once.
+        ladder = source is None and policy.search_ladder
+        qtype = _search_query_type(vertical, options)
+        order, order_notes = self._search_order(candidates, qtype, policy, source)
+        paid_ids = {item["id"] for item in self.searches.inspect() if item["paid"]}
+        now = datetime.now(timezone.utc)
+        engine_extra = ({"max_exclude_operators": policy.search_exclude_operators}
+                        if options.get("exclude_domains")
+                        and policy.search_exclude_operators != MAX_EXCLUDE_OPERATORS else {})
+
+        async def run_rung(identifier):
+            """One search source asked once: its bundle, or the failure that ended it."""
             source_started = time.monotonic()
             manifest = self.searches.require_enabled(identifier, policy)
             search_binding_id = self.searches.binding_id(identifier)
+            outcome = {"id": identifier, "manifest": manifest, "binding": search_binding_id}
             try:
                 source_policy = policy
-                if (manifest.transport_provider is not None
-                        and policy.provider is None
-                        and policy.provider_candidates is None):
-                    source_policy = replace(policy,
-                                            provider=manifest.transport_provider)
+                if manifest.transport_provider is not None:
+                    # A source's transport is not a routing choice: always read it through
+                    # its own, whatever read routing (provider_candidates, --paid) says.
+                    source_policy = replace(policy, provider=manifest.transport_provider,
+                                            provider_candidates=None)
                 attempt_policy = _remaining_cost_policy(source_policy, costs,
                     paid=manifest.paid or acquisition_can_charge(source_policy))
-                if identifier != candidates[-1]:
+                if identifier != order[-1]:
                     # Another search source is left: fall back instead of retrying.
                     attempt_policy = replace(attempt_policy,
                         provider_max_attempts_per_candidate=1)
@@ -5966,48 +6110,141 @@ class Runtime:
                             attempt_policy.content_ready_timeout_seconds,
                             source_timeout))
                 config = {**((engine_config or {}) if source is not None or identifier == "searxng" else {}),
-                          **options} or None
+                          **options, **engine_extra} or None
                 bundle, manifest = await self.searches.search(identifier,
                     SearchRequest(query, fetch_limit, attempt_policy, config), services)
             except ValueError:
                 raise
             except WebFailure as exc:
-                cost = getattr(exc, "cost_usd", None if manifest.paid else 0)
-                costs.append(_measured_cost(cost))
-                search_attempts.append({"source": identifier,
-                    "source_version": manifest.version,
-                    **({"search_binding_id": search_binding_id}
-                       if search_binding_id is not None else {}),
-                    "status": "failed", "failure": exc.code, "cost_usd": _measured_cost(cost),
-                    "latency_ms": round((time.monotonic() - source_started) * 1000)})
-                planning_failure = exc
-                if source is not None or exc.code in policy.search_terminal_failures:
+                outcome.update(manifest=manifest, failure=exc)
+            else:
+                outcome.update(manifest=manifest, bundle=bundle)
+            outcome["latency_ms"] = round((time.monotonic() - source_started) * 1000)
+            return outcome
+
+        rungs = {}              # source -> {"report", "kept", "dropped"}, for sources that answered
+        bundles, bindings = {}, {}
+        winner = stopped = None
+        hedged, best, best_count = [], None, -1
+        queue = list(order[:policy.search_max_sources] if ladder else order)
+        deadline = started + policy.search_max_seconds
+        running, leftover = {}, []
+
+        def launch():
+            identifier = queue.pop(0)
+            running[asyncio.ensure_future(run_rung(identifier))] = identifier
+
+        try:
+            while queue or running:
+                if not running:
+                    launch()
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    stopped = "time_cap"
                     break
-                continue
-            response, acquisition = bundle["response"], bundle["acquisition"]
-            receipt = acquisition["receipt"]
-            last_bundle = bundle
-            last_bundle_binding_id = search_binding_id
-            cost = _measured_cost(receipt.get("cost_usd"))
-            costs.append(cost)
-            provider_attempts.extend({**attempt, "search_source": identifier,
-                                      "search_source_version": manifest.version}
-                                     for attempt in receipt.get("attempts", []))
-            failure = (receipt.get("failure") or {}).get("code")
-            search_attempts.append({"source": identifier,
-                "source_version": manifest.version,
-                **({"search_binding_id": search_binding_id}
-                   if search_binding_id is not None else {}),
-                "status": receipt.get("status"), **({"failure": failure} if failure else {}),
-                "cost_usd": cost, "latency_ms": round((time.monotonic() - source_started) * 1000),
-                "trace_id": receipt.get("trace_id"),
-                "evidence": copy.deepcopy(receipt.get("evidence", [])),
-                "upstream_failures": copy.deepcopy(response.get("upstream_failures", []))})
-            self._save_trace(acquisition, record_observations=False)
-            if receipt.get("status") == "observed":
-                break
-            if source is not None or failure in policy.search_terminal_failures:
-                break
+                # Smart lightning for search: a free source with no answer yet gets the
+                # next free one started beside it. Paid sources only ever run alone.
+                hedge = bool(ladder and policy.search_hedge_after_seconds > 0 and queue
+                             and len(running) < policy.search_hedge_racers and queue[0] not in paid_ids
+                             and policy.search_hedge_after_seconds < remaining)
+                finished, _ = await asyncio.wait(set(running), return_when=asyncio.FIRST_COMPLETED,
+                    timeout=policy.search_hedge_after_seconds if hedge else remaining)
+                if not finished:
+                    if not hedge:
+                        stopped = "time_cap"
+                        break
+                    hedged.append(queue[0])
+                    launch()
+                    continue
+                finish = False
+                for task in [item for item in running if item in finished]:
+                    identifier = running.pop(task)
+                    outcome = task.result()
+                    manifest = outcome["manifest"]
+                    base = {"source": identifier, "source_version": manifest.version,
+                            **({"search_binding_id": outcome["binding"]} if outcome["binding"] is not None else {})}
+                    if outcome.get("failure") is not None:
+                        exc = outcome["failure"]
+                        cost = getattr(exc, "cost_usd", None if manifest.paid else 0)
+                        costs.append(_measured_cost(cost))
+                        search_attempts.append({**base, "status": "failed", "failure": exc.code,
+                            "cost_usd": _measured_cost(cost), "latency_ms": outcome["latency_ms"],
+                            **({"raced": True} if identifier in hedged else {})})
+                        planning_failure = exc
+                        if source is not None or exc.code in policy.search_terminal_failures:
+                            finish, stopped = True, stopped or "terminal"
+                        continue
+                    bundle = outcome["bundle"]
+                    response, acquisition = bundle["response"], bundle["acquisition"]
+                    receipt = acquisition["receipt"]
+                    last_bundle, last_bundle_binding_id = bundle, outcome["binding"]
+                    bundles[identifier], bindings[identifier] = bundle, outcome["binding"]
+                    cost = _measured_cost(receipt.get("cost_usd"))
+                    costs.append(cost)
+                    provider_attempts.extend({**attempt, "search_source": identifier,
+                                              "search_source_version": manifest.version}
+                                             for attempt in receipt.get("attempts", []))
+                    failure = (receipt.get("failure") or {}).get("code")
+                    attempt = {**base, "status": receipt.get("status"),
+                        **({"failure": failure} if failure else {}),
+                        "cost_usd": cost, "latency_ms": outcome["latency_ms"],
+                        "trace_id": receipt.get("trace_id"),
+                        "evidence": copy.deepcopy(receipt.get("evidence", [])),
+                        "upstream_failures": copy.deepcopy(response.get("upstream_failures", []))}
+                    if identifier in hedged:
+                        attempt["raced"] = True
+                    search_attempts.append(attempt)
+                    self._save_trace(acquisition, record_observations=False)
+                    if receipt.get("status") == "observed" and winner is None:
+                        # Options first (excluded domains, other sites, too old), then the
+                        # checks: on the query, in the window, real pages, no repeats.
+                        items, dropped = (filter_results(response["results"], options, now)
+                                          if options else (response["results"], {}))
+                        report = check_results(query, items, limit=limit, recency=recency, now=now,
+                                               min_good=policy.search_good_results)
+                        kept = accepted(items, report) if ladder else annotate(items, report)
+                        rungs[identifier] = {"report": report, "kept": kept, "dropped": dropped}
+                        attempt.update(count=len(response["results"]), passed=report["passed"],
+                                       check=report["verdict"])
+                        if len(kept) > best_count:
+                            best, best_count = identifier, len(kept)
+                        if not ladder:
+                            winner, stopped, finish = identifier, "first_answer", True
+                        elif report["verdict"] == "good":
+                            winner, stopped, finish = identifier, "good", True
+                        elif len(rungs) > 1 and len(merge_results(
+                                [(name, rung["kept"]) for name, rung in rungs.items()])) >= report["need"]:
+                            # No source is good alone; together their passing results are.
+                            winner, stopped, finish = "merged", "good", True
+                    if source is not None or failure in policy.search_terminal_failures:
+                        finish, stopped = True, stopped or "terminal"
+                if finish:
+                    break
+        finally:
+            leftover = list(running.items())
+            for task, _ in leftover:
+                task.cancel()
+            if leftover:
+                await asyncio.gather(*(task for task, _ in leftover), return_exceptions=True)
+        for _task, identifier in leftover:
+            # Still running when another source won or the time cap hit: no result, and
+            # for a paid source no way to know what it cost.
+            paid = identifier in paid_ids
+            costs.append(None if paid else 0)
+            search_attempts.append({"source": identifier, "status": "cancelled",
+                                    "cost_usd": None if paid else 0, "raced": identifier in hedged})
+        if stopped is None:
+            stopped = "source_cap" if ladder and len(order) > policy.search_max_sources else "exhausted"
+        pool = [(name, rung["kept"]) for name, rung in rungs.items()]
+        if winner in rungs:
+            final = rungs[winner]["kept"]
+        elif len(pool) > 1:
+            final = merge_results(pool, windowed=bool(recency))
+        else:
+            final = pool[0][1] if pool else []
+        final = final[:limit]
+        if winner is None and final:
+            winner = "merged" if len(pool) > 1 else pool[0][0]
 
         if last_bundle is None:
             failure = planning_failure or WebFailure("SEARCH_UNAVAILABLE", "Search sources were exhausted")
@@ -6023,6 +6260,11 @@ class Runtime:
                 "query_attribution": None, "coverage": "unknown", "upstream_failures": []}
             acquisition = {"receipt": receipt, "url": None, "search_results": []}
         else:
+            # The set that won, else the observed one with the most passing results,
+            # else the last one that came back at all.
+            base_name = winner if winner in bundles else best
+            if base_name in bundles:
+                last_bundle, last_bundle_binding_id = bundles[base_name], bindings[base_name]
             response, acquisition = last_bundle["response"], last_bundle["acquisition"]
             receipt = acquisition["receipt"]
             receipt["attempts"] = provider_attempts
@@ -6033,6 +6275,9 @@ class Runtime:
                     and final_failure not in policy.search_terminal_failures):
                 receipt["failure"] = {"code": "SEARCH_UNAVAILABLE",
                     "message": "Eligible search sources were exhausted"}
+            if winner == "merged":
+                response["upstream_failures"] = [row for name, bundle in bundles.items()
+                                                 for row in bundle["response"].get("upstream_failures", [])]
         receipt["search_attempts"] = search_attempts
         selected_search_binding_id = (last_bundle_binding_id
             if last_bundle_binding_id is not None
@@ -6050,15 +6295,42 @@ class Runtime:
                  "policy_preference_then_registry_order" if policy.search_source_prefer else
                  "provisional_free_registry_order")
         if options:
-            response["results"], dropped = filter_results(response["results"], options)
-            response["results"] = response["results"][:limit]
-            receipt["search_options"] = {**options, "filtered": dropped}
-        else:
-            response["results"] = response["results"][:limit]
+            filtered = {"excluded": 0, "off_site": 0, "too_old": 0, "undated": 0}
+            for rung in rungs.values():
+                for key, value in rung["dropped"].items():
+                    filtered[key] += value
+            receipt["search_options"] = {**options, "filtered": filtered}
+        response["results"] = final
         receipt["search_routing"] = {"selection_basis": basis, "vertical": vertical,
             "candidates": candidates, "automatic_fallback": source is None,
             "benchmark_earned_order": False,
             "source_timeout_seconds": policy.search_source_timeout_seconds}
+        # The ladder's receipt: how the sources were ordered and raced, who won, and
+        # what the checks made of the results that came back.
+        need = max(1, min(policy.search_good_results, limit))
+        reasons, unknown = {}, 0
+        for rung in rungs.values():
+            unknown += rung["report"]["unknown_dates"]
+            for reason, count in rung["report"]["reasons"].items():
+                reasons[reason] = reasons.get(reason, 0) + count
+        passed = sum(1 for item in final if item["check"]["passed"])
+        verdict = (rungs[winner]["report"]["verdict"] if winner in rungs
+                   else None if not rungs else "good" if passed >= need else "weak" if passed else "empty")
+        receipt["search_ladder"] = {"enabled": ladder, "query_type": qtype, "order": order,
+            "winner": winner, "stopped": stopped, "hedged": hedged, **order_notes}
+        receipt["search_checks"] = {"verdict": verdict, "need": need, "passed": passed,
+            "reasons": reasons, "unknown_dates": unknown,
+            "results": [{"url": item["url"],
+                         "source": (item.get("query_attribution") or {}).get("source")
+                                   or next(iter(item.get("engines") or []), None),
+                         **{key: item["check"][key] for key in
+                            ("in_window", "on_query", "published", "date_source", "kind")}}
+                        for item in final]}
+        if ladder and policy.search_learned_routing:
+            self._learn_search(qtype, [(item["source"], item["source"] in rungs
+                                        and rungs[item["source"]]["report"]["verdict"] == "good",
+                                        item.get("cost_usd")) for item in search_attempts
+                                       if item["status"] != "cancelled"])
         if policy.max_cost_usd is not None:
             receipt.update(max_cost_usd=policy.max_cost_usd,
                 cost_budget_satisfied=receipt["cost_usd"] is not None
