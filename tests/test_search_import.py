@@ -13,7 +13,7 @@ async def test_searx_results_are_index_candidates_with_attribution_and_partial_f
         queries.append(request.url.params["q"])
         return httpx.Response(200,json={"results":[{"url":"https://shop.test/bike","title":"Used bike","content":"2000 dollars","engines":["bing"]},{"url":"https://shop.test/bike","title":"duplicate"},{"url":"javascript:bad","title":"bad"}],"unresponsive_engines":[["brave","too many requests"]]})
     async with Runtime(tmp_path,transport=httpx.MockTransport(handle)) as web:
-        result=await web.search("Sydney bike & pickup",limit=5)
+        result=await web.search("Sydney bike & pickup",limit=5,policy=WebPolicy(search_good_results=1))
     assert queries==["Sydney bike & pickup"]
     assert len(result["results"])==1
     assert result["coverage"]=="partial"
@@ -83,5 +83,5 @@ async def test_search_survives_completeness_and_try_harder_receipt_fields(tmp_pa
         queries.append(request.url.params.get("q"))
         return httpx.Response(200, json={"results": [{"url": "https://shop.test/bike", "title": "Used bike"}]})
     async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
-        result = await web.search("bike", limit=5)
+        result = await web.search("bike", limit=5, policy=WebPolicy(search_good_results=1))
     assert queries == ["bike"] and len(result["results"]) == 1
