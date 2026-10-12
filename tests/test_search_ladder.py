@@ -147,7 +147,7 @@ async def test_recency_window_drops_old_results_and_ranks_unknown_dates_last(mon
             {"url": "https://g.test/rust/4", "title": "rust async", "snippet": "", "published": fresh},
             {"url": "https://w.test/rust/5", "title": "rust async", "snippet": "6 months ago"}]
     install(monkeypatch, Fake("one", rows))
-    result = await run(tmp_path, recency="week")
+    result = await run(tmp_path, recency="week", policy=WebPolicy(provider="http", search_hold_undated=False))
     urls = [row["url"] for row in result["results"]]
     assert urls == ["https://f.test/rust/3", "https://g.test/rust/4", "https://u.test/rust/1"]
     assert [row["check"]["in_window"] for row in result["results"]] == [True, True, None]
@@ -487,7 +487,8 @@ class Site:
 async def run_dated(tmp_path, site, query="rust async", policy=None, **kwargs):
     import httpx
     async with Runtime(tmp_path, transport=httpx.MockTransport(site)) as web:
-        return await web.search(query, policy=policy or WebPolicy(provider="http", origin_min_interval_seconds=0),
+        return await web.search(query, policy=policy or WebPolicy(provider="http", origin_min_interval_seconds=0,
+                                                              search_hold_undated=False),
                                 **kwargs)
 
 
@@ -516,7 +517,8 @@ async def test_date_reads_stop_at_the_cap_and_only_cover_results_in_the_top(monk
     site = Site({"s%d.test" % index: page_with(stamp(2)) for index in range(12)})
     install(monkeypatch, Fake("one", good(12)))
     result = await run_dated(tmp_path, site, recency="month", limit=10,
-                             policy=WebPolicy(provider="http", origin_min_interval_seconds=0, search_date_reads=4))
+                             policy=WebPolicy(provider="http", origin_min_interval_seconds=0, search_date_reads=4,
+                                             search_hold_undated=False))
     assert len(site.hits) == 4 and result["receipt"]["search_checks"]["date_reads"]["tried"] == 4
     dated = [row for row in result["results"] if row["check"]["date_source"] == "page"]
     assert len(dated) == 4 and len(result["results"]) == 10
@@ -628,3 +630,26 @@ async def test_paid_sources_stay_unreached_when_the_homepage_set_is_not_allowed_
     install(monkeypatch, Fake("free", junk), Fake("paid", junk, paid=True, cost=0.01))
     result = await run(tmp_path, query="Nintendo latest announcement")
     assert CALLS == ["free"] and result["results"] == []
+
+
+async def test_windowed_search_holds_undated_results_apart_when_verified_ones_exist(monkeypatch, tmp_path):
+    now = datetime.now(timezone.utc)
+    fresh = (now - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = [{"url": "https://a.test/rust/1", "title": "rust async one", "snippet": "", "published": fresh},
+            {"url": "https://b.test/rust/2", "title": "rust async two", "snippet": "no date here"},
+            {"url": "https://c.test/rust/3", "title": "rust async three", "snippet": "", "published": fresh}]
+    install(monkeypatch, Fake("one", rows))
+    result = await run(tmp_path, recency="week", policy=WebPolicy(provider="http", search_date_reads=0))
+    assert [row["url"] for row in result["results"]] == ["https://a.test/rust/1", "https://c.test/rust/3"]
+    assert [row["url"] for row in result["unverified_results"]] == ["https://b.test/rust/2"]
+
+
+async def test_holding_undated_results_can_be_turned_off(monkeypatch, tmp_path):
+    now = datetime.now(timezone.utc)
+    fresh = (now - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows = [{"url": "https://a.test/rust/1", "title": "rust async one", "snippet": "", "published": fresh},
+            {"url": "https://b.test/rust/2", "title": "rust async two", "snippet": "no date here"}]
+    install(monkeypatch, Fake("one", rows))
+    result = await run(tmp_path, recency="week",
+                       policy=WebPolicy(provider="http", search_date_reads=0, search_hold_undated=False))
+    assert len(result["results"]) == 2 and "unverified_results" not in result

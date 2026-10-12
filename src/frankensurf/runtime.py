@@ -244,6 +244,7 @@ class WebPolicy:
     # most half of search_good_results. The allowance is per source's result set; a
     # whole search reads at most twice as many. 0 turns it off.
     search_date_reads: int = 6
+    search_hold_undated: bool = True
     search_date_read_timeout_seconds: float = 5.0
     # When the source being tried has no answer after this many seconds, the next
     # free source starts beside it (up to search_hedge_racers at once); the first
@@ -422,6 +423,7 @@ class WebPolicy:
                  "search_merge_sources must be an integer from 1 to 10")
         _require(type(self.search_ladder) is bool, "search_ladder must be a boolean")
         _require(type(self.search_learned_routing) is bool, "search_learned_routing must be a boolean")
+        _require(isinstance(self.search_hold_undated, bool), "search_hold_undated must be a boolean")
         _require(_is_int(self.search_date_reads, 0) and self.search_date_reads <= 20,
                  "search_date_reads must be an integer from 0 to 20")
         _require(_is_number(self.search_date_read_timeout_seconds, positive=True),
@@ -6361,6 +6363,15 @@ class Runtime:
             final = merge_results(pool, windowed=bool(recency))
         else:
             final = pool[0][1] if pool else []
+        held = []
+        if ladder and recency and policy.search_hold_undated:
+            # In a windowed search, results whose date could not be verified stay out of
+            # the answer when any verified ones exist; the agent still sees them apart.
+            everything = merge_results(pool, windowed=True) if len(pool) > 1 else final
+            verified = [item for item in everything if (item.get("check") or {}).get("in_window") is True]
+            if verified:
+                held = [item for item in everything if (item.get("check") or {}).get("in_window") is not True]
+                final = verified
         final = final[:limit]
         if winner is None and final:
             winner = "merged" if len(pool) > 1 else pool[0][0]
@@ -6420,6 +6431,8 @@ class Runtime:
                     filtered[key] += value
             receipt["search_options"] = {**options, "filtered": filtered}
         response["results"] = final
+        if held:
+            response["unverified_results"] = held[:limit]
         receipt["search_routing"] = {"selection_basis": basis, "vertical": vertical,
             "candidates": candidates, "automatic_fallback": source is None,
             "benchmark_earned_order": False,

@@ -642,3 +642,12 @@ def test_the_aws_row_is_on_query_in_both_directions_in_a_result_set():
     for query in ("Amazon Web Services latest announcement", "AWS latest announcement"):
         report = check_results(query, rows, now=NOW)
         assert [row["on_query"] for row in report["results"]] == [True, True, False]
+
+
+def test_url_dates_with_month_names_and_compact_stamps():
+    from frankensurf.search_checks import _url_date
+    assert _url_date("https://n.test/news/us/en/2026/sep/0915-maker-unveils-truck").strftime("%Y-%m-%d") == "2026-09-15"
+    assert _url_date("https://n.test/2026/september/").strftime("%Y-%m-%d") == "2026-09-30"
+    assert _url_date("https://w.test/news/business-wire/20261006057924/co-announces").strftime("%Y-%m-%d") == "2026-10-06"
+    assert _url_date("https://w.test/product/12345678") is None
+    assert _url_date("https://w.test/sku/20261399") is None

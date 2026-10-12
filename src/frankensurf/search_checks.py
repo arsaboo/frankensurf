@@ -82,6 +82,10 @@ _UNIT_DAYS = {"second": 0, "sec": 0, "minute": 0, "min": 0, "hour": 0, "hr": 0, 
               "wk": 7, "month": 30, "mo": 30, "year": 365, "yr": 365}
 _URL_DATE = re.compile(r"(?<!\d)((?:19|20)\d\d)([/-])(\d{1,2})\2(\d{1,2})(?!\d)")
 _URL_MONTH = re.compile(r"/((?:19|20)\d\d)/(0[1-9]|1[0-2])(?:/|$)")
+# /2026/sep/0915-title and /2026/september/ (a month name, then maybe MMDD).
+_URL_MONTH_NAME = re.compile(r"/((?:19|20)\d\d)/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*(?:/(?:(\d\d)(\d\d)(?!\d))?|$)", re.I)
+# A compact stamp opening a path segment: 20261006 or 20261006057924.
+_URL_STAMP = re.compile(r"/((?:19|20)\d\d)(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])(?:\d{6})?(?!\d)")
 
 
 def _stem(word):
@@ -207,6 +211,13 @@ def _url_date(url):
         if match := _URL_MONTH.search(path):
             year, month = int(match[1]), int(match[2])
             return _day_end(year, month, calendar.monthrange(year, month)[1])
+        if match := _URL_MONTH_NAME.search(path):
+            year, month = int(match[1]), _month_number(match[2])
+            if match[3] and int(match[3]) == month:
+                return _day_end(year, month, int(match[4]))
+            return _day_end(year, month, calendar.monthrange(year, month)[1])
+        if match := _URL_STAMP.search(path):
+            return _day_end(int(match[1]), int(match[2]), int(match[3]))
     except ValueError:
         return None
     return None
