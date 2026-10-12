@@ -31,7 +31,6 @@ def install_free_providers(log=print):
 
     They live apart from the core because Camoufox pins an older Playwright.
     """
-    import subprocess
     import venv
     target = worker_python()
     root = target.parent.parent
@@ -48,15 +47,48 @@ def install_free_providers(log=print):
         log(label)
         # Each step on its own: a browser that won't download on this platform
         # leaves the others working.
-        done = subprocess.run(command, capture_output=True, text=True)
-        if done.returncode != 0:
-            tail = (done.stderr or done.stdout or "").strip().splitlines()[-3:]
-            errors[label] = " | ".join(tail)[:400] or f"exit {done.returncode}"
-            log(f"  failed: {errors[label]}")
+        error = _run_step(command, log, verify=_camoufox_ready if "camoufox" in command else None)
+        if error:
+            errors[label] = error
+            log(f"  failed: {error}")
     result = {provider: installed(provider) for provider in ("camoufox", "scrapling", "patchright")}
     if errors:
         result["errors"] = errors
     return result
+
+
+def _camoufox_ready():
+    from .provider_worker import _camoufox_binaries
+    return len(_camoufox_binaries(CAMOUFOX_BROWSER.split("/")[1])) == 1
+
+
+# `camoufox fetch` reports its own failures on stdout and still exits 0: an
+# unreachable or rate-limited GitHub API (60 requests an hour per address
+# without a token, shared by whole offices and CI fleets) leaves no browser.
+_FETCH_HINT = " (GitHub rate limit? set GITHUB_TOKEN to any token and run setup again)"
+
+
+def _run_step(command, log, verify=None, attempts=3, pause=10):
+    """Run one install command; None when it worked, else a short reason.
+
+    With `verify`, a zero exit status is not trusted: the check must pass too,
+    and a failed attempt is retried after a pause."""
+    import subprocess
+    import time
+    error = None
+    for attempt in range(1, attempts + 1 if verify else 2):
+        done = subprocess.run(command, capture_output=True, text=True)
+        output = ((done.stdout or "") + "\n" + (done.stderr or "")).replace("\r", "\n")
+        lines = [line.strip() for line in output.splitlines()
+                 if line.strip() and "addon" not in line.lower()]
+        failed = done.returncode != 0 or (verify is not None and not verify())
+        if not failed:
+            return None
+        error = (" | ".join(lines[-3:])[:400] or f"exit {done.returncode}") + (_FETCH_HINT if verify else "")
+        if attempt < attempts and verify:
+            log(f"  not installed (attempt {attempt}); trying again in {pause * attempt}s")
+            time.sleep(pause * attempt)
+    return error
 
 
 def installed(provider):
@@ -66,7 +98,11 @@ def installed(provider):
                else provider if provider in ("patchright", "nodriver") else "camoufox")
     root = executable.parent.parent
     sites = list((root/"lib").glob("python*/site-packages")) + [root/"Lib/site-packages"]
-    return any((site/package).is_dir() for site in sites)
+    if not any((site/package).is_dir() for site in sites):
+        return False
+    # The package alone does not run: Camoufox is the pip package plus a browser
+    # build that `camoufox fetch` can fail to download.
+    return package != "camoufox" or _camoufox_ready()
 
 
 def _consume_progress(raw, previous_stage=None):

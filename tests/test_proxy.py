@@ -79,5 +79,58 @@ def test_setup_keeps_going_when_one_step_fails(monkeypatch, tmp_path):
         failed = "camoufox" in command and "fetch" in command
         return subprocess.CompletedProcess(command, 1 if failed else 0, stdout="", stderr="no build for this OS")
     monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
     result = experimental.install_free_providers(log=lambda message: None)
-    assert len(calls) == 3 and "Downloading the Camoufox browser" in result["errors"]
+    # pip, three tries at the browser, then Patchright's browser
+    assert len(calls) == 5 and "Downloading the Camoufox browser" in result["errors"]
+
+
+def _fake_worker_python(monkeypatch, tmp_path):
+    (tmp_path / "bin").mkdir()
+    (tmp_path / "bin" / "python").write_text("")
+    (tmp_path / "lib/python3.12/site-packages/camoufox").mkdir(parents=True)
+    monkeypatch.setenv("FRANKENSURF_PROVIDER_PYTHON", str(tmp_path / "bin" / "python"))
+    monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path / "home")
+
+
+def test_camoufox_fetch_that_exits_zero_without_a_browser_is_a_failure(monkeypatch, tmp_path):
+    """`camoufox fetch` prints its errors and exits 0 (GitHub rate limit, no network)."""
+    import subprocess
+    from frankensurf import experimental
+    _fake_worker_python(monkeypatch, tmp_path)
+    fetches = []
+
+    def run(command, **kwargs):
+        fetches.append(command)
+        return subprocess.CompletedProcess(command, 0, stdout="Syncing...\nError: 403 rate limit exceeded\n"
+                                           if "fetch" in command else "", stderr="")
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
+    logged = []
+    result = experimental.install_free_providers(log=logged.append)
+    assert result["camoufox"] is False and result["scrapling"] is False
+    assert len([c for c in fetches if "fetch" in c]) == 3
+    assert "rate limit" in result["errors"]["Downloading the Camoufox browser"]
+    assert "GITHUB_TOKEN" in result["errors"]["Downloading the Camoufox browser"]
+
+
+def test_camoufox_fetch_is_retried_until_the_browser_is_there(monkeypatch, tmp_path):
+    import subprocess
+    from frankensurf import experimental
+    _fake_worker_python(monkeypatch, tmp_path)
+    mac = tmp_path / "home/Library/Caches/camoufox/browsers/official/152.0.4-beta.31-abc/Camoufox.app/Contents/MacOS"
+    fetches = []
+
+    def run(command, **kwargs):
+        if "fetch" in command:
+            fetches.append(command)
+            if len(fetches) == 2:
+                mac.mkdir(parents=True)
+                (mac / "camoufox").write_text("")
+        return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+    monkeypatch.setattr(subprocess, "run", run)
+    monkeypatch.setattr("time.sleep", lambda seconds: None)
+    monkeypatch.setattr("sys.platform", "darwin")
+    monkeypatch.setattr("platform.machine", lambda: "arm64")
+    result = experimental.install_free_providers(log=lambda message: None)
+    assert len(fetches) == 2 and result["camoufox"] is True and "errors" not in result
