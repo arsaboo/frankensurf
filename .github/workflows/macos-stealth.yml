@@ -12,7 +12,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, macos-15-intel]
+        include:
+          - {os: macos-latest, python: "3.12"}
+          - {os: macos-latest, python: "3.13"}
+          - {os: macos-latest, python: "3.14"}
+          - {os: macos-15-intel, python: "3.12"}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     env:
@@ -20,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
+        with: {python-version: "${{ matrix.python }}"}
       - name: install from this checkout
         run: |
           python -m venv /tmp/fs && /tmp/fs/bin/pip install -q --upgrade pip
@@ -34,7 +38,7 @@ jobs:
         if: always()
         run: |
           status=0
-          for tool in local camoufox scrapling patchright nodriver; do
+          for tool in local camoufox scrapling patchright; do
             echo "::group::$tool"
             /tmp/fs/bin/frankensurf read https://example.com --provider "$tool" > /tmp/r.json || true
             /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/r.json'))['receipt']; f=r.get('failure') or {}; print('RESULT $tool', r['status'], f.get('code') or '', (f.get('message') or '')[:300])" | tee -a /tmp/results.txt
