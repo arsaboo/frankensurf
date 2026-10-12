@@ -4,13 +4,17 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import logging
 import os
 from pathlib import Path
 import signal
+import sys
 
+from . import browser_install
 from .runtime import WebFailure, _challenge, _status_failure, _validate_url, parse_content
 
 PROVIDERS = frozenset({"camoufox", "scrapling", "scrapling_http", "patchright", "nodriver"})
+_log = logging.getLogger(__name__)
 _FAILURES = {"PROVIDER_UNAVAILABLE", "PROVIDER_DOWN", "TIMEOUT", "LIMIT_EXCEEDED", "BLOCKED", "RATE_LIMITED", "AUTH_REQUIRED", "NOT_FOUND", "CAPTCHA", "INVALID_URL", "CONTENT_MISMATCH", "POLICY_DENIED"}
 
 
@@ -23,6 +27,8 @@ def worker_python():
 
 # The Camoufox browser build the pinned camoufox package is tested with.
 CAMOUFOX_BROWSER = "official/152.0.4-beta.31"
+# What setup reports for nodriver when it is absent: the default route skips it.
+NODRIVER_OPTIONAL = "not installed (optional)"
 
 
 def install_free_providers(log=print):
@@ -30,6 +36,9 @@ def install_free_providers(log=print):
     Scrapling, Patchright) and download their browsers. Safe to run again.
 
     They live apart from the core because Camoufox pins an older Playwright.
+    nodriver is optional and not installed here (it is AGPL-3.0, and drives your
+    own Chrome): setup reports it, and `pip install nodriver` into the same
+    environment adds it.
     """
     import venv
     target = worker_python()
@@ -53,35 +62,49 @@ def install_free_providers(log=print):
             # The release list needs the rate-limited GitHub API; the pinned
             # build's download link does not.
             log("  trying the pinned build's direct download")
-            direct = _run_step([str(target), "-c", _CAMOUFOX_DIRECT, CAMOUFOX_BROWSER.split("/")[1]], log,
-                               verify=_camoufox_installed, attempts=1)
+            direct = _run_step([str(target), "-c", _CAMOUFOX_DIRECT, CAMOUFOX_BROWSER.split("/")[1],
+                                str(Path(__file__).parent)], log, verify=_camoufox_installed, attempts=1)
             error = None if direct is None else f"{error}; direct download: {direct}"
         if error:
             errors[label] = error
             log(f"  failed: {error}")
+    browser_install.clear_quarantine(log=log)
+    browser_install.forget_launches(root)
     result = {provider: installed(provider) for provider in ("camoufox", "scrapling", "patchright")}
+    result["nodriver"] = True if installed("nodriver") else NODRIVER_OPTIONAL
     if errors:
         result["errors"] = errors
     return result
 
 
 # Run by the provider environment's Python: what `camoufox fetch` does for one
-# known build, without asking the GitHub API which builds exist.
+# known build, without asking the GitHub API which builds exist. The archive must
+# match the SHA-256 pinned in browser_install.py before anything is unpacked.
 _CAMOUFOX_DIRECT = """
 import os, shutil, sys, tempfile
+sys.path.insert(0, sys.argv[2])
+import browser_install
 import orjson
 from camoufox.multiversion import BROWSERS_DIR
 from camoufox.pkgman import OS_NAME, RepoConfig, unzip, webdl
 version = sys.argv[1]
 repo = RepoConfig.get_default()
+platform_key = repo.get_os_name() + "." + repo.get_arch()
 url = ("https://github.com/daijro/camoufox/releases/download/font-bundle-v1/camoufox-"
-       + version + "-" + repo.get_os_name() + "." + repo.get_arch() + ".zip")
+       + version + "-" + platform_key + ".zip")
 build = BROWSERS_DIR / "official" / (version + "-direct")
-shutil.rmtree(build, ignore_errors=True)
-build.mkdir(parents=True)
-with tempfile.NamedTemporaryFile() as archive:
-    webdl(url, buffer=archive)
-    unzip(archive, str(build))
+try:
+    expected = browser_install.pinned_sha256(version, platform_key)
+    shutil.rmtree(build, ignore_errors=True)
+    with tempfile.NamedTemporaryFile() as archive:
+        webdl(url, buffer=archive)
+        archive.flush()
+        browser_install.verify_sha256(archive, expected, url)
+        build.mkdir(parents=True)
+        unzip(archive, str(build))
+except ValueError as refused:
+    shutil.rmtree(build, ignore_errors=True)
+    sys.exit(str(refused))
 number, _, label = version.partition("-")
 (build / "version.json").write_bytes(orjson.dumps({"version": number, "build": label}))
 if OS_NAME != "win":
@@ -173,16 +196,31 @@ class _RuntimeProxy:
 runtime_proxy = _RuntimeProxy()
 
 
+# Browsers whose app bundle FrankenSurf installed, checked for quarantine once a process.
+_BUNDLED = frozenset({"camoufox", "scrapling", "patchright"})
+_quarantine_checked = set()
+
+
 async def _packet(url, policy, provider):
     executable = worker_python()
     if not executable.is_absolute() or not executable.is_file():
         raise WebFailure("PROVIDER_UNAVAILABLE", "Optional public provider environment is not installed")
+    first_launch = False
+    if provider in _BUNDLED and sys.platform == "darwin":
+        if not _quarantine_checked:
+            await asyncio.to_thread(browser_install.clear_quarantine, None, _log.info)
+            _quarantine_checked.add(provider)
+        first_launch = browser_install.first_launch(executable.parent.parent, provider)
+    # Gatekeeper may verify a freshly installed browser at its first launch.
+    extra = browser_install.FIRST_LAUNCH_EXTRA_SECONDS if first_launch else 0
     request = {"report_stages": True, "retain_public_failure_evidence": policy.retain_public_failure_evidence, "provider": provider, "url": url, "timeout_seconds": policy.timeout_seconds,
                "provider_deadline_grace_seconds": policy.provider_deadline_grace_seconds,
                "provider_cleanup_grace_seconds": policy.provider_cleanup_grace_seconds,
                "max_bytes": policy.max_bytes, "settle_ms": policy.settle_ms, "public_browser_headless":policy.public_browser_headless,
                "public_entry_url":policy.public_entry_url,"public_entry_continue_failures":policy.public_entry_continue_failures,"terminal_failures":policy.terminal_failures,
                "scrapling_navigation_wait_until": policy.scrapling_navigation_wait_until, "scrapling_load_dom": policy.scrapling_load_dom, "scrapling_google_search":policy.scrapling_google_search, "scrapling_solve_cloudflare": policy.scrapling_solve_cloudflare, "wait_selector": policy.wait_selector, "wait_state": policy.wait_state, "content_ready_selector": policy.content_ready_selector, "content_ready_timeout_seconds": policy.content_ready_timeout_seconds, "max_pages": policy.max_pages}
+    if extra:
+        request["launch_timeout_seconds"] = 30 + extra
     for key in ("capture_json_responses", "capture_json_max_items", "capture_json_max_bytes"):
         request[key]=getattr(policy,key)
     from .runtime import _scroll_screens
@@ -234,7 +272,10 @@ async def _packet(url, policy, provider):
             raise WebFailure("PROVIDER_DOWN", "Optional provider returned an invalid protocol response")
         return result
     try:
-        return await asyncio.wait_for(exchange(), timeout=policy.timeout_seconds + policy.provider_deadline_grace_seconds)
+        result = await asyncio.wait_for(exchange(), timeout=policy.timeout_seconds + policy.provider_deadline_grace_seconds + extra)
+        if first_launch and result.get("status") == "ok":
+            browser_install.mark_launched(executable.parent.parent, provider)
+        return result
     except asyncio.TimeoutError:
         raise WebFailure("TIMEOUT", "Optional public provider deadline exceeded" + (" at " + last_stage if last_stage else ""), failure_stage=last_stage) from None
     finally:
@@ -281,6 +322,9 @@ async def read_public(runtime, url, policy, provider):
         raise WebFailure("IDENTITY_PROVIDER_DENIED", "Experimental providers cannot execute named identities")
     if not policy.allow_local_browser and provider != "scrapling_http":
         raise WebFailure("POLICY_DENIED", "Local browser disabled")
+    if provider == "nodriver" and not installed("nodriver"):
+        raise WebFailure("PROVIDER_UNAVAILABLE",
+            "nodriver is not installed (optional): pip install nodriver==0.47.0 into the provider environment")
     from .egress import CURRENT as EGRESS
     runtime_proxy.value = EGRESS.get() or getattr(runtime, "proxy", None)
     try:

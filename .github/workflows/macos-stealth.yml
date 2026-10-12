@@ -1,10 +1,10 @@
 # macOS check for the free stealth browsers, installed from THIS checkout.
-# Runs only on pushes to claude/fix-macos and by hand (macOS minutes cost 10x).
+# Runs only on pushes to claude/fix-macos2 and by hand (macOS minutes cost 10x).
 name: macOS stealth
 
 on:
   push:
-    branches: ["claude/fix-macos"]
+    branches: ["claude/fix-macos2"]
   workflow_dispatch:
 
 jobs:
@@ -17,6 +17,8 @@ jobs:
           - {os: macos-latest, python: "3.13"}
           - {os: macos-latest, python: "3.14"}
           - {os: macos-15-intel, python: "3.12"}
+          # Sonoma, arm64. GitHub retires this image on 2 Nov 2026 (runner-images#13518).
+          - {os: macos-14, python: "3.12"}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     env:
@@ -46,3 +48,41 @@ jobs:
           done
           grep -v observed /tmp/results.txt && status=1
           exit $status
+      - name: quarantined browsers still work
+        # Browsers fetched by tools that set com.apple.quarantine make Gatekeeper verify
+        # the app at first launch. Mark the bundles FrankenSurf installed, then read.
+        if: always()
+        run: |
+          mark() {
+            for app in ~/Library/Caches/camoufox/browsers/official/*/Camoufox.app ~/Library/Caches/ms-playwright/chromium-*/*/*.app; do
+              [ -d "$app" ] || continue
+              xattr -wr com.apple.quarantine "0083;5f3e0000;Safari;" "$app"
+              xattr -p com.apple.quarantine "$app" > /dev/null && echo "quarantined: $app"
+            done
+          }
+          unmarked() {
+            for app in ~/Library/Caches/camoufox/browsers/official/*/Camoufox.app ~/Library/Caches/ms-playwright/chromium-*/*/*.app; do
+              [ -d "$app" ] || continue
+              if xattr -p com.apple.quarantine "$app" > /dev/null 2>&1; then echo "STILL QUARANTINED: $app"; return 1; fi
+            done
+          }
+          mark
+          for tool in camoufox patchright; do
+            /tmp/fs/bin/frankensurf read https://example.com --provider "$tool" > /tmp/q.json || true
+            /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/q.json'))['receipt']; print('QUARANTINE read $tool', r['status']); assert r['status']=='observed'"
+          done
+          unmarked
+          echo "--- setup run again over a quarantined install"
+          mark
+          /tmp/fs/bin/frankensurf setup | tee /tmp/setup2.json
+          /tmp/fs/bin/python -c "import json; w=json.load(open('/tmp/setup2.json'))['works_here']; print(w); assert all(v is True for v in w.values())"
+          unmarked
+      - name: nodriver is optional
+        if: always()
+        run: |
+          /tmp/fs/bin/python -c "import json; d=json.load(open('/tmp/setup.json')); print(d['stealth_providers']['nodriver']); assert d['stealth_providers']['nodriver']=='not installed (optional)' and 'nodriver' not in d['works_here']"
+          /tmp/fs/bin/frankensurf read https://example.com --provider nodriver > /tmp/n.json || true
+          /tmp/fs/bin/python -c "import json; f=json.load(open('/tmp/n.json'))['receipt']['failure']; print(f); assert f['code']=='PROVIDER_UNAVAILABLE' and 'not installed (optional)' in f['message']"
+          ~/.local/share/frankensurf/provider-venv/bin/pip install -q "nodriver==0.47.0"
+          /tmp/fs/bin/frankensurf read https://example.com --provider nodriver > /tmp/n.json || true
+          /tmp/fs/bin/python -c "import json; r=json.load(open('/tmp/n.json'))['receipt']; print('RESULT nodriver', r['status'], r.get('failure')); assert r['status']=='observed'"
