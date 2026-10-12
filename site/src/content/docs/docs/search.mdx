@@ -6,13 +6,20 @@ description: Search the web with attributed results and automatic fallback acros
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
 `search` returns ranked results with their URL, title and snippet. Every result
-says which source found it.
+says which source found it, and every result is checked: inside the date window
+you asked for, about what you asked for, and an actual item rather than a
+homepage, listing or challenge page.
 
 - Free by default: your own [SearXNG](/docs/integrations/searxng/), then
-  [DuckDuckGo](/docs/integrations/duckduckgo/) and [Bing](/docs/integrations/bing/).
-- Paid sources [Exa](/docs/integrations/exa/), [Brave](/docs/integrations/brave/),
-  [Tavily](/docs/integrations/tavily/) and [Parallel](/docs/integrations/parallel/)
-  join when their keys are set and you allow paid tools.
+  [DuckDuckGo](/docs/integrations/duckduckgo/) and [Bing](/docs/integrations/bing/),
+  plus Wikipedia, Hacker News, Stack Exchange, GitHub, arXiv, Open Library, and
+  `site_watch`, which reads a site's own feeds and sitemaps.
+- When a source's results fail the checks, Frankensurf climbs to the next one
+  and merges what passed ([the search ladder](#the-search-ladder)).
+- Paid sources [Exa](/docs/integrations/exa/), Firecrawl search,
+  [Brave](/docs/integrations/brave/), [Tavily](/docs/integrations/tavily/) and
+  [Parallel](/docs/integrations/parallel/) join when their keys are set and you
+  allow paid tools, cheapest likely success first.
 - Name a source and Frankensurf uses only that one, never a substitute.
 
 ## Usage
