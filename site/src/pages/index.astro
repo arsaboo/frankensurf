@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import StitchedWave from "../assets/stitched-wave.svg";
 import stitchedWaveMint from "../assets/stitched-wave-mint.svg?url";
-import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs } from "../data/site";
+import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs, searchStats } from "../data/site";
 
 const repo = "https://github.com/yail259/frankensurf";
 const half = Math.ceil(marquee.length / 2);
@@ -209,8 +209,12 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
   <section class="container sec" id="search">
     <div class="sec-head" data-reveal>
       <h2><em class="horror">Search,</em> checked.</h2>
-      <p class="sec-sub">The same idea for search: free sources first, every result checked for topic and date, and Exa or Firecrawl&rsquo;s search only when you allow paid tools. Measured against them on blind queries, it isn&rsquo;t ahead yet, so there are no numbers here until it is.</p>
+      <p class="sec-sub">Every result checked: on topic, the right kind of page, inside your date window. Judged blind on 240 fresh queries by reviewers who never saw which tool found what. Free, it beats Firecrawl&rsquo;s search; with paid allowed, it&rsquo;s level with Exa.</p>
     </div>
+    <div class="stats stats-3" data-reveal>
+      {searchStats.map((s) => <div class="stat"><span class="v">{s.value}</span><span class="l">{s.label}</span><span class="n">{s.note}</span></div>)}
+    </div>
+    <a class="bars-src" href="https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-13-search" data-reveal>Every verdict, the queries and the scripts ↗</a>
   </section>
 
   <section class="container sec" id="problem">

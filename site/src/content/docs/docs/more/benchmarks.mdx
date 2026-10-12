@@ -145,18 +145,39 @@ at no cost. Rows:
 
 ## Search
 
-Search is measured the same way, on queries written before any was run and
-used once, every search tool on its own. A first automatic judge counted a
-result as right when it named the query's subject, fell inside the date
-window and was not a homepage. Those are the same rules Frankensurf's own
-checks apply, so it graded Frankensurf on its own test and overstated it.
+Search is judged blind. For each query, every tool's top five results are pooled,
+shuffled and stripped of which tool found them, then graded one by one on whether
+they actually answer the query: the right subject, the right kind of page (a story
+or press release, a tutorial, the project's own repository, a paper, a page with the
+fact) and inside the date window. The measure is useful results in the top five.
+An earlier automatic judge used the same rules as Frankensurf's own checks and
+overstated it; its claims were withdrawn.
 
-A blind review settles it instead: results from each tool pooled, shuffled
-and stripped of which tool found them, then graded one by one on whether
-they actually answer the query. On 60 queries, Exa returned 4.8 useful
-results of 5 and Frankensurf's free search 2.8. Search is being improved
-against that review, and numbers go here once it is ahead.
-[Raw rows, the queries and the review](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-12-search).
+**Blind set 7, 120 queries, v0.40.0** (news, announcements, how-to, code, papers
+and facts; given to every tool as plain text):
+
+| Tool | Useful results (of 5) | Cost per 1k searches |
+| --- | --- | --- |
+| Frankensurf, paid allowed | 4.67 | $9.38 |
+| Exa Only | 4.66 | $9.50 |
+| Frankensurf, free, with the local search engine | 3.83 | free |
+| Frankensurf, free, no local search engine | 1.62 | free |
+
+With paid allowed, Frankensurf is level with Exa (better on 11 queries, worse on 9):
+it starts from Exa's results and replaces the ones its checks catch as wrong.
+
+**Blind set 6, against Firecrawl's search**, on the 69 queries Firecrawl answered
+before its plan ran out of credits:
+
+| Tool | Useful results (of 5) |
+| --- | --- |
+| Frankensurf, free, with the local search engine | 3.78 |
+| Firecrawl Search Only | 2.91 |
+
+Free Frankensurf was better on 35 of those queries and worse on 5 (p < 0.0001).
+The local search engine is SearXNG in Docker, which `frankensurf setup` offers to
+start; without it, free search is much weaker.
+[Rows, every verdict and the scripts](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-13-search).
 
 ## Tool benchmark
 

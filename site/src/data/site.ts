@@ -229,6 +229,13 @@ export const failures: { label: string; today: number; target: number; src: Sour
 // tool is also one of Frankensurf's own providers, so each is labelled
 // "<Tool> Only" (Frankensurf against that provider used on its own), never as a
 // rival (owner, 6 Oct 2026).
+// Search, judged blind (benchmarks/2026-10-13-search): useful results in the top five.
+export const searchStats = [
+  { value: "35 vs 5", label: "queries where free search beat Firecrawl's search", note: "the rest level · blind set 6" },
+  { value: "4.67 / 5", label: "useful results with paid search allowed", note: "Exa Only 4.66 · level, for less" },
+  { value: "$0", label: "per 1,000 searches, free", note: "with the local search engine setup starts" },
+];
+
 export const usVersus = { all: [144, 150], unseen: 98.6, cost: "$0.98" };
 // The same router with no paid tools at all, on the same sites.
 export const usFree: [number, number] = [132, 150];

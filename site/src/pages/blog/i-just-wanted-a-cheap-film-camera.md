@@ -73,6 +73,17 @@ Then, because I'd spent a day tuning on those 150, I ran it once more on another
 
 ![Share of 150 sites nobody had read correctly, each tool on its own vs Frankensurf](/blog/head-to-head-set7.png)
 
+## Benchmark IV: search, and getting it wrong first
+
+Search got the same treatment: every result checked, and if one source's results fail, try the next. My first benchmark said it was level with Exa. It wasn't. The judge checked results for the query's words, the date window and page shape, which are exactly the rules my own checks enforce, so it was grading my homework with my answer key. A blind review, with results shuffled and the tool hidden, put Exa far ahead: 4.8 useful results out of 5 against my 2.8. I pulled the claim.
+
+Then I fixed it properly against the blind review: real repositories instead of forks, the article that answers a fact question instead of a film with the same name, actual press releases instead of pricing pages, and, when paid tools are allowed, Exa's results kept and only the ones my checks catch as wrong swapped out. On two new sets of 120 queries, written before I looked at anything:
+
+- free, it beats Firecrawl's search: better on 35 queries, worse on 5;
+- with paid allowed, it's level with Exa: 4.67 useful results out of 5 against 4.66, for slightly less.
+
+It doesn't beat Exa. Exa is very good, and matching it while also beating Firecrawl's search for free is where search stands today.
+
 
 ## How it works (and what it costs)
 
