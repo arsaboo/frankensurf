@@ -143,6 +143,45 @@ the VM) are for. Lightning's median read took 1.7 seconds to Firecrawl's 4.8,
 at no cost. Rows:
 [`benchmarks/2026-10-10/`](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-10).
 
+## Search
+
+The same idea for `search`: queries written before any was run, used once,
+every search tool on its own and Frankensurf. A result counts as right only
+when it is about the query, inside the date window the query asks for, and an
+actual item, not a homepage, listing or challenge page.
+
+**120 queries, 12 October 2026, v0.39.0 (blind set 4):** news this week,
+company announcements, how-tos, code, papers and facts, 20 of each.
+
+| Tool | Queries with a right result in the top 5 | Right results per query (of 5) | Share of returned results right | Cost per 1k searches |
+| --- | --- | --- | --- | --- |
+| Exa Only | 100% | 4.68 | 93.7% | $9.50 |
+| Frankensurf, paid allowed | 100% | 4.53 | 97.4% | $0.76 |
+| **Frankensurf, free** | **100%** | **4.36** | **95.8%** | **free** |
+| Firecrawl Search Only | 99.2% | 3.54 | 70.8% | $11.40 |
+| SearXNG Only | 82.5% | 2.92 | 58.5% | free |
+| Bing News RSS Only | 74.2% | 2.38 | 64.4% | free |
+| Wikipedia Only | 49.2% | 1.97 | 41.5% | free |
+| arXiv Only | 39.2% | 1.53 | 37.7% | free |
+| Bing RSS Only | 39.2% | 1.39 | 27.8% | free |
+| GitHub Only | 33.3% | 1.31 | 31.3% | free |
+| Stack Exchange Only | 28.3% | 1.21 | 24.6% | free |
+| Hacker News Only | 27.5% | 0.85 | 22.0% | free |
+| Open Library Only | 13.3% | 0.28 | 8.6% | free |
+| DuckDuckGo Only | 0% (CAPTCHA every time) | 0 | 0% | free |
+
+Paired, query by query (sign test):
+
+- Frankensurf free against Firecrawl Search Only: more right results on 53 queries, fewer on 22 (p = 0.0004); higher precision on 65, lower on 8 (p < 0.0001).
+- Frankensurf free against Exa Only: Exa returns more right results on 33 queries, Frankensurf on 19 (p = 0.07, not significant); Frankensurf has higher precision on 24, lower on 10 (p = 0.02), partly because it returns fewer results when it cannot verify a date (4.56 per query against 5.0).
+- Frankensurf free against SearXNG Only, the best free engine on its own: more right results on 64 queries, fewer on 6 (p < 0.0001).
+
+By kind, Frankensurf free against Exa Only, right results per query: announcements 2.7 against 4.7 (Frankensurf returns 3.1 results; the rest it cannot date), news 4.2 against 4.7, how-to 4.8 against 4.8, code 4.7 against 4.2, papers 4.9 against 5.0, facts 4.8 against 4.8.
+
+Raw rows, the queries and the script: [benchmarks/2026-10-12-search](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-12-search).
+Run it yourself with `python scripts/searchbench.py --set blind4` (add `--paid`
+for Exa and Firecrawl).
+
 ## Tool benchmark
 
 Every tool reads the same pages on its own, then the stitched router reads them

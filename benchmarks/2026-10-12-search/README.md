@@ -111,3 +111,42 @@ results each on average, down from 5), paper 97.8%, news 98.8%, hit@5 100% in
 all three. A further claim needs a new blind set.
 
 Rows: `blind3-rows.jsonl` (`frankensurf_v038` is v0.38.0).
+
+## Blind set 4: v0.39.0 (120 queries, 20 per kind)
+
+Written at 21:34 AEDT on 12 October 2026, after v0.39.0 was released and before
+it was measured: no query and no company from an earlier set. Every tool on its
+own and Frankensurf, run once, the same night, from a home connection (paid
+APIs from their own networks).
+
+| Tool | Queries with a right result in the top 5 | Right results per query (of 5) | Share of returned results right | Cost per 1k searches |
+| --- | --- | --- | --- | --- |
+| Exa Only | 100% | 4.68 | 93.7% | $9.50 |
+| Frankensurf, paid allowed | 100% | 4.53 | 97.4% | $0.76 |
+| **Frankensurf, free** | **100%** | **4.36** | **95.8%** | **free** |
+| Firecrawl Search Only | 99.2% | 3.54 | 70.8% | $11.40 |
+| SearXNG Only | 82.5% | 2.92 | 58.5% | free |
+| Bing News RSS Only | 74.2% | 2.38 | 64.4% | free |
+| Wikipedia Only | 49.2% | 1.97 | 41.5% | free |
+| arXiv Only | 39.2% | 1.53 | 37.7% | free |
+| Bing RSS Only | 39.2% | 1.39 | 27.8% | free |
+| GitHub Only | 33.3% | 1.31 | 31.3% | free |
+| Stack Exchange Only | 28.3% | 1.21 | 24.6% | free |
+| Hacker News Only | 27.5% | 0.85 | 22.0% | free |
+| Open Library Only | 13.3% | 0.28 | 8.6% | free |
+| DuckDuckGo Only | 0% (CAPTCHA every time) | 0 | 0% | free |
+
+Paired, query by query (sign test):
+
+- Frankensurf free against Firecrawl Search Only: more right results on 53 queries, fewer on 22 (p = 0.0004); higher precision on 65, lower on 8 (p < 0.0001).
+- Frankensurf free against Exa Only: Exa returns more right results on 33 queries, Frankensurf on 19 (p = 0.07, not significant); Frankensurf has higher precision on 24, lower on 10 (p = 0.02), partly because it returns fewer results when it cannot verify a date (4.56 per query against 5.0).
+- Frankensurf free against SearXNG Only, the best free engine on its own: more right results on 64 queries, fewer on 6 (p < 0.0001).
+
+By kind, Frankensurf free against Exa Only, right results per query: announcements 2.7 against 4.7 (Frankensurf returns 3.1 results; the rest it cannot date), news 4.2 against 4.7, how-to 4.8 against 4.8, code 4.7 against 4.2, papers 4.9 against 5.0, facts 4.8 against 4.8.
+
+So: free Frankensurf search answers as many queries as Exa, is clearly ahead
+of Firecrawl's search and of every free engine on its own, and trails Exa
+slightly on how many right results it returns, most of the gap on company
+announcements, where it holds back results it cannot date.
+
+Rows: `blind4-rows.jsonl`.
