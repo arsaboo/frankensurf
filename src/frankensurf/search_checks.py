@@ -202,6 +202,9 @@ def url_kind(url: str) -> str:
     parsed = urlparse(str(url or ""))
     segments = [unquote(part).lower() for part in parsed.path.split("/") if part]
     query = {key.lower() for key, _ in parse_qsl(parsed.query)}
+    host = (parsed.hostname or "").lower().removeprefix("www.")
+    if host in _FORGE_HOSTS and len(segments) == 2 and not query & _SEARCH_KEYS:
+        return "item"  # owner/name: a repository, whatever the name is (query, search, platform)
     if query & _SEARCH_KEYS and len(segments) < 3:
         return "search_page"
     if any(part in _SEARCH_SEGMENTS for part in segments) and len(segments) <= 2:
@@ -215,9 +218,6 @@ def url_kind(url: str) -> str:
         return "homepage"
     if "tag" in query or "category" in query:
         return "tag_listing"
-    host = (parsed.hostname or "").lower().removeprefix("www.")
-    if host in _FORGE_HOSTS and len(segments) == 2:
-        return "item"  # owner/name: a repository, whatever the name is (platform, help, c)
     if query & _LISTING_KEYS and not article_like(url):
         return "tag_listing"
     for position, part in enumerate(segments):
@@ -1618,6 +1618,8 @@ def anchored_answer(query: str, source: str, anchored, others, *, limit: int, ve
     fills = [item for item in others if canonical_url(item.get("url") or "") not in taken and not failure(item)]
     filled = 0
     canonical = next((item for item in fills if is_canonical(query, item, ctx, vertical)), None)
+    if canonical is not None and any(is_canonical(query, item, ctx, vertical) for item in kept):
+        canonical = None  # the paid source already has the canonical page; keep its results
     if canonical is not None:
         fills.remove(canonical)
         holes = [index for index, item in enumerate(slots) if item is None]

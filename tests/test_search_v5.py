@@ -275,3 +275,10 @@ def test_market_blurbs_with_a_ticker_and_a_trading_word_or_a_blurb_phrase():
                   "Reuters: GE Aerospace says GE9X mid-seal issue won't delay 777X",
                   "Nvidia (NVDA) unveils new GPU architecture at developer conference"]:
         assert not stock_blurb(title), title
+
+
+def test_a_forge_repository_page_is_never_a_search_page():
+    from frankensurf.search_checks import url_kind
+    assert url_kind("https://github.com/tanstack/query") == "item"
+    assert url_kind("https://github.com/owner/search") == "item"
+    assert url_kind("https://github.com/search?q=query") == "search_page"
