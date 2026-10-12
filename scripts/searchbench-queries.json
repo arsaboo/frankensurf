@@ -1,6 +1,6 @@
 {
  "schema": "frankensurf.searchbench-queries/v1",
- "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once. Set blind2 (30 queries, new companies, varied phrasing) was written on 12 Oct 2026 before the announcement-precision change was measured, and run once. Set blind3 (60 queries, 10 per kind, entities in no other set) was written at 16:46 AEDT on 12 Oct 2026, before v0.39 was measured, and run once. Set blind4 (120 queries, 20 per kind, no query or company from an earlier set) was written at 21:34 AEDT on 12 Oct 2026, after v0.39.0 was released and before it was measured, and run once. Set blind5 (120 queries, 20 per kind, no query or company from an earlier set) was written at 23:03 AEDT on 12 Oct 2026 (sha256 01d9a0d1 of the generated file), before the v0.40 fixes were written, and run once.",
+ "note": "Written 12 October 2026 from general knowledge: broad, well-known, stable entities, not tuned to any search source. entity_terms: every entry must appear in a relevant result; a|b means either, stem* matches any word starting with stem, plurals match. dev/heldout split: 50/50 by a seeded shuffle (random.Random(shuffle_seed) over the query order); use heldout for reported figures, once. Set blind2 (30 queries, new companies, varied phrasing) was written on 12 Oct 2026 before the announcement-precision change was measured, and run once. Set blind3 (60 queries, 10 per kind, entities in no other set) was written at 16:46 AEDT on 12 Oct 2026, before v0.39 was measured, and run once. Set blind4 (120 queries, 20 per kind, no query or company from an earlier set) was written at 21:34 AEDT on 12 Oct 2026, after v0.39.0 was released and before it was measured, and run once. Set blind5 (120 queries, 20 per kind, no query or company from an earlier set) was written at 23:03 AEDT on 12 Oct 2026 (sha256 01d9a0d1 of the generated file), before the v0.40 fixes were written, and run once. Set blind6 (120 queries, 20 per kind, no query or company from an earlier set) was written at 00:41 AEDT on 13 Oct 2026 (sha256 56a85b73 of the generated file), before any search-v2 change was measured, and run once; it is judged by the blind review.",
  "shuffle_seed": 20261012,
  "queries": [
   {
@@ -5714,6 +5714,1359 @@
    "query": "what is the chemical formula for table salt",
    "entity_terms": [
     "salt|sodium chloride|nacl"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-announcement-01",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Snap latest announcement",
+   "entity_terms": [
+    "snap"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-02",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "what did Wise announce this month",
+   "entity_terms": [
+    "wise"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-03",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Lyft press release this month",
+   "entity_terms": [
+    "lyft"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-04",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "DoorDash newest product launch",
+   "entity_terms": [
+    "doordash"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-05",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Etsy official announcement",
+   "entity_terms": [
+    "etsy"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-06",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "eBay latest announcement",
+   "entity_terms": [
+    "ebay"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-07",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "what did Zillow announce this month",
+   "entity_terms": [
+    "zillow"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-08",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Expedia press release this month",
+   "entity_terms": [
+    "expedia"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-09",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Booking Holdings newest product launch",
+   "entity_terms": [
+    "booking"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-10",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Marriott official announcement",
+   "entity_terms": [
+    "marriott"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-11",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Hilton latest announcement",
+   "entity_terms": [
+    "hilton"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-12",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "what did Walt Disney announce this month",
+   "entity_terms": [
+    "disney"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-13",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Warner Bros. Discovery press release this month",
+   "entity_terms": [
+    "warner"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-14",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Sony Interactive Entertainment newest product launch",
+   "entity_terms": [
+    "playstation|sony"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-15",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Valve official announcement",
+   "entity_terms": [
+    "valve|steam"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-16",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Epic Games latest announcement",
+   "entity_terms": [
+    "epic games|epic"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-17",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "what did Twitch announce this month",
+   "entity_terms": [
+    "twitch"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-18",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Discord press release this month",
+   "entity_terms": [
+    "discord"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-19",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Signal newest product launch",
+   "entity_terms": [
+    "signal"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-announcement-20",
+   "set": "blind6",
+   "category": "announcement",
+   "query": "Proton official announcement",
+   "entity_terms": [
+    "proton"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind6-news-01",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Toshiba past month",
+   "entity_terms": [
+    "toshiba"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-02",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Panasonic past month",
+   "entity_terms": [
+    "panasonic"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-03",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Hitachi past month",
+   "entity_terms": [
+    "hitachi"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-04",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Mitsubishi past month",
+   "entity_terms": [
+    "mitsubishi"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-05",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Hyundai Motor this week",
+   "entity_terms": [
+    "hyundai"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-06",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Subaru past month",
+   "entity_terms": [
+    "subaru"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-07",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about SK Hynix past month",
+   "entity_terms": [
+    "hynix"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-08",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Micron this week",
+   "entity_terms": [
+    "micron"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-09",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about ASML this week",
+   "entity_terms": [
+    "asml"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-10",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Nvidia rival Cerebras past month",
+   "entity_terms": [
+    "cerebras"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-11",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Rolls-Royce past month",
+   "entity_terms": [
+    "rolls-royce|rolls royce"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-12",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Danone past month",
+   "entity_terms": [
+    "danone"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-13",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Diageo past month",
+   "entity_terms": [
+    "diageo"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-14",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Carlsberg past month",
+   "entity_terms": [
+    "carlsberg"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-15",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Hapag-Lloyd past month",
+   "entity_terms": [
+    "hapag"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-16",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about DHL past month",
+   "entity_terms": [
+    "dhl"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-17",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about KLM past month",
+   "entity_terms": [
+    "klm"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-18",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about easyJet past month",
+   "entity_terms": [
+    "easyjet"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-19",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Telstra this week",
+   "entity_terms": [
+    "telstra"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-news-20",
+   "set": "blind6",
+   "category": "news",
+   "query": "news about Woolworths Group past month",
+   "entity_terms": [
+    "woolworths"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind6-howto-01",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to reverse a string in python",
+   "entity_terms": [
+    "revers*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-02",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to use git stash",
+   "entity_terms": [
+    "stash"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-03",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to center text in css",
+   "entity_terms": [
+    "center",
+    "text"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-04",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to read environment variables in node.js",
+   "entity_terms": [
+    "env*|process.env"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-05",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to create a symlink on linux",
+   "entity_terms": [
+    "symlink|symbolic link|ln"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-06",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to use async await in python",
+   "entity_terms": [
+    "async",
+    "await"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-07",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to delete a git branch",
+   "entity_terms": [
+    "delete|remove",
+    "branch"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-08",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to make a table in markdown",
+   "entity_terms": [
+    "table",
+    "markdown"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-09",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to use useState in react",
+   "entity_terms": [
+    "usestate"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-10",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to add an index in mysql",
+   "entity_terms": [
+    "index",
+    "mysql"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-11",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to write a unit test in python with pytest",
+   "entity_terms": [
+    "pytest"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-12",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to handle exceptions in java",
+   "entity_terms": [
+    "exception*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-13",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to use flexbox gap",
+   "entity_terms": [
+    "gap"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-14",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to install node.js on ubuntu",
+   "entity_terms": [
+    "node*",
+    "ubuntu"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-15",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to generate a uuid in javascript",
+   "entity_terms": [
+    "uuid"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-16",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to merge pdfs on mac",
+   "entity_terms": [
+    "merge|combine",
+    "pdf*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-17",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to set a static ip on ubuntu",
+   "entity_terms": [
+    "static",
+    "ip"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-18",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to use grep recursively",
+   "entity_terms": [
+    "grep"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-19",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to format dates in javascript",
+   "entity_terms": [
+    "date*",
+    "format*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-howto-20",
+   "set": "blind6",
+   "category": "howto",
+   "query": "how to read a file line by line in python",
+   "entity_terms": [
+    "line*",
+    "file"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind6-code-01",
+   "set": "blind6",
+   "category": "code",
+   "query": "celery github repo",
+   "entity_terms": [
+    "celery"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-02",
+   "set": "blind6",
+   "category": "code",
+   "query": "flask github repository",
+   "entity_terms": [
+    "flask"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-03",
+   "set": "blind6",
+   "category": "code",
+   "query": "express js source code",
+   "entity_terms": [
+    "express"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-04",
+   "set": "blind6",
+   "category": "code",
+   "query": "vue github repo",
+   "entity_terms": [
+    "vue"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-05",
+   "set": "blind6",
+   "category": "code",
+   "query": "next.js github",
+   "entity_terms": [
+    "next.js|nextjs|next"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-06",
+   "set": "blind6",
+   "category": "code",
+   "query": "rails github repository",
+   "entity_terms": [
+    "rails"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-07",
+   "set": "blind6",
+   "category": "code",
+   "query": "scikit-learn github",
+   "entity_terms": [
+    "scikit-learn|sklearn|scikit"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-08",
+   "set": "blind6",
+   "category": "code",
+   "query": "jax github repo",
+   "entity_terms": [
+    "jax"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-09",
+   "set": "blind6",
+   "category": "code",
+   "query": "rust crate for json",
+   "entity_terms": [
+    "json|serde"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-10",
+   "set": "blind6",
+   "category": "code",
+   "query": "python library for parsing html",
+   "entity_terms": [
+    "html|parse*|parser"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-11",
+   "set": "blind6",
+   "category": "code",
+   "query": "javascript library for state management",
+   "entity_terms": [
+    "state"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-12",
+   "set": "blind6",
+   "category": "code",
+   "query": "go library for http routing",
+   "entity_terms": [
+    "rout*|router|mux"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-13",
+   "set": "blind6",
+   "category": "code",
+   "query": "python library for reading config files",
+   "entity_terms": [
+    "config*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-14",
+   "set": "blind6",
+   "category": "code",
+   "query": "rust crate for logging",
+   "entity_terms": [
+    "log*|tracing"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-15",
+   "set": "blind6",
+   "category": "code",
+   "query": "node.js library for sending email",
+   "entity_terms": [
+    "mail|email"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-16",
+   "set": "blind6",
+   "category": "code",
+   "query": "python library for plotting",
+   "entity_terms": [
+    "plot*|matplotlib"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-17",
+   "set": "blind6",
+   "category": "code",
+   "query": "svelte kit github",
+   "entity_terms": [
+    "sveltekit|svelte"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-18",
+   "set": "blind6",
+   "category": "code",
+   "query": "tailwindcss github repository",
+   "entity_terms": [
+    "tailwind*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-19",
+   "set": "blind6",
+   "category": "code",
+   "query": "python library for natural language processing",
+   "entity_terms": [
+    "nlp|language|spacy|nltk"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-code-20",
+   "set": "blind6",
+   "category": "code",
+   "query": "rust crate for command line parsing",
+   "entity_terms": [
+    "clap|cli|argument*|command"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind6-paper-01",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on instruction tuning",
+   "entity_terms": [
+    "instruction"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-02",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on diffusion models for video",
+   "entity_terms": [
+    "video",
+    "diffusion"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-03",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on retrieval augmented generation for code",
+   "entity_terms": [
+    "retrieval|rag",
+    "code"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-04",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on graph neural networks for molecules",
+   "entity_terms": [
+    "graph",
+    "molecul*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-05",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on efficient attention mechanisms",
+   "entity_terms": [
+    "attention"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-06",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on reward modeling",
+   "entity_terms": [
+    "reward"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-07",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on world models",
+   "entity_terms": [
+    "world model*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-08",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on neural architecture search",
+   "entity_terms": [
+    "architecture search|nas"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-09",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on self-supervised learning for speech",
+   "entity_terms": [
+    "speech"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-10",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on object detection transformers",
+   "entity_terms": [
+    "detection"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-11",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on llm watermarking",
+   "entity_terms": [
+    "watermark*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-12",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on quantum machine learning",
+   "entity_terms": [
+    "quantum"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-13",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on causal inference with machine learning",
+   "entity_terms": [
+    "causal"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-14",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on uncertainty estimation in deep learning",
+   "entity_terms": [
+    "uncertain*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-15",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on audio language models",
+   "entity_terms": [
+    "audio"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-16",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on ai safety evaluation",
+   "entity_terms": [
+    "safety"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-17",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on tabular deep learning",
+   "entity_terms": [
+    "tabular"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-18",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on point cloud segmentation",
+   "entity_terms": [
+    "point cloud"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-19",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on knowledge graphs and llms",
+   "entity_terms": [
+    "knowledge graph*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-paper-20",
+   "set": "blind6",
+   "category": "paper",
+   "query": "recent papers on data augmentation for nlp",
+   "entity_terms": [
+    "augment*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind6-fact-01",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who founded Toyota",
+   "entity_terms": [
+    "toyota"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-02",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what is the capital of Kenya",
+   "entity_terms": [
+    "kenya|nairobi"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-03",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who wrote Don Quixote",
+   "entity_terms": [
+    "quixote"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-04",
+   "set": "blind6",
+   "category": "fact",
+   "query": "when was the Colosseum built",
+   "entity_terms": [
+    "colosseum"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-05",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what is the highest waterfall in the world",
+   "entity_terms": [
+    "waterfall|angel falls"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-06",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who discovered radium",
+   "entity_terms": [
+    "radium"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-07",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what is the population of Canada",
+   "entity_terms": [
+    "canada"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-08",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who composed The Magic Flute",
+   "entity_terms": [
+    "magic flute"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-09",
+   "set": "blind6",
+   "category": "fact",
+   "query": "how tall is Mount Kilimanjaro",
+   "entity_terms": [
+    "kilimanjaro"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-10",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what year did the Berlin Wall go up",
+   "entity_terms": [
+    "berlin wall"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-11",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who invented the printing press",
+   "entity_terms": [
+    "printing press"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-12",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what is the largest planet in the solar system",
+   "entity_terms": [
+    "jupiter|planet"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-13",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who painted The Last Supper",
+   "entity_terms": [
+    "last supper"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-14",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what is the longest river in Africa",
+   "entity_terms": [
+    "nile|africa"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-15",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who proposed the theory of evolution",
+   "entity_terms": [
+    "evolution"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-16",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what is the melting point of iron",
+   "entity_terms": [
+    "iron"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-17",
+   "set": "blind6",
+   "category": "fact",
+   "query": "who wrote The Odyssey",
+   "entity_terms": [
+    "odyssey"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-18",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what currency does Mexico use",
+   "entity_terms": [
+    "peso|mexico"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-19",
+   "set": "blind6",
+   "category": "fact",
+   "query": "when did the French Revolution start",
+   "entity_terms": [
+    "french revolution"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind6-fact-20",
+   "set": "blind6",
+   "category": "fact",
+   "query": "what is the atomic number of carbon",
+   "entity_terms": [
+    "carbon"
    ],
    "needs_specific": false,
    "vertical": "reference"

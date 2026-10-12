@@ -456,7 +456,7 @@ def report(rows: list[dict], pairs: list[list[str]]):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--set", choices=["dev", "heldout", "blind2", "blind3", "blind4", "blind5", "all"], default="dev")
+    parser.add_argument("--set", choices=["dev", "heldout", "blind2", "blind3", "blind4", "blind5", "blind6", "all"], default="dev")
     parser.add_argument("--arms", nargs="*", help="default: every free source, the router, and with --paid exa and firecrawl_search")
     parser.add_argument("--paid", action="store_true", help="also run the keyed paid arms (they cost money)")
     parser.add_argument("--limit-queries", type=int, help="run only the first N queries, spread over the categories")
