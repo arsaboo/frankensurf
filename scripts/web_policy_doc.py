@@ -11,7 +11,7 @@ D = {
  "unblocker_timeout_seconds": "Time allowed for an unblocker attempt.",
  "agent_provider_timeout_seconds": "Time allowed for an agent provider such as Skyvern.",
  "max_bytes": "Largest response accepted.",
- "pdf_max_pages": "Most PDF pages to extract text from.",
+ "pdf_max_pages": "Most PDF pages to extract text from. Also the most pages a paid tool such as Firecrawl is asked to parse, since it bills per page.",
  "capture_json_responses": "On rendered reads, return the JSON the page fetched for itself as `captured_json`.",
  "capture_json_max_items": "Most captured JSON responses kept.",
  "capture_json_max_bytes": "Largest captured JSON response kept.",
