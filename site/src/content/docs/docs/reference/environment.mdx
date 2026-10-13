@@ -11,6 +11,7 @@ description: Every environment variable and file Frankensurf reads.
 | `FRANKENSURF_PLUGINS` | The plugin trust file (default `~/.config/frankensurf/plugins.json`); see [Writing a plugin](/docs/more/plugins/#the-trust-file). |
 | `FRANKENSURF_STEEL_URL` | A self-hosted Steel for the `steel` provider. |
 | `FRANKENSURF_SEARCH_URL` | A SearXNG at another loopback address (MCP server). Not needed for the one `frankensurf install search` starts, at `http://127.0.0.1:8088`. |
+| `FRANKENSURF_GOOGLE_CSE_CX` | The search engine ID for [Google Programmable Search](/docs/integrations/google-cse/), beside `GOOGLE_CSE_API_KEY`. |
 | `FRANKENSURF_SEARCH_AUTOSTART` | `0`: search never starts the installed local SearXNG on its own (by default it does, once per process, when nothing answers on `127.0.0.1:8088`). |
 | `FRANKENSURF_IDENTITIES` | Identity registry (default `~/.frankensurf/identities.json`). |
 | `FRANKENSURF_PROVIDER_PYTHON` | Python for the isolated stealth browsers. |
