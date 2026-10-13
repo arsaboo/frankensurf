@@ -179,6 +179,11 @@ The local search engine is SearXNG (run in Docker for these runs;
 `frankensurf install search` installs the same engine without Docker); without it, free search is much weaker.
 [Rows, every verdict and the scripts](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-13-search).
 
+**v0.41 against v0.40, blind set 8** (120 fresh queries, free sources and the same local
+engine for both): v0.41 3.42 useful results of 5, v0.40 2.71; better on 41 queries, worse on 12
+(p = 0.0001). News, facts and how-to gained most.
+[Rows and verdicts](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-14-search-v041).
+
 ## Tool benchmark
 
 Every tool reads the same pages on its own, then the stitched router reads them

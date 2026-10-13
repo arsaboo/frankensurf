@@ -8412,6 +8412,1348 @@
    ],
    "needs_specific": false,
    "vertical": "reference"
+  },
+  {
+   "id": "blind8-announcement-01",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "ClickUp latest announcement",
+   "entity_terms": [
+    "clickup"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-02",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "what did Obsidian announce this month",
+   "entity_terms": [
+    "obsidian"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-03",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Linear press release this month",
+   "entity_terms": [
+    "linear"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-04",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Framer newest product launch",
+   "entity_terms": [
+    "framer"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-05",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Zapier official announcement",
+   "entity_terms": [
+    "zapier"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-06",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Calendly latest announcement",
+   "entity_terms": [
+    "calendly"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-07",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "what did Mailchimp announce this month",
+   "entity_terms": [
+    "mailchimp"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-08",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Amplitude press release this month",
+   "entity_terms": [
+    "amplitude"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-09",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Plaid newest product launch",
+   "entity_terms": [
+    "plaid"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-10",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Revolut official announcement",
+   "entity_terms": [
+    "revolut"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-11",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Monzo latest announcement",
+   "entity_terms": [
+    "monzo"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-12",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "what did Nubank announce this month",
+   "entity_terms": [
+    "nubank"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-13",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Sonos press release this month",
+   "entity_terms": [
+    "sonos"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-14",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Bose newest product launch",
+   "entity_terms": [
+    "bose"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-15",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "GoPro official announcement",
+   "entity_terms": [
+    "gopro"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-16",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "DJI latest announcement",
+   "entity_terms": [
+    "dji"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-17",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "what did Nothing Technology announce this month",
+   "entity_terms": [
+    "nothing"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-18",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "OnePlus press release this month",
+   "entity_terms": [
+    "oneplus"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-19",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Fairphone newest product launch",
+   "entity_terms": [
+    "fairphone"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-announcement-20",
+   "set": "blind8",
+   "category": "announcement",
+   "query": "Withings official announcement",
+   "entity_terms": [
+    "withings"
+   ],
+   "needs_specific": true,
+   "recency": "month"
+  },
+  {
+   "id": "blind8-news-01",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Vodafone past month",
+   "entity_terms": [
+    "vodafone"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-02",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Orange SA past month",
+   "entity_terms": [
+    "orange"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-03",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Deutsche Telekom this week",
+   "entity_terms": [
+    "telekom"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-04",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about BT Group past month",
+   "entity_terms": [
+    "bt"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-05",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Telefonica past month",
+   "entity_terms": [
+    "telefonica|telefónica"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-06",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Iberdrola past month",
+   "entity_terms": [
+    "iberdrola"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-07",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Enel past month",
+   "entity_terms": [
+    "enel"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-08",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about TotalEnergies this week",
+   "entity_terms": [
+    "totalenergies|total"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-09",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Equinor past month",
+   "entity_terms": [
+    "equinor"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-10",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Orsted past month",
+   "entity_terms": [
+    "orsted|ørsted"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-11",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Vestas past month",
+   "entity_terms": [
+    "vestas"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-12",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Nordex past month",
+   "entity_terms": [
+    "nordex"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-13",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Schneider Electric past month",
+   "entity_terms": [
+    "schneider"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-14",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Kone past month",
+   "entity_terms": [
+    "kone"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-15",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Dassault Aviation this week",
+   "entity_terms": [
+    "dassault"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-16",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Rheinmetall this week",
+   "entity_terms": [
+    "rheinmetall"
+   ],
+   "needs_specific": true,
+   "recency": "week",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-17",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Leonardo SpA past month",
+   "entity_terms": [
+    "leonardo"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-18",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Ferrovial past month",
+   "entity_terms": [
+    "ferrovial"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-19",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Ahold Delhaize past month",
+   "entity_terms": [
+    "ahold|delhaize"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-news-20",
+   "set": "blind8",
+   "category": "news",
+   "query": "news about Carrefour past month",
+   "entity_terms": [
+    "carrefour"
+   ],
+   "needs_specific": true,
+   "recency": "month",
+   "vertical": "news"
+  },
+  {
+   "id": "blind8-howto-01",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to flatten a nested list in python",
+   "entity_terms": [
+    "flatten"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-02",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to amend a commit message in git",
+   "entity_terms": [
+    "amend"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-03",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to add a gradient background in css",
+   "entity_terms": [
+    "gradient"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-04",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to read a json file in node.js",
+   "entity_terms": [
+    "json"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-05",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to set a timeout on a fetch request",
+   "entity_terms": [
+    "timeout"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-06",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to use dataclasses in python",
+   "entity_terms": [
+    "dataclass*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-07",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to group by multiple columns in pandas",
+   "entity_terms": [
+    "groupby|group by"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-08",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to write a recursive cte in sql",
+   "entity_terms": [
+    "recursive",
+    "cte"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-09",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to use useMemo in react",
+   "entity_terms": [
+    "usememo"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-10",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to handle signals in a go program",
+   "entity_terms": [
+    "signal*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-11",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to create a virtual host in apache",
+   "entity_terms": [
+    "virtual host|virtualhost"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-12",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to mount a usb drive on linux",
+   "entity_terms": [
+    "mount"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-13",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to use environment variables in vite",
+   "entity_terms": [
+    "env*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-14",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to paginate an api response",
+   "entity_terms": [
+    "paginat*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-15",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to use type guards in typescript",
+   "entity_terms": [
+    "type guard*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-16",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to set up pre-commit hooks",
+   "entity_terms": [
+    "pre-commit"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-17",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to profile memory usage in python",
+   "entity_terms": [
+    "memory"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-18",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to use grid auto-fit in css",
+   "entity_terms": [
+    "auto-fit|auto fit"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-19",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to rebase interactively in git",
+   "entity_terms": [
+    "interactive*|rebase -i"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-howto-20",
+   "set": "blind8",
+   "category": "howto",
+   "query": "how to use async generators in python",
+   "entity_terms": [
+    "async",
+    "generator*"
+   ],
+   "needs_specific": true
+  },
+  {
+   "id": "blind8-code-01",
+   "set": "blind8",
+   "category": "code",
+   "query": "pytest github repo",
+   "entity_terms": [
+    "pytest"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-02",
+   "set": "blind8",
+   "category": "code",
+   "query": "black python formatter repo",
+   "entity_terms": [
+    "black"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-03",
+   "set": "blind8",
+   "category": "code",
+   "query": "esbuild github repository",
+   "entity_terms": [
+    "esbuild"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-04",
+   "set": "blind8",
+   "category": "code",
+   "query": "webpack source code",
+   "entity_terms": [
+    "webpack"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-05",
+   "set": "blind8",
+   "category": "code",
+   "query": "gin go framework github",
+   "entity_terms": [
+    "gin"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-06",
+   "set": "blind8",
+   "category": "code",
+   "query": "echo go github repo",
+   "entity_terms": [
+    "echo"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-07",
+   "set": "blind8",
+   "category": "code",
+   "query": "rust crate for regex",
+   "entity_terms": [
+    "regex"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-08",
+   "set": "blind8",
+   "category": "code",
+   "query": "python library for excel spreadsheets",
+   "entity_terms": [
+    "excel|xlsx|openpyxl"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-09",
+   "set": "blind8",
+   "category": "code",
+   "query": "javascript library for forms validation",
+   "entity_terms": [
+    "form*|valid*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-10",
+   "set": "blind8",
+   "category": "code",
+   "query": "go library for cli applications",
+   "entity_terms": [
+    "cli|cobra|command"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-11",
+   "set": "blind8",
+   "category": "code",
+   "query": "python library for websockets",
+   "entity_terms": [
+    "websocket*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-12",
+   "set": "blind8",
+   "category": "code",
+   "query": "rust crate for async http client",
+   "entity_terms": [
+    "http|reqwest|client"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-13",
+   "set": "blind8",
+   "category": "code",
+   "query": "node.js library for pdf generation",
+   "entity_terms": [
+    "pdf"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-14",
+   "set": "blind8",
+   "category": "code",
+   "query": "python library for json schema validation",
+   "entity_terms": [
+    "schema|jsonschema"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-15",
+   "set": "blind8",
+   "category": "code",
+   "query": "trpc github repo",
+   "entity_terms": [
+    "trpc"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-16",
+   "set": "blind8",
+   "category": "code",
+   "query": "zustand github repository",
+   "entity_terms": [
+    "zustand"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-17",
+   "set": "blind8",
+   "category": "code",
+   "query": "python library for caching",
+   "entity_terms": [
+    "cach*"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-18",
+   "set": "blind8",
+   "category": "code",
+   "query": "typescript date library",
+   "entity_terms": [
+    "date*|dayjs|luxon|date-fns"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-19",
+   "set": "blind8",
+   "category": "code",
+   "query": "rust game engine github",
+   "entity_terms": [
+    "engine|bevy|game"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-code-20",
+   "set": "blind8",
+   "category": "code",
+   "query": "python library for geospatial data",
+   "entity_terms": [
+    "geo*|shapely|geopandas"
+   ],
+   "needs_specific": true,
+   "vertical": "code"
+  },
+  {
+   "id": "blind8-paper-01",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on vision transformers for medical imaging",
+   "entity_terms": [
+    "medical"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-02",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on agentic retrieval",
+   "entity_terms": [
+    "retrieval|agentic"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-03",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on model compression for edge devices",
+   "entity_terms": [
+    "compression|edge"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-04",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on contrastive language image pretraining",
+   "entity_terms": [
+    "contrastive|clip"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-05",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on reward hacking",
+   "entity_terms": [
+    "reward"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-06",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on chain of thought faithfulness",
+   "entity_terms": [
+    "faithful*|chain-of-thought|chain of thought"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-07",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on neural operators for pdes",
+   "entity_terms": [
+    "operator*|pde*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-08",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on video generation evaluation",
+   "entity_terms": [
+    "video"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-09",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on llm jailbreak defenses",
+   "entity_terms": [
+    "jailbreak*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-10",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on time series foundation models",
+   "entity_terms": [
+    "time series|time-series"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-11",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on autonomous driving end to end",
+   "entity_terms": [
+    "driving"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-12",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on molecule generation with diffusion",
+   "entity_terms": [
+    "molecul*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-13",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on preference optimization",
+   "entity_terms": [
+    "preference"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-14",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on open vocabulary object detection",
+   "entity_terms": [
+    "open-vocabulary|open vocabulary|detection"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-15",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on knowledge editing in language models",
+   "entity_terms": [
+    "editing|edit"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-16",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on multi-agent llm collaboration",
+   "entity_terms": [
+    "multi-agent|multiagent"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-17",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on spiking neural networks",
+   "entity_terms": [
+    "spiking"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-18",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on sign language translation",
+   "entity_terms": [
+    "sign language"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-19",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on table question answering",
+   "entity_terms": [
+    "table"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-paper-20",
+   "set": "blind8",
+   "category": "paper",
+   "query": "recent papers on audio deepfake detection",
+   "entity_terms": [
+    "deepfake|spoof*"
+   ],
+   "needs_specific": true,
+   "recency": "year",
+   "vertical": "papers"
+  },
+  {
+   "id": "blind8-fact-01",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who founded IKEA",
+   "entity_terms": [
+    "ikea"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-02",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what is the capital of Vietnam",
+   "entity_terms": [
+    "vietnam|hanoi"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-03",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who wrote The Divine Comedy",
+   "entity_terms": [
+    "divine comedy"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-04",
+   "set": "blind8",
+   "category": "fact",
+   "query": "when was the Panama Canal opened",
+   "entity_terms": [
+    "panama canal"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-05",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what is the tallest building in Europe",
+   "entity_terms": [
+    "tallest|europe"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-06",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who discovered electrons",
+   "entity_terms": [
+    "electron*"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-07",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what is the population of Brazil",
+   "entity_terms": [
+    "brazil"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-08",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who composed the Brandenburg Concertos",
+   "entity_terms": [
+    "brandenburg"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-09",
+   "set": "blind8",
+   "category": "fact",
+   "query": "how tall is the Leaning Tower of Pisa",
+   "entity_terms": [
+    "pisa"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-10",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what year did the Hubble telescope launch",
+   "entity_terms": [
+    "hubble"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-11",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who invented the World Wide Web browser",
+   "entity_terms": [
+    "browser|web"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-12",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what is the coldest place on earth",
+   "entity_terms": [
+    "coldest|antarctica"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-13",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who painted the Birth of Venus",
+   "entity_terms": [
+    "venus"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-14",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what is the largest lake in Africa",
+   "entity_terms": [
+    "victoria|lake"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-15",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who proposed the heliocentric model",
+   "entity_terms": [
+    "heliocentric|copernicus"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-16",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what is the atomic number of iron",
+   "entity_terms": [
+    "iron"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-17",
+   "set": "blind8",
+   "category": "fact",
+   "query": "who wrote Crime and Punishment",
+   "entity_terms": [
+    "crime and punishment"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-18",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what currency does Sweden use",
+   "entity_terms": [
+    "krona|sweden"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-19",
+   "set": "blind8",
+   "category": "fact",
+   "query": "when did the Byzantine Empire end",
+   "entity_terms": [
+    "byzantine"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
+  },
+  {
+   "id": "blind8-fact-20",
+   "set": "blind8",
+   "category": "fact",
+   "query": "what is the chemical formula for methane",
+   "entity_terms": [
+    "methane|ch4"
+   ],
+   "needs_specific": false,
+   "vertical": "reference"
   }
  ]
 }
