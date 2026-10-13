@@ -269,20 +269,53 @@ class InternetArchiveProvider(_Keyed):
 PDF_BYTES_PER_PAGE = 50_000
 
 
+# URLs that serve a PDF without ending in .pdf: arXiv's /pdf/2401.01234, ?format=pdf,
+# /download/report.pdf?token=..., /pdf at the end of a document path.
+_PDF_PATH = re.compile(r"(?i)(\.pdf($|[/?#;])|/pdfs?/|/pdf$|/(download|viewfile|getfile)/[^?]*\.pdf)")
+_PDF_QUERY = re.compile(r"(?i)(^|&)(format|type|output|download|mime)=(application%2F)?pdf($|&)")
+
+
+def looks_like_pdf(url):
+    """True when the URL's shape says it serves a PDF (cheap, no request)."""
+    parts = urlsplit(url)
+    return bool(_PDF_PATH.search(parts.path) or _PDF_QUERY.search(parts.query))
+
+
 def _pdf_page_estimate(request):
     """Pages a PDF read may be billed for, or None when the URL is not likely a PDF.
 
-    Likely means the path ends in .pdf or an earlier attempt already saw PDF bytes.
-    Their size gives the page count; without one, assume the most pages
-    the policy would read (``pdf_max_pages``), the worst case the call can bill.
+    Likely means the URL looks like a PDF (looks_like_pdf) or an earlier attempt
+    or a HEAD request already saw PDF bytes. Their size gives the page count;
+    without one, assume the most pages the policy would read (``pdf_max_pages``),
+    the worst case the call can bill.
     """
     limit = getattr(request.policy, "pdf_max_pages", 50)
     seen = getattr(request, "pdf_bytes", None)
     if type(seen) is int and seen > 0:
         return max(1, min(limit, -(-seen // PDF_BYTES_PER_PAGE)))
-    if urlsplit(request.url).path.lower().endswith(".pdf"):
+    if looks_like_pdf(request.url):
         return limit
     return None
+
+
+async def _probe_pdf(request):
+    """Under a cost cap, before a paid read of a page nothing has fetched yet: one HEAD
+    request (free, from this machine) for its type and size. Returns the PDF's size in
+    bytes (0 when it is a PDF of unknown size), or None when it is not a PDF or the
+    probe got no answer."""
+    policy = request.policy
+    try:
+        async with httpx.AsyncClient(transport=TRANSPORT, timeout=min(policy.timeout_seconds, 5.0),
+                                     follow_redirects=True) as client:
+            response = await client.head(request.url)
+    except httpx.HTTPError:
+        return None
+    if response.status_code >= 400 or "pdf" not in (response.headers.get("content-type") or "").lower():
+        return None
+    try:
+        return max(0, int(response.headers.get("content-length") or 0))
+    except ValueError:
+        return 0
 
 
 def _affordable_credits(policy, per_credit):
@@ -308,6 +341,14 @@ class FirecrawlProvider(_Keyed):
         per_credit = _rate("firecrawl_usd_per_credit", 0.0038)
         policy = request.policy
         pdf_pages = _pdf_page_estimate(request)
+        if (pdf_pages is None and getattr(policy, "max_cost_usd", None) is not None
+                and getattr(request, "pdf_bytes", None) is None):
+            # Nothing has seen this page and its URL gives no sign: ask what it is first,
+            # so a PDF's per-page charge is in the estimate, not a surprise on the bill.
+            size = await _probe_pdf(request)
+            if size is not None:
+                limit = getattr(policy, "pdf_max_pages", 50)
+                pdf_pages = max(1, min(limit, -(-size // PDF_BYTES_PER_PAGE))) if size else limit
         _within_cap(policy, per_credit * (1 + (pdf_pages or 0)), "Firecrawl")
         # Whatever the URL looks like, never let Firecrawl parse more pages than
         # the policy reads or the remaining cap pays for (the base credit comes first).
@@ -869,6 +910,122 @@ class FirecrawlSearchTransport(_SearchTransport):
         return result
 
 
+class SerperTransport(_SearchTransport):
+    """Serper (serper.dev): Google results as JSON. /search for the web, /news for news."""
+    required_settings = ("serper_api_key",)
+    ENDPOINT = "https://google.serper.dev/search"
+
+    def __init__(self):
+        self.manifest = _manifest("serper_api", "1", paid=True, route_scope_required=True)
+
+    @staticmethod
+    def _serper_body(query, count, options):
+        from .search import _operators
+        body = {"q": _operators(query, options)[:2000], "num": min(count, 100)}
+        if options.get("recency"):
+            body["tbs"] = "qdr:" + {"day": "d", "week": "w", "month": "m", "year": "y"}[options["recency"]]
+        region = options.get("region") or ""
+        if "-" in region:
+            language, country = region.split("-", 1)
+            body.update(gl=country.lower(), hl=language.lower())
+        return body
+
+    async def acquire(self, request, services):
+        query, count = self._query(request.url)
+        options = self._options(request.url)
+        endpoint = "https://google.serper.dev/news" if options.get("category") == "news" else self.ENDPOINT
+        status, _, raw = await _call("POST", endpoint, request.policy,
+                                     headers={"X-API-KEY": self._required("serper_api_key")},
+                                     json_body=self._serper_body(query, count, options))
+        error = _service_status(status, "Serper")
+        if error:
+            raise error
+        result = _page(request.url, _decode(raw), "application/json", 200)
+        # $50 for 50,000 queries on the Starter pack, $1.00 per 1,000 (Oct 2026); credits
+        # per query are reported, and a 10-result query is 1 credit.
+        try:
+            credits = json.loads(raw).get("credits")
+        except (ValueError, AttributeError):
+            credits = None
+        rate = _rate("serper_usd_per_credit", 0.001)
+        result["cost_usd"] = round(rate * (credits if type(credits) in (int, float) and credits >= 0 else 1), 6)
+        return result
+
+
+class SerpApiTransport(_SearchTransport):
+    """SerpAPI (serpapi.com): Google results as JSON."""
+    required_settings = ("serpapi_api_key",)
+    ENDPOINT = "https://serpapi.com/search.json"
+
+    def __init__(self):
+        self.manifest = _manifest("serpapi_api", "1", paid=True, route_scope_required=True)
+
+    @staticmethod
+    def _serpapi_params(query, count, options):
+        from .search import _operators
+        params = {"engine": "google", "q": _operators(query, options)[:2000], "num": min(count, 100)}
+        if options.get("category") == "news":
+            params["tbm"] = "nws"
+        if options.get("recency"):
+            params["tbs"] = "qdr:" + {"day": "d", "week": "w", "month": "m", "year": "y"}[options["recency"]]
+        region = options.get("region") or ""
+        if "-" in region:
+            language, country = region.split("-", 1)
+            params.update(gl=country.lower(), hl=language.lower())
+        return params
+
+    async def acquire(self, request, services):
+        query, count = self._query(request.url)
+        params = {**self._serpapi_params(query, count, self._options(request.url)),
+                  "api_key": self._required("serpapi_api_key")}
+        status, _, raw = await _call("GET", self.ENDPOINT, request.policy, params=params)
+        error = _service_status(status, "SerpAPI")
+        if error:
+            raise error
+        result = _page(request.url, _decode(raw), "application/json", 200)
+        # Developer plan: $75 for 5,000 searches, $0.015 each (Oct 2026).
+        result["cost_usd"] = _rate("serpapi_cost_per_query", 0.015)
+        return result
+
+
+class GoogleCseTransport(_SearchTransport):
+    """Google Programmable Search (Custom Search JSON API): 100 queries a day free, then
+    $5 per 1,000. Needs an API key and a search engine ID (cx) set to search the whole web."""
+    required_settings = ("google_cse_api_key", "google_cse_cx")
+    ENDPOINT = "https://www.googleapis.com/customsearch/v1"
+
+    def __init__(self):
+        self.manifest = _manifest("google_cse_api", "1", paid=True, route_scope_required=True)
+
+    @staticmethod
+    def _cse_params(query, count, options):
+        from .search import _operators
+        params = {"q": _operators(query, {**options, "site": None})[:2000], "num": min(count, 10)}
+        if options.get("site"):
+            params.update(siteSearch=options["site"], siteSearchFilter="i")
+        if options.get("recency"):
+            params["dateRestrict"] = {"day": "d1", "week": "w1", "month": "m1", "year": "y1"}[options["recency"]]
+        region = options.get("region") or ""
+        if "-" in region:
+            language, country = region.split("-", 1)
+            params.update(gl=country.lower(), hl=language.lower())
+        return params
+
+    async def acquire(self, request, services):
+        query, count = self._query(request.url)
+        params = {**self._cse_params(query, count, self._options(request.url)),
+                  "key": self._required("google_cse_api_key"), "cx": self._required("google_cse_cx")}
+        status, _, raw = await _call("GET", self.ENDPOINT, request.policy, params=params)
+        error = _service_status(status, "Google Programmable Search")
+        if error:
+            raise error
+        result = _page(request.url, _decode(raw), "application/json", 200)
+        # The first 100 queries a day are free; FrankenSurf cannot see the day's count, so it
+        # prices every query at the paid rate ($5 per 1,000) unless the owner sets 0.
+        result["cost_usd"] = _rate("google_cse_cost_per_query", 0.005)
+        return result
+
+
 def _since(recency):
     from datetime import datetime, timedelta, timezone
     from .search import RECENCY
@@ -880,7 +1037,9 @@ def search_url(transport, query, limit, options=None):
     Search options ride along as parameters; each transport applies them natively."""
     endpoint = {"exa_api": ExaTransport.ENDPOINT, "brave_api": BraveTransport.ENDPOINT,
                 "tavily_api": TavilyTransport.ENDPOINT, "parallel_api": ParallelTransport.ENDPOINT,
-                "firecrawl_search_api": FirecrawlSearchTransport.ENDPOINT}[transport]
+                "firecrawl_search_api": FirecrawlSearchTransport.ENDPOINT,
+                "serper_api": SerperTransport.ENDPOINT, "serpapi_api": SerpApiTransport.ENDPOINT,
+                "google_cse_api": GoogleCseTransport.ENDPOINT}[transport]
     url = endpoint + "?q=" + quote(query, safe="") + "&count=" + str(limit)
     options = options or {}
     for key in ("site", "recency", "region", "category"):
@@ -903,7 +1062,8 @@ HOSTED_PROVIDERS = (JinaReaderProvider, CloudflareBrowserRunProvider, FirecrawlP
                     FastCrwProvider, ApifyRagBrowserProvider, ZenRowsProvider,
                     ScrapflyProvider, BrightDataUnlockerProvider, ZyteProvider,
                     SkyvernProvider, ExaTransport, BraveTransport, TavilyTransport,
-                    ParallelTransport, FirecrawlSearchTransport, InternetArchiveProvider)
+                    ParallelTransport, FirecrawlSearchTransport, SerperTransport, SerpApiTransport,
+                    GoogleCseTransport, InternetArchiveProvider)
 
 
 def register(registry):

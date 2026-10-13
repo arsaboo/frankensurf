@@ -792,14 +792,14 @@ class HttpSearchPlugin:
 class HostedSearchPlugin:
     """A keyed search API (Exa, Brave, Tavily, Parallel, Firecrawl) read through its Core transport provider."""
 
-    def __init__(self, identifier, transport, key):
+    def __init__(self, identifier, transport, key, *also):
         self.manifest = SearchManifest(identifier, "1", paid=True,
                                        transport_provider=transport)
-        self._transport, self._key = transport, key
+        self._transport, self._key, self._also = transport, key, also
 
     def available(self):
         from .hosted_providers import _setting
-        return bool(_setting(self._key))
+        return all(_setting(name) for name in (self._key, *self._also))
 
     def _normalize(self, structured, limit):
         import re
@@ -837,6 +837,36 @@ class HostedSearchPlugin:
                               "snippet": (row.get("description") or metadata.get("description") or "")[:500],
                               "engines": ["firecrawl_search"], "indexed_date": when,
                               "published": _iso(when)})
+        elif self.manifest.id in ("serper", "serpapi", "google_cse"):
+            if not isinstance(structured, dict):
+                raise ValueError("Expected a JSON object")
+            if self.manifest.id == "serper":
+                rows = structured.get("news") if isinstance(structured.get("news"), list) else structured.get("organic")
+            elif self.manifest.id == "serpapi":
+                rows = (structured.get("news_results") if isinstance(structured.get("news_results"), list)
+                        else structured.get("organic_results", [] if "search_metadata" in structured else None))
+            else:
+                # No "items" is an empty answer, not a broken one (Google omits the key).
+                rows = structured.get("items", [] if "searchInformation" in structured or "queries" in structured
+                                      else None)
+            if not isinstance(rows, list):
+                raise ValueError("Expected a results array")
+            for row in rows:
+                if not isinstance(row, dict) or not isinstance(row.get("link"), str):
+                    continue
+                when = row.get("date")
+                if self.manifest.id == "google_cse":
+                    tags = ((row.get("pagemap") or {}).get("metatags") or [{}])[0] if isinstance(row.get("pagemap"), dict) else {}
+                    when = tags.get("article:published_time") if isinstance(tags, dict) else None
+                item = {"url": row["link"], "title": row.get("title") or "",
+                        "snippet": row.get("snippet") or "", "engines": [self.manifest.id],
+                        "indexed_date": when, "published": _iso(when)}
+                publisher = row.get("source")
+                if isinstance(publisher, dict):
+                    publisher = publisher.get("name")
+                if isinstance(publisher, str) and publisher:
+                    item["extra"] = {"publisher": publisher}
+                found.append(item)
         elif self.manifest.id in ("tavily", "parallel"):
             rows = structured.get("results") if isinstance(structured, dict) else None
             if not isinstance(rows, list):
@@ -911,5 +941,8 @@ DEFAULT_SEARCHES.register(HostedSearchPlugin("brave", "brave_api", "brave_api_ke
 DEFAULT_SEARCHES.register(HostedSearchPlugin("tavily", "tavily_api", "tavily_api_key"))
 DEFAULT_SEARCHES.register(HostedSearchPlugin("parallel", "parallel_api", "parallel_api_key"))
 DEFAULT_SEARCHES.register(HostedSearchPlugin("firecrawl_search", "firecrawl_search_api", "firecrawl_api_key"))
+DEFAULT_SEARCHES.register(HostedSearchPlugin("serper", "serper_api", "serper_api_key"))
+DEFAULT_SEARCHES.register(HostedSearchPlugin("serpapi", "serpapi_api", "serpapi_api_key"))
+DEFAULT_SEARCHES.register(HostedSearchPlugin("google_cse", "google_cse_api", "google_cse_api_key", "google_cse_cx"))
 from .site_watch import SiteWatchPlugin
 DEFAULT_SEARCHES.register(SiteWatchPlugin())

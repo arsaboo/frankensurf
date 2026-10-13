@@ -31,6 +31,9 @@ REGISTRY = {
     "bing_rss": {"kind": "rss", "base_url": "https://www.bing.com", "path": "/search", "endpoint_scope": "public search", "vertical": "web",
                  "last_resort": True, "verify_relevance": True},
     "bing_news_rss": {"kind": "rss", "base_url": "https://www.bing.com", "path": "/news/search", "endpoint_scope": "public search", "vertical": "news"},
+    # Google News search as RSS: quoted names, OR and when:30d work. Links go through
+    # Google's redirect (a browser follows it to the publisher); each item names its publisher.
+    "google_news_rss": {"kind": "rss", "base_url": "https://news.google.com", "path": "/rss/search", "endpoint_scope": "public search", "vertical": "news"},
     "wikipedia": {"kind": "json", "base_url": "https://{lang}.wikipedia.org", "path": "/w/api.php", "endpoint_scope": "official public API", "vertical": "reference"},
     "hacker_news": {"kind": "json", "base_url": "https://hn.algolia.com", "path": "/api/v1/search", "endpoint_scope": "official public API", "vertical": "discussions"},
     "stack_exchange": {"kind": "json", "base_url": "https://api.stackexchange.com", "path": "/2.3/search/advanced", "endpoint_scope": "official public API", "vertical": "qa"},
@@ -183,6 +186,12 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
             params["filters"] = 'ex1:"ez%d"' % {"day": 1, "week": 2, "month": 3}.get(recency, 5)
         elif recency:
             params["qft"] = 'interval="%d"' % {"day": 7, "week": 8, "month": 9}.get(recency, 9)
+    elif source == "google_news_rss":
+        terms = _operators(query, options, max_exclude=max_exclude)
+        if recency:
+            terms += " when:%dd" % RECENCY[recency]
+        params = {"q": terms, "hl": region, "gl": (country or "AU").upper(),
+                  "ceid": "%s:%s" % ((country or "AU").upper(), lang)}
     elif source == "wikipedia":
         params = {"action": "query", "list": "search", "srsearch": wiki_topic(query), "format": "json",
                   "srlimit": 20, "srprop": "snippet|timestamp"}
@@ -434,6 +443,24 @@ def normalize_results(content: str, structured: object, source: str, limit: int,
             publisher = next((child.text for child in item if child.tag.endswith("}Source")), None)
             if publisher:
                 entry["extra"] = {"publisher": publisher}
+            found.append(entry)
+    elif source == "google_news_rss":
+        try: root = ET.fromstring(content)
+        except ET.ParseError as exc: raise ValueError("Expected search RSS") from exc
+        if root.tag != "rss": raise ValueError("Expected RSS root")
+        for item in root.findall("./channel/item"):
+            source_tag = item.find("source")
+            publisher = (source_tag.text or "").strip() if source_tag is not None else ""
+            title = item.findtext("title") or ""
+            if publisher and title.endswith(" - " + publisher):
+                title = title[: -len(" - " + publisher)]
+            entry = {"url": item.findtext("link") or "", "title": title,
+                     "snippet": _text(item.findtext("description"))[:300],
+                     "engines": ["google_news"], "indexed_date": item.findtext("pubDate"),
+                     "published": _iso(item.findtext("pubDate"))}
+            if publisher:
+                entry["extra"] = {"publisher": publisher,
+                                  "publisher_url": source_tag.get("url") if source_tag is not None else None}
             found.append(entry)
     elif source == "wikipedia":
         rows = ((structured or {}).get("query") or {}).get("search") if isinstance(structured, dict) else None

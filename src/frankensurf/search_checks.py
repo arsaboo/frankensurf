@@ -405,6 +405,109 @@ _CORPORATE_SUFFIXES = frozenset({"inc", "corp", "corporation", "ltd", "llc", "ho
 _SECOND_LEVEL = frozenset({"co", "com", "org", "net", "gov", "edu", "ac", "or", "ne"})
 
 
+# Boolean queries (monitoring tools write them): "Rio Tinto" OR "Rio Tinto Group"
+# (acquisition OR layoffs OR "data breach"). Sources get the query as written; the
+# checks get its focus, and a weak answer is retried with a simpler query.
+_QUOTED = re.compile(r'"([^"]+)"')
+_BOOL_TOKEN = re.compile(r'"[^"]*"|\(|\)|\bOR\b|\||-?[^\s()"|]+')
+
+
+def is_boolean(query: str) -> bool:
+    """Whether the query uses search operators beyond plain words: OR (written in
+    capitals, as engines read it), |, or parentheses, or two or more quoted phrases."""
+    text = str(query or "")
+    return bool(re.search(r"\bOR\b|\|", text) or ("(" in text and ")" in text)
+                or len(_QUOTED.findall(text)) >= 2)
+
+
+def boolean_groups(query: str) -> list[list[str]]:
+    """The query as AND-ed groups of alternatives, each alternative a phrase as
+    written: '"Rio Tinto" OR "Rio Tinto Group" (acquisition OR layoffs)' gives
+    [["Rio Tinto", "Rio Tinto Group"], ["acquisition", "layoffs"]]. Parentheses
+    group; OR (or |) joins its neighbours; exclusions and site: style operators are
+    dropped; anything else is a group of one."""
+    groups, current, joining = [], None, False
+    depth_group, joined_before = None, False     # inside parentheses: its words, and whether OR came before it
+    for token in _BOOL_TOKEN.findall(str(query or "")):
+        if token in ("OR", "|"):
+            if depth_group is None:
+                joining = True
+            continue                              # inside parentheses every word is an alternative
+        if token == "(":
+            if depth_group is None:
+                depth_group, joined_before, joining = [], joining, False
+            continue
+        if token == ")":
+            if depth_group:
+                if joined_before and current is not None:
+                    current.extend(depth_group)
+                else:
+                    current = list(depth_group)
+                    groups.append(current)
+            depth_group, joining = None, False
+            continue
+        if token.startswith("-") or _OPERATOR.fullmatch(token):
+            continue
+        phrase = token.strip('"').strip()
+        if not phrase:
+            continue
+        if depth_group is not None:
+            depth_group.append(phrase)
+            continue
+        if joining and current is not None:
+            current.append(phrase)
+        else:
+            current = [phrase]
+            groups.append(current)
+        joining = False
+    return [group for group in groups if group]
+
+
+def _named_group(groups):
+    """The group that names what the query is about: the first with a capitalised
+    alternative (a company, a person, a product)."""
+    return next((group for group in groups if any(re.search(r"(?<![\w'])[A-Z0-9][\w&.'-]*", alt) for alt in group)),
+                None)
+
+
+def focus_query(query: str) -> str:
+    """What the checks should judge a boolean query's results against: its named group's
+    alternatives, any of which may match ("Rio Tinto | Rio Tinto Group"), when it has
+    one; else every alternative as plain words. A plain query is returned unchanged.
+    The other groups (acquisition OR layoffs ...) narrow what the engines return; a
+    result that names the company is on the query without them."""
+    if not is_boolean(query):
+        return query
+    groups = boolean_groups(query)
+    named = _named_group(groups)
+    if named:
+        # " | " keeps the alternatives apart: each is its own entity (see _entity_runs).
+        return " | ".join(named)
+    return " ".join(alt for group in groups for alt in group)
+
+
+def plain_text(query: str) -> str:
+    """A boolean query as plain words, for reading its intent: operators lowercased
+    or dropped, quotes and parentheses removed."""
+    if not is_boolean(query):
+        return query
+    return " ".join(alt for group in boolean_groups(query) for alt in group)
+
+
+def simple_query(query: str) -> str | None:
+    """A boolean query reduced to what every source understands: its main name,
+    quoted when it has several words. None when there is nothing simpler to ask."""
+    if not is_boolean(query):
+        return None
+    groups = boolean_groups(query)
+    named = _named_group(groups)
+    if named:
+        name = named[0]
+        return f'"{name}"' if " " in name else name
+    words = " ".join(group[0] for group in groups[:3])
+    return words if words != query else None
+
+
 def entities(query: str) -> list[list[str]]:
     """The named things a query is about: runs of capitalised words (Hugging Face,
     Arm Holdings, Nintendo), each as its words lowercased, minus filler words and
@@ -416,6 +519,14 @@ def entities(query: str) -> list[list[str]]:
 def _entity_runs(query: str) -> list[tuple[list[str], list[str]]]:
     """Each entity as (its significant words lowercased, every word of its run as
     written, connectors and short words included: the raw material for aliases)."""
+    if " | " in str(query or ""):
+        # A focus query (focus_query): each alternative names the entity its own way.
+        found = []
+        for part in str(query).split(" | "):
+            for run in _entity_runs(part):
+                if run not in found:
+                    found.append(run)
+        return found
     words = _WORD.findall(_OPERATOR.sub(" ", str(query or "")))
     meaningful = [w for w in words if w.lower() not in _STOPWORDS and w.lower() not in _QUERY_FILLER
                   and w.lower() not in _GENERIC_CAPS and not _YEAR.fullmatch(w) and (len(w) >= 3 or not w.isascii())]
@@ -744,6 +855,11 @@ _PLATFORM = re.compile(r"(?<![\w.])(?:github|gitlab|bitbucket|codeberg|npm|pypi|
 _PAPERS = re.compile(r"\b(?:papers?\s+(?:on|about)|research\s+on|arxiv|preprints?|survey\s+of)\b", re.I)
 _ANNOUNCE = re.compile(r"\b(?:announce[sd]?|announcements?|press\s+releases?|launch(?:es|ed)?)\b", re.I)
 _NEWS_WORD = re.compile(r"\b(?:news|headlines?|latest\s+on)\b", re.I)
+# What happens to a company or an organisation: beside a name, the query is about news.
+_EVENT_WORD = re.compile(r"\b(?:acquisitions?|acquires?|acquired|mergers?|layoffs?|lay-?offs?|job\s+cuts|funding|"
+                         r"raises|lawsuits?|sued|sues|data\s+breach|breach|partnerships?|earnings|ipo|"
+                         r"appoint(?:s|ed|ment)?|resign(?:s|ed|ation)?|chief\s+executive|ceo|recalls?|"
+                         r"investigations?|bankruptcy|insolvency|administration|restructuring|scandal|fined)\b", re.I)
 _WINDOW_PHRASE = re.compile(r"\b(?:this\s+week|today|tonight)\b", re.I)
 _QA_TRIGGER = re.compile(r"\b(?:how\s+to|how\s+do\s+(?:i|you|we)|how\s+can\s+i|errors?|exceptions?|tracebacks?|"
                          r"fix(?:ing|es)?|stack\s*trace|segfault|not\s+working|fail(?:s|ed)?\s+(?:to|with)|"
@@ -802,7 +918,7 @@ def infer_vertical(query: str, recency=None) -> tuple[str, str]:
        and a bare past-tense verb about the speaker ("I wrote") is not a fact question).
 
     recency only matters for "latest <Entity>" with a day or week window."""
-    text = str(query or "").strip()
+    text = plain_text(str(query or "").strip())
     if not text:
         return "web", "empty query"
     discovery, lang_lib = _discovery(text), _LANG_LIB.search(text)
@@ -823,6 +939,8 @@ def infer_vertical(query: str, recency=None) -> tuple[str, str]:
     if _NEWS_WORD.search(text):
         return "news", "news words"
     named = entities(text)
+    if named and _EVENT_WORD.search(text):
+        return "news", "a name with company-event words (acquisition, layoffs, lawsuit ...)"
     if named and _WINDOW_PHRASE.search(text):
         return "news", "entity with a today or this-week window"
     if named and re.search(r"\blatest\b", text, re.I) and recency in ("day", "week"):

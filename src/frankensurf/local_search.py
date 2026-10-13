@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import secrets
 import shutil
 import signal
@@ -123,12 +124,48 @@ def settings_template():
     return Path(__file__).with_name("searxng_settings.yml").read_text(encoding="utf-8")
 
 
+# The settings an earlier release wrote. A file still exactly like it (bar its secret key)
+# was never edited, so it is upgraded to the current settings, keeping its key.
+_SETTINGS_V1 = """# SearXNG settings for FrankenSurf's local search engine.
+# `frankensurf search-engine start` copies this to ~/.local/share/frankensurf/searxng/
+# with a random secret key. Keep JSON output on: FrankenSurf reads results as JSON.
+use_default_settings: true
+server:
+  secret_key: "__SECRET_KEY__"
+  limiter: false
+  public_instance: false
+search:
+  formats:
+    - html
+    - json
+  safe_search: 0
+outgoing:
+  request_timeout: 8.0
+"""
+_SECRET_LINE = re.compile(r'^  secret_key: "([0-9a-f]{16,128})"$', re.M)
+
+
+def _upgrade_settings(settings):
+    text = settings.read_text(encoding="utf-8")
+    key = _SECRET_LINE.search(text)
+    if not key or text != _SETTINGS_V1.replace("__SECRET_KEY__", key.group(1)):
+        return False
+    settings.write_text(settings_template().replace("__SECRET_KEY__", key.group(1)), encoding="utf-8")
+    return True
+
+
 def prepare_settings(folder=None):
     """The folder mounted at /etc/searxng. Written once with a random secret key; an
-    existing settings file is the user's and is never overwritten."""
+    existing settings file is the user's and is never overwritten (one an earlier release
+    wrote and nobody edited is upgraded to the current settings, its key kept)."""
     folder = Path(folder) if folder else config_dir()
     folder.mkdir(parents=True, exist_ok=True)
     settings = folder / "settings.yml"
+    if settings.exists():
+        try:
+            _upgrade_settings(settings)
+        except OSError:
+            pass
     if not settings.exists():
         settings.write_text(settings_template().replace("__SECRET_KEY__", secrets.token_hex(32)),
                             encoding="utf-8")

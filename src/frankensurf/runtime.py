@@ -6129,6 +6129,56 @@ class Runtime:
                      vertical: str | None = None, mode: str = "fallback") -> dict:
         """Search through installed sources; an explicit source never falls back.
 
+        A boolean query (quoted names, OR-lists, parentheses: search_checks.is_boolean)
+        goes to the sources as written and its results are checked against its focus (the
+        name it is about, any of its alternatives). When that answer is not good, the
+        search runs once more with the query reduced to its main name
+        (search_checks.simple_query), in the vertical the first try chose, and keeps
+        whichever passed more results; receipt.query_simplified says so. (Free sources
+        often mishandle operators: a long OR-list can return homepages or nothing.)
+        """
+        options = dict(site=site, exclude_domains=exclude_domains, recency=recency, region=region,
+                       vertical=vertical, mode=mode)
+        first = await self._search_once(query, source, limit, engine_config, policy, **options)
+        from .search_checks import simple_query
+        simpler = simple_query(query) if source is None and mode == "fallback" else None
+        checks = first["receipt"].get("search_checks") or {}
+        if not simpler or checks.get("verdict") == "good":
+            return first
+        chosen = vertical or (first["receipt"].get("search_routing") or {}).get("vertical")
+        spent = first["receipt"].get("cost_usd") or 0
+        retry_policy = policy or WebPolicy()
+        if retry_policy.max_cost_usd is not None:
+            retry_policy = replace(retry_policy, max_cost_usd=max(0.0, retry_policy.max_cost_usd - spent))
+        second = await self._search_once(simpler, source, limit, engine_config, retry_policy,
+                                         **{**options, "vertical": chosen})
+
+        def passed(result):
+            return sum(1 for item in result["results"] if (item.get("check") or {}).get("passed", True))
+        note = {"from": query, "to": simpler,
+                "why": f"the query as written got a {checks.get('verdict') or 'weak'} answer "
+                       f"({passed(first)} results passed the checks)"}
+        if passed(second) <= passed(first):
+            first["receipt"]["query_simplified"] = {**note, "kept": "first", "simpler_passed": passed(second),
+                                                    "simpler_cost_usd": second["receipt"].get("cost_usd") or 0}
+            first["receipt"]["cost_usd"] = round(spent + (second["receipt"].get("cost_usd") or 0), 6)
+            return first
+        second["query"] = query
+        second["receipt"]["query_simplified"] = {**note, "kept": "simpler", "first_passed": passed(first),
+                                                 "first_cost_usd": spent,
+                                                 "first_attempts": [
+                                                     {key: item.get(key) for key in ("source", "status", "failure")}
+                                                     for item in first["receipt"].get("search_attempts", [])]}
+        second["receipt"]["cost_usd"] = round(spent + (second["receipt"].get("cost_usd") or 0), 6)
+        return second
+
+    async def _search_once(self, query: str, source: str | None = None, limit: int = 10,
+                           engine_config: dict | None = None, policy: WebPolicy | None = None, *,
+                           site: str | None = None, exclude_domains: list[str] | None = None,
+                           recency: str | None = None, region: str | None = None,
+                           vertical: str | None = None, mode: str = "fallback") -> dict:
+        """One search, as asked (search() may add a simpler second one).
+
         site, exclude_domains, recency (day, week, month, year) and region
         (en-AU) go to every source, natively where it can, and every result
         list is filtered afterwards. vertical picks the kind of source for
@@ -6156,6 +6206,9 @@ class Runtime:
             raise ValueError("Invalid search query")
         if not 1 <= limit <= 100:
             raise ValueError("Search limit must be 1..100")
+        from .search_checks import focus_query
+        # A boolean query goes to the sources as written; the checks judge its focus.
+        check_query = focus_query(query)
         vertical_inferred = None
         if vertical is None:
             if source is None:
@@ -6521,7 +6574,7 @@ class Runtime:
                         # checks: on the query, in the window, real pages, no repeats.
                         items, dropped = (filter_results(response["results"], options, now)
                                           if options else (response["results"], {}))
-                        report = check_results(query, items, limit=limit, recency=recency, now=now,
+                        report = check_results(check_query, items, limit=limit, recency=recency, now=now,
                                                min_good=policy.search_good_results, weigh_undated=enrich,
                                                vertical=vertical, priors=source_priors(identifier))
                         # N pages per source's result set, 2N for the whole search.
@@ -6529,7 +6582,7 @@ class Runtime:
                         if enrich and spare > 0 and deadline - time.monotonic() > 2:
                             read_started = time.monotonic()
                             items, report, found = await enrich_dates(
-                                query, items, report, date_read, limit=limit, budget=spare, memo=date_memo,
+                                check_query, items, report, date_read, limit=limit, budget=spare, memo=date_memo,
                                 timeout=policy.search_date_read_timeout_seconds,
                                 gap=policy.origin_min_interval_seconds, recency=recency, now=now,
                                 min_good=policy.search_good_results, vertical=vertical,
@@ -6656,18 +6709,18 @@ class Runtime:
                 special = {name for name in rungs if verticals.get(name) == "reference"}
                 specialist_only = {key for key, names in origin.items() if names <= special}
                 if specialist_only:
-                    final = demote_off_topic(query, final, specialist_only)
-            elif query_context(query, vertical=vertical).languages and any(
+                    final = demote_off_topic(check_query, final, specialist_only)
+            elif query_context(check_query, vertical=vertical).languages and any(
                     verticals.get(name) == "code" for name in rungs):
                 # The query names a language and the code source (which searched in it) answered:
                 # a repository page only a web engine returned has no known language, so it
                 # follows the confirmed ones.
                 final = demote_unconfirmed_repos(final, {key for key, names in origin.items() if any(
                     verticals.get(name) == "code" for name in names)},
-                    need=query_context(query, vertical=vertical).need)
+                    need=query_context(check_query, vertical=vertical).need)
         anchor_receipt = None
         if anchor_id is not None:
-            final, anchor_receipt = anchored_answer(query, anchor_id, rungs[anchor_id]["annotated"], final,
+            final, anchor_receipt = anchored_answer(check_query, anchor_id, rungs[anchor_id]["annotated"], final,
                                                     limit=limit, vertical=vertical, unwanted=unwanted)
         final = final[:limit]
         if winner is None and final:

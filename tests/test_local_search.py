@@ -224,6 +224,31 @@ def test_stop_only_stops_the_named_container(monkeypatch):
 
 # --- frankensurf setup -----------------------------------------------------------------------
 
+def test_an_unedited_settings_file_from_an_earlier_release_is_upgraded_keeping_its_key(tmp_path):
+    key = "ab" * 32
+    old = local_search._SETTINGS_V1.replace("__SECRET_KEY__", key)
+    (tmp_path / "settings.yml").write_text(old)
+    local_search.prepare_settings(tmp_path)
+    upgraded = (tmp_path / "settings.yml").read_text()
+    assert f'secret_key: "{key}"' in upgraded and "settings-version: 2" in upgraded
+    assert "- name: bing" in upgraded and "SearxEngineTooManyRequests: 900" in upgraded
+    # An edited file is the user's: left exactly as it is.
+    edited = tmp_path / "edited"
+    edited.mkdir()
+    (edited / "settings.yml").write_text(old + "  # my change\n")
+    local_search.prepare_settings(edited)
+    assert (edited / "settings.yml").read_text() == old + "  # my change\n"
+
+
+def test_the_bundled_settings_spread_load_over_more_engines():
+    yaml = pytest.importorskip("yaml")
+    settings = yaml.safe_load(local_search.settings_template())
+    assert {engine["name"] for engine in settings["engines"]} >= {"bing", "google", "yahoo", "qwant", "mojeek"}
+    assert all(engine["disabled"] is False for engine in settings["engines"])
+    assert settings["search"]["suspended_times"]["SearxEngineTooManyRequests"] >= 900
+    assert "json" in settings["search"]["formats"] and settings["server"]["limiter"] is False
+
+
 def test_setup_interactive_yes_installs_and_starts_the_native_engine(monkeypatch, capsys):
     terminal(monkeypatch, True)
     fake = FakeDocker(monkeypatch)
