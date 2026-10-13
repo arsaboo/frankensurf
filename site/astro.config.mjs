@@ -108,6 +108,7 @@ export default defineConfig({
         { label: "More", items: [
           { label: "Benchmarks", slug: "docs/more/benchmarks" },
             { label: "Weekly benchmark", slug: "docs/more/weekly" },
+            { label: "Shared site knowledge", slug: "docs/more/share" },
           { label: "Repairing failed extracts", slug: "docs/more/repair" },
           { label: "Writing a plugin", slug: "docs/more/plugins" },
           { label: "Code map and boundaries", slug: "docs/more/code-map" },

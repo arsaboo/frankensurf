@@ -229,6 +229,8 @@ queries it beat v0.40 on 41 and lost on 12 (3.42 against 2.71 useful results of 
 - **Site modules:** save what your agent learns about a site as data. `frankensurf module discover
   URL --query "desk lamp" --save` finds the site's search, reads the results and saves a module;
   after that, searches on that site come back as structured `items`.
+- **Shared site knowledge:** `frankensurf share sync` starts from which tool reads which site, as the
+  community learned it; `share export` writes yours to review and contribute (opt in both ways).
 - `frankensurf watch-sites URL… --since DATE` lists new pages from the feeds and sitemaps sites
   publish.
 </details>
