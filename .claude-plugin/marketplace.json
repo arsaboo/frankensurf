@@ -1,0 +1,15 @@
+{
+  "name": "frankensurf",
+  "owner": {
+    "name": "yail259",
+    "url": "https://github.com/yail259"
+  },
+  "description": "Frankensurf: a web reader and search for AI agents.",
+  "plugins": [
+    {
+      "name": "frankensurf",
+      "source": "./plugin",
+      "description": "Read any web page and search the web: 28 web tools behind one read() call, cheapest first, every page checked."
+    }
+  ]
+}

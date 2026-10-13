@@ -44,6 +44,7 @@ export default defineConfig({
           { label: "Introduction", slug: "docs" },
           { label: "Install", slug: "docs/install" },
           { label: "Add to your agent", slug: "docs/agents" },
+          { label: "Agent frameworks", slug: "docs/frameworks" },
         ] },
         { label: "Core calls", items: [
           { label: "Read", collapsed: false, items: [

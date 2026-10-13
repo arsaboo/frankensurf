@@ -1,3 +1,5 @@
+<!-- mcp-name: io.github.yail259/frankensurf -->
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/yail259/frankensurf/main/site/src/assets/stitched-wave-mint.svg">
@@ -99,6 +101,20 @@ async with Runtime("state") as web:
 frankensurf read https://example.com --markdown
 frankensurf search playwright python tutorial --recency week
 frankensurf watch https://news.ycombinator.com/ --link-pattern 'item\?id=\d+'
+```
+
+**In Claude Code as a plugin** (the MCP server plus the skill that teaches Claude to use it):
+
+```
+/plugin marketplace add yail259/frankensurf
+/plugin install frankensurf@frankensurf
+```
+
+**From LangChain, the OpenAI Agents SDK or CrewAI** (`pip install "frankensurf[langchain]"`, and so on):
+
+```python
+from frankensurf.agent_tools import langchain_tools   # or openai_agents_tools, crewai_tools
+tools = langchain_tools()                              # frankensurf_read, frankensurf_search
 ```
 
 You get raw page data, not answers: text or markdown, JSON-LD, the page's own JSON, images, and

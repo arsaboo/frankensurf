@@ -1,0 +1,22 @@
+{
+  "name": "frankensurf",
+  "displayName": "Frankensurf",
+  "version": "0.42.0",
+  "description": "Read any web page and search the web from Claude Code: 28 web tools stitched behind one read() call, cheapest first, every page checked, a receipt for every attempt.",
+  "author": {
+    "name": "yail259",
+    "url": "https://github.com/yail259"
+  },
+  "homepage": "https://frankensurf.dev",
+  "repository": "https://github.com/yail259/frankensurf",
+  "license": "Apache-2.0",
+  "keywords": [
+    "web",
+    "scraping",
+    "search",
+    "browser",
+    "mcp"
+  ],
+  "documentationUrl": "https://frankensurf.dev/docs/agents/",
+  "supportUrl": "https://github.com/yail259/frankensurf/issues"
+}
