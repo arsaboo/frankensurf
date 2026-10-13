@@ -1,0 +1,62 @@
+# The weekly benchmark: the same 150 sites (held-out set 7) read every Monday by each tool on its
+# own and by Frankensurf, on a fresh GitHub machine, with results committed to benchmarks/weekly/
+# for the docs page (frankensurf.dev/docs/more/weekly/). Free arms always run; Firecrawl, Zyte and
+# Frankensurf with paid fallbacks run only when their keys are set as repository secrets.
+name: Weekly benchmark
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"   # Mondays 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: "Sites to read (empty: all 150)"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-bench
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: install Frankensurf (this checkout) and its free browsers
+        run: |
+          python -m venv /tmp/fs && /tmp/fs/bin/pip install -q --upgrade pip
+          /tmp/fs/bin/pip install -q ".[mcp]"
+          /tmp/fs/bin/frankensurf install --with-deps chromium stealth | tail -15
+      - name: read the 150 sites with every arm
+        env:
+          SAMPLE: ${{ inputs.sample }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          ZYTE_API_KEY: ${{ secrets.ZYTE_API_KEY }}
+        run: |
+          PYTHONPATH=.:src /tmp/fs/bin/python scripts/weekly_bench.py ${SAMPLE:+--sample "$SAMPLE"} | tail -60
+      - name: summary
+        run: |
+          /tmp/fs/bin/python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json
+          s = json.load(open("benchmarks/weekly/latest.json"))
+          print(f"### {s['date']} · v{s['version']} · {s['sites']} sites · {s['where']}\n")
+          print("| Tool | Read | Median |")
+          print("|---|---:|---:|")
+          for arm, a in sorted(s["arms"].items(), key=lambda kv: -(kv[1]["rate"] or 0)):
+              print(f"| {a['label']} | {a['rate'] * 100:.1f}% | {a['median_s']} s |")
+          PY
+      - name: commit the results
+        if: ${{ !inputs.sample }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add benchmarks/weekly
+          git commit -m "Weekly benchmark $(date -u +%Y-%m-%d)" || exit 0
+          git pull --rebase -q origin main
+          git push -q origin HEAD:main

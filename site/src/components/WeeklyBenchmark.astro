@@ -1,0 +1,53 @@
+---
+// The weekly benchmark's latest run and trend, read in the browser from the repository, so a new
+// Monday run shows without rebuilding the site (scripts/weekly_bench.py writes the files).
+---
+<div class="weekly">
+  <div id="weekly-latest"><p>Loading the latest run…</p></div>
+  <h2 id="trend">Trend</h2>
+  <div id="weekly-trend"><p>Loading…</p></div>
+</div>
+
+<script>
+  const base = "https://raw.githubusercontent.com/yail259/frankensurf/main/benchmarks/weekly/";
+  const pct = (rate: number | null) => (rate == null ? "–" : (rate * 100).toFixed(1) + "%");
+  const esc = (text: unknown) =>
+    String(text).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
+
+  async function load(name: string) {
+    const response = await fetch(base + name, { cache: "no-store" });
+    if (!response.ok) throw new Error(name + ": " + response.status);
+    return response.json();
+  }
+
+  async function render() {
+    const latest = document.getElementById("weekly-latest");
+    const trend = document.getElementById("weekly-trend");
+    if (!latest || !trend) return;
+    try {
+      const run = await load("latest.json");
+      const arms = Object.entries(run.arms as Record<string, any>).sort((a, b) => (b[1].rate ?? 0) - (a[1].rate ?? 0));
+      latest.innerHTML =
+        `<p><strong>${esc(run.date)}</strong> · v${esc(run.version)} · ${run.sites} sites · ${esc(run.where)}</p>` +
+        "<table><thead><tr><th>Tool</th><th>Sites read</th><th>Median</th><th>Slowest tenth</th></tr></thead><tbody>" +
+        arms.map(([arm, a]) =>
+          `<tr${arm.startsWith("stitched") ? ' style="font-weight:600"' : ""}><td>${esc(a.label)}</td>` +
+          `<td>${pct(a.rate)} (${a.read}/${a.sites})</td><td>${a.median_s ?? "–"} s</td><td>${a.p90_s ?? "–"} s</td></tr>`).join("") +
+        "</tbody></table>";
+      const history = await load("history.json");
+      const order = arms.map(([arm]) => arm);
+      const names = Object.fromEntries(arms.map(([arm, a]) => [arm, a.label]));
+      trend.innerHTML =
+        "<table><thead><tr><th>Week</th><th>Version</th>" + order.map((arm) => `<th>${esc(names[arm])}</th>`).join("") +
+        "</tr></thead><tbody>" +
+        history.slice().reverse().map((week: any) =>
+          `<tr><td>${esc(week.date)}</td><td>${esc(week.version)}</td>` +
+          order.map((arm) => `<td>${pct(week.rates[arm])}</td>`).join("") + "</tr>").join("") +
+        "</tbody></table>";
+    } catch {
+      latest.innerHTML = "<p>No weekly run has been published yet. The first one appears after the next Monday run.</p>";
+      trend.innerHTML = "";
+    }
+  }
+  render();
+</script>

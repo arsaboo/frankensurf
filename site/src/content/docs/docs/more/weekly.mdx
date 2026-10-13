@@ -1,0 +1,21 @@
+---
+title: Weekly benchmark
+description: The same 150 sites, read every week by each tool on its own and by Frankensurf, with the raw rows.
+---
+
+import WeeklyBenchmark from "../../../../components/WeeklyBenchmark.astro";
+
+Every Monday a fresh GitHub machine reads the same 150 sites (held-out set 7, picked blind on 10
+October 2026), once with each tool on its own and once with Frankensurf. Every read is judged by the
+same content checks as the [launch benchmark](/docs/more/benchmarks/). The sites stay the same so the
+trend means something. Sites change, tools change, and this shows whether the result holds.
+
+It runs from a data-centre address, which sites wall more often than a home connection, so every
+rate here is lower than the headline numbers. Compare the tools with each other, week by week.
+Paid tools appear when their keys are configured for the run.
+
+<WeeklyBenchmark />
+
+Raw rows for every week, and the script, are in the repository:
+[benchmarks/weekly/](https://github.com/yail259/frankensurf/tree/main/benchmarks/weekly) and
+[scripts/weekly_bench.py](https://github.com/yail259/frankensurf/blob/main/scripts/weekly_bench.py).
