@@ -1,0 +1,86 @@
+---
+title: Agent frameworks
+description: Use Frankensurf's read and search as tools in LangChain, the OpenAI Agents SDK, CrewAI, or as a Claude Code plugin.
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+Any MCP client can start `frankensurf-mcp` ([Add to your agent](/docs/agents/)). For frameworks
+that take Python tools, `frankensurf.agent_tools` gives you two ready-made ones:
+
+- **frankensurf_read**: a page's text (or the article, with `main`), its title, a quality grade,
+  which tool got it, and a `trace_id` to pass back as `try_harder_than` when the page wasn't right.
+  With a JSON Schema, the fields filled from the page's own data
+  ([Structured fields](/docs/read/structured/)).
+- **frankensurf_search**: checked results (url, title, snippet, published), with `recency`,
+  `site` and `vertical`.
+
+Policy settings pass straight through, for example
+`langchain_tools(allow_paid_fallbacks=True, max_cost_usd=0.02)`. Text is capped at 20,000
+characters (`max_text`).
+
+<Tabs syncKey="framework">
+<TabItem label="LangChain">
+
+```bash
+pip install "frankensurf[langchain]"
+```
+
+```python
+from frankensurf.agent_tools import langchain_tools
+from langgraph.prebuilt import create_react_agent
+
+agent = create_react_agent(model, tools=langchain_tools())
+```
+
+Each tool works sync (`invoke`) and async (`ainvoke`).
+
+</TabItem>
+<TabItem label="OpenAI Agents SDK">
+
+```bash
+pip install "frankensurf[openai-agents]"
+```
+
+```python
+from agents import Agent, Runner
+from frankensurf.agent_tools import openai_agents_tools
+
+agent = Agent(name="researcher", instructions="Use the web tools to answer.", tools=openai_agents_tools())
+result = await Runner.run(agent, "What changed in the latest ferry timetable?")
+```
+
+The SDK's strict tool schemas can't describe a free-form object, so here the schema is passed as
+JSON text: `extract_schema_json`.
+
+</TabItem>
+<TabItem label="CrewAI">
+
+```bash
+pip install "frankensurf[crewai]"
+```
+
+```python
+from crewai import Agent
+from frankensurf.agent_tools import crewai_tools
+
+researcher = Agent(role="Researcher", goal="Find and read sources", backstory="...", tools=crewai_tools())
+```
+
+CrewAI supports Python up to 3.13.
+
+</TabItem>
+<TabItem label="Claude Code plugin">
+
+Install the package (`pip install "frankensurf[mcp]"`, then `frankensurf install`), then:
+
+```
+/plugin marketplace add yail259/frankensurf
+/plugin install frankensurf@frankensurf
+```
+
+The plugin starts the MCP server and adds the skill that teaches Claude when to read, search,
+try harder, or hand a wall to you.
+
+</TabItem>
+</Tabs>

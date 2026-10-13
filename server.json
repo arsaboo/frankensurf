@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.yail259/frankensurf",
+  "description": "Read any web page and search the web: 28 tools, cheapest first, every page checked.",
+  "repository": {
+    "url": "https://github.com/yail259/frankensurf",
+    "source": "github"
+  },
+  "version": "0.42.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "frankensurf",
+      "version": "0.42.0",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
