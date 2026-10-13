@@ -40,7 +40,7 @@ async def read(url: str, provider: str | None = None, render: bool | None = None
                module: str | None = None, module_override: dict | None = None,
                allow_archive: bool | None = None, items: bool | None = None,
                main_content: bool | None = None, lightning: bool | None = None,
-               allow_real_browser: bool | None = None,
+               allow_real_browser: bool | None = None, schema: dict | None = None,
                acquisition_policy: dict | None = None) -> dict:
     """Retrieve evidence. Omitted settings use runtime defaults and operator public routes.
 
@@ -77,6 +77,11 @@ async def read(url: str, provider: str | None = None, render: bool | None = None
     completeness.off_query, with receipt.next_step, instead of escalating.
     card_images=True adds cards: each result link with its title and its own
     thumbnail URL, from the same page load.
+    schema is a JSON Schema ({"type": "object", "properties": {...}, "required": [...]}):
+    result.extracted.data fills its properties from what the page publishes for machines
+    (JSON-LD, microdata, Open Graph, its own JSON), with missing, sources and valid. A page
+    missing a required property counts as incomplete, so the read climbs to a stronger tool.
+    No model is used: a property the page never publishes stays missing.
     A saved site module matching the URL shapes the read by default (see the
     site_modules tool): the result gains items and receipt.module. module names
     one, "none" turns modules off, module_override runs an unsaved module once.
@@ -87,10 +92,11 @@ async def read(url: str, provider: str | None = None, render: bool | None = None
         "expect_terms": tuple(expect_terms) if expect_terms else None,
         "card_images": card_images, "allow_archive": allow_archive, "auto_items": items,
         "main_content": main_content, "lightning": lightning,
-        "allow_real_browser": allow_real_browser})
+        "allow_real_browser": allow_real_browser, "extract_schema": schema})
     # Agents read text: ask servers for markdown first (T0). Callers can pass
     # acquisition_policy={"prefer_markdown": false} for raw HTML structure.
-    options.setdefault("prefer_markdown", True)
+    # Markdown drops the JSON-LD and meta tags a schema is filled from.
+    options.setdefault("prefer_markdown", not schema)
     extra = {"retry_of": try_harder_than} if try_harder_than else {}
     if module is not None:
         extra["module"] = False if module == "none" else module

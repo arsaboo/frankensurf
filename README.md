@@ -176,6 +176,9 @@ free tier much stronger. Details in
 
 - Every read carries `receipt.quality`: `good`, `partial` or `poor`, with flags such as `paywall`,
   `menus` or `placeholder`, so an agent knows when a page didn't really come through.
+- `--schema product.json` (MCP `schema`) fills a JSON Schema from the page's JSON-LD, microdata,
+  meta tags and own JSON into `extracted`, and climbs to a stronger tool while a required field is
+  missing ([Structured fields](https://frankensurf.dev/docs/read/structured/)).
 - `--main` (MCP `main_content=True`) adds `main_text`: the article without menus, footers and
   banners (best with `pip install "frankensurf[main]"`).
 - A read with no page after 3 seconds starts two more free tools beside it and keeps the first

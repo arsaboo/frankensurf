@@ -60,6 +60,8 @@ def _policy_kwargs(args):
             values[field] = tuple(values[field])
     if values.get("search_source_timeout_seconds") == 0:
         values["search_source_timeout_seconds"] = None
+    if getattr(args, "schema", None):
+        values["extract_schema"] = _load_json(args.schema, "--schema")
     return values
 
 
@@ -579,6 +581,9 @@ def build_parser():
         help="A word the search results should mention; repeat for more")
     parser.add_argument("--agent-task",
         help="Task for the browser agent, e.g. 'search for sony a7iii'; the agent may finish on any allowed page")
+    parser.add_argument("--schema", metavar="FILE",
+        help="read: a JSON Schema file; fills result.extracted from the page's JSON-LD, microdata,"
+             " meta tags and own JSON, and climbs to a stronger tool while a required field is missing")
     parser.add_argument("--main", action="store_true", default=None,
         help="Also return main_text: the article without menus, footers and banners")
     parser.add_argument("--markdown", action="store_true", default=None,
