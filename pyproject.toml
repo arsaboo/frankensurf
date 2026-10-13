@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "frankensurf"
 version = "0.41.0"
 description = "One read() call for AI agents, stitched from 28 web tools: cheapest first, every page checked, a receipt for every attempt"
-readme = "README.rst"
+readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "yail259" }]
