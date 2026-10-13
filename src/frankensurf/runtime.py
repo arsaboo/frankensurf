@@ -201,6 +201,10 @@ class WebPolicy:
     # Also return main_text: the article without menus, footers and banners
     # (main_content.py; trafilatura when installed).
     main_content: bool = False
+    # A JSON Schema whose properties to fill from the page's published data (schema_extract.py):
+    # result["extracted"] has them, and a page missing a required one counts as incomplete,
+    # so an automatic read climbs to a stronger tool.
+    extract_schema: dict | None = None
     # Safe read-only browser actions on browser reads (interactions.py):
     # dismiss_consent (reject, never accept), load_more, reveal.
     interactions: tuple[str, ...] = ()
@@ -493,6 +497,9 @@ class WebPolicy:
                  "completeness_parallel must be an integer from 1 to 4")
         _require(_is_number(self.hedge_after_seconds), "hedge_after_seconds must be finite and nonnegative")
         _require(type(self.lightning) is bool, "lightning must be a boolean")
+        if self.extract_schema is not None:
+            from .schema_extract import check_schema
+            check_schema(self.extract_schema)
         _require(_is_int(self.hedge_racers, 1) and self.hedge_racers <= 3, "hedge_racers must be 1 to 3")
         _require(type(self.use_wall_priors) is bool, "use_wall_priors must be a boolean")
         _require(type(self.allow_real_browser) is bool, "allow_real_browser must be a boolean")
@@ -3951,6 +3958,10 @@ class Runtime:
                     "method": found["method"], "chars": found["chars"],
                     "of_chars": len(result.get("text") or ""),
                     **({"cookie_notice": True} if found.get("cookie_notice") else {})}
+        if effective.extract_schema and (result.get("receipt") or {}).get("status") == "observed":
+            from .schema_extract import extract
+            result["extracted"] = extract(effective.extract_schema, result)
+            result["receipt"]["extracted"] = {key: result["extracted"][key] for key in ("found", "of", "missing")}
         if isinstance(url, str) and not effective.profile:
             self._record_origin_hint(url, effective, result.get("receipt") or {})
             _suggest_handoff(result.get("receipt") or {})
@@ -4416,6 +4427,19 @@ class Runtime:
         receipt["cost_usd"] = None if None in costs else _total_cost(costs)
         return chosen
 
+    @staticmethod
+    def _schema_gate(verdict, result, effective):
+        """With extract_schema, a page missing a required property is incomplete, and a page
+        that fills more properties scores higher, so the climb keeps the one with the fields."""
+        if not effective.extract_schema or not verdict:
+            return verdict
+        from .schema_extract import extract
+        got = extract(effective.extract_schema, result)
+        verdict = {**verdict, "score": verdict.get("score", 0) + 1000 * got["found"]}
+        if got["missing"]:
+            verdict.update(complete=False, reason="missing required fields: " + ", ".join(got["missing"]))
+        return verdict
+
     async def _ensure_complete(self, url, first, policy, adapter, policy_overrides,
                                workload_assertions, effective):
         """Escalate along completeness_ladder until the page looks complete.
@@ -4426,7 +4450,7 @@ class Runtime:
         """
         from .completeness import assess
         terms = effective.expect_terms
-        verdict = assess(url, first, expect_terms=terms)
+        verdict = self._schema_gate(assess(url, first, expect_terms=terms), first, effective)
         record = {key: verdict.get(key) for key in ("kind", "complete", "item_links", "prices",
                                                     "text_chars", "reason")}
         if verdict.get("query"):
@@ -4533,7 +4557,8 @@ class Runtime:
             step_receipt = step.get("receipt") or {}
             costs.append(step_receipt.get("cost_usd"))
             observed = step_receipt.get("status") == "observed"
-            step_verdict = assess(url, step, expect_terms=terms) if observed else None
+            step_verdict = (self._schema_gate(assess(url, step, expect_terms=terms), step, effective)
+                            if observed else None)
             if (step_verdict and not step_verdict["complete"]
                     and self._module_satisfied(step, url, terms)):
                 step_verdict = {**step_verdict, "complete": True, "reason": None,

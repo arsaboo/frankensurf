@@ -1,0 +1,85 @@
+---
+title: Structured fields
+description: Pass a JSON Schema and get its fields filled from the data the page publishes, with a climb to a stronger tool while a required field is missing.
+---
+
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+Most of the time an agent wants a few fields from a page, not the page: a product's name and
+price, an article's headline and date, a job's company and location. Pass a JSON Schema and the
+result gets `extracted`, with each property filled from what the page publishes for machines.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+schema = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "price": {"type": "number"},
+        "currency": {"type": "string"},
+        "image": {"type": "string"},
+    },
+    "required": ["name", "price"],
+}
+page = await web.read(url, policy_overrides={"extract_schema": schema})
+page["extracted"]["data"]       # {"name": "Brass desk lamp", "price": 89.95, "currency": "AUD", ...}
+page["extracted"]["missing"]    # required properties not found: []
+page["extracted"]["sources"]    # {"price": "jsonld:product.offers.price", ...}
+```
+
+</TabItem>
+<TabItem label="CLI">
+
+```bash
+frankensurf read https://shop.example.com/item/42 --schema product.json
+```
+
+</TabItem>
+<TabItem label="MCP">
+
+```json
+{ "tool": "read", "arguments": { "url": "https://shop.example.com/item/42",
+  "schema": { "type": "object", "properties": { "name": { "type": "string" }, "price": { "type": "number" } },
+              "required": ["name", "price"] } } }
+```
+
+</TabItem>
+</Tabs>
+
+## Where the values come from
+
+No model is used. Values come from what pages publish for search engines and link previews:
+
+- **JSON-LD** (schema.org): `Product`, `Article`, `JobPosting`, `Event` and the rest, including
+  `@graph` blocks.
+- **Microdata** (`itemprop`).
+- **Meta tags:** Open Graph (`og:title`, `og:image`), `article:published_time`,
+  `product:price:amount` and the like.
+- **The page's own JSON**, such as a framework's embedded state, searched by key name.
+
+A property is matched by its name and common synonyms: `price` finds `offers.price`, `lowPrice`
+and `product:price:amount`; `published` finds `datePublished` and `article:published_time`;
+`name` finds `headline` and `og:title`. Values are converted to the property's type, so
+`"1,299.00"`, `"1.249,50 €"` and `"1 249"` all become numbers. Name your own paths with
+`x-paths`:
+
+```json
+{ "cheapest": { "type": "number", "x-paths": ["offers.lowPrice", "meta:product:price:amount"] } }
+```
+
+Give the schema a `title` (or `x-type`) such as `"Product"` and the matching JSON-LD object is
+preferred when a page has several. The filled object is validated against the schema; `valid`
+and `errors` say how it went.
+
+## Missing fields make the read try harder
+
+A page that loaded but lacks a required property counts as incomplete, the same as a search page
+with no results. An automatic read then climbs to a stronger tool, and keeps the page that fills
+the most properties. `receipt.extracted` records `found`, `of` and `missing`.
+
+<Aside type="note">
+  A field the page never publishes in its data stays missing. For those, read the page's text
+  (`main_content` helps) and let your agent pick the value out.
+</Aside>
