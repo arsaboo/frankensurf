@@ -6320,6 +6320,12 @@ class Runtime:
         automatic = ladder and source is None and policy.search_source_candidates is None
         free_queue = [item for item in queue if item not in paid_ids]
         verticals = {item["id"]: item["vertical"] for item in self.searches.inspect()}
+        from . import local_search
+        if (automatic and "searxng" in order and self._transport is None
+                and (engine_config or {}).get("base_url") in (None, local_search.URL)):
+            # An installed native engine that is not running (after a restart, say) is
+            # started here, once per process, so the free search keeps its best source.
+            await asyncio.to_thread(local_search.autostart)
         searxng_up = False
         if automatic and "searxng" in order and (vertical in _RACE_VERTICALS or (not recency and policy.search_fill_rungs > 0)):
             searxng_up = await self._search_up("searxng", engine_config)

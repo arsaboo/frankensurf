@@ -63,8 +63,8 @@ against Exa Only: 4.66 vs 4.70, more on 14, fewer on 11 (p = 0.69): level.
 - The reviewers are language models (the same family that helped write the code),
   told nothing about which tool found what, and graded from title, snippet, URL and
   date only.
-- "Free" means with the local search engine (SearXNG in Docker), which
-  `frankensurf setup` offers to start. Without it, free search has no general web
+- "Free" means with the local search engine (SearXNG, run in Docker for these
+  runs; `frankensurf install search` installs the same engine without Docker). Without it, free search has no general web
   engine and is far weaker (1.62).
 - With paid allowed, Frankensurf's answer is built on Exa's, so "level with Exa" is
   the honest reading: it does not beat Exa on these sets.

@@ -48,9 +48,9 @@ async def test_omitted_source_falls_back_with_exact_attribution_and_attempts(tmp
         "automatic_fallback": True, "benchmark_earned_order": False,
         "source_timeout_seconds": 8,
         "vertical_inferred": {"vertical": "web", "reason": "no vertical signal"},
-        # searxng answered 503: the receipt says local search was not running.
-        "local_search": {"status": "not_running", "note": local_search.NOT_RUNNING_NOTE,
-                         "start_with": "frankensurf search-engine start"}}
+        # searxng answered 503 and none is installed here: the receipt says how to install one.
+        "local_search": {"status": "not_installed", "note": local_search.NOT_INSTALLED_NOTE,
+                         "install_with": "frankensurf install search"}}
 
 
 async def test_explicit_source_never_substitutes(tmp_path):

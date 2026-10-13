@@ -187,7 +187,7 @@ def validate(provider_dir):
 def main(argv=None):
     arguments = sys.argv[1:] if argv is None else argv
     if len(arguments) != 1:
-        raise SystemExit("usage: crawl4ai_install_preflight.py PROVIDER_DIR")
+        raise SystemExit("usage: crawl4ai_preflight.py PROVIDER_DIR")
     validate(arguments[0])
 
 

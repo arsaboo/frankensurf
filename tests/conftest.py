@@ -45,7 +45,7 @@ def _no_origin_pacing(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def _no_real_docker_or_local_search(monkeypatch):
+def _no_real_docker_or_local_search(monkeypatch, tmp_path):
     """No test runs the real docker CLI or talks to a real local SearXNG on port 8088
     (one may be running on the owner's machine). tests/test_local_search.py replaces both."""
     import httpx
@@ -58,4 +58,6 @@ def _no_real_docker_or_local_search(monkeypatch):
         raise local_search.DockerUnavailable("missing")
 
     monkeypatch.setattr(local_search, "_TRANSPORT", httpx.MockTransport(refuse))
+    # Nor finds, starts or stops the owner's native engine.
+    monkeypatch.setattr(local_search, "native_dir", lambda: tmp_path / "no-native-searxng")
     monkeypatch.setattr(local_search, "_docker", no_docker)
