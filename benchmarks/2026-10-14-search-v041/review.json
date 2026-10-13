@@ -1,0 +1,4087 @@
+{
+"blind8-announcement-01 https://article.wn.com/view-steel/2026/10/09/ZoomInfo_Launches_Native_ClickUp_Integration_Through_GTMAI_4/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "ClickUp integration announcement in window"
+},
+"blind8-announcement-01 https://www.businesswire.com/news/home/20261009372569/en/ZoomInfo-Launches-Native-ClickUp-Integration-Through-GTM.AI": {
+"date_ok": "yes",
+"useful": "no",
+"why": "ZoomInfo's release, not ClickUp's own announcement"
+},
+"blind8-announcement-01 https://www.facebook.com/ZoomInformation/videos/big-news-for-teams-running-on-clickup-zoominfos-verified-data-100m-companies-500/1669218138200895/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-01 https://www.gurufocus.com/news/9117184/zoominfo-gtm-launches-integration-with-clickup-to-streamline-sales-and-project-workflows": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "ClickUp integration announcement coverage"
+},
+"blind8-announcement-01 https://www.marketscreener.com/news/zoominfo-and-clickup-launch-native-clickup-integration-through-gtm-ai-ce785ddcdb89f02c": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-01 https://www.stocktitan.net/news/GTM/zoom-info-launches-native-click-up-integration-through-gtm-00caglvf4w35.html": {
+"date_ok": "yes",
+"useful": "no",
+"why": "ZoomInfo announcement, not ClickUp's"
+},
+"blind8-announcement-01 https://www.techpartner.news/news/unfold-named-clickup-distributor-across-anz-629576": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "ClickUp ANZ distributor announcement"
+},
+"blind8-announcement-01 https://www.tennessean.com/press-release/story/235694/clickup-launches-verified-service-provider-program-vsp-with-camel-tech-becoming-first-of-the-few/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-02 https://www.pcgamer.com/gaming-industry/bethesda-says-that-obsidians-creative-identity-will-be-preserved-just-months-after-multiple-projects-were-cancelled-and-it-was-told-to-make-a-fallout-game/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Obsidian Entertainment, wrong Obsidian"
+},
+"blind8-announcement-02 https://www.pushsquare.com/news/2026/09/obsidian-remains-distinct-and-keeps-leadership-team-after-being-absorbed-by-bethesda": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-02 https://www.reddit.com/r/Fallout/comments/1wnagrm/obsidian_entertainment_is_officially_moving_under/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Obsidian announcement, Sept 22 in window"
+},
+"blind8-announcement-02 https://www.videogameschronicle.com/news/bethesda-president-tells-obsidian-staff-that-the-studio-will-keep-its-creative-identity-after-its-move/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-02 https://www.youtube.com/watch?v=IGtQhbsEdbM": {
+"date_ok": "yes",
+"useful": "no",
+"why": "YouTube video, not announcement source"
+},
+"blind8-announcement-03 https://whatsnew.fyi/product/linear": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Changelog aggregator, not press release"
+},
+"blind8-announcement-03 https://www.stocktitan.net/news/MXL/max-linear-accelerates-ai-powered-broadband-with-topaz-tm-and-vohqzee2q3wz.html": {
+"date_ok": "yes",
+"useful": "no",
+"why": "MaxLinear, not Linear"
+},
+"blind8-announcement-04 https://frameplate.co/blog/framer-3-everything-you-need-to-know": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Framer 3.0 launch coverage"
+},
+"blind8-announcement-04 https://posts.design/framer-after-two-years-in-stealth-typesafeai-needed-2026-10-08": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Customer showcase, not Framer product launch"
+},
+"blind8-announcement-04 https://runtimewire.com/article/framer-agent-skills-3d-models": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Framer new Agent models roundup"
+},
+"blind8-announcement-04 https://www.reddit.com/r/framer/comments/1x1g2p2/create_beautiful_animated_mockups_in_seconds/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Framer new mockups feature, recent"
+},
+"blind8-announcement-05 https://community.zapier.com/product-updates/the-next-generation-of-zaps-is-here-53832": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Zapier announcement in window"
+},
+"blind8-announcement-05 https://powerdrill.ai/blog/zapier-agents-is-now-ai-by-zapier": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Covers Zapier Oct 6 announcement"
+},
+"blind8-announcement-05 https://www.aiagentslibrary.com/blog/zapier-agents-to-ai-by-zapier/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Third-party blog, not official announcement"
+},
+"blind8-announcement-05 https://www.linkedin.com/pulse/your-next-automation-may-built-chatgpt-zapier-zeusinfinitymarketing-trmpf/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "LinkedIn opinion post, not official announcement"
+},
+"blind8-announcement-05 https://zapier.com/blog/zapier-connector-in-muse/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Zapier Muse announcement"
+},
+"blind8-announcement-06 https://calendly.com/help/meet-the-new-calendly": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Calendly new product announcement, Oct 5 2026"
+},
+"blind8-announcement-06 https://www.logodesign.org/calendly-has-a-new-logo-and-we-dont-know-what-to-think-about-it/": {
+"date_ok": "unknown",
+"useful": "no",
+"why": "Logo opinion piece, undated, not announcement"
+},
+"blind8-announcement-06 https://www.usecarly.com/blog/calendly-review/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Third-party review, not Calendly announcement"
+},
+"blind8-announcement-07 https://emailexpert.com/mailchimps-peak-season-data-weekends-sell-and-the-ai-figures-need-a-footnote/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Marketing data piece, not an announcement"
+},
+"blind8-announcement-07 https://www.facebook.com/EnergyArtistJuliaWatkins/posts/no-you-didnt-place-an-order-today-mailchimp-just-decided-to-send-out-order-confi/1670761407741182/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Facebook post, not authoritative announcement"
+},
+"blind8-announcement-07 https://www.facebook.com/mailchimp/posts/fewer-platforms-faster-decisions-one-brand-merged-shopify-data-email-and-sms-in-/1572027138294516/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Social media promo, not an announcement"
+},
+"blind8-announcement-07 https://www.facebook.com/mailchimp/posts/grow-without-the-guesswork-with-mailchimp-with-intuit-intelligence/1578997354264161/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-08 https://kalkine.com.au/news/energy/amplitude-energy-asxael-is-the-analyst-view-changing-after-its-ecsp-investment-decision": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Amplitude Energy analyst piece, wrong company"
+},
+"blind8-announcement-08 https://openstax.org/books/physics/pages/13-2-wave-properties-speed-amplitude-frequency-and-period": {
+"date_ok": "unknown",
+"useful": "no",
+"why": "Physics amplitude, not company"
+},
+"blind8-announcement-08 https://www.bairdmaritime.com/shipping/tankers/gas/amplitude-commits-up-to-146m-to-unlock-australias-otway-basin-gas": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Energy company Amplitude, not the analytics firm"
+},
+"blind8-announcement-08 https://www.miningweekly.com/article/australias-amplitude-energy-approves-fid-for-east-coast-supply-project-2026-09-30": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Amplitude Energy, wrong company"
+},
+"blind8-announcement-09 https://af.net/realtime/plaid-launches-advanced-ai-models-for-credit-fraud-and-payment-risk-decisions/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-09 https://ffnews.com/news/tailor-your-identity-verification-new-controls-in-plaid-idv-9342586e": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Plaid IDV launch news"
+},
+"blind8-announcement-09 https://finance.yahoo.com/technology/ai/articles/plaid-launches-lendscore-2-ai-115057322.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Plaid LendScore 2 launch"
+},
+"blind8-announcement-09 https://finance.yahoo.com/technology/ai/articles/plaid-releases-ai-models-improve-130000519.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Plaid product launch press, Oct 6 2026"
+},
+"blind8-announcement-09 https://financingyourway.com/articles/plaid-launches-credit-fraud-and-payment-risk-ai-models": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Plaid launch coverage, Oct 6 2026"
+},
+"blind8-announcement-09 https://plaid.com/blog/signal-v4-launch-ach-risk-model/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-announcement-09 https://www.businesswire.com/news/home/20261006091265/en/Plaid-Releases-New-AI-Models-to-Improve-Decisions-Across-Credit-Fraud-and-Payments": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-announcement-09 https://www.pymnts.com/consumer-finance/2026/plaid-launches-credit-and-fraud-models-fueled-by-cash-flow-data/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-09 https://www.renascence.io/news/94858/plaid-launches-ai-models-for-credit-fraud-and-payment-risk": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Plaid AI models launch"
+},
+"blind8-announcement-10 https://www.bloomberg.com/news/articles/2026-09-24/revolut-wins-argentina-central-bank-approval-plans-2027-launch": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-10 https://www.marketing-interactive.com/revolut-bets-nearly-sg-350m-to-singapore-as-business-customer-base-grows-fivefold": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Revolut Singapore investment announcement"
+},
+"blind8-announcement-10 https://www.reuters.com/business/finance/revolut-ceo-wants-us-primary-listing-if-it-goes-public-bloomberg-news-reports-2026-10-08/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-10 https://www.revolut.com/news/revolut_receives_central_bank_approval_for_the_acquisition_of_banco_cetelem_in_argentina/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Revolut official news release"
+},
+"blind8-announcement-10 https://www.revolut.com/news/revolut_shakes_up_the_high_street_with_first_facial_recognition_payments_and_0_processing_fees/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-10 https://www.techtimes.com/articles/328876/20261013/revolut-converts-payment-network-ai-agent-rail-ahead-protocol-shakeout.htm": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Revolut announcement coverage, recent"
+},
+"blind8-announcement-10 https://www.theguardian.com/business/2026/sep/17/revolut-reportedly-facing-3m-ransom-demand-after-hackers-steal-hundreds-of-customers-data": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Ransom news, not official announcement"
+},
+"blind8-announcement-11 https://ffnews.com/news/product-release-monzo-launches-new-junior-stocks-shares-isa-and-top-tips-for-tal-a0fbd34f": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Monzo product launch news"
+},
+"blind8-announcement-11 https://paymentexpert.com/2026/10/05/monzo-seeks-capital-nubank-talks-end/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-11 https://thefinancialcurrent.com/news/2026-09-28-nu-monzo-reported-talks": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Monzo news, Sept 28 2026"
+},
+"blind8-announcement-11 https://www.reuters.com/business/finance/brazils-nubank-says-it-is-not-pursuing-deal-with-monzo-2026-09-30/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reuters Monzo news, 30 Sept"
+},
+"blind8-announcement-11 https://www.reuters.com/business/finance/monzo-talks-sale-nubank-about-10-billion-valuation-sky-news-reports-2026-09-26/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Monzo Nubank talks report"
+},
+"blind8-announcement-11 https://www.reuters.com/company/monzo-bank-ltd/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Reuters company listing page, not a story"
+},
+"blind8-announcement-11 https://www.thetimes.com/business/companies-markets/article/monzo-digital-bank-california-nubank-qpbpcnj8t": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-12 https://whbl.com/2026/09/30/brazils-nubank-says-it-is-not-pursuing-deal-with-monzo/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-12 https://www.americanbanker.com/news/nubank-shuts-down-rumors-its-buying-monzo": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nubank statement on Monzo"
+},
+"blind8-announcement-12 https://www.bankingdive.com/news/nubank-us-launch-multicurrency-account-bank-partner-occ-charter-application/830583/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nubank US launch news"
+},
+"blind8-announcement-12 https://www.bloomberg.com/news/articles/2026-09-26/monzo-in-talks-on-possible-sale-to-brazil-s-nubank-sky-reports": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nubank Monzo talks news"
+},
+"blind8-announcement-12 https://www.bloomberg.com/news/articles/2026-09-30/brazil-s-nubank-says-not-pursuing-a-deal-with-fintech-firm-monzo": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nubank statement on Monzo, in window"
+},
+"blind8-announcement-12 https://www.crowdfundinsider.com/2026/10/316561-nubank-expands-in-the-us-deploys-ai-compliance-tools-and-rules-out-monzo-deal/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nubank news in window"
+},
+"blind8-announcement-12 https://www.forbes.com/sites/zennonkapron/2026/09/27/nubank-wants-to-pay-up-to-10-billion-for-monzo-that-is-twice-monzos-last-valuation-and-115-times-its-pre-tax-profit/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Forbes on Nubank Monzo bid"
+},
+"blind8-announcement-12 https://www.reuters.com/business/finance/brazils-nubank-says-it-is-not-pursuing-deal-with-monzo-2026-09-30/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-12 https://www.reuters.com/business/finance/monzo-talks-sale-nubank-about-10-billion-valuation-sky-news-reports-2026-09-26/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Press reports of talks, not a Nubank announcement"
+},
+"blind8-announcement-13 https://en.community.sonos.com/owners-cafe-228997/a-fresh-coat-of-paint-and-some-new-features-coming-to-the-community-forums-6934825": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Community forum post, not press release"
+},
+"blind8-announcement-13 https://stuff.co.za/2026/09/28/sonos-welcomes-beam-ultra-and-ace-ultra-to-its-system/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Sonos product launch coverage"
+},
+"blind8-announcement-13 https://www.bloomberg.com/news/features/2026-09-30/sonos-beam-ultra-soundbar-ace-ultra-headphones-review-a-fresh-era-for-the-brand": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Bloomberg Sonos launch coverage"
+},
+"blind8-announcement-13 https://www.facebook.com/theaustralian/videos/sonos-has-unveiled-its-ace-ultra-headphones-vowing-to-fix-the-shortcomings-of-th/1901877704131264/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Sonos Ace Ultra announcement"
+},
+"blind8-announcement-13 https://www.forbes.com/sites/marksparrow/2026/09/22/sonos-ships-new-beam-ultra-soundbar-and-ace-ultra-wireless-headphones/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Sonos product launch news"
+},
+"blind8-announcement-14 https://audioxpress.com/news/bose-unveils-usb-c-powered-noise-cancelling-wired-earbuds": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-14 https://hypebeast.com/2026/9/bose-noise-cancelling-wired-earbuds-arrive-via-usb-c": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-14 https://the-gadgeteer.com/2026/09/15/bose-tv-speaker-2nd-gen-dialogue-soundbar/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Bose new soundbar launch coverage"
+},
+"blind8-announcement-14 https://www.audioreviews.org/new-bose-noise-cancelling-wired-earbuds/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Bose launch news in window"
+},
+"blind8-announcement-14 https://www.bose.com.au/pressroom/bose-unveils-new-noise-cancelling-wired-earbuds": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-announcement-14 https://www.bose.com/pressroom/bose-unveils-new-noise-cancelling-wired-earbuds": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Bose press release Sept 28"
+},
+"blind8-announcement-14 https://www.bose.com/pressroom/bose-unveils-new-noise-cancelling-wired-earbuds?srsltid=AU7gw4WJ-_T8fSAAmO0r4mfbLwqoN0TPsn27DWkBRKHMPKI-oteZjVvV": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Bose press release on new earbuds"
+},
+"blind8-announcement-14 https://www.forbes.com/sites/marksparrow/2026/09/17/bose-launches-new-sport-open-and-ultra-open-wireless-earbuds/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Bose new earbuds launch, Sept 2026"
+},
+"blind8-announcement-15 https://note.com/yuya_outdoor/n/nc32f5c1e82b0?hl=en": {
+"date_ok": "yes",
+"useful": "no",
+"why": "commentary, not official announcement"
+},
+"blind8-announcement-15 https://petapixel.com/2026/09/17/gopro-officially-joins-micro-four-thirds-system/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-announcement-15 https://www.dailycameranews.com/2026/10/gopro-officially-joins-micro-four-thirds-system-standard-group/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "GoPro joins MFT group, Oct 13"
+},
+"blind8-announcement-15 https://www.digitalcameraworld.com/cameras/mirrorless-cameras/gopro-is-now-an-official-part-of-micro-four-thirds-is-the-mission-1-pro-ils-just-the-start": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "GoPro announcement within window"
+},
+"blind8-announcement-15 https://www.facebook.com/gpprocamerastore/posts/something-new-is-on-the-way-meet-the-gopro-mission-1-pro-ils-coming-soon-to-gp-p/1125315616725633/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "retailer post, old HERO13 text"
+},
+"blind8-announcement-15 https://www.jbhifi.com.au/products/gopro-hero13-black-5-3k-hypersmooth-6-0-action-cam": {
+"date_ok": "yes",
+"useful": "no",
+"why": "retail product page, not announcement"
+},
+"blind8-announcement-15 https://www.photographytalk.com/gopro-micro-four-thirds-standard-group/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "GoPro MFT membership announcement"
+},
+"blind8-announcement-15 https://www.prnewswire.com/news-releases/gopro-mission-1-series-earns-11-top-industry-awards-for-image-quality-performance-and-innovation-302888785.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-16 https://inf.news/en/digital/8bf09d92c56ee4eaab3db2ededa4f774.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "DJI launch announcement, Sept 2026"
+},
+"blind8-announcement-16 https://www.dailycameranews.com/2026/09/dji-neo-3-price-specs-release-date-rumors/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Rumor piece, not an announcement"
+},
+"blind8-announcement-16 https://www.dji.com/au/media-center/announcements/dji-release-sdr-transmission-2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "DJI SDR Transmission 2 announcement"
+},
+"blind8-announcement-16 https://www.dji.com/global/media-center/announcements/dji-awards-for-europes-ibc-2026": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "DJI official announcement page"
+},
+"blind8-announcement-16 https://www.youtube.com/watch?v=ZATXiXkKCiw": {
+"date_ok": "yes",
+"useful": "no",
+"why": "YouTube leak video, not announcement"
+},
+"blind8-announcement-17 https://futuremusic.com/2026/09/nothing-announces-headphone-1-pro/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nothing Headphone (1) Pro announcement"
+},
+"blind8-announcement-17 https://says.com/my/tech/nothing-headphone-1-pro-launch-bts-v-ambassador": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nothing announcement in window"
+},
+"blind8-announcement-17 https://timesofindia.indiatimes.com/technology/tech-news/flipkart-big-billion-days-sale-nothing-announces-offers-discount-on-nothing-phone-4a-nothing-phone-4b-and-nothing-phone-4a-pro/articleshow/134633727.cms": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "News of Nothing offers this month, marginal"
+},
+"blind8-announcement-17 https://www.livemint.com/technology/cmf-becomes-indian-carl-pei-announces-nothing-s-india-spin-off-with-local-r-d-and-global-ambitions-11789989929260.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-18 https://apacnewsnetwork.com/2026/09/oneplus-16-launch-date-confirmed-key-features-revealed/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-18 https://claypier.com/en/oneplus-16-launch-october-12/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OnePlus 16 launch announcement"
+},
+"blind8-announcement-18 https://memeburn.com/oneplus-ace-7-16r/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Leak article, not a press release"
+},
+"blind8-announcement-18 https://the-gadgeteer.com/2026/10/12/oneplus-16-9000mah-battery-185hz-gaming-display/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OnePlus 16 launch news"
+},
+"blind8-announcement-18 https://www.androidheadlines.com/2026/10/oneplus-16-is-official-and-youll-be-disappointed-you-cant-buy-it.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OnePlus 16 launch news"
+},
+"blind8-announcement-18 https://www.indianewsnetwork.com/en/oneplus-16-specifications-unveiled-ahead-october-launch-20261012": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OnePlus launch news, Oct 12 2026"
+},
+"blind8-announcement-18 https://www.indianewsnetwork.com/en/oneplus-unveils-coloros-17-beta-oneplus-15-users-worldwide-20261013": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OnePlus ColorOS 17 beta news, today"
+},
+"blind8-announcement-18 https://www.indiatoday.in/technology/news/story/oneplus-coloros-17-timeline-revealed-check-if-your-phone-is-eligible-for-update-3016352-2026-10-13": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OnePlus news story, in window"
+},
+"blind8-announcement-19 https://basic-tutorials.com/news/fairphone-fairbuds-2-release-date-price-and-new-features-at-a-glance/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Fairbuds 2 launch details"
+},
+"blind8-announcement-19 https://forum.fairphone.com/t/stay-tuned-fairbuds-2-launch-october-14-2026-13-00-cet/134463": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Fairphone Fairbuds 2 launch announcement"
+},
+"blind8-announcement-19 https://thegadgetflow.com/blog/fairbuds-2-leaks/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Leaks about unreleased product, not a launch"
+},
+"blind8-announcement-19 https://www.androidheadlines.com/2026/09/fairphone-teases-october-reveal-of-its-new-earbuds.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-19 https://www.digitaltrends.com/home-theater/fairphone-confirms-its-next-gen-repairable-earbuds-will-arrive-in-october-for-119/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-announcement-19 https://www.fairphone.com/the-fairphone-gen-6": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Product marketing page, not launch news"
+},
+"blind8-announcement-20 https://deafvibes.com/hearing-technologies/withings-bodyscan-surges-in-global-coverage/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Says no official announcement; not an announcement"
+},
+"blind8-announcement-20 https://gadgetsandwearables.com/2026/10/13/withings-apple-health-sync-withings-plus/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-announcement-20 https://wearablesarena.com/withings-hwa12-leak-hints-at-a-new-scanwatch-style-watch/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Leak article, not official announcement"
+},
+"blind8-announcement-20 https://www.jbhifi.com.au/collections/withings-smart-watch-range": {
+"date_ok": "unknown",
+"useful": "no",
+"why": "Retailer category page, not announcement"
+},
+"blind8-announcement-20 https://www.techradar.com/home/smart-scales/withings-bodyscan-2-review": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Product review, not announcement"
+},
+"blind8-code-01 https://docs.pytest.org/en/stable/contributing.html": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Contributing docs, not the repo"
+},
+"blind8-code-01 https://github.com/orgs/pytest-dev/repositories": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Org repo listing, not the pytest repo"
+},
+"blind8-code-01 https://github.com/pytest-dev/pytest": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "pytest main repo"
+},
+"blind8-code-01 https://github.com/pytest-dev/pytest-cov": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "pytest-cov plugin, not pytest repo"
+},
+"blind8-code-01 https://github.com/pytest-dev/pytest-mock": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "pytest-mock, not pytest repo"
+},
+"blind8-code-01 https://github.com/pytest-dev/pytest-testinfra": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "testinfra plugin, not pytest repo"
+},
+"blind8-code-01 https://github.com/pytest-dev/pytest-xdist": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "pytest-xdist plugin, not pytest"
+},
+"blind8-code-01 https://github.com/pytest-dev/pytest/releases": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "pytest repo releases page"
+},
+"blind8-code-01 https://pypi.org/project/pytest-git/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "pytest plugin, not pytest repo"
+},
+"blind8-code-02 https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Docs page, not the repository"
+},
+"blind8-code-02 https://github.com/LetsZiggy/Black-Formatter": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Sublime plugin, not Black repo"
+},
+"blind8-code-02 https://github.com/georgewr-stripe/BlackFormatter": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "VS Code extension, not Black repo"
+},
+"blind8-code-02 https://github.com/microsoft/vscode-black-formatter": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "VS Code extension, not Black repo"
+},
+"blind8-code-02 https://pypi.org/project/thonny-black-formatter/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Thonny plugin, not Black repo"
+},
+"blind8-code-02 https://stackoverflow.com/questions/71180810/python-black-code-formatter-is-there-any-way-to-apply-automatic-black-formatti": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Q&A on usage, not repo"
+},
+"blind8-code-03 https://github.com/egoist/esbuild-register": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "esbuild-register, not esbuild repo"
+},
+"blind8-code-03 https://github.com/esbuild/community-plugins": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Community plugins, not esbuild main repo"
+},
+"blind8-code-03 https://github.com/evanw/esbuild": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-03 https://github.com/folke/esbuild-runner": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "esbuild-runner, not esbuild"
+},
+"blind8-code-03 https://github.com/privatenumber/esbuild-loader": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "esbuild-loader, not esbuild's own repo"
+},
+"blind8-code-04 https://github.com/FormidableLabs/webpack-dashboard": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Dashboard tool, not webpack source"
+},
+"blind8-code-04 https://github.com/vuejs-templates/webpack": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Vue template, not webpack source"
+},
+"blind8-code-04 https://github.com/webpack": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Webpack GitHub org"
+},
+"blind8-code-04 https://github.com/webpack/webpack": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Webpack official repository"
+},
+"blind8-code-04 https://github.com/webpack/webpack-bundle-analyzer": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Bundle analyzer plugin, not webpack source"
+},
+"blind8-code-04 https://github.com/webpack/webpack-dev-server": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "dev-server repo, not webpack core"
+},
+"blind8-code-04 https://webpack.js.org/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Project homepage, not source code"
+},
+"blind8-code-04 https://www.npmjs.com/package/webpack-sources": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Helper package, not webpack source"
+},
+"blind8-code-05 https://dev.to/githubopensource/gin-the-go-web-framework-that-will-blow-your-mind-l9g": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Blog post, not the repo"
+},
+"blind8-code-05 https://encore.dev/articles/gin-vs-encore": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Comparison article, not Gin repo"
+},
+"blind8-code-05 https://gin-gonic.com/en/docs/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Docs site, not GitHub repo"
+},
+"blind8-code-05 https://github.com/gin-gonic/gin": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Gin official repo"
+},
+"blind8-code-05 https://pkg.go.dev/github.com/gin-gonic/gin": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Official gin-gonic package page"
+},
+"blind8-code-05 https://pkg.go.dev/github.com/golangtools/gin": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Fork of gin, not official gin-gonic repo"
+},
+"blind8-code-05 https://www.educative.io/answers/what-is-gin-in-golang": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "explainer, not repo"
+},
+"blind8-code-06 https://echo.labstack.com/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "project website, not repo"
+},
+"blind8-code-06 https://github.com/emarifer/go-echo-templ-htmx": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "App using Echo, not Echo repo"
+},
+"blind8-code-06 https://github.com/hashicorp/http-echo": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Niche echo server, not Echo framework"
+},
+"blind8-code-06 https://github.com/isovalent/eCHO": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "eBPF repo, not Echo"
+},
+"blind8-code-06 https://github.com/labstack/echo": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-code-06 https://github.com/labstack/echo/blob/master/ip.go": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Single source file, not repo root"
+},
+"blind8-code-06 https://github.com/swaggo/echo-swagger": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "echo-swagger is a middleware, not Echo"
+},
+"blind8-code-06 https://pkg.go.dev/github.com/labstack/echo/v5": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Echo Go framework package page"
+},
+"blind8-code-07 https://codeforgeek.com/using-regular-expressions-in-rust/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Tutorial on Rust regex crate"
+},
+"blind8-code-07 https://crates.io/crates/regex": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust regex crate page"
+},
+"blind8-code-07 https://crates.io/crates/regex-automata": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Not the regex crate itself"
+},
+"blind8-code-07 https://docs.rs/regex/latest/regex/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "regex crate docs"
+},
+"blind8-code-07 https://janeer.com/guides/rust-regex/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust regex crate guide"
+},
+"blind8-code-07 https://lib.rs/crates/regex": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust regex crate page"
+},
+"blind8-code-07 https://rs4ts.dev/23-ecosystem/08-regex/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust regex crate guide"
+},
+"blind8-code-08 https://dev.to/mhamzap10/7-python-excel-libraries-in-depth-review-for-developers-4hf4": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-08 https://geekflare.com/dev/excel-python-libraries/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python Excel libraries review"
+},
+"blind8-code-08 https://pythongeeks.org/excel-spreadsheets-in-python/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python Excel library openpyxl guide"
+},
+"blind8-code-08 https://support.microsoft.com/en-us/excel/python/open-source-libraries-and-python-in-excel": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Excel Python libs, not spreadsheet library"
+},
+"blind8-code-08 https://www.exceldemy.com/5-python-libraries-for-advanced-excel-data-analysis-every-pro-should-use/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python Excel libraries tutorial"
+},
+"blind8-code-08 https://www.geeksforgeeks.org/python/working-with-excel-spreadsheets-in-python/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python Excel tutorial"
+},
+"blind8-code-09 https://dev.to/shanu001x/top-5-validation-libraries-for-javascript-in-2024-35la": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "JS validation libraries article"
+},
+"blind8-code-09 https://devmystify.com/blog/top-6-validation-libraries-for-javascript-in-2025": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-09 https://github.com/fergaldoyle/vue-form": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Form validation library repo"
+},
+"blind8-code-09 https://github.com/hyperform/hyperform": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Form validation library repo"
+},
+"blind8-code-09 https://github.com/posabsolute/jQuery-Validation-Engine": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Form validation JS library repo"
+},
+"blind8-code-09 https://github.com/rickharrison/validate.js": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "JS form validation library repo"
+},
+"blind8-code-09 https://www.cssscript.com/best-javascript-form-validator/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-code-09 https://www.jqueryscript.net/blog/best-form-validation.html": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Form validation library roundup"
+},
+"blind8-code-09 https://www.reddit.com/r/reactjs/comments/19d5kxr/form_validation_which_library_is_the_best_one_yet/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Form validation libraries discussion"
+},
+"blind8-code-10 https://awesome-go.com/standard-cli/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Curated Go CLI libraries list"
+},
+"blind8-code-10 https://github.com/abiosoft/ishell": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Go CLI library repo"
+},
+"blind8-code-10 https://github.com/davrodpin/mole": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "A CLI app, not a CLI library"
+},
+"blind8-code-10 https://github.com/jawher/mow.cli": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-10 https://github.com/vbauerster/mpb": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Go CLI library repo"
+},
+"blind8-code-10 https://go.dev/solutions/clis": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Go.dev page on Cobra CLI libraries"
+},
+"blind8-code-10 https://medium.com/@omidahn/building-cli-applications-with-go-1d2fb73bb24e": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Go CLI building tutorial"
+},
+"blind8-code-11 https://github.com/crossbario/autobahn-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-11 https://github.com/python-websockets/websockets": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-code-11 https://github.com/websocket-client/websocket-client": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python websocket client repo"
+},
+"blind8-code-11 https://github.com/zhinianboke/xianyu-auto-reply": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Xianyu bot app, not a websockets library"
+},
+"blind8-code-11 https://grassrootengineer.medium.com/python-real-time-with-websockets-47a3328f4ccf": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python websockets article"
+},
+"blind8-code-11 https://support.kraken.com/articles/360043283472-websocket-api-v1-v2-recommended-python-library-and-usage-examples": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python websocket library recommendation"
+},
+"blind8-code-11 https://www.reddit.com/r/Python/comments/1ljdlmw/best_websocket_library/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-code-12 https://cceckman.com/writing/rust-http-crates/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Survey of Rust HTTP crates"
+},
+"blind8-code-12 https://crates.io/crates/isahc": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Async HTTP client crate page"
+},
+"blind8-code-12 https://docs.rs/async-http-client/latest/async_http_client/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust async http client docs"
+},
+"blind8-code-12 https://lib.rs/crates/isahc": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-12 https://lib.rs/web-programming/http-client": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Category listing page"
+},
+"blind8-code-12 https://matt2xu.github.io/async-http-client/async_http_client/index.html": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Async HTTP client crate docs"
+},
+"blind8-code-12 https://rustify.rs/articles/rust-reqwest-vs-ureq-vs-hyper-2026": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust HTTP client comparison"
+},
+"blind8-code-12 https://users.rust-lang.org/t/asynchronous-agnostic-http-client-my-first-crate/50616": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Forum post on one small crate"
+},
+"blind8-code-12 https://www.reddit.com/r/rust/comments/1kdp6yk/announcing_nyquest_a_truly_native_http_client/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust HTTP client announcement"
+},
+"blind8-code-13 https://apryse.com/blog/pdf-template-generation-libraries": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-code-13 https://blog.risingstack.com/pdf-from-html-node-js-puppeteer/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Node PDF generation tutorial"
+},
+"blind8-code-13 https://dev.to/handdot/generate-a-pdf-in-js-summary-and-comparison-of-libraries-3k0p": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-code-13 https://dev.to/xeshan6981/the-5-nodejs-pdf-libraries-every-developer-must-know-4b39": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Node.js PDF library overview"
+},
+"blind8-code-13 https://docraptor.com/node-html-to-pdf": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Overview of Node PDF libraries"
+},
+"blind8-code-13 https://github.com/foliojs/pdfkit": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "PDFKit repository"
+},
+"blind8-code-13 https://pdfnoodle.com/blog/popular-libraries-2025-for-pdf-generation-using-node-js": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Node PDF library roundup"
+},
+"blind8-code-13 https://www.npmjs.com/package/pdf-node": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-13 https://www.nutrient.io/blog/top-js-pdf-libraries/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-14 https://jsonic.io/guides/validate-json-schema-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "jsonschema Python guide"
+},
+"blind8-code-14 https://pydantic.dev/docs/validation/dev/concepts/json_schema/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Pydantic schema generation, not validation library"
+},
+"blind8-code-14 https://pypi.org/project/jsonschema-rs/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-14 https://pypi.org/project/jsonschema/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "jsonschema PyPI page"
+},
+"blind8-code-14 https://python-jsonschema.readthedocs.io/en/stable/validate/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "jsonschema validation docs"
+},
+"blind8-code-14 https://pytutorial.com/python-json-schema-validation-guide/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-code-14 https://stackoverflow.com/questions/54491156/validate-json-data-using-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "jsonschema validation answer"
+},
+"blind8-code-14 https://www.youtube.com/watch?v=zrw2_VW3kb0": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Video, not library page"
+},
+"blind8-code-14 https://zuplo.com/blog/verify-json-schema": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-15 https://dev.to/ayoubphy/step-by-step-guide-setting-up-trpc-better-auth-prisma-and-react-router-v7-4ho": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Tutorial, not tRPC repo"
+},
+"blind8-code-15 https://github.com/icflorescu/trpc-sveltekit": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "trpc-sveltekit, not trpc repo"
+},
+"blind8-code-15 https://github.com/orgs/trpc/repositories": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Org repository listing page"
+},
+"blind8-code-15 https://github.com/tencent/trpc": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Tencent RPC, not tRPC"
+},
+"blind8-code-15 https://github.com/trpc-group/trpc": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Tencent trpc-group, not the main tRPC repo"
+},
+"blind8-code-15 https://github.com/trpc-group/trpc-agent-go": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Tencent agent framework, not tRPC TypeScript"
+},
+"blind8-code-15 https://github.com/trpc-group/trpc-go": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Different project (trpc-go), not tRPC"
+},
+"blind8-code-15 https://github.com/trpc/trpc": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Official trpc repo"
+},
+"blind8-code-15 https://github.com/wobsoriano/trpc-nuxt": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "trpc-nuxt wrapper, not tRPC repo"
+},
+"blind8-code-15 https://trpc.io/docs/example-apps": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Docs examples page, not repo"
+},
+"blind8-code-15 https://yan-xd5.github.io/2026/05/25/trpc%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Chinese blog tutorial, not repo"
+},
+"blind8-code-16 https://gist.github.com/ctrlShiftBryan/633b2e99cb0f62fbdde1c41858950283": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Gist, not the zustand repository"
+},
+"blind8-code-16 https://github.com/beerose/simple-zustand-devtools": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Devtools plugin, not zustand repo"
+},
+"blind8-code-16 https://github.com/pmndrs/zustand": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Zustand official repo"
+},
+"blind8-code-16 https://github.com/pmndrs/zustand/commits": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Commit list page, not repo home"
+},
+"blind8-code-16 https://github.com/pmndrs/zustand/releases": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "zustand repo releases page"
+},
+"blind8-code-16 https://github.com/ryanntannn/zustand-sync": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Third-party middleware, not zustand repo"
+},
+"blind8-code-16 https://github.com/topics/zustand?l=rust&o=desc": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Topics listing page"
+},
+"blind8-code-16 https://github.com/udecode/zustand-x": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Third-party library, not zustand repo"
+},
+"blind8-code-16 https://github.com/zustandjs/zustand-slices": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Slices utility, not main zustand repo"
+},
+"blind8-code-16 https://tkdodo.eu/blog/working-with-zustand": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Blog post, not repo"
+},
+"blind8-code-16 https://www.npmjs.com/package/zustand": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "npm page, not GitHub repo"
+},
+"blind8-code-16 https://www.repopi.com/repo/pmndrs-zustand": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Third-party stats page, not repo"
+},
+"blind8-code-17 https://d-k-y.github.io/D-K-Y/posts/caching.html": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-code-17 https://github.com/grantjenks/python-diskcache": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-code-17 https://pypi.org/project/cache3/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python cache library on PyPI"
+},
+"blind8-code-17 https://pypi.org/project/cachetools/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "cachetools package page"
+},
+"blind8-code-17 https://realpython.com/lru-cache-python/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python caching tutorial"
+},
+"blind8-code-17 https://stackoverflow.com/questions/1427255/is-there-a-python-caching-library": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on Python caching libraries"
+},
+"blind8-code-17 https://www.reddit.com/r/Python/comments/1gvnsoh/mokapy_a_high_performance_caching_library_for/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Reddit post, not the library's own page"
+},
+"blind8-code-18 https://date-fns.org/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "date-fns library site"
+},
+"blind8-code-18 https://dev.to/justinschroeder/introducing-tempo-a-new-date-library-for-javascript-and-typescript-359a": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Introduces a TypeScript date library"
+},
+"blind8-code-18 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Native Date docs, not a library"
+},
+"blind8-code-18 https://phrase.com/blog/posts/best-javascript-date-time-libraries/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Compares JS/TS date libraries"
+},
+"blind8-code-18 https://www.geeksforgeeks.org/typescript/how-to-format-date-in-typescript/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Covers date-fns for TypeScript"
+},
+"blind8-code-18 https://www.libhunt.com/l/typescript/topic/date": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Listing page"
+},
+"blind8-code-18 https://www.npmjs.com/package/date-fns": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "date-fns package page, relevant date library"
+},
+"blind8-code-18 https://www.webdevtutor.net/blog/typescript-best-date-library": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "TypeScript date libraries"
+},
+"blind8-code-19 https://amethyst.github.io/website/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Project website, not GitHub repo"
+},
+"blind8-code-19 https://arewegameyet.rs/ecosystem/engines/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Ecosystem listing page"
+},
+"blind8-code-19 https://cleancut.github.io/rusty_engine/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Tutorial site, not repo"
+},
+"blind8-code-19 https://github.com/bevyengine/bevy": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Bevy repo"
+},
+"blind8-code-19 https://github.com/gsingh93/game-engine": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust game engine repo"
+},
+"blind8-code-19 https://github.com/tuzz/game-engine": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Rust game engine repo"
+},
+"blind8-code-19 https://ventengine.github.io/website/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Engine website, not GitHub repo"
+},
+"blind8-code-19 https://www.w3schools.com/rust/index.php": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "generic tutorial, not game engine repo"
+},
+"blind8-code-20 https://blog.gishub.org/page/python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python geospatial libraries list"
+},
+"blind8-code-20 https://github.com/ResidentMario/geoplot": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python geospatial visualization library repo"
+},
+"blind8-code-20 https://github.com/kunifujiwara/VoxCity": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Geospatial Python repo"
+},
+"blind8-code-20 https://github.com/opengeos/geospatial-data-catalogs": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Dataset catalog list, not a library"
+},
+"blind8-code-20 https://github.com/opengeos/segment-geospatial": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python geospatial package repo"
+},
+"blind8-code-20 https://github.com/torchgeo/torchgeo": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "TorchGeo geospatial repository"
+},
+"blind8-code-20 https://medium.com/data-science-collective/70-geospatial-python-libraries-54604d815a7b": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Geospatial Python libraries list"
+},
+"blind8-code-20 https://www.geeksforgeeks.org/python/working-with-geospatial-data-in-python/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python geospatial tutorial"
+},
+"blind8-code-20 https://www.geoapify.com/python-geospatial-data-analysis/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python geospatial libraries overview"
+},
+"blind8-code-20 https://www.kdnuggets.com/2023/08/5-python-packages-geospatial-data-analysis.html": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Geospatial Python packages overview"
+},
+"blind8-fact-01 https://en.wikipedia.org/wiki/IKEA": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-01 https://en.wikipedia.org/wiki/IKEA_Museum": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "IKEA Museum, not founder"
+},
+"blind8-fact-01 https://en.wikipedia.org/wiki/IKEA_effect": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "IKEA effect, not founder"
+},
+"blind8-fact-01 https://en.wikipedia.org/wiki/IKEA_of_Sweden": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "IKEA of Sweden subsidiary, not founder"
+},
+"blind8-fact-01 https://en.wikipedia.org/wiki/Inter_IKEA_Holding": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Holding company page, does not state founder"
+},
+"blind8-fact-01 https://www.ikea.com/au/en/this-is-ikea/about-us/our-heritage-pubad29a981/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-fact-01 https://www.ikea.com/global/en/our-business/how-we-work/story-of-ikea/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "IKEA story names founder Kamprad"
+},
+"blind8-fact-01 https://www.ikea.com/global/en/stories/our-roots/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "IKEA page on founder Kamprad"
+},
+"blind8-fact-01 https://www.ikea.com/global/en/stories/our-roots/ingvar-kamprad-100-years-260330/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "IKEA page on Kamprad founding"
+},
+"blind8-fact-01 https://www.ikea.com/us/en/this-is-ikea/about-us/our-heritage-pubde78e100/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "IKEA heritage page covers founding"
+},
+"blind8-fact-02 https://en.wikipedia.org/wiki/Capital_punishment_in_Vietnam": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Capital punishment, wrong topic"
+},
+"blind8-fact-02 https://en.wikipedia.org/wiki/History_of_Vietnam": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "History article, not direct capital answer"
+},
+"blind8-fact-02 https://en.wikipedia.org/wiki/List_of_historical_capitals_of_Vietnam": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States current capital is Hanoi"
+},
+"blind8-fact-02 https://en.wikipedia.org/wiki/Public_holidays_in_Vietnam": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Public holidays page, not capital"
+},
+"blind8-fact-02 https://en.wikipedia.org/wiki/Vietnam": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Vietnam article states capital"
+},
+"blind8-fact-02 https://en.wikipedia.org/wiki/Voice_of_Vietnam": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Radio station page, wrong topic"
+},
+"blind8-fact-02 https://www.asiatouradvisor.com/get-inspired/vietnam/what-is-the-capital-of-vietnam/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-02 https://www.britannica.com/place/Vietnam": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Country overview, capital not shown"
+},
+"blind8-fact-02 https://www.mappr.co/capital-cities/vietnam/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States Hanoi is capital"
+},
+"blind8-fact-02 https://www.worldatlas.com/articles/what-is-the-capital-of-vietnam.html": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Article answers capital of Vietnam"
+},
+"blind8-fact-03 https://en.wikipedia.org/wiki/Divine_Comedy": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States Dante wrote Divine Comedy"
+},
+"blind8-fact-03 https://en.wikipedia.org/wiki/Divine_Comedy_Illustrated_by_Botticelli": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Botticelli illustrations, weak on author"
+},
+"blind8-fact-03 https://en.wikipedia.org/wiki/Divine_Comedy_in_popular_culture": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Pop culture page, not author"
+},
+"blind8-fact-03 https://en.wikipedia.org/wiki/List_of_English_translations_of_the_Divine_Comedy": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Translations list, not authorship answer"
+},
+"blind8-fact-03 https://en.wikipedia.org/wiki/The_Divine_Comedy_discography": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Band discography, wrong subject"
+},
+"blind8-fact-03 https://www.britannica.com/biography/Dante-Alighieri": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-03 https://www.britannica.com/topic/The-Divine-Comedy": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-fact-03 https://www.historyandculture.org/historic-timelines/medieval-europe-timeline/late-middle-ages-timeline/dantes-divine-comedy": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-fact-03 https://www.wikiwand.com/en/Divine_Comedy": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States Dante wrote Divine Comedy"
+},
+"blind8-fact-04 https://datesandtimes.org/event/panama-canal-opens-1914/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States canal opened Aug 15, 1914"
+},
+"blind8-fact-04 https://en.wikipedia.org/wiki/History_of_the_Panama_Canal": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-fact-04 https://en.wikipedia.org/wiki/Naval_Base_Panama_Canal_Zone": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Naval base page, not canal opening"
+},
+"blind8-fact-04 https://en.wikipedia.org/wiki/Panama_Canal": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Panama Canal opened 1914"
+},
+"blind8-fact-04 https://en.wikipedia.org/wiki/Panama_Canal_Department": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Army command page, not canal opening"
+},
+"blind8-fact-04 https://en.wikipedia.org/wiki/Panama_Canal_Railway": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Railway article, not canal opening"
+},
+"blind8-fact-04 https://en.wikipedia.org/wiki/Panama_Canal_locks": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Locks article, not opening date"
+},
+"blind8-fact-04 https://panamashipservice.com/when-did-the-panama-canal-open-the-historic-date-and-its-impact/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States Panama Canal opened August 15, 1914"
+},
+"blind8-fact-04 https://www.history.com/articles/panama-canal": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Panama Canal opened 1914"
+},
+"blind8-fact-05 https://en.wikipedia.org/wiki/List_of_tallest_buildings_in_Europe": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Tallest buildings in Europe list"
+},
+"blind8-fact-05 https://en.wikipedia.org/wiki/List_of_tallest_buildings_in_Europe_by_year": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "By-year list, not current tallest"
+},
+"blind8-fact-05 https://en.wikipedia.org/wiki/List_of_tallest_buildings_in_Germany": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Germany list, not Europe tallest"
+},
+"blind8-fact-05 https://en.wikipedia.org/wiki/List_of_tallest_buildings_in_Italy": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Italy list, not Europe"
+},
+"blind8-fact-05 https://en.wikipedia.org/wiki/List_of_tallest_buildings_in_Latin_America": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Latin America list, wrong region"
+},
+"blind8-fact-05 https://en.wikipedia.org/wiki/List_of_tallest_buildings_in_Poland": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Poland list, not tallest building in Europe"
+},
+"blind8-fact-05 https://grokipedia.com/page/List_of_tallest_buildings_in_Europe": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-fact-05 https://reference.org/facts/list_of_tallest_buildings_in_europe/u6xwMnTX": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Tallest buildings in Europe list"
+},
+"blind8-fact-05 https://www.wikiwand.com/en/List_of_tallest_buildings_in_Europe": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "List of tallest buildings in Europe"
+},
+"blind8-fact-05 https://www.worldatlas.com/articles/tallest-buildings-in-europe.html": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Lists tallest buildings in Europe"
+},
+"blind8-fact-06 https://en.wikipedia.org/wiki/Electron": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-06 https://en.wikipedia.org/wiki/Electron_microscope": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Electron microscope, not electron discovery"
+},
+"blind8-fact-06 https://en.wikipedia.org/wiki/Electron_shell": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Electron shell, not discovery"
+},
+"blind8-fact-06 https://en.wikipedia.org/wiki/Runaway_electrons": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "runaway electrons, wrong topic"
+},
+"blind8-fact-06 https://en.wikipedia.org/wiki/Valence_electron": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Valence electron, not discovery"
+},
+"blind8-fact-06 https://www.britannica.com/science/atom/Discovery-of-electrons": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Britannica on electron discovery"
+},
+"blind8-fact-06 https://www.discovermagazine.com/j-j-thomson-discovered-the-electron-and-unknowingly-sparked-a-scientific-revolution-48227": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Covers J.J. Thomson electron discovery"
+},
+"blind8-fact-06 https://www.history.com/this-day-in-history/April-30/jj-thomson-announces-discovery-of-electrons": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-06 https://www.rigb.org/explore-science/explore/blog/subatomic-science-jj-thomsons-discovery-electron": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "JJ Thomson electron discovery"
+},
+"blind8-fact-07 https://en.wikipedia.org/wiki/Brazil": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Brazil article gives population"
+},
+"blind8-fact-07 https://en.wikipedia.org/wiki/Catholic_Church_in_Brazil": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Catholic Church page, not population"
+},
+"blind8-fact-07 https://en.wikipedia.org/wiki/Demographics_of_Brazil": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States Brazil population"
+},
+"blind8-fact-07 https://en.wikipedia.org/wiki/Federative_units_of_Brazil": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "States list, not population"
+},
+"blind8-fact-07 https://en.wikipedia.org/wiki/List_of_municipalities_in_Brazil_by_population": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Municipality list, not national population"
+},
+"blind8-fact-08 https://en.wikipedia.org/wiki/Brandenburg_Concerto_No._5": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Concerto No. 5 only, not composer overview"
+},
+"blind8-fact-08 https://en.wikipedia.org/wiki/Brandenburg_Concertos": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-08 https://en.wikipedia.org/wiki/List_of_concertos_by_Johann_Sebastian_Bach": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-fact-08 https://en.wikipedia.org/wiki/Margrave_Christian_Ludwig_of_Brandenburg-Schwedt": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "About margrave, passing Bach mention"
+},
+"blind8-fact-08 https://en.wikipedia.org/wiki/Switched-On_Brandenburgs": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Album article, passing mention"
+},
+"blind8-fact-09 https://en.wikipedia.org/wiki/Galileo%27s_Leaning_Tower_of_Pisa_experiment": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Galileo experiment, not tower height"
+},
+"blind8-fact-09 https://en.wikipedia.org/wiki/Leaning_Tower_of_Niles": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Replica article, not Pisa height"
+},
+"blind8-fact-09 https://en.wikipedia.org/wiki/Leaning_Tower_of_Pisa": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Leaning Tower of Pisa article"
+},
+"blind8-fact-09 https://en.wikipedia.org/wiki/Leaning_Tower_of_Suurhusen": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Different tower"
+},
+"blind8-fact-09 https://en.wikipedia.org/wiki/List_of_leaning_towers": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "list page, no height"
+},
+"blind8-fact-11 https://en.wikipedia.org/wiki/Agora_%28web_browser%29": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Obscure browser, not WWW inventor"
+},
+"blind8-fact-11 https://en.wikipedia.org/wiki/Bookmark_%28World_Wide_Web%29": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Bookmark article, passing mention"
+},
+"blind8-fact-11 https://en.wikipedia.org/wiki/History_of_the_World_Wide_Web": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Covers history of web and its inventor"
+},
+"blind8-fact-11 https://en.wikipedia.org/wiki/History_of_the_web_browser": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-11 https://en.wikipedia.org/wiki/World_Wide_Web": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "WWW article covers browser origins"
+},
+"blind8-fact-12 https://en.wikipedia.org/wiki/Cold": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States coldest place is Antarctic Plateau"
+},
+"blind8-fact-12 https://en.wikipedia.org/wiki/Extremes_on_Earth": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-12 https://en.wikipedia.org/wiki/List_of_weather_records": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Weather records cover coldest places"
+},
+"blind8-fact-12 https://en.wikipedia.org/wiki/Lowest_temperature_recorded_on_Earth": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Lowest temperature recorded on Earth"
+},
+"blind8-fact-12 https://en.wikipedia.org/wiki/Pole_of_Cold": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Regional cold poles, not clear global answer"
+},
+"blind8-fact-13 https://en.wikipedia.org/wiki/The_Birth_of_Venus": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Names Botticelli as painter"
+},
+"blind8-fact-13 https://en.wikipedia.org/wiki/The_Birth_of_Venus_%28Bouguereau%29": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Bouguereau version, not the famous Botticelli"
+},
+"blind8-fact-13 https://en.wikipedia.org/wiki/The_Birth_of_Venus_%28Cabanel%29": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Cabanel version, not the famous one"
+},
+"blind8-fact-13 https://en.wikipedia.org/wiki/The_Birth_of_Venus_%28Fragonard%29": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Fragonard painting, not Botticelli"
+},
+"blind8-fact-13 https://en.wikipedia.org/wiki/Venus_Anadyomene": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Passing mention of Botticelli"
+},
+"blind8-fact-14 https://en.wikipedia.org/wiki/Africa": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Continent article, no lake answer"
+},
+"blind8-fact-14 https://en.wikipedia.org/wiki/Geography_of_Africa": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "States Lake Victoria is Africa's largest lake"
+},
+"blind8-fact-14 https://en.wikipedia.org/wiki/Lake_Albert_%28Africa%29": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Lake Albert is not largest"
+},
+"blind8-fact-14 https://en.wikipedia.org/wiki/Lake_of_Stars_Festival": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Festival page, not largest lake"
+},
+"blind8-fact-15 https://en.wikipedia.org/wiki/Copernican_heliocentrism": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Covers heliocentrism proposers"
+},
+"blind8-fact-15 https://en.wikipedia.org/wiki/Geocentrism": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Geocentrism page, passing mention of Copernicus"
+},
+"blind8-fact-15 https://en.wikipedia.org/wiki/Heliocentric_astrology": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Astrology page, wrong topic"
+},
+"blind8-fact-15 https://en.wikipedia.org/wiki/Heliocentrism": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Heliocentrism article covers proposers"
+},
+"blind8-fact-15 https://en.wikipedia.org/wiki/Historical_models_of_the_Solar_System": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Covers heliocentric model history"
+},
+"blind8-fact-16 https://en.wikipedia.org/wiki/Atom": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Atom article, no atomic number"
+},
+"blind8-fact-16 https://en.wikipedia.org/wiki/Atomic_mass": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Atomic mass page, not iron's atomic number"
+},
+"blind8-fact-16 https://en.wikipedia.org/wiki/Chemical_element": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Generic element page, not iron"
+},
+"blind8-fact-16 https://en.wikipedia.org/wiki/Iron": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-fact-16 https://en.wikipedia.org/wiki/List_of_chemical_elements": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Element list includes iron's atomic number"
+},
+"blind8-fact-17 https://en.wikipedia.org/wiki/Crime_and_Punishment": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Names Dostoevsky as author"
+},
+"blind8-fact-17 https://en.wikipedia.org/wiki/Crime_and_Punishment_in_Suburbia": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Different film"
+},
+"blind8-fact-17 https://en.wikipedia.org/wiki/Film_adaptations_of_Crime_and_Punishment": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Film adaptations page, not author"
+},
+"blind8-fact-17 https://en.wikipedia.org/wiki/National_Museum_of_Crime_and_Punishment": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Museum, not the novel's author"
+},
+"blind8-fact-17 https://en.wikipedia.org/wiki/On_Crimes_and_Punishments": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Different work by Beccaria"
+},
+"blind8-fact-18 https://en.wikipedia.org/wiki/Crown_%28currency%29": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-fact-18 https://en.wikipedia.org/wiki/History_of_copper_currency_in_Sweden": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Copper currency history, not current currency"
+},
+"blind8-fact-18 https://en.wikipedia.org/wiki/Swedish_krona": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-fact-18 https://en.wikipedia.org/wiki/Swedish_riksdaler": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Historic riksdaler, not current currency"
+},
+"blind8-fact-19 https://en.wikipedia.org/wiki/Byzantine_Empire": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-fact-19 https://en.wikipedia.org/wiki/Byzantine_Empire_under_the_Macedonian_dynasty": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Macedonian dynasty, not the empire's end"
+},
+"blind8-fact-19 https://en.wikipedia.org/wiki/Decline_of_the_Byzantine_Empire": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-fact-19 https://en.wikipedia.org/wiki/History_of_the_Byzantine_Empire": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Byzantine history, fall 1453"
+},
+"blind8-fact-19 https://en.wikipedia.org/wiki/Succession_to_the_Byzantine_Empire": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "succession page, not end date"
+},
+"blind8-fact-20 https://en.wikipedia.org/wiki/Bis%28diphenylphosphino%29methane": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Different compound, not methane"
+},
+"blind8-fact-20 https://en.wikipedia.org/wiki/Chemical_equation": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Generic chemical equation article"
+},
+"blind8-fact-20 https://en.wikipedia.org/wiki/Glossary_of_chemical_formulae": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Generic glossary, weak on methane"
+},
+"blind8-fact-20 https://en.wikipedia.org/wiki/Methane": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Methane article states CH4"
+},
+"blind8-fact-20 https://en.wikipedia.org/wiki/Methyl_hydroperoxide": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Methyl hydroperoxide, wrong subject"
+},
+"blind8-fact-20 https://en.wikipedia.org/wiki/Shoolery%27s_rule": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "NMR rule, not methane formula"
+},
+"blind8-fact-20 https://en.wikipedia.org/wiki/Tetrakis%28acetoxymercuri%29methane": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Obscure mercury compound, not methane"
+},
+"blind8-howto-01 https://stackoverflow.com/questions/10941209/how-to-flatten-penetrate-an-arbitrarily-structured-nested-list-in-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-01 https://stackoverflow.com/questions/21631278/how-to-flatten-a-nested-list-in-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-howto-01 https://stackoverflow.com/questions/61264421/how-to-flatten-a-nested-list-to-a-dictionary-in-python": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Nested list to dict, different task"
+},
+"blind8-howto-01 https://stackoverflow.com/questions/642763/find-intersection-of-two-nested-lists": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Intersection, not flattening"
+},
+"blind8-howto-01 https://stackoverflow.com/questions/75834514/how-to-flatten-a-nested-lists-while-retaining-elements-of-the-list-separated-by": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Different pandas-specific question"
+},
+"blind8-howto-02 https://stackoverflow.com/questions/14075919/using-intellij-to-amend-git-commit-message": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "IntelliJ-specific, not general git"
+},
+"blind8-howto-02 https://stackoverflow.com/questions/31844126/how-to-amend-only-a-git-commit-message-in-pycharm-4-5-3": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "PyCharm-specific, not git CLI"
+},
+"blind8-howto-02 https://stackoverflow.com/questions/37580475/how-to-amend-a-specific-commit-message-in-git": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on amending commit message"
+},
+"blind8-howto-02 https://stackoverflow.com/questions/44591220/how-to-amend-a-commit-message-in-git": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Amend commit message Q&A"
+},
+"blind8-howto-02 https://stackoverflow.com/questions/5307417/how-to-skip-the-commit-message-step-in-git-commit-amend": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "About skipping message, not amending"
+},
+"blind8-howto-03 https://stackoverflow.com/questions/24448961/display-image-on-a-gradient-background-on-hover-via-css": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Hover image question, not adding gradient background"
+},
+"blind8-howto-03 https://stackoverflow.com/questions/26755389/how-to-add-background-image-and-gradient-background": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on gradient backgrounds"
+},
+"blind8-howto-03 https://stackoverflow.com/questions/66496279/is-there-a-way-to-add-a-gradient-without-including-an-background-image-in-css": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Odd specific question, not how-to"
+},
+"blind8-howto-03 https://stackoverflow.com/questions/66895688/how-to-add-gradient-in-the-background-except-a-specific-box-in-css": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Niche exception question, not basic gradient"
+},
+"blind8-howto-03 https://stackoverflow.com/questions/74089732/how-to-add-a-gradient-point-with-css-in-the-background": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Gradient point question, off target"
+},
+"blind8-howto-04 https://stackoverflow.com/questions/25831826/read-and-write-a-json-file-in-node-js": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-04 https://stackoverflow.com/questions/30971288/how-to-read-a-json-file-in-my-node-js-app": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-howto-04 https://stackoverflow.com/questions/39610955/how-to-dynamically-read-external-json-files-in-node-js": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Reading JSON in Node Q&A"
+},
+"blind8-howto-04 https://stackoverflow.com/questions/42578431/how-can-i-read-a-json-file-with-a-azure-function-node-js": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Azure function specific, off topic"
+},
+"blind8-howto-04 https://stackoverflow.com/questions/64655643/how-to-read-write-to-a-json-file-in-node-js": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on reading JSON in Node"
+},
+"blind8-howto-05 https://dmitripavlutin.com/timeout-fetch-request/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Fetch timeout tutorial"
+},
+"blind8-howto-05 https://stackoverflow.com/questions/46946380/fetch-api-request-timeout": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on fetch timeout"
+},
+"blind8-howto-05 https://www.bitsfolio.com/fetch-requests-hanging-indefinitely-server-never-responds/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Explains fetch timeout via AbortSignal"
+},
+"blind8-howto-05 https://www.codingdeft.com/posts/timeout-fetch-requests/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Fetch timeout tutorial"
+},
+"blind8-howto-05 https://www.leavesnet.com/contents/281": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Fetch timeout with AbortSignal"
+},
+"blind8-howto-06 https://stackoverflow.com/questions/51125415/how-do-i-document-a-constructor-for-a-class-using-python-dataclasses": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Docstring question, not general dataclass usage"
+},
+"blind8-howto-06 https://stackoverflow.com/questions/58529899/how-to-use-dataclass-in-python-for-complex-init": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Q&A about complex init, not general dataclass how-to"
+},
+"blind8-howto-06 https://stackoverflow.com/questions/59222092/how-to-use-the-post-init-method-in-dataclasses-in-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Dataclass Q&A on __post_init__"
+},
+"blind8-howto-06 https://stackoverflow.com/questions/73333836/python-3-9-how-to-use-dataclass-input-data-variables-in-dictionary-and-in-meth": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Niche dataclass question"
+},
+"blind8-howto-06 https://stackoverflow.com/questions/74429602/how-to-use-a-python-dataclass-in-another-class": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python dataclass usage Q&A"
+},
+"blind8-howto-07 https://datagy.io/pandas-groupby-multiple-columns/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Pandas groupby multiple columns tutorial"
+},
+"blind8-howto-07 https://medium.com/@heyamit10/mastering-pandas-groupby-multiple-columns-92411999779f": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-howto-07 https://pandas.pydata.org/docs/user_guide/groupby.html": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Pandas groupby docs"
+},
+"blind8-howto-07 https://stackoverflow.com/questions/17679089/pandas-dataframe-groupby-two-columns-and-get-counts": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Pandas groupby two columns Q&A"
+},
+"blind8-howto-07 https://stackoverflow.com/questions/78789249/how-to-use-python-pandas-groupby-for-multiple-columns": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-howto-07 https://www.geeksforgeeks.org/pandas/pandas-group-by-multiple-columns/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Pandas groupby multiple columns tutorial"
+},
+"blind8-howto-07 https://www.statology.org/pandas-groupby-aggregate-multiple-columns/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Pandas multi-column groupby guide"
+},
+"blind8-howto-08 https://stackoverflow.com/questions/2045427/sql-recursive-cte-query-odd-results-set-sql-server-2005": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Odd-results debugging Q, not a how-to"
+},
+"blind8-howto-08 https://stackoverflow.com/questions/20980891/how-to-write-recursive-cte-in-sql-server-2012-for-hour-and-min": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Recursive CTE how-to Q&A"
+},
+"blind8-howto-08 https://stackoverflow.com/questions/61206389/ponyorm-using-with-recursive-cte-clause-without-writing-raw-sql-recursive-quer": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "PonyORM-specific, not SQL CTE how-to"
+},
+"blind8-howto-08 https://stackoverflow.com/questions/63673045/how-to-write-this-recursive-cte-for-sql-server": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Recursive CTE Q&A"
+},
+"blind8-howto-08 https://stackoverflow.com/questions/73120942/display-full-product-category-path-using-hierarchyid-and-recursive-cte-in-sql-se": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Recursive CTE example Q&A"
+},
+"blind8-howto-09 https://stackoverflow.com/questions/65846608/how-to-use-one-usememo-using-react": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "useMemo Q&A"
+},
+"blind8-howto-09 https://stackoverflow.com/questions/68733169/react-how-can-i-use-usememo-conditionally": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "useMemo Q&A"
+},
+"blind8-howto-09 https://stackoverflow.com/questions/70662877/how-to-use-usememo-instead-of-a-local-state-using-javascript-and-react": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "useMemo Q&A"
+},
+"blind8-howto-09 https://stackoverflow.com/questions/71466730/how-can-i-use-usememo-react-hook-in-this-example": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "useMemo usage Q&A"
+},
+"blind8-howto-09 https://stackoverflow.com/questions/77415001/react-how-to-use-usememo-to-memorize-a-value": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "useMemo Q&A"
+},
+"blind8-howto-10 https://gist.github.com/teocci/acfec49441627bf94cbb0e5228374158": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Go signal handling example"
+},
+"blind8-howto-10 https://go-cookbook.com/snippets/concurrency/handling-os-signals": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-howto-10 https://gobyexample.com/signals": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-howto-10 https://pkg.go.dev/os/signal": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Go os/signal docs"
+},
+"blind8-howto-10 https://www.gofaq.org/en/how-go-handles-signals-and-interrupts/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Explains Go signal handling"
+},
+"blind8-howto-10 https://www.tutorialspoint.com/article/how-to-handle-signals-in-golang": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-howto-11 http://pabloaizpiri.com/blog/2023/apache-configuration/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Apache virtual hosts guide"
+},
+"blind8-howto-11 https://httpd.apache.org/docs/current/vhosts/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Official Apache vhost docs"
+},
+"blind8-howto-11 https://stackoverflow.com/questions/4083681/apache-virtual-host-configuration": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-howto-11 https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-20-04": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Apache virtual hosts tutorial"
+},
+"blind8-howto-11 https://www.youtube.com/watch?v=gBfZdJFxjew": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-howto-12 https://access.redhat.com/solutions/365563": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Red Hat USB mount steps"
+},
+"blind8-howto-12 https://linuxconfig.org/howto-mount-usb-drive-in-linux": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "USB mount on Linux guide"
+},
+"blind8-howto-12 https://www.discovertasmania.com.au/regions/hobart-and-south/mount-field-national-park/": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "national park, wrong meaning"
+},
+"blind8-howto-12 https://www.tecmint.com/mount-usb-drive-on-linux-startup/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-12 https://www.youtube.com/watch?v=t1MCbL95Xcg": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Video tutorial on mounting USB"
+},
+"blind8-howto-12 https://www.youtube.com/watch?v=zqZtW1fqF2s": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Video tutorial on mounting USB in Linux"
+},
+"blind8-howto-13 https://dev.to/edriso/setting-up-environment-variables-in-vite-react-project-and-important-things-to-know-about-using-57c": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-13 https://dev.to/maanu07/vite-environment-variables-master-env-importmetaenv-1j1m": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Vite env variables tutorial"
+},
+"blind8-howto-13 https://medium.com/@gosagnik/mastering-environment-variables-in-your-vite-react-project-89cf6bb66599": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-howto-13 https://stackoverflow.com/questions/70709987/how-to-load-environment-variables-from-env-file-using-vite": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Vite env variables Q&A"
+},
+"blind8-howto-13 https://vueschool.io/articles/vuejs-tutorials/how-to-use-environment-variables-in-vite-js/": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Vite env variables tutorial"
+},
+"blind8-howto-14 https://stackoverflow.com/questions/34612933/how-to-paginate-trello-api-response": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Trello-specific question"
+},
+"blind8-howto-14 https://stackoverflow.com/questions/44752531/how-to-encapsulating-api-response-inside-data-keys-and-paginate-them": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "API response pagination Q&A"
+},
+"blind8-howto-14 https://stackoverflow.com/questions/68159650/how-to-paginate-aws-lambda-response-to-rest-api-gateway": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "AWS Lambda specific, weak match"
+},
+"blind8-howto-14 https://stackoverflow.com/questions/76939368/pwoli-js-how-to-get-pagination-info-in-api-response": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Library-specific pagination question"
+},
+"blind8-howto-14 https://stackoverflow.com/questions/79101222/correct-next-req-to-paginate-an-api-request-using-httr2": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on API pagination, R-specific"
+},
+"blind8-howto-15 https://stackoverflow.com/questions/51554009/angular-pipe-and-typescript-type-guard": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Angular pipe question, not general type guards"
+},
+"blind8-howto-15 https://stackoverflow.com/questions/53372216/typescript-how-to-use-type-guard-for-key-value": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-15 https://stackoverflow.com/questions/74287737/how-can-i-use-instanceof-inside-a-custom-type-guard-in-typescript": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Custom type guard Q&A"
+},
+"blind8-howto-15 https://stackoverflow.com/questions/78346010/how-to-use-an-attribute-as-a-type-guard-in-a-typescript-class-with-generics": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Attribute type guard with generics, off target"
+},
+"blind8-howto-15 https://stackoverflow.com/questions/79381209/why-doesnt-typescript-narrow-the-generic-type-with-user-defined-type-guards-in": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Specific generic narrowing bug, not how-to"
+},
+"blind8-howto-16 https://stackoverflow.com/questions/21159986/phpstorm-mercurial-pre-commit-hook-not-executed": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Mercurial PhpStorm issue, not setup"
+},
+"blind8-howto-16 https://stackoverflow.com/questions/34718389/understanding-git-pre-commit-hooks": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-16 https://stackoverflow.com/questions/40509477/how-to-avoid-individual-pre-commit-hooks-set-up-in-all-developers-machine": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "About avoiding hooks, not setup"
+},
+"blind8-howto-16 https://stackoverflow.com/questions/55965712/how-do-i-add-clang-formatting-to-pre-commit-hook": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "clang-specific, not general setup"
+},
+"blind8-howto-16 https://stackoverflow.com/questions/58727860/trying-to-setup-a-pre-push-hook-using-pre-commit": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "pre-push question, not setup guide"
+},
+"blind8-howto-17 https://stackoverflow.com/questions/27854110/how-to-profile-python-process-for-memory-usage": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-17 https://stackoverflow.com/questions/4799166/how-can-i-profile-memory-of-multithread-program-in-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python memory profiling Q&A"
+},
+"blind8-howto-17 https://stackoverflow.com/questions/487224/reducing-django-memory-usage-low-hanging-fruit": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Django memory question, not profiling"
+},
+"blind8-howto-17 https://stackoverflow.com/questions/552744/how-do-i-profile-memory-usage-in-python": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Python memory profiling Q&A"
+},
+"blind8-howto-17 https://stackoverflow.com/questions/9850995/tracking-maximum-memory-usage-by-a-python-function": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-18 https://stackoverflow.com/questions/47399313/css-grid-auto-fit-minmax-adds-phantom-row": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on grid auto-fit minmax"
+},
+"blind8-howto-18 https://stackoverflow.com/questions/50385514/in-css-grid-using-auto-fit-how-to-make-one-cell-occupy-2-columns": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Specific cell span question, not auto-fit usage"
+},
+"blind8-howto-18 https://stackoverflow.com/questions/52129703/how-to-perfectly-center-grid-items-while-using-css-grid-auto-fit-property": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-howto-18 https://stackoverflow.com/questions/56807512/css-grid-how-to-use-auto-fit-for-set-number-of-columns": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "CSS grid auto-fit Q&A"
+},
+"blind8-howto-18 https://stackoverflow.com/questions/71231653/how-to-make-a-responsive-css-grid-with-margins-using-auto-fit": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on CSS grid auto-fit"
+},
+"blind8-howto-19 https://stackoverflow.com/questions/12394166/how-do-i-run-git-rebase-interactive-in-non-interactive-manner": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Non-interactive rebase, wrong question"
+},
+"blind8-howto-19 https://stackoverflow.com/questions/15349668/how-do-you-rename-a-folder-in-git-and-hide-it-with-an-interactive-rebase": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Folder rename question, not interactive rebase how-to"
+},
+"blind8-howto-19 https://stackoverflow.com/questions/27226886/how-to-abort-a-git-rebase-from-inside-vim-during-interactive-editing": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "About aborting rebase, not interactive rebase"
+},
+"blind8-howto-19 https://stackoverflow.com/questions/56925429/git-rebase-interactive-how-to-rebase-only-this-branch-commits": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Interactive rebase Q&A"
+},
+"blind8-howto-19 https://stackoverflow.com/questions/70091035/how-to-fix-issues-in-git-interactive-rebase": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "specific issue, not how-to"
+},
+"blind8-howto-20 https://stackoverflow.com/questions/47769612/python-how-to-use-async-await-without-asyncio": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "About async/await without asyncio"
+},
+"blind8-howto-20 https://stackoverflow.com/questions/48044544/how-to-merge-async-generators-into-a-vanilla-generator-in-python-3-5": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Q&A on async generators"
+},
+"blind8-howto-20 https://stackoverflow.com/questions/59248319/python-asyncio-convert-sync-module-to-async-and-allow-user-to-use-both": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Question about sync/async modules, not async generators"
+},
+"blind8-howto-20 https://stackoverflow.com/questions/60591148/python-iterate-over-an-async-generator-that-yields-a-list": {
+"date_ok": "n/a",
+"useful": "yes",
+"why": "Async generator iteration Q&A"
+},
+"blind8-howto-20 https://stackoverflow.com/questions/63316840/django-3-1-streaminghttpresponse-with-an-async-generator": {
+"date_ok": "n/a",
+"useful": "no",
+"why": "Django-specific question, weak match"
+},
+"blind8-news-01 https://campaignbrief.com/vodafone-tells-a-very-possibly-true-story-for-iphone-18-campaign-via-howatsoncompany/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-01 https://itwire.com/it-industry-news/telecoms-and-nbn/vodafone-becomes-australias-first-telco-to-launch-a-48-month-mobile-payment-plan-as-australians-hold-onto-phones-for-longer": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vodafone news story, Sept 29 2026"
+},
+"blind8-news-01 https://www.canstar.com.au/news/vodafones-new-48-month-plan/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vodafone plan news, Oct 1 2026"
+},
+"blind8-news-01 https://www.finder.com.au/news/vodafone-now-lets-you-pay-off-a-phone-over-4-years": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-01 https://www.msn.com/en-au/news/other/vodafone-launches-australian-first-4-year-phone-plans-to-tackle-rising-hardware-costs/ar-AA2d8VcU": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-01 https://www.msn.com/en-us/news/other/top-ftse-100-shares-to-watch-this-week-iag-bt-group-vodafone-barclays/ar-AA2e5lDO": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Passing mention of Vodafone"
+},
+"blind8-news-01 https://www.pickr.com.au/news/2026/vodafone-intros-four-year-phone-plans-in-time-for-more-costly-phones/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-01 https://www.techguide.com.au/news/mobiles-news/vodafone-launches-australias-first-48-month-mobile-plans-as-we-hold-on-to-our-devices-even-longer/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vodafone news within month"
+},
+"blind8-news-02 https://news.google.com/rss/articles/CBMiigFBVV95cUxNc19UczhGMnpNRVQyZEZWNEJrVk52V3Y2S2pic05iR0hMZkNzU1BlSjAxWWxXTTBNOFc5cFcxUl81QUFHSlhLb2tjN094VTVaQXYwOFZPOERhUTNGM3NHdHNhaHVleEpKLXFmSTFGX1d0X1pEN3MwOUl5MVBBamNLajFCQm1HTWQ0d3c?oc=5": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Australian politics video, wrong Orange"
+},
+"blind8-news-02 https://news.google.com/rss/articles/CBMilAFBVV95cUxQS19fWUxJZVVCY1ZBbF9wTnRhV1g2V2tOTDRxbTFQWUxzR2VPaVZzNkdrQnVJSGVCeFpVUld6bnJfYU4xNkl1NVp3S3c5U0lZRlhuWlNTZ0RwYTdhYjhIVUFlX2xTc0dYQldqejdscUlhQWtSbFY1cDA2MUQ1S2RZT1FWWXFzQjUwLV9VWDVwWWFyZF9G?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Orange news in window"
+},
+"blind8-news-02 https://www.cleveland.com/community/2026/10/iain-pickett-named-kiwanis-club-senior-of-the-month-orange-schools-news-roundup.html": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Orange school news, wrong entity"
+},
+"blind8-news-02 https://www.msn.com/en-gb/news/other/orange-state-is-gone-forever-michelle-o-neill-tells-assembly/ar-AA2e5hW9": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Northern Ireland politics, not Orange SA"
+},
+"blind8-news-02 https://www.msn.com/en-us/news/other/orange-order-says-no-proposals-on-table-for-resolution-to-drumcree-dispute/ar-AA2dl4Gu": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Orange Order, wrong Orange"
+},
+"blind8-news-02 https://www.newsobserver.com/news/local/counties/orange-county/article317558472.html": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Orange County election, wrong Orange"
+},
+"blind8-news-02 https://www.smh.com.au/culture/music/barnyard-punks-in-orange-empty-stages-in-byron-bay-the-nsw-towns-where-live-music-thrives-or-dies-20261004-p60t3p.html": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Orange NSW town, wrong subject"
+},
+"blind8-news-03 https://companies.einnews.com/news/deutsche-telekom-news": {
+"date_ok": "yes",
+"useful": "no",
+"why": "News aggregator listing page"
+},
+"blind8-news-03 https://news.google.com/rss/articles/CBMiqgFBVV95cUxOUXJTRmpYVXFENUFwVDdaVjIwYnFtRVZMbTBlcVZqUlhXYkxEQ1Rfcmc0TTB3M29RbS0tY2o5Wm9teTFHR1hKNms5VDk1eV8zTlhxRTl4ZWlsZVJESWFfSkk3SUFqTE16c3lfcVlNRzJyaXF6blBMR0ZiWVc1OW04TEJ3SFNDdXVfTVphMnctemtuV1ZfdTdmc0RoY1JETnY3dFhLbUtzZmluQQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Deutsche Telekom stock news Oct 9"
+},
+"blind8-news-03 https://news.google.com/rss/articles/CBMiuwFBVV95cUxPRDdReGZWWG1udXVKYml2ZVZ2eHp6WFVWeWJLQVcxQ1czbHVsMkkxQjVMZ0pVdzQ1X2wwdVIteGhTTm5ZdmFkUkR0TFU5R2w5enlEQkV3VXdUVi1zZHpzNklDVXNXMUxXSU5RLU1ZTUk2anU1V0p0aEdNS01PbTdJUkpJUHdIUFpwYTdJa2dHRW1pUVVIaEpFY3V0SkpnUzQ5QkRuVnAyOFpKV0dQVXptMmxrY2NoZXNiNEFJ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-03 https://news.google.com/rss/articles/CBMiygFBVV95cUxNdGZhUUJHUFB5SVVNRkl4MUdnVUlnN0J2emRRZG1VbzZwdmk0ajEzUmhhdUdVZ3ZLRFY4NjJyZmczLWxsbGxmaDNtZjkxODhLaWI1QVM5aE9wNVM5SkUwY1J3WWp5Y3ozXzUzQWVZVkxkNXNOZW5UaEV6clRUUzRRZ3lCUHBJeVN2WG9qTzYzV3RaNEpjdE5PMkdxelY2b2Q0VmRaMTVsdk5jRGJpY3VkR0F5QjFxOUdIUkpYV2JQVUp5dHVWNlcxYkp3?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Deutsche Telekom weekly recap"
+},
+"blind8-news-03 https://www.ad-hoc-news.de/boerse/news/corporate-news/deutsche-bank-keeps-eur-40-00-target-for-telekom-stock/70314006": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Telekom news in window"
+},
+"blind8-news-03 https://www.ad-hoc-news.de/boerse/news/unternehmensnachrichten/deutsche-telekom-s-cost-cutting-story-now-has-to-survive-a-spectrum-deal/70300402": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Deutsche Telekom news"
+},
+"blind8-news-03 https://www.lightreading.com/ai-machine-learning/deutsche-telekom-dashes-vendor-hopes-for-big-mobile-uplink-spending": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-03 https://www.telecomtv.com/content/ai/the-week-in-ai-native-telco-3-9-oct-2026-56443/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Weekly telco roundup featuring Deutsche Telekom"
+},
+"blind8-news-03 https://www.tradingview.com/news/tradingview:aa415343528f4:0-weekly-recap-deutsche-telekom-dte-buybacks-progress-and-ai-cost-cuts/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Deutsche Telekom weekly news"
+},
+"blind8-news-04 https://dealroom.co/companies/bt-group/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Company profile page, not news"
+},
+"blind8-news-04 https://uk.finance.yahoo.com/news/bt-buys-talktalk-platformx-administration-065100145.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-04 https://uk.finance.yahoo.com/news/bt-group-acquires-talktalk-platformx-071028790.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "BT acquisition news in window"
+},
+"blind8-news-04 https://www.ad-hoc-news.de/boerse/news/corporate-news/bt-group-stock-edges-higher-as-analysts-see-limited-upside/70123384": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "BT Group news in window"
+},
+"blind8-news-04 https://www.computerweekly.com/news/366651307/BT-to-acquire-TalkTalk-comms-group": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-04 https://www.msn.com/en-us/news/other/top-ftse-100-shares-to-watch-this-week-iag-bt-group-vodafone-barclays/ar-AA2e5lDO": {
+"date_ok": "no",
+"useful": "no",
+"why": "Old MSN article, passing mention"
+},
+"blind8-news-05 https://news.google.com/rss/articles/CBMitwFBVV95cUxPbFJVNkRZYlpYSllHYXUyRmpfVFZIbzNhajZyQ2Jsd25rbmFXRHJGcTA1RElFckxGTXlTZjF4SVMtS3lJdFUzODhRRlcyRUthSHVsalcwZS13R1hpSVZNc2lqc190dHc1UVh4Ql9zXzFsZFBCeXhOOHhRRVU3VjRJNUk1REtCOGM4UFNxMXpnVDV3OW9lNWNVT1NseDRvNTZCSmdnNzV5blE1N1VwQ2dISElaWmVzN3c?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Telefonica Brasil results coverage"
+},
+"blind8-news-05 https://news.google.com/rss/articles/CBMiwgFBVV95cUxPMTI0bkZwNFJrNHN5eVI2QUY2YWpVQTRpem10OFNhTmZEMDdWenpLV3VCRGJ4bVItTjNGV0NFUVhmaVMxZ1VqRFU1LUZyWjdnT1pQanJpVlVqbEhlSENfTW1kSXVSSWY5ZnVaT3p2bFpHQTdTTjNmSG1uRlJvd05fT2huXzhDWEVOcFU3RHVselM0MExtLXA0OGNVM2xnUUtIeUJmemhKWERjaGlTV3VhdThZb1RMVllib1NuTlEyZzdKUQ?oc=5": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Trivial stock blurb, no real news"
+},
+"blind8-news-05 https://news.google.com/rss/articles/CBMiwgFBVV95cUxPc3JUMDRPZktHR3Z1Tm9PQXM4cndKQVhuY2E1RlNmOUFtcWJhZHNFTGlSRk9iSUUtSFpVRVdiNHMwY01OWGx0YklELXhsVVFlWjl2Vm1kUHA5MGNxWDNsUlU2cU54Z21aSjk3bU5sN1l3TFhQdjNEQUdNR1VYTndXTmNYTjZiajdyM0k2bDFVYXVSMjRtazFkWkpUR1RYai1aTEREVEFqdHU4MU05dzRJVm9qVGpES1JIM2NENzl2Mmt0dw?oc=5": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Telefonica Brasil options piece, off-target"
+},
+"blind8-news-05 https://www.reuters.com/company/telefonica-sa/": {
+"date_ok": "unknown",
+"useful": "no",
+"why": "Company listing page"
+},
+"blind8-news-05 https://www.telcotitans.com/latest-telefonica-news/44.more?navcode=53": {
+"date_ok": "yes",
+"useful": "no",
+"why": "News listing page"
+},
+"blind8-news-05 https://www.telecoms.com/operator-ecosystem/telefonica-tinkers-in-spain-while-germany-and-the-uk-wilt": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Telefonica news Oct 1"
+},
+"blind8-news-05 https://www.telefonica.com/en/communication-room/press-room/": {
+"date_ok": "unknown",
+"useful": "no",
+"why": "Press room listing page"
+},
+"blind8-news-05 https://www.telefonica.com/en/communication-room/press-room/telefonica-simplifies-operating-model-spain-harness-synergies-drive-growth-scale-digital-services-internationally/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Telefonica press release, Sept 30 2026"
+},
+"blind8-news-05 https://www.telefonica.com/es/sala-comunicacion/prensa/": {
+"date_ok": "unknown",
+"useful": "no",
+"why": "Press listing page"
+},
+"blind8-news-06 https://finance.biggo.com/news/3117e85f-3dd8-4109-892b-0323ba736557": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Iberdrola South Korea exit news"
+},
+"blind8-news-06 https://finance.yahoo.com/markets/stocks/articles/utilities-stocks-lagging-iberdrola-ibdry-183936046.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Iberdrola stock article, Oct 1"
+},
+"blind8-news-06 https://news.google.com/rss/articles/CBMi8wFBVV95cUxNdmV2eTNwaEZQWXJmaUkwZnRVR2Vtb0gzT2Z4TU5CQkxRcjFocHJwbFVOVUo5NTZjRHp4UzVFTlNldTFselBNMTFfQXlNTkR6aWxYOVpUZ3hVYm9JemZTZGpmbFN3cEZqS3kyZHFDM0xOYVNXT2F1b2txOVdCSHM0Y2lxUWN4c2VRSWFjc3FBdHRocTZvYUlEdGEySWRiRTE5Z21oT2Z6S2JYSlRDdWhQVHl3RmlsV2hUMXRBSm9wNm53cnNkM0ltWnpVcXVDTXNvTDJnbTZYd2ljTkRtUE5ZcnVOZkZJSVZOMWh1R2hodHZSVE0?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Iberdrola news"
+},
+"blind8-news-06 https://news.google.com/rss/articles/CBMidkFVX3lxTE9Fd3JqRVFiWmtxRENWYjVzZnM4RjJGdTFPUnhPZWMtUmh3amt0Z1FhNFFaZmNTbnZrbUEyWE9TckkzaENFcXBYSU8xcE1rZ082Mlg3VGpraFB2Ylp2S1NFaGcyLWJrbV9pcVZNRjYxa1pDZjlxX3c?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-06 https://news.google.com/rss/articles/CBMimwFBVV95cUxQamdOS1pycUE2N1UwY1pUYmVfZlRhUUpidW5URDRsMDBvWHFqa3Y2MmdBVDA4SElGaXRwZ3AzUlBFbHVZZjlNbEU0QVVnTzJOME44Wk1va0JiS29tdHFUQTQtMGIwOWNPa1R2bnhXVnZhZG5vblBtNnVKRGhuRkJkdkVPdDdRWkJkcTZOd1JKNmxXNmlQa3pjeFllOA?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Iberdrola output news, Oct 12"
+},
+"blind8-news-06 https://news.google.com/rss/articles/CBMingFBVV95cUxPWENlTngxcUo2NkNpd1QxYkhoa0Q1blllTzliRkRxdHdyX0I1bkYyQ1hjX1NEbEpVaUo5RF9fVWRwTmZrX3FxRk5sRklJR2RFU3BfbWZ0SW82QlFBbmZTZk5SRXZqQVpVcFNiaVpPOTMwS21GdDlVTFBBVjVIWkI1enlzR0Z4SlJjWks5bmtqLVRHSENsbUFDbUxCNVNrQQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-06 https://news.google.com/rss/articles/CBMisAFBVV95cUxOSmY1QzlYZ0ZQMk02TGdQdGpYVUtZUVN3RGJxZXFkN2FuLVVyZFVYZHVEVnVMYm5uQzFJY0NkVmRHSFZDRnhrWHFvalVUakxGNnJtTUNrX1RHNnBEU2xqZVhVUGc0SzRfdFBKNFNmd0ZSWDZjd2JiMGxCUUZMbDdIeUJ6TlRtOVdEYk40TkdBbDNyUHZHZ2NraWExcGw3dGtJaXRmczQ4NElpbjVWZWRPdg?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Iberdrola JV news"
+},
+"blind8-news-06 https://renewablesnow.com/news/iberdrola-9-mo-renewables-output-edges-up-to-64-881-gwh-1302802/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Iberdrola output news Oct 12"
+},
+"blind8-news-06 https://www.marketscreener.com/news/iberdrola-s-a-distributed-nearly-207-000-gwh-of-electricity-in-september-up-5-8-driven-by-the-u-ce785ddcd880f124": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Iberdrola September data news"
+},
+"blind8-news-07 https://megaproject.com/news/powerplant/enel-finalises-acquisition-of-renewable-solar-portfolio-in-the-us": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Enel acquisition news"
+},
+"blind8-news-07 https://news.google.com/rss/articles/CBMi4gFBVV95cUxQY1BZYkxQdUJOV3FhcXhjZk1uZlVHZDFwM3ZfOVVTSFpiOUk0NGpRTlpwMFh5TUpMckR4TTZDZFcwNDhpVkZlaHN2MDVQMkNPdkVMX0FfdVZaZ2VOcU96dURJVUR3bmlKVm1ET3lKa1RoRmhpX1N6LVppcmxyMkJmRGRMakhweF9zaVFsX1p6Mk5odGxGVGFGR0tVR045dHNoWFB4R1d1bVhseE1FWl9sMGZzVVVueUhtTWd5WFhCZVBxcVhUM2xPWFdnU3I0NHk3dldQQUFkOGdxYndoMk94WTlB?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-07 https://news.google.com/rss/articles/CBMihgFBVV95cUxQVndZSmY2Vkl2eVBIMWFLYlRKdXJTcTB6VDB3MXZTWGo4cm9kOHIzcEZQV0IyYWtyazlvcVNPQ2Rad1JDT09Wd3dua0N2Z1VkeTBUQ3lXQ1pWMTY3UG9vX0oxRkxDQVBFVUE4YWkyOHlKS0xJMjRPYUlvNHNYYVIxUlJlcUJZdw?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-07 https://news.google.com/rss/articles/CBMingFBVV95cUxNbDhwMDllVGJaelpGR1lpRVFjOHhkZ19rS0U0NGFhbG5nTUNsSGVqY3VZWFYzNkxHUGxoMkkybEFON3BvRnhmaTh1dVNnWkZ6bWlnU1VBMFdpNVZuaTh6U211TFhFVDdwclRZM0NCWUR6d3gyMktLcV85MjFHWndsV1QzbUtQb0hLazd5RnBTbm41ZU54YV8wckRjd0JFUQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Recent Enel news story"
+},
+"blind8-news-07 https://news.google.com/rss/articles/CBMirgFBVV95cUxQaWN6Tzhsc3ZFTURqUXMxR2FzTnhsWTVuT2lPaG5VdlFiZld1VjM0S1MwQzBid2dIUVdqNnNRUllLb2RWQ1dDZ3RQbm5hbmJhYl8zVFF3ZGJFaXQ1V2FXUGRqaG0zUnh1eXV6a1pQRkYzeE9FWnFLSVVSTXZDMTQ5VzVvd191Uk1STXhYS19tY2JTUXRwVG5ONjdxenl3ZGgwaXdvVUNkSWxNTXFYR3c?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-07 https://news.google.com/rss/articles/CBMitgFBVV95cUxQVlRkSGY1UEN3NGkxNVZILVpUU0tadTljUnA5eG9vVzBWWVVXSWpBUjJWay0yU3QyLUpRTS01ajktamMyMzdyMmR4TVR6WHQ2aDhqa2lXZTlWaU9zcUJDcGdxY0JicWE1N1pHRDlWR3B5SFFVWDJaWEFTU3NoU3NqdlRqVG9qXy1mT3pPTXp4Q3JrenhSSlpMZTdCdVhDUWJuczJWRVZVQkhUb1FERHZHQW9JVVZoZw?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Enel news, Sep 24 in window"
+},
+"blind8-news-07 https://www.ad-hoc-news.de/boerse/news/corporate-news/jpmorgan-keeps-overweight-rating-on-enel-stock/70312087": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Enel news in window"
+},
+"blind8-news-07 https://www.marketscreener.com/news/enel-acquires-seven-us-solar-facilities-for-140m-ce785ddade8df422": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-07 https://www.reuters.com/business/energy/why-brazil-could-strip-enel-power-contract-its-biggest-city-2026-10-06/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-08 https://finance.yahoo.com/news/totalenergies-adds-700mw-kkr-us-141038296.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TotalEnergies news this week"
+},
+"blind8-news-08 https://news.google.com/rss/articles/CBMi9gFBVV95cUxPYWVUWWxUYm1SRFNUSEE0N2R2ci0yRVhRdDl0X1dtUDBybmYxdEo3WjFDcTJvRHk3ZWpQekpFdFpTY2lCMkpsVW9KSGpYZHZUbjU1R2dPVVRLTEFPcmVveXNGZVVaRVh2Wld2WEpBRm1hMXlrWTFUOHR6RHB4RktHUnFqd1VHbjFhcnBBOTFFMkVZRVdNRjlsZW1PdjdhMDVHRF9VWTR1YmMyaGMyYTVaN1JSTlZELTZJLXZwcHhsSmdSNm5OdWVRLWg4N0ppV0ZLaEhXU3BjYlhvcUtndWV0Z0JuamZVQVQxRUlIa3lOcDIyUUMtR3c?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-08 https://news.google.com/rss/articles/CBMiogFBVV95cUxOcE5IRTc2am9NUmtQMmlid3ZCQVBXcTg1ZklzdzM2eF9TYjA0ZHFTZzlTZl82ZVdVM1B2YnhlNHhnNGhITERWTzFLVVktZnRvVnBGcEVSVWVYZEFOdVNSYkNhUTFaLUFKUEc0SjBjY2p0ZXA2clN0V0h1aWlDUWM5RDhrRzFiN0RHM1lOTTRlcVM1VWJtVnVuUFlWZ2k0NFVUbGc?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TotalEnergies KKR solar JV, Oct 12"
+},
+"blind8-news-08 https://news.google.com/rss/articles/CBMirwFBVV95cUxQOUNzdXJCanpWaUh4UE84TDhKS0R0dzg2cUhTYWFVLWFtNlppWFF3T2o5eFU0MUltLUFyZExSMm1FZUxKRjBUcERSUXRsaVRpbnhVRnNVMkI1dU93SHlBbE9JbmVlcG91dlVEa1VyWDNEbDdEUjRaUjROdjRSd0xQTC0yM1FjZVBWeVNaakxqeTYyOWc3RTFob3ZXa0MyTy1zUWdlTl9Nd1RfdUV3RW5J?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-08 https://news.google.com/rss/articles/CBMiuwFBVV95cUxNdW44Y1BHeFNvNGRuU3lKVTRZcnFldld3WkxfT0l0MjctdFVFTHBuTHRBeE91YTNIdVdlZUxWbjBXcHQyZG15eVBVUmJXdHZrcVFCWHVBSWh6MkZoM2VXcHJ4d2I3TGpJWHk0QjhabmJMRG5EZzdPMU93UGZFSW1MRGtfWUs3Z191NnVaVm1td3BfR3FMRU9LN09DeUlUM3BrUDhxd3hpdUtORDdGbUNTcWdrcFB6ZXVVN1hN?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TotalEnergies news Oct 12"
+},
+"blind8-news-08 https://news.google.com/rss/articles/CBMiwwFBVV95cUxNQ0VRVWZxVW9BWDlGN09yM1V3eC1TRXhSNnFCMXU4Z3JDUkhXUXYwdWc0ZXgtc3NjSDlyQ0JuSzdZdE9BR0otam9NenhVeWEzQkc2bzJPLVlFQ285Ukg1M3hwQUFyNV9XQm5aMWZaampfckV6Z3pZZjlEX3hoMEpNLXhSR1MyUTk5ZlNHWTRxSjNDSDJVU3gwRUhqUjR6dGs1cUpZYm9CNC1hRWhUbWdZUk9qeEROYUowVGU0UGlhamRFaG8?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TotalEnergies LNG cargo news"
+},
+"blind8-news-08 https://www.ad-hoc-news.de/boerse/news/corporate-news/jpmorgan-raises-target-for-totalenergies-stock-to-eur-85/70276213": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-08 https://www.businesswire.com/news/home/20261011119877/en/United-States-TotalEnergies-Expands-its-Joint-Venture-with-KKR-with-the-Addition-of-a-700-MW-Renewables-Portfolio": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TotalEnergies press release in window"
+},
+"blind8-news-08 https://www.msn.com/en-us/news/other/totalenergies-expands-us-solar-venture-with-kkr-in-12-billion-deal/ar-AA2e3nko": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-08 https://www.msn.com/en-us/news/other/totalenergies-kkr-strike-12-billion-solar-deal/ar-AA2e4d7c": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TotalEnergies KKR deal, Oct 12"
+},
+"blind8-news-08 https://www.tradingview.com/news/benzinga:f91ab27fb094b:0-totalenergies-kkr-strike-1-2-billion-solar-deal/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TotalEnergies KKR deal news"
+},
+"blind8-news-09 https://discoveryalert.com/news/bay-du-nord-project-shell-stake-october-2026/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Equinor Bay du Nord news"
+},
+"blind8-news-09 https://finchannel.com/equinor-and-eneco-sign-five-year-gas-agreement-with-verified-emissions-data/137898/energy/2026/10/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Equinor news in window"
+},
+"blind8-news-09 https://news.google.com/rss/articles/CBMitgFBVV95cUxNWUdUM2o5QVZOZnN6eEplREtPQ2N5UHdIRmhrUjV5bnRVcTdFWXpGd1ZqWnBpajFEVFoyLXA1NTUwbkhTdXcyNnBoNnloVzFlRHpaOXB2dEdaMkV3UkRUSGxoTWUwcDJOSjJib1RqWHBoT0hJd3V5WXloTlVVRE9Bcm04QjB6YUs1Qjgwekp6RWctYjFKaFFIM0JlbHhwNEljcG9TS29qWGV0UWhJSTltTGg2ei0td9IBuwFBVV95cUxQd0wyMW1ORkVwaDVQZ0ZKV3JvMDdwYmVZeWg4eXpUOWxjRl8xRnhUQTctTV9BNkJnQmd6S2NlXy1YNUxIOVZGbC1sSmRZN2YwWHl6dnh6YXlMZXBYOENFSkZuSHRmR3U0c3NOcWt2dUVJb0dHekxCNERzdUVIWWtOVDRSaklxTi1CdEFUTHZrM213SC1oN1gtZHFpaDJVeTg4VFQtLVNydFZ6MFdiMFZVbUZpR2NnNTRqMmxF?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Equinor news, Oct 8 2026"
+},
+"blind8-news-09 https://news.google.com/rss/articles/CBMitwFBVV95cUxNTDhBMzdOVmZyaExKZlBNaHRJYWhzQ1NQaEtPMjNJY1JYUzJjVkcyX3cxX1U4U0hYNGNpSklYaEUzRHo3dVJLU1E3aWNhVmVMRzZZa2NhckZUcUFoQXJtRWNER2V5QmtiaGlETGwybWVIZ2xjdFNDVFlMR1l2SE1vN0NyUDJ4UzJuZ1FiMnF0YWotVHlKRjYxU0tUSVZOeEZlTTF2X1Q0eVlXQzNMWlRMMlNvYm5oeEU?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-09 https://news.google.com/rss/articles/CBMiwwFBVV95cUxOempsQ3RIcnJmRnVqZ0tYSEFjdkE2bmJPMmtQN08xYUVlbkstWmtMdE5xTWRzcHJiSzEtcDZVaWU3X09XMUxpZWtiUGhLS0RIbHA2cFdsdDFrbjFuMmRpMHlLeUxGbXJjZzM1b1UzS2YzeS13N1VXcmtrT1VHVXhzaXpKd081ZmE2aW5QMjJVal9nXzRZY1ZjNXVocHVyTGdoTVg2R2RDVkR1M1VxRGczTlZRRUN6dzZVSVhGc1J5ZVZDOFU?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-09 https://news.google.com/rss/articles/CBMixgFBVV95cUxNOWlqQWpDbk1oa3V2VHg5ZTN1UVp1LUhtdGJNNktYYkhRWmVINEJjczN1eUtEcTlWTE01V2pzMnhDdVV3MHVLT050aXRQVy02T2lCRUhENnRqNFg0YzlfWXRhMDVhTHhFd3hQSmh2dXVRX1h4TE14bjJNZzJCQjFGQ1gya3JHVXB2aEkwLXE2a0NKSC04NjFmSFdVY0RWLVlrNjc5N1NNb3ZDWERTZkJldVlfU3M4c05aZDBzSnp3OWNDaHl1c0E?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-09 https://news.google.com/rss/articles/CBMizAFBVV95cUxQNEVfVmhYZTE1WHNGZEdwVFdqLXdBVm1KUlVQczBPTEU3dlZrblc3OUl3VVN0cU5rdWtoNkYyajhXYW9FU3lYRHpQUDlkTEVpaXdyNEZVV3MyNmttQXNlcU1jUlJNZUEzeWxfaXV3M1hZQnN3MDFZa1hwbS1YV2tKcTdKRDVpVXZpMFByNDNKa1lqeEhNb1VsenBpVGFSVy14OWhTN0dUNDJJRmJPOVQ5cVpfLXBQVEhrclh0emx4WmFYMFQ4T1JxZFBudGg?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Equinor news"
+},
+"blind8-news-09 https://seekingalpha.com/news/4652321-equinor-signs-third-long-term-gas-deal-with-eneco-this-year": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Equinor gas deal news"
+},
+"blind8-news-09 https://www.bbc.com/news/articles/c6zxjrekg29zo": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-09 https://www.equinor.com/news/20261008-gas-discovery-gullfaks-field": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Equinor gas discovery press release"
+},
+"blind8-news-09 https://www.msn.com/en-us/news/other/equinor-shares-gain-757-in-a-year-buy-the-strength-or-wait/ar-AA2dQ6oy": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-09 https://www.theglobeandmail.com/business/article-shell-to-take-30-stake-in-equinors-bay-du-nord-oil-project-2/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Equinor Bay du Nord news"
+},
+"blind8-news-10 https://news.google.com/rss/articles/CBMiwgFBVV95cUxOdjV6NExhRmRESDFHQUUweXEyZkZjM0tpNFB2VndlZHhta0UzdWpJLWFORjVMeldjWlQxbjR1ekg4aTRIV0VTUHlJV0I5X0t6ZkkyX21HZG9CeGdrX2xSWXdKWWdSSEdsTGo0cnRiTVNSZTZ2ekRiYWpSSzRseml0VlVzLVpzME55VEJOUEUzaFZVd3p4d0FiR3lfb2JqazF2cE54dVJIenczLTR1TlR2WTBnQWR0Y0FacWc2M0hNa1JCdw?oc=5": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Opinion piece, Orsted passing mention"
+},
+"blind8-news-10 https://news.google.com/rss/articles/CBMiywFBVV95cUxQMU82Wnc5Y1gtamVnY05GS1dmaTM4QWQ2MHcwV1ZLX1FtZG1rVE1tRHV2VTZ5RDU2U0puMUtLMHpPWWpndnIwbFYxMHVBZ3hoQnMySjhmakxQZDRsRUR2MVFYRlBkWUZOM3BYNElkSjRCT2hUZURKWlhoaFNlYndfR3RfVzBQS2NkaHgzSEM2STRKd2VtdTJiOTA4emxLWTVYTGMwQm1PU2pZT1hIS0N6QmZLY0F0VnctNEw1M29ybWh3ZVd1VVI3elNQa9IB0AFBVV95cUxQN2g4TG9WNDMzWDBzQUhsUzFkdkxkeGt2OGt3QmpQVE1zZFlBdmlYVFdhaENIbjBsUVlRWFNLLXRULXVqSnQyS29NMWx0QXBReEdNQlFpWHhXRUttNkRWQ1dfU2F1N2FHUHpxMnpQN1lNWHBfNVFQSWlpVVdHSTZrb3hxajJndGtObC1HSGFzTUR6a0lDaVdYblJSWm92NmUzdEg0Z1pmaXZ1Yi1wLVg1eTZxUHdFYU5XVndLLU0tRXI2Y3NjOXdiRkFfYlhjVkV4?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Orsted Blackwater Solar news"
+},
+"blind8-news-10 https://orsted.com/en/media/news/2026/09/orsted-receives-final-opinion-regarding-taxation-o-1515288211": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Orsted official news"
+},
+"blind8-news-10 https://orsted.com/en/media/news/2026/10/orsted-to-take-full-ownership-of-gunfleet-sands-1--1519524911": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Orsted press release, Oct 2026"
+},
+"blind8-news-10 https://www.marketscreener.com/news/orsted-a-s-barrow-offshore-wind-farm-marks-20-years-of-powering-the-uk-with-renewable-energy-ce785ad2dd89f420": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-11 https://finance.yahoo.com/real-estate/articles/vestas-2026-outlook-scaling-industrial-133501202.html": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Vesta real estate, wrong company"
+},
+"blind8-news-11 https://news.google.com/rss/articles/CBMiVkFVX3lxTFBMb1FxSGJqVzF3ZlkyUDQ1aEFyam85X1Z3U0lnMUZGRk9lSG1aVlNYdXo0bFhXcXhsQkhCTEs5dGpEem95eDNzU0RBRXBrbGtLVWEyaHRR?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vestas news, Oct 4 2026"
+},
+"blind8-news-11 https://news.google.com/rss/articles/CBMia0FVX3lxTE53a29DOW1pekhvWVA4UUQxeVZXQzZBN3J5QzBwdnlhWTExMm4teDRNOHBkMHlBSWFTVTkwV0gySnQ2NlhWODVQUjhDRUVUYVZtTVQwbEd1cVV2UjByV3pzb3pzVlRWRV90TDVF?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vestas layoffs news in window"
+},
+"blind8-news-11 https://news.google.com/rss/articles/CBMisgFBVV95cUxQV0tVUkE5QmdFbXRJd2JVSExaTmZXajBFbkdZNXpKSUZ2Y0kwTFl5QU5mLWkyOGEzOUUtV2xuZ05tTUp2aEJmd3gxTjBBSGs1R1E2bndFYl96ZDJWenZmcENYMU5CMHNKZGxGMTlycjZfREZ0cU1hSmwyVGc5ektZTmg1dE9VQkdiajRvU2o4dnp5RFo5eExVMmszOWoySF96VXlia0RMS3VCRGQtTXQ1cTRn?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vestas Japan facility news"
+},
+"blind8-news-11 https://news.google.com/rss/articles/CBMiswFBVV95cUxObVk1SmZIak55ZklhSU9FNWt6Q29Xbm11N2VNOHV5NmpxWXBuWDRhNG41aHBIWmhLTEIwX3hkWjE0MUJ6YU1rWTRVbm9WdHVVeXFkSXh5OFNWUnU4NzljTVJyN0dTaEptdUE4eERrYUhzMTV3X2RPaGNJaGJBSGV0MXBlTEdWMkItUlgzMU0wdGo5MWg0MkNUMnFMejZ3cnRUUUVDVnM5UUtPMFFtMHBuS2t1dw?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vestas turbine launch news"
+},
+"blind8-news-11 https://news.google.com/rss/articles/CBMiygFBVV95cUxObTFFY2pfd3k0ZlV0VEtRYU0yYTBqZHh0QTJKV056UjI3VFRJaFgzbHVkSEpfeGhaMlJzYkZBWTl4b3VncVZDenlrT3QzS3g1bzRvODRNRkFxQ0dFUE5hWVVGQUJXc1IxVGtkVWZ5UHNwTFFwc21JRG1FN185NzE2RmhFUmtoMnpKUTVWNHh0NE85bXN2UEJTakVSUzFqaHRfTDRYUm9Ud3c4c1NyWU1LR0FkVXltTUpZMkViemZzeGpBdXVYU0JzeHp3?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Vestas order news, in window"
+},
+"blind8-news-11 https://renewablesnow.com/news/vestas-scores-960-mw-of-wind-turbine-deals-in-australia-1302189/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-11 https://www.marketscreener.com/news/vestas-wins-new-orders-in-australia-and-vietnam-ce785ad2df8efe26": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-12 https://ir.nordex-online.com/financial-news": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Financial news listing page"
+},
+"blind8-news-12 https://news.google.com/rss/articles/CBMi3gFBVV95cUxQbkNLWGJuZXJCVXdyUFg3V19MZFJmcWN5OWNrdnhyTndSeV9PVjR3dE9fNmp1RDZnaDFnQlJvQlU3azFMcXk3NFBldDNpaEpnMWQ3Qm1MSjJiRHB6d181R2cyRWdhZFpyUzV5b2l4WDFXRlh3S1Bmc1BBWm8wanp5TXNxZ2lvYVRNSk91ZkotQjlDVmtpT1oxbFYtSGMwSnVQMGc3UWR4U0RxQnJGSW1HLU15X0VTSnNzdlNhYUN6VHFVZzQ0aXZocXdtU19XcC1jeElMR3J3MWN3SUZtQVE?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-12 https://news.google.com/rss/articles/CBMiiwFBVV95cUxPNkw5OGVMYmtiQWppUzFIVTJUREFDLXlxc2xjb3dqcGtrU3ZySkNlVlR1Q1VzNncxZkZIcDZENmhyMFdsbldVa213NVBOTklZTHQ2T2xNbk40N3hVMDY3amoxdG9DRGMxMVNRUmlRb2JaVjVFMGV1SjQzZFdZMVY3SGRHOGlycVlkZnpN?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nordex orders news"
+},
+"blind8-news-12 https://news.google.com/rss/articles/CBMilwFBVV95cUxQbnEzWlJQenNjYXJmVlNEOGd5X3dpR1BuTk5aU1laNnZOUHBvTGhRR2l1bjN0UkhWb1AwWVBrcEt0aGI5bTdCdnd6bEtMVVBvR1BQclQyUUY2ZWM2YkZid2xobmVCR3JCbkhEYWR2UFgyb0tLUVhaT3JLNFVMZ0lsdC1fczdNZ0dkRDBESEROcll6YlFsdzU0?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nordex Turkey orders news"
+},
+"blind8-news-12 https://news.google.com/rss/articles/CBMiqgFBVV95cUxQTC1UWHpSSFpiV0cwUWhRQ0g1V0tLWXNSYTJzRDRlQ2IyOWNZa3E0NDNnNjRPUlJjYVBGb1l5R3FxOWF1OTd3Y1RDX3dmSHZUOE1pbzBIcm84TGdPanV5SEROaGk1Rmg2M3JPaHZxV3I3Ylk1bExqNFRTVlZRVnNPd3FXOUtGc3k4TnhfVTZGRF9oWFd5bXlSUGZSVkQwVnYwOFYzOVVDa1RRZw?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nordex orders news Oct 7"
+},
+"blind8-news-12 https://news.google.com/rss/articles/CBMizwFBVV95cUxNdmFOSklZSW9zN0hwVmlTUEJtTk5IVUJaTjFtT3NfV0pMcnFaWXVmM05ITms5R3MyNlhTXzdDcDl3SnhDMThtdzNLOVQ2OTEwZDNvQmJQS21XWFFxMFVkazlnWnluYkRmeHBZalRmMFA3enh1b185Tzhkcld0bExxcWFidmpHNTBSMUVRMV9PYmI4dDlvcTN4dlpBMGNYVW1SYkJ0bFpuRi0taUxqaTR1S2l0QXhRanQwSFBucnB5UlpZVDUwTTlreHhycHFxMFnSAdQBQVVfeXFMT0daMklobGZLS1hTVzBjN2pUcUFtZmVpSzktQnJGYkZpNzFmS2xJQjlOSU5iTHFPNEtMVjVoWnVsbTlIaVdIb1NuT2FfNEUzeElvREdYbk9zcDYtZkV6RkEzX1FoRWg0bFBZN0xaNUUwenZ2NzZkbEtyNXlfY25QdkdJOXh2c1FWNTFWTDdNTTFSaHRqYUR3dFJ4b3IzajYtNzFXVExNVHRyUzdhSTVuY191TVNWZTNjZUFzaVQ3ODQtaUlWVmxqSFBUSUxqa3ZmcDItSnk?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nordex news in window"
+},
+"blind8-news-12 https://www.marketscreener.com/news/nordex-books-significantly-more-orders-in-quarter-shares-gain-ce785ddcde8ef627": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nordex order intake news"
+},
+"blind8-news-12 https://www.marketscreener.com/news/nordex-continues-to-recover-after-order-intake-ce785ddcdf8ef626": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nordex news"
+},
+"blind8-news-12 https://www.msn.com/en-ca/news/other/nordex-facing-challenges-power-metallic-mines-and-a-potential-50-copper-rally-verbios-turnaround/ar-AA2dA9uU": {
+"date_ok": "yes",
+"useful": "no",
+"why": "passing mention of Nordex"
+},
+"blind8-news-12 https://www.renewable-energy-industry.com/news/press-releases/pm-8935-nordex-group-order-intake-rises-29-5-to-2-8-gw-in-the-third-quarter-of-2026": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Nordex press release in window"
+},
+"blind8-news-13 https://invezz.com/news/2026/10/05/top-cac-40-shares-to-watch-schneider-electric-lvmh-totalenergies/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider Electric market news, Oct 2026"
+},
+"blind8-news-13 https://news.google.com/rss/articles/CBMiekFVX3lxTFB3V2NiMFhLcUNjQzBZYjRzNklYZXdxTnVQQzVxa0FMVVc2UkUySngzdDF2elRNSWdDMmY1Z1p0OEs3OVBjTDh3MHRwYm5zeFhNTTdnd1JITGZ0c2owU0pFcE9BaGJiaXNBd1FqclN6bWVMNE95ZTBuZXZ3?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider news in window"
+},
+"blind8-news-13 https://news.google.com/rss/articles/CBMimwFBVV95cUxNMklUQWxDMXF5U3FFZkxMWk5STFd3SF9LUDJ6eTJyNWh5dS1aN2luN2xoZ2wyeEJ3bEVDQTN5OG9zdUJUWDFadUJxVmdzcGY1NFE5U1dNcWFRWkIwQ3FUbGZBMUxUTHdjOGs3djVfVzUtSzZyZTg5TjloQkZQb0tldWI3b0NjV0hJU2FhcFljZkFEZ3lJVzB6QTFyVQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider PTC acquisition"
+},
+"blind8-news-13 https://news.google.com/rss/articles/CBMipwFBVV95cUxNMEI2YmwyQXVDeFdoZ2tzY25uNUZHYW5tek05c1RNVHFXWDNqaDhwNVZiZktQMEFKMUMwSXRzekdkVl9Ic1kxdTNTZjBDOTQ4MzhLazlWc1VpU25lSndaZ0FEcVlxUWlVY3Bmd3EyZ1JsZVBiSW5wMFFsM3prMDVfRVFoZGl1Y1pYY2hRYUdXd3NrakFYMFROaW5BLXpwWVhBYk5uMmtaWQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider Electric deal news"
+},
+"blind8-news-13 https://news.google.com/rss/articles/CBMivAFBVV95cUxNODZ1ZXdTOURRV3Z3b2ZZdGNXLVdHSzVUeEdqYUZZNUhGU2dmRjVrclBGeHpUUE1XbDE1dDZ6WEs2dVJvR3FtRk1RWm16Y1hFU0N1ODdRVW8yM3kxQWNmZHE4RmlydmU1TFFiN29kUkpYVk4zYmJac2MtY3dXRG52UHZlUmM0SXZLbzg5NlktUnN5cDh3eVBsb3Ffc1V0eHlpSHJQbk5ZOWlIbFpQUldWeDE3Q0JYaVNPeHFGOA?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider news in window"
+},
+"blind8-news-13 https://news.google.com/rss/articles/CBMivwFBVV95cUxPbDYwbWo2TEdHQ1hRMWtvbWpHMGkwV1BfRmRNTUlfM0NfTFFQUzNyYXRJTEVGbHFLV28wZFl2WDF3d1JCZENIbExEZVE0SDJnelhla1V2azdUcFZSRUIyLVByMjBFRTQ4TGluUGE1N2g2MVRNeEhfX2diQ3JXTGcxOU5qM252VE5RWENadzR0SXl0bDFaUWlHbmZoOWVWXzNTOEY3cXFVQmxkMWtrU05ueHRWMG9pYlVZdG1XajZUcw?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reuters news on Schneider buying PTC, recent"
+},
+"blind8-news-13 https://uk.finance.yahoo.com/news/schneider-electric-enxtpa-su-looking-011530783.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider news in window"
+},
+"blind8-news-13 https://www.ainvest.com/news/ptc-schneider-deal-205-offer-real-6-gap-2610/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider-PTC deal coverage"
+},
+"blind8-news-13 https://www.bostonglobe.com/2026/10/05/business/schneider-electric-ptc/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider PTC acquisition news"
+},
+"blind8-news-13 https://www.marketscreener.com/news/schneider-electric-to-buy-software-maker-ptc-for-22-6-billion-update-ce785ddbd18af62d": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider news in window"
+},
+"blind8-news-13 https://www.mdm.com/news/top-distributor-sectors/electrical/schneider-electric-to-acquire-ptc-in-22-6b-industrial-software-deal/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Schneider PTC acquisition news"
+},
+"blind8-news-14 https://news.google.com/rss/articles/CBMi9AFBVV95cUxPLTVZeUY2Z1hZcnlHWE5kX3BHaEx0Mlo4YVE2QWtFWVFWekdjYlVtOXpjTER0bHFUNTVJNHM1MDAxdGhrYkYtOFFtNXpVaEV5VjZnS1RRU2NTVGlMRWxHTGUtX1dxOTJCbkdMUERsZkFQbUxlb1VSWVVmRXhsd095em9CU3p6YkkyQnlTX2R3cmphQlYxWElpZVZkWF9VYTh0N0dwUjBOZTFGcXc1SEVRWFhwbGc0QzNiLTVBX0NWQTEwWWQ3LVVGMFhsZ1NEYVhjc29SOWhkUUxRaVQ4alRKMDVfTkQxOHJQWWRBc2VxVVh6RU1E?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-14 https://news.google.com/rss/articles/CBMivgFBVV95cUxOVXR1S29nZVc4dFhUTFRiSVlRYlN3R1JXVlhkMEdhSk9fdnNWNER3bkdvektMSUR1OUlIY1JHbjFOb3VvRXlyMjZObkZ1MXhYd21sUHF0VmJQRmJpS3BZM3FKcmFRU21zNGg1cXk4V1dPa05kQS0xSFZHWmVMeERkZEJ5VGVGZnJOcHR3X1RLZmhsaEdma1FDZ0txQ0c1MVk2YXROY05ic3FpUV9vSnBSR3UyRGc5TmNUeWJCa21R?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Kone news item, Sept 22 2026"
+},
+"blind8-news-14 https://news.google.com/rss/articles/CBMiwAFBVV95cUxQTXVlcnp5VmxJVWdqdW10M2JBVUUtUVRsRTBwSmRrMEpfclZiMC16SVluaGsxSEtpV0ZteWgyajhLcmhMcUZrMU5fZlhhTDhvbnR2QlZVVGxBQ3d5dm9JMEVUUTdBZm00cXVJTUN2Q0VSaVg2VWxSYm9ySTczWjhpMzdBT0JYMWVaZHV4WDVieDV6SnlleXhJQmNZbXdpa3lrZWxZcnZmRU1sUkdIRGNiRFVnb2hDTnU1VFZRSm95V0Y?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-14 https://news.google.com/rss/articles/CBMixwFBVV95cUxNM3JpWDZwRi10cWgxdzlETFZGak5YeDNTSFZTSHE4RVNsNndhcEJzTjJGZG5rTnpmT0xxUE5uWnEySUJxWnprV2hoT3ZvcVdER3NKS084VUlFRWpuY2Y0V0RKcXh2UUdCbnpkMy1zWllGY191b2xxbjd6Mkw4UlNhRFg0Tk9kdlNpdkloWkszT2hnTEh2ODhLMkotVHAxRUhXcEZHMDUtenVVYnhqTk5aaWhLWVZpT2dOaEtqSXVIV2JpNnNRSXZN?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-14 https://www.ad-hoc-news.de/boerse/news/corporate-news/kone-stock-faces-tke-review-after-10-9-percent-order-growth/70178031": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Kone news Sept 24"
+},
+"blind8-news-14 https://www.ad-hoc-news.de/boerse/news/corporate-news/kone-stock-holds-firm-as-q2-2026-revenue-grows-and-sustainability-focus-deepens/70135746": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Kone news, Sept 20"
+},
+"blind8-news-14 https://www.briefs.co/news/japanese-buyers-circle-tk-elevator-s-europe-business-as-kone/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Kone TK Elevator news Oct 5"
+},
+"blind8-news-14 https://www.globalbankingandfinance.com/exclusive-finlands-kone-prepares-sale-tk-elevators-european/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-14 https://www.lift-journal.com/news/kone-and-tk-elevator-plan-to-merge": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Kone merger news"
+},
+"blind8-news-14 https://www.reuters.com/business/finance/finlands-kone-prepares-sale-tk-elevators-european-business-tackle-antitrust-2026-10-01/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reuters Kone TK Elevator story"
+},
+"blind8-news-15 https://news.google.com/rss/articles/CBMi2wFBVV95cUxPdGRVZUwxV2JWV2JnaXBPX21nRWtPOUdhZmEtLU1YU3dhZ3NUYjNJYzJDYVJZYmRIdnFudUw3NVhDYU9QeEJwNmNnSkVHV3RtM3p1WUo1RnhZUkxsTGpiQVRkNTg1ZGNUeGVZMEN2aGxjb013LUJITDUyajd1R1pJdjVydFZtTlcyb0w2bzUwdW9COVBsV182SVJrVUNvQ0NXc0ZtMXp0eFJEZWdScWJ2T1BtbDVYd3ZlQjd5cjhRWXd2R0VJZ29vVnpsbGxjT0FTaFd6OVUzczZHa1k?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-15 https://news.google.com/rss/articles/CBMickFVX3lxTE5yQzBWVUg5czQwYjIyTHFIZzF3RzNfZFJwdkY4TWFsZnBfSi04Rzd1NkRDZ0lwLXNRWWI4S2VVTldNa2kxZnA5WlQzMVVmQTVGWFdiYnJFOUVyZGJkb3dsd3Z2ZzNibHdCaVZfMm9aZjRfUQ?oc=5": {
+"date_ok": "yes",
+"useful": "no",
+"why": "event page, not news"
+},
+"blind8-news-15 https://news.google.com/rss/articles/CBMilwFBVV95cUxQUFJnMzFGRVVPSjM0QVlYdFdaXzVoVEJLQWxOTk01akNnRDZoRkdueFhPRlFQWllxenl1U19zeUh0S0VGYXFIa1gtWDVUSDdJQnI1azlxTUVCdUxSUk5RQllCYk94ajdnbm40UXNTZU5yQVBKa1BXT3BuRjlSeHVST2N3eXVhTlowRzBuSWRSTHJtU1VBZ1o4?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-15 https://news.google.com/rss/articles/CBMipAFBVV95cUxOZkUxV1g3eGlPZFRXVWxlLW5XQm5MOUg2dmtsQzBlX3h1YlhLY3RZemNOY3FVMzh4RXM4MzNVWVl4N2tWck82R0FBejNKRm05ak1nUExjSko4aS02UUJlVFRLc285Y0diLTQ3X2FXSDBpT196M1ZFWGZwRGV3Q2FYb0RDZFRoRnQ4MVlhQ2tVdzlpRjlyRGhZREdMRUVyM2tqSF9VVQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-15 https://news.google.com/rss/articles/CBMiwAFBVV95cUxNWjBFUGNNTlhuV3NBUlhVNllEV1h1ak05YWVLdDVqZHZhOFJGQjE1WVRSdDMyRVFOMDRFb0d0U090Y0JPa3NGby03Uk1VZmdELWJLVE1pUFBaTEQzYkVzNGNzTmx6Z25hUUZHWWVJdDZtcmdwNXpZQU9uYWc0Qzk4MG1wQ1ZwMkZxYWxqdlc2T3BVOEhVdzhKaU9rekptb0dVZnJQUHhQMHptVjRFS0tvS1NGcjlXaFN0OXkzb2o5RmU?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Dassault news in window"
+},
+"blind8-news-15 https://www.ainonline.com/company/dassault": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Company listing page"
+},
+"blind8-news-15 https://www.marketscreener.com/news/at-the-next-space-2026-conference-dassault-aviation-reaffirmed-its-commitment-to-the-field-of-space-ce785ddfdb8ff622": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Dassault Aviation news Oct 8"
+},
+"blind8-news-16 https://news.google.com/rss/articles/CBMigAJBVV95cUxPSnVYdllQNjV4NzR5ZVlYQUllWmhtSF9CWUp2UnY4M1JBUWl1UlNpQ2huLUROY0FCbGw3ZXNWS3pPUXJjSGw1ZUxDU1pycDFKUWJ2Q2VPc0M3MkhhN2JSQVdpWEVZVmdPcU1CUkJvUlBMMEdxeXpIQUxXV0FnR0Zjc0FOdEFybGZoem41VWgtSGZTaTJPbjFxbElYZWxScU9kd0VqenFMaHFwbGVXdjA0UzBvaTNTUFZZMzB2MndUZGE3NXNmbFdUcnFBVUtONmpwalp6Y1B2aVdWakJRbmdUS1k4UDJ6dFhacHQ4T09rS2h4b2REdzZCWExCdVdEbFVX?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-16 https://news.google.com/rss/articles/CBMipgFBVV95cUxNZ1p0MHM3M1ZqdnM1T2hzQVNyNnNVMkhEM2FEeEp6Z3d2ZmZEMm5JLUc4Q2hZeXRNcDl6TElFUVU3M3doaVlJcUh1cjdhZzdEU3l1VW5rX0tiWnphQlhNaG5pVk5NMzRWNXNSMVZrRUhWUVpxMkFkaGZZUklRNldlNjlEZHNxNGMwSngzQ3U3NFJYSUthMnhJM2pVQkd0NVgxS3RURnBn?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall news this week"
+},
+"blind8-news-16 https://news.google.com/rss/articles/CBMiugFBVV95cUxQR1c0WUpDUUlic3NPNlpGMV9OSjFjcWNvRWZiRG9XZDFZbE9QLXNQOGNzQi14NVRhYU1ybDNEYzBkTC03cWJtcDBXSDR1X2ZNQTNVQlQwNDdreEFnUnZkRXB6U2o4b2lYUlUzUzNsTkxLOXFpTTg3Y0lnWk9tc1Bhc0l0LXVFQkVkbmV5LXFIOE1fMlVlR2JTcV8wT3AyM0NoUEF1TFVla20xRDNnbkVLNlZMemQ4UmVFUEHSAb8BQVVfeXFMUFFsWmlWM2ZablRyWm9EQW9lRzFIaXQxTmVwSGI2RXVNOUNpbTM3dExPT3VfWFkzNTFMNUxGRnRhdVRYSTRfVWQxYlJrNU9rdnhydkY2VERsS3R0QjZhVkdSQk1HX3ptRjlLWWpwYTdFajg1aXV3ekluV0I0bGlDN3BJTG9DRklnZEpIdnNwSlV1Wlk2dUIxQXNUY0tkU09kLVE2clRyaEhwQWtXUjlYTUFXSGNId3A2Q2FNR3lleHc?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-16 https://news.google.com/rss/articles/CBMivwFBVV95cUxPWTJYZW15a0pnbWxrMnlMRDd5YnFERFhrUHExU29JbllPWG1GREhsQ2oyRUxoVWdPeV9qQUNxeWRhWTFpOHhjWFFiSjlYcFFiMDFSQmRsWm9IeVNMYTJ0VFh5dGJZRTBQeW9mTEs1aXIxTnpmdWNURHlDLTFKVThpR1M2Um03MjZrSmZ1S1RtWWhPN0djc2drWlhIY2JyZ0Z0S2hMRVA4NkRjSmhhMHdSWXZOVjAyRGZCQWhjeThNZw?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall credit facility news"
+},
+"blind8-news-16 https://news.google.com/rss/articles/CBMizAFBVV95cUxOZHVwNUpSaU04QzdEWnpXNVJKVTFSVXpCcTVqb2FxYndCTHlkX0FtRWJaV2VhdlpfeXlPV1Y4ODZodXRvSTZrSnhYajJJOWhzUWRKRkw4aDhmaTVzWkpjcU5JMjlSX3V5aDQ0NnVVMUxXTzNMU2l0V1hIaEdSY2pKQWhsSGF1SWVhUHRIazAxS1piQ2hmRTJpeTBmanRaclRSU09YR0VZRGktcGdZVlZMUl81U2cyN3FVS1c4N0dIWm5sZjhldHRfem1ZemQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall news in window"
+},
+"blind8-news-16 https://seenews.com/news/rheinmetall-buys-insolvent-operator-of-romanias-mangalia-shipyard-1302780": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall acquisition news, Oct 9 2026"
+},
+"blind8-news-16 https://uk.finance.yahoo.com/news/rheinmetall-stock-slips-berenberg-downgrades-082535576.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-16 https://www.ad-hoc-news.de/boerse/news/corporate-news/berenberg-cuts-target-for-rheinmetall-stock-to-eur-1-020-00/70314718": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall news, Oct 12 2026"
+},
+"blind8-news-16 https://www.ad-hoc-news.de/boerse/news/corporate-news/rheinmetall-stock-trades-at-eur-937-00-4-1-percent-above-its-52-week-low/70279449": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-16 https://www.ad-hoc-news.de/boerse/news/unternehmensnachrichten/rheinmetall-rises-as-morgan-stanley-sees-year-end-order-wave-berenberg-steps-aside/70302491": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall news this week"
+},
+"blind8-news-16 https://www.marketscreener.com/news/rheinmetall-american-rheinmetall-showcases-transformational-modernized-technologies-for-the-u-s-ce785ddcd08ff02c": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall news this week"
+},
+"blind8-news-16 https://www.rheinmetall.com/en/media/news-watch/news/2026/10/2026-10-08-rheinmetall-doubles-its-syndicated-credit-facility": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Rheinmetall press release Oct 8"
+},
+"blind8-news-17 https://au.investing.com/news/stock-market-news/bofa-cuts-leonardo-stock-price-target-on-valuation-update-93CH-4668118": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-17 https://www.forbes.com/companies/leonardo/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Forbes company overview page"
+},
+"blind8-news-18 https://news.google.com/rss/articles/CBMiZkFVX3lxTFBkbmhvSkpoZzZiUjJkZ0JEQm43SndwSDdZeDhyV3RLN2hZb01QeFVZd3VWR25xejFwcV90YVdIR3RZWXFYaWY2ZTNuTTdqblVEeTB1WlNuTEV1Q21aZ04yRThzZ2JIUQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ferrovial JV news in window"
+},
+"blind8-news-18 https://news.google.com/rss/articles/CBMiugFBVV95cUxOd3M5TEFlYnB1YlJNTnc0MXoyUE94SXlUcnNCaXpJb2Y0WXV2MW5xRW1lTmt5Qmt3ZEpnUEN1RGp2VGpvbWZzWHp1S1FOb0ViRndJTlB6N0x6NEJzd1h6Rzgtb2NUX3VjWGktZE5WdmZjMVVGQ0tzVW5jUTVWYnRSVFRsclFxcUozNDBJdm9wSl8xODU2akNKdzMwdHNhVThKMUhWN09rMEw4T3ZiODUtcHRVSV92UmpTTUE?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-18 https://news.google.com/rss/articles/CBMiuwFBVV95cUxNVEZZbTVjczgwR1RBWUhNX2JCbnBfdDJmMDZrMThPYWRoTXUtYUx1c0xMd1JiYVhSRzNKTlp0ZmRuZ2M3eVN1US1PdGFJcDhUUmx1U2ZvV0hiWXphakh2bWM2ckUycmxia090cElyN2F5WEhxbmZxazB5aTBxUnE1MU1VOVRIT3RNRWdxNHpUTkVvWi02S0xTVkFOc2NEeHlrU1pUR2lxa1RUR29xZWQ3RS1sdlJuZ2dYMWZN?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ferrovial news in window"
+},
+"blind8-news-18 https://news.google.com/rss/articles/CBMiygFBVV95cUxQc0VldGs4bWIzUy1yeEMxMk5DcUNObnhJNHVHc28zZW55V1p0ZHBxbUlfcG94ODhqX05NUzhOb0EtUXJLeG5wcjEzc1R2RF9NaU90WlBDb2syVHpKbWdOV2xweUxFSk5nZ0hwU1hHTVpaRzAxbVdPblQ5UWo3UkZ5dUg1R0czazE4dlV3clBGX1FQeTRXLXZfX3lsdjdRY2ZOOVp4c19RLWczMGk4LTFoNEx1MjQ5dzBjd1dMdUlQOWlrRzQxckNhQzhn?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-18 https://news.google.com/rss/articles/CBMizwFBVV95cUxQZ1NqNEwxUWdmTUMwMlpRZjY1eUtVRW1JMVFSWmF0XzZobjJ5MDRxQ2lwS0otdVR0ekNvbzQtU21Tb19YTmdwd0ZudTQ5S2Utd0ZHRFJ3blU0VzdKT3BKc1Z6clE3TERaZHo5ZkpLQndJWkRhY3ItSzRoalhPcEE0VUpDQ0ZpeW5fQnA0RXBDZzN4X0tkYUJSUjVPYVdtWVZnNDA1dWh5VEZuUkhLX1h5OFZ2NTR6Rk1EeUJ5amowY1JGVlpvalIySDhoTEduRkk?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-18 https://newsroom.ferrovial.com/en/press-releases/ferrovial-consortium-appointed-preferred-bidder-for-e2-9-billion-d35-highway-ppp-project-in-the-czech-republic/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ferrovial press release"
+},
+"blind8-news-18 https://www.ad-hoc-news.de/boerse/news/corporate-news/ferrovial-announces-czech-highway-bid-what-it-means-for-ferrovial-stock/70287738": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-18 https://www.ad-hoc-news.de/boerse/news/corporate-news/ferrovial-wins-eur-2-9-billion-bid-target-for-ferrovial-stock-shows-33-97/70310847": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Recent Ferrovial news"
+},
+"blind8-news-18 https://www.globalconstructionreview.com/ferrovial-and-strabag-team-win-czech-republics-largest-transport-ppp-contract/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-19 https://news.google.com/rss/articles/CBMi8wFBVV95cUxOVDhVQTJXNTQtb1BkYWc0ZXdDSDFRZW14MTEtUDVtaDlTOGRFN251ZEtiX1RVQnNZTTdGaU9jbGJTMEZJcE55d3ZFVGpaR2pTUW9vYUIxZkVXdUJjdGNKWWppVlNuUXlWVGFqeWluT0w3dnAzUFZFLUZaMEo0SHNnZUo1WFMwdl9mbkFEQzJYd09wd2hGU1pyZjE0RGd1TmpxNFlMdk00M3k3bUJZenlzd0h1X1lQcXFKdERaQTFmNkJETVhUVGVRMHRsZUwtMVljdDlacTNjMDB0bGhTUXFxMzNEc0JaT19xQllCMW10dWZGTjjSAfMBQVVfeXFMTlQ4VUEyVzU0LW9QZGFnNGV3Q0gxUWVteDExLVA1bWg5UzhkRTdudWRLYl9UVUJzWU03RmlPY2xiUzBGSXBOeXd2RVRqWkdqU1Fvb2FCMWZFV3VCY3RjSllqaVZTblF5VlRhanlpbk9MN3ZwM1BWRS1GWjBKNEhzZ2VKNVhTMHZfZm5BREMyWHdPcHdoRlNacmYxNERndU5qcTRZTHZNNDN5N21CWXp5c3dIdV9ZUHFxSnREWkExZjZCRE1YVFRlUTB0bGVMLTFZY3Q5WnEzYzAwdGxoU1FxcTMzRHNCWk9fcUJZQjFtdHVmRk44?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-news-19 https://news.google.com/rss/articles/CBMiaEFVX3lxTE5HOTREQUI4a3dDMERXZWdFdjVrOVhVdHltLVVDRnZWV0UyUWhzWF9hOHdwMzNXN01mcVlQMG5mN1BRcWtxYndMTmhDR1g2STJGNWxRS2dNUW9DX2ZIM0tuMWhhS05fRU5R0gFuQVVfeXFMUG5WWDY5RjItZXUxU0hJM2ppZThHU1lhN2IyS3dOOU5PZmVBQ21zeTVPSVBCMmlPcVl4QlNFX1pGLW43bGFZZFpydzdlT2NtRUtuVWpPVEF6aWg2TVhKbjh1Zl9EbVNHTC1SbFlxckE?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-19 https://news.google.com/rss/articles/CBMisgFBVV95cUxNbjN3bGhiSEFFdjFPRG9PMUM4Vzk2OUhxR1VwX05BYlh1eURaUmlEaGR1OUtkWnNUWndMV1QzZWs1OHR6ektEVXRyZ3BWUkh6YU5NN0pFU3FqUWE2V044QkJMYTVJR0ZfQTB3MnduNDFXcnpMNHBZS2RrOGhyLThaQ1Q4eHlwaE1RZUZMNXptcExhc2JfSE8tN1VwSWpkWFJjYVRESVhDVnI2M3pvQUd2QWxR?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ahold Delhaize cyber incident news"
+},
+"blind8-news-19 https://news.google.com/rss/articles/CBMivAFBVV95cUxQTkc5TEx5SjNQYjdjYnh3b1RIWkRyTkM4d0FsSWhJT1ZZVkc5Ry1mOVhyaGpmV01SVUViOVYyTlJ4cjFOdTM3OERLMDJoMUpzVXdlUHpualhfWF93WF9FV2xPaU9RNHM4SU1RWjNpSHhDcHhXYzFYVlU4b2p3RWFxRi1odDBPU28yeS1GR2NyeE0tdUYyVVh6YkxlYzRtX0hsdzNOY09vbXF0ZUxWdFlEOUMwZ2Q5OU9zd3F0Rg?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ahold Delhaize news"
+},
+"blind8-news-19 https://news.google.com/rss/articles/CBMiwwFBVV95cUxOYXRkVTg4alhibGJuS01oRENNU0poR3BwNncxZENiNXI0Z1pqbzZ1SUdjZXowRlUtXzBsdkw5QUkwYnFFbktDUDNtQmZ3TDBoZTM4WjhQbFlOM1EteXF1a2JJbHlablltZjBTLWpMVmNENEc0YW9wYnNOcjhiaVJaSzN1dXJjRlNFZGxGNFVwcFNZQnk4WU04b05QZzNsWTkxQXowOHk4TnhNcHBVNnNUN3dwU0JXeUttY2trZXU5S3luRFE?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ahold Delhaize news in window"
+},
+"blind8-news-19 https://newsroom.aholddelhaize.com/ahold-delhaize-takes-precautionary-measures-following-cybersecurity-incident/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-19 https://undercodenews.com/ahold-delhaize-cybersecurity-incident-disrupts-online-shopping-across-the-netherlands-as-retail-giant-takes-systems-offline-video/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-19 https://www.bleepingcomputer.com/news/security/retail-giant-ahold-delhaize-takes-systems-offline-after-cyberattack/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ahold Delhaize cyberattack news, today"
+},
+"blind8-news-19 https://www.dutchnews.nl/2026/10/albert-heijn-and-sister-chains-abroad-hit-by-likely-cyberattack/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Albert Heijn cyberattack news"
+},
+"blind8-news-19 https://www.grocerydive.com/news/ahold-delhaize-adusa-cybersecurity/832734/": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-19 https://www.marketscreener.com/news/ahold-shareholders-approve-kingfisher-s-garnier-as-ceo-ce785ddddf89f520": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Ahold shareholder news, recent"
+},
+"blind8-news-19 https://www.theguardian.com/world/2026/oct/12/cyber-attack-defrosts-refrigerators-france-supermarket-chains-intermarche-cooperative-u": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Recent news covering Ahold Delhaize incident"
+},
+"blind8-news-20 https://news.google.com/rss/articles/CBMinwFBVV95cUxOZkdteFFxOFhvczFxdWxyUGhNZ3FFNThYMmFqTlhxZUxsVGtKdE5ndXhaUWRfaTJsTUgyQjlQRFoweDlzZHp3Q3RHNVZvSXVVSVFtUWNla01sdm9pUFJhQVBidHhLNXU0VEZtTVZvTU5jczlHREhIbGlYUlFZS0pWM2NPTHhVTmJDc2FQeHRGODFDY0I2cS0wbms4RlRVLVk?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Carrefour Mobile relaunch news"
+},
+"blind8-news-20 https://news.google.com/rss/articles/CBMiswFBVV95cUxNakQ5dW01UjJLejVuYUloZElSTllyNTllWmJNdFZKSENPV2J0YTQ0UEllM2xvQm9sT2pPNWt2WkRNZmpJRjBnU0cxZWVVQnBaTkdSQnF3OU9KdXRSWXRuUDAyWV9Ud2JabzQ1QkNhZHM2Z085ZTR0cENMaV9CejRqWlNmNHNMcy1TWHJfTEsyQjMxOGpTNFMyWEpMdjV6Z1NuN0I5bURRTmFfSFJOaGh1eHdxY9IBuAFBVV95cUxQU0ItTnZySU4ybm5KMzY5QUo5NDBpZWlzd0I0SW85dDk3NzQwT2pxS0ZFMEIxa0c2dE15Mnp4V0kxMHJ0SWZrXzY4dkNidkFjUE5vdnozbndvUUtmZTAyWkc4YzkzRDZDM0lweHhfUm85ZERoZGh3b1Y0QWgtNjdEbk1SazY3SlFLNlU2RlVQRXdlQjBSb2NDcHRHSlpSdjhUa0RxN3Z6WDlhTjIzQTY1YjRoeVlNQUR6?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-news-20 https://news.google.com/rss/articles/CBMiwgFBVV95cUxQVHVmNXU1VUF5SHZCbmxiYUlYa0tDazVXR01acmtoanpXWTR2WHRabTQ5blNHdEtiVUdvYmJmQURWNHl4dWFoZUVKVGpVYlNFUmNHdDd3WlhGQjdYM2ZTRGVuelFXc2xOU2ZxQmZxMWZQSGxkYlJhSWlOdGJNamMwV3ZmZWU0TmpXdF9MNFRGSTlxNzl0OWtrQU4yWldDbkZXay1PWWVITWRCOWplNUNyUGZJLXNUMUlLTWlMU2RIMnJ5UQ?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Carrefour acquisition news in window"
+},
+"blind8-news-20 https://news.google.com/rss/articles/CBMixAFBVV95cUxPOW1jSmJzZWFvV2ljX2tscjhWcl9KTEMwN1ZkNUk0ZHFoUGJvWm42dmdCME4wSDFJZ1d3SG8xV0pJakZGSU5nRnd6M0RYX05XMWhYREpCaVU1aFFKVk16NG1kWHlIYzk3ZWVPWlZNUGQ0emJwTVhDRHJlSmpCLUpZTTI5QjBzQW5XWmE3eEZQY0dGZjJwd21kSDk4enB4bEJiNkU1MEtVeTU4MmhBWkNyNGlNRXg5WUdDOTE2dEdMMlM1ekxO?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Carrefour real estate sale news"
+},
+"blind8-news-20 https://news.google.com/rss/articles/CBMixwFBVV95cUxPQmlPREk2emUwaWs2WmczT1c3UHh3bThhdENVWk53QVVNRE1wbmJkT1JMMWx5ZHFNYWRaRjFfY1RJd2N4TF8xQTBxdkNlOGFZTzZnYktkT3l2QTduU0RWTGFTMy1iQUlBcVpkNEdXaDlVbFU2SFlGZG83azA4VU9paGFBN2wyVU9wVXEyWC10VFhYdXFMakZzRDdXd1RMUzNrRUNSZTBXOVkwZTVZTXB6c3AtNElza3Nzb19tbkFhcjd5YzVkQnlr?oc=5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Carrefour news in window"
+},
+"blind8-news-20 https://valorinternational.globo.com/business/news/2026/09/23/carrefour-reshapes-brazil-retail-strategy-to-drive-growth.ghtml": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Carrefour Brazil strategy news, within window"
+},
+"blind8-news-20 https://www.facebook.com/theglobeandmail/posts/carrefour-said-80-of-its-supermarkets-had-been-hit-while-monoprix-said-5-per-cen/1583666240461502/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Facebook post aggregator, weak news source"
+},
+"blind8-news-20 https://www.fortuneindia.com/business-news/carrefour-back-in-india-french-retailer-charts-multi-year-push-for-50-stores/159312": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-news-20 https://www.ideal-investisseur.fr/en/stock-news/carrefour-stock-among-strongest-cac-40-gainers-5-5-in-one-month/25903.html": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Carrefour news in window"
+},
+"blind8-news-20 https://www.marketscreener.com/news/carrefour-announces-a-real-estate-sale-and-leaseback-transaction-involving-35-stores-in-france-and-ce785ddfda8af22d": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-01 http://arxiv.org/abs/2510.12021v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "ViT medical imaging arXiv paper"
+},
+"blind8-paper-01 http://arxiv.org/abs/2602.17929v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-01 http://arxiv.org/abs/2602.18614v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-01 http://arxiv.org/abs/2605.11434v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-01 http://arxiv.org/abs/2606.00906v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "ViT medical imaging paper"
+},
+"blind8-paper-01 https://arxiv.org/abs/2510.12021": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "ViT medical imaging paper"
+},
+"blind8-paper-01 https://arxiv.org/html/2510.12021v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "ViT medical imaging paper"
+},
+"blind8-paper-02 http://arxiv.org/abs/2510.14278v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Agentic retrieval paper"
+},
+"blind8-paper-02 http://arxiv.org/abs/2605.31377v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-02 http://arxiv.org/abs/2609.23121v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-02 http://arxiv.org/abs/2609.26086v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Agentic retrieval paper, Sept 2026"
+},
+"blind8-paper-02 http://arxiv.org/abs/2610.05750v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Agentic retrieval arXiv paper"
+},
+"blind8-paper-03 http://arxiv.org/abs/2511.18504v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-03 http://arxiv.org/abs/2512.00017v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-03 http://arxiv.org/abs/2512.16855v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Edge model compression arXiv paper"
+},
+"blind8-paper-03 http://arxiv.org/abs/2601.03290v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-03 http://arxiv.org/abs/2607.06651v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-03 https://ifactoryapp.com/ai-vision-camera/ai-vision-model-compression-real-time-edge-deployment": {
+"date_ok": "yes",
+"useful": "no",
+"why": "vendor blog, not a paper"
+},
+"blind8-paper-03 https://scipapermill.com/2026/10/10/model-compression-unlocking-efficiency-from-edge-to-orbit-with-next-gen-techniques/": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Blog roundup, not a paper"
+},
+"blind8-paper-04 http://arxiv.org/abs/2511.03019v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Language-image pretraining paper"
+},
+"blind8-paper-04 http://arxiv.org/abs/2511.13876v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CLIP paper, Nov 2025"
+},
+"blind8-paper-04 http://arxiv.org/abs/2512.17121v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-04 http://arxiv.org/abs/2601.06891v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CLIP paper"
+},
+"blind8-paper-04 http://arxiv.org/abs/2606.00673v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-04 https://arxiv.org/abs/2601.06891": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-04 https://link.springer.com/chapter/10.1007/978-3-032-37196-6_13": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CLIP-related paper, Sept 2026"
+},
+"blind8-paper-04 https://www.biorxiv.org/content/10.1101/2025.06.14.659706v3": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CLIP-based paper, May 2026"
+},
+"blind8-paper-05 http://arxiv.org/abs/2511.21654v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reward hacking benchmark paper"
+},
+"blind8-paper-05 http://arxiv.org/abs/2604.16242v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reward hacking paper in window"
+},
+"blind8-paper-05 http://arxiv.org/abs/2604.23488v3": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reward hacking paper"
+},
+"blind8-paper-05 http://arxiv.org/abs/2605.20744v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reward hacking paper in window"
+},
+"blind8-paper-05 http://arxiv.org/abs/2607.09492v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-05 https://arxiv.org/abs/2609.28614": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reward hacking paper"
+},
+"blind8-paper-05 https://www.lesswrong.com/posts/fkv5W79rBtAiXqYcK/reward-hacking-without-egregious-misalignment-in-an-rl-only": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Reward hacking research post"
+},
+"blind8-paper-06 http://arxiv.org/abs/2602.20710v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CoT faithfulness arXiv paper"
+},
+"blind8-paper-06 http://arxiv.org/abs/2605.24960v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-06 http://arxiv.org/abs/2607.18820v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CoT faithfulness paper"
+},
+"blind8-paper-06 http://arxiv.org/abs/2607.29062v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-06 http://arxiv.org/abs/2609.23065v3": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CoT faithfulness arXiv paper"
+},
+"blind8-paper-06 https://ai-blogs.org/news/2026-08-14-faithfulness-measured-as-information-flow-pm.html": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Blog post, not a paper"
+},
+"blind8-paper-06 https://arxiv.org/abs/2608.29464": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-06 https://huggingface.co/papers/2608.29464": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "CoT faithfulness paper"
+},
+"blind8-paper-07 http://arxiv.org/abs/2511.04576v3": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-07 http://arxiv.org/abs/2511.11762v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-07 http://arxiv.org/abs/2605.25413v3": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-07 http://arxiv.org/abs/2609.20309v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Neural operator PDE arXiv paper"
+},
+"blind8-paper-07 http://arxiv.org/abs/2610.06883v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Neural operator PDE paper in window"
+},
+"blind8-paper-07 https://arxiv.org/abs/2605.25413": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Neural operator PDE paper, May 2026"
+},
+"blind8-paper-07 https://www.physicsx.ai/newsroom/how-a-fourier-neural-operator-learns-to-solve-pdes----and-where-it-falls-short": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Company blog, not a paper"
+},
+"blind8-paper-07 https://www.sciencedirect.com/science/article/pii/S0893608026010968": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Recent neural operators for PDEs review"
+},
+"blind8-paper-08 http://arxiv.org/abs/2512.10943v1": {
+"date_ok": "yes",
+"useful": "no",
+"why": "video generation, not evaluation"
+},
+"blind8-paper-08 http://arxiv.org/abs/2601.20297v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Video generation evaluation paper"
+},
+"blind8-paper-08 http://arxiv.org/abs/2606.05665v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-08 http://arxiv.org/abs/2610.00812v1": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Survey of post-training, not evaluation"
+},
+"blind8-paper-08 http://arxiv.org/abs/2610.13301v1": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Gesture video generation, not evaluation"
+},
+"blind8-paper-09 http://arxiv.org/abs/2512.05485v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Jailbreak defense benchmark paper in window"
+},
+"blind8-paper-09 http://arxiv.org/abs/2602.04294v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Jailbreak defense arXiv paper"
+},
+"blind8-paper-09 http://arxiv.org/abs/2604.07727v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Jailbreak defense arXiv paper"
+},
+"blind8-paper-09 http://arxiv.org/abs/2606.16527v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Jailbreak defense arXiv paper"
+},
+"blind8-paper-09 http://arxiv.org/abs/2608.26008v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Jailbreak defense arXiv paper, Aug 2026"
+},
+"blind8-paper-09 https://arxiv.org/abs/2511.12217": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Jailbreak defense paper"
+},
+"blind8-paper-09 https://ojs.aaai.org/index.php/AAAI/article/view/41074": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Jailbreak defense paper, March 2026"
+},
+"blind8-paper-10 http://arxiv.org/abs/2510.27522v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TSFM paper"
+},
+"blind8-paper-10 http://arxiv.org/abs/2511.05619v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TSFM arXiv paper, in window"
+},
+"blind8-paper-10 http://arxiv.org/abs/2601.11821v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TSFM paper, Jan 2026"
+},
+"blind8-paper-10 http://arxiv.org/abs/2603.10071v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant TSFM paper"
+},
+"blind8-paper-10 http://arxiv.org/abs/2606.07457v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-10 https://aihorizonforecast.substack.com/p/time-series-foundation-models-a-deep": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Substack blog post, not a paper"
+},
+"blind8-paper-10 https://arxiv.org/abs/2606.27100": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Time series foundation models paper"
+},
+"blind8-paper-10 https://arxiv.org/abs/2609.24559": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-11 http://arxiv.org/abs/2602.23499v4": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "E2E driving dataset paper, in window"
+},
+"blind8-paper-11 http://arxiv.org/abs/2604.00597v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-11 http://arxiv.org/abs/2607.08072v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-11 http://arxiv.org/abs/2608.20890v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "E2E driving VLA paper in window"
+},
+"blind8-paper-11 http://arxiv.org/abs/2610.13232v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "End-to-end driving paper, Oct 2026"
+},
+"blind8-paper-11 https://arxiv.org/abs/2608.20111": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "E2E driving paper in window"
+},
+"blind8-paper-11 https://arxiv.org/abs/2610.00926": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-12 http://arxiv.org/abs/2510.27497v2": {
+"date_ok": "yes",
+"useful": "no",
+"why": "Autoregressive, not diffusion"
+},
+"blind8-paper-12 http://arxiv.org/abs/2511.14559v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Diffusion molecule generation paper, Nov 2025"
+},
+"blind8-paper-12 http://arxiv.org/abs/2605.00354v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Molecule diffusion arXiv paper"
+},
+"blind8-paper-12 http://arxiv.org/abs/2607.09277v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-12 http://arxiv.org/abs/2609.10099v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-12 https://arxiv.org/abs/2607.09277": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Molecule diffusion paper, July 2026"
+},
+"blind8-paper-12 https://arxiv.org/abs/2607.09277v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-13 http://arxiv.org/abs/2511.07691v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Preference optimization paper"
+},
+"blind8-paper-13 http://arxiv.org/abs/2605.00327v4": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-13 http://arxiv.org/abs/2605.11906v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Preference optimization arXiv paper"
+},
+"blind8-paper-13 http://arxiv.org/abs/2606.12505v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Preference optimization paper"
+},
+"blind8-paper-13 http://arxiv.org/abs/2606.13006v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-13 https://arxiv.org/abs/2604.20140": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-13 https://arxiv.org/abs/2605.00327": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-13 https://arxiv.org/abs/2605.21967": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Preference optimization arXiv paper"
+},
+"blind8-paper-14 http://arxiv.org/abs/2512.22801v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OVOD arXiv paper, Dec 2025"
+},
+"blind8-paper-14 http://arxiv.org/abs/2604.04444v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OVOD arXiv paper"
+},
+"blind8-paper-14 http://arxiv.org/abs/2605.03294v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "OVOD arXiv paper"
+},
+"blind8-paper-14 http://arxiv.org/abs/2606.05916v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Recent OVOD arXiv paper"
+},
+"blind8-paper-14 http://arxiv.org/abs/2609.24026v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Open-vocab detection arXiv paper"
+},
+"blind8-paper-14 https://arxiv.org/abs/2512.22801": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-14 https://roboflow.com/blog/open-vocabulary-object-detection": {
+"date_ok": "yes",
+"useful": "no",
+"why": "blog post, not a paper"
+},
+"blind8-paper-15 http://arxiv.org/abs/2603.15518v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Knowledge editing LLM paper, Mar 2026"
+},
+"blind8-paper-15 http://arxiv.org/abs/2603.29689v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-15 http://arxiv.org/abs/2605.29826v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Knowledge editing arXiv paper, May 2026"
+},
+"blind8-paper-15 http://arxiv.org/abs/2606.00570v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Knowledge editing paper, May 2026"
+},
+"blind8-paper-15 http://arxiv.org/abs/2606.03924v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant to query"
+},
+"blind8-paper-16 http://arxiv.org/abs/2601.21972v5": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-16 http://arxiv.org/abs/2605.17359v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Multi-agent LLM paper, May 2026"
+},
+"blind8-paper-16 http://arxiv.org/abs/2606.28958v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Multi-agent LLM arXiv paper"
+},
+"blind8-paper-16 http://arxiv.org/abs/2607.09403v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Multi-agent LLM paper"
+},
+"blind8-paper-16 http://arxiv.org/abs/2609.32827v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "On-topic arXiv paper, Sept 2026"
+},
+"blind8-paper-16 https://www.preprints.org/manuscript/202511.1370": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Multi-agent LLM collaboration paper"
+},
+"blind8-paper-17 http://arxiv.org/abs/2601.00805v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-17 http://arxiv.org/abs/2602.02306v3": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "SNN paper"
+},
+"blind8-paper-17 http://arxiv.org/abs/2602.02439v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-17 http://arxiv.org/abs/2603.12060v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "arXiv paper comparing against spiking neural networks"
+},
+"blind8-paper-17 http://arxiv.org/abs/2607.11914v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "SNN paper"
+},
+"blind8-paper-17 https://arxiv.org/abs/2510.27379": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "SNN paper, Oct 2025 within window"
+},
+"blind8-paper-17 https://arxiv.org/html/2510.14235v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "SNN survey paper"
+},
+"blind8-paper-17 https://link.springer.com/article/10.1007/s12530-025-09755-0": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "SNN review paper"
+},
+"blind8-paper-18 http://arxiv.org/abs/2510.19367v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Sign language translation paper, Oct 2025"
+},
+"blind8-paper-18 http://arxiv.org/abs/2604.24609v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Sign language translation paper in window"
+},
+"blind8-paper-18 http://arxiv.org/abs/2607.09126v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Sign language translation arXiv paper"
+},
+"blind8-paper-18 http://arxiv.org/abs/2607.09611v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Sign language translation paper in window"
+},
+"blind8-paper-18 http://arxiv.org/abs/2608.11352v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-18 https://arxiv.org/abs/2610.11371": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Recent sign language translation arXiv paper"
+},
+"blind8-paper-19 http://arxiv.org/abs/2511.09179v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Table QA paper"
+},
+"blind8-paper-19 http://arxiv.org/abs/2602.00543v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "arXiv TableQA paper"
+},
+"blind8-paper-19 http://arxiv.org/abs/2602.09642v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-19 http://arxiv.org/abs/2606.28916v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Table QA arXiv paper, June 2026"
+},
+"blind8-paper-19 http://arxiv.org/abs/2609.03395v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Table QA paper in window"
+},
+"blind8-paper-19 https://arxiv.org/abs/2602.00543v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-19 https://www.alphaxiv.org/abs/2510.09671": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "TQA survey paper, Oct 2025"
+},
+"blind8-paper-20 http://arxiv.org/abs/2601.00777v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Audio deepfake paper, Jan 2026"
+},
+"blind8-paper-20 http://arxiv.org/abs/2601.06560v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "on topic, right page type"
+},
+"blind8-paper-20 http://arxiv.org/abs/2603.01482v1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant and on subject"
+},
+"blind8-paper-20 http://arxiv.org/abs/2603.09007v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Relevant arXiv paper, March 2026"
+},
+"blind8-paper-20 http://arxiv.org/abs/2609.03620v2": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Audio deepfake detection arXiv paper"
+},
+"blind8-paper-20 https://link.springer.com/article/10.1007/s10791-026-10077-1": {
+"date_ok": "yes",
+"useful": "yes",
+"why": "Audio deepfake detection review, Apr 2026"
+}
+}

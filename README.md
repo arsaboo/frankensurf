@@ -166,7 +166,9 @@ the top five:
 
 Free, it beats Firecrawl's search: better on 35 queries, worse on 5. With paid allowed it is level
 with Exa. The local search engine (`frankensurf install search`, SearXNG without Docker) makes the
-free tier much stronger. Details in
+free tier much stronger. v0.41 improved free search again: on a fresh blind set of 120
+queries it beat v0.40 on 41 and lost on 12 (3.42 against 2.71 useful results of 5,
+[`benchmarks/2026-10-14-search-v041/`](benchmarks/2026-10-14-search-v041/README.md)). Details in
 [`benchmarks/2026-10-13-search/`](benchmarks/2026-10-13-search/README.md).
 
 ## What else is in the box
