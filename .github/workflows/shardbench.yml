@@ -1,0 +1,71 @@
+# ShardX (ProxyShard's anti-detect browser) against the free stealth browsers on held-out set 7.
+# Runs only by hand, on a throwaway GitHub machine: ShardX downloads a closed, prebuilt Chromium
+# from the vendor's bucket, so it never runs on a machine with keys, logins or anything else.
+# No secrets are used, and the token can only read this repository.
+name: ShardX bench (isolated)
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: "Sites to read (empty: all 150 of held-out set 7)"
+        required: false
+      shardx_version:
+        description: "shardx package version on PyPI"
+        required: false
+        default: "2.0.3"
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: install FrankenSurf (this checkout), its free browsers, and ShardX
+        env:
+          SHARDX_VERSION: ${{ inputs.shardx_version }}
+        run: |
+          python -m venv /tmp/fs && /tmp/fs/bin/pip install -q --upgrade pip
+          /tmp/fs/bin/pip install -q ".[mcp]" "shardx==${SHARDX_VERSION}"
+          sudo apt-get install -y -q xvfb unzip
+          /tmp/fs/bin/frankensurf install --with-deps chromium stealth | tail -20
+      - name: read held-out set 7 with every arm
+        env:
+          SAMPLE: ${{ inputs.sample }}
+        run: |
+          mkdir -p out
+          xvfb-run -a /tmp/fs/bin/python scripts/shardbench.py --out out/shardbench-rows.jsonl \
+            ${SAMPLE:+--sample "$SAMPLE"} | tee out/shardbench-log.txt
+      - name: summary
+        if: always()
+        run: |
+          /tmp/fs/bin/python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json, collections
+          rows = [json.loads(line) for line in open("out/shardbench-rows.jsonl")]
+          by = collections.defaultdict(list)
+          for row in rows:
+              by[row["arm"]].append(row)
+          print("| Arm | Read correctly | Sites |")
+          print("|---|---|---|")
+          for arm, items in sorted(by.items(), key=lambda kv: -sum(r["valid"] for r in kv[1])):
+              ok = sum(r["valid"] for r in items)
+              print(f"| {arm} | {ok}/{len(items)} ({100 * ok / max(len(items), 1):.1f}%) | {len(items)} |")
+          sites = {r["url"] for r in rows}
+          shard_only = [u for u in sites if any(r["valid"] for r in rows if r["url"] == u and r["arm"] == "shardx")
+                        and not any(r["valid"] for r in rows if r["url"] == u and r["arm"] != "shardx")]
+          print(f"\nSites only ShardX read: {len(shard_only)}")
+          for url in sorted(shard_only):
+              print(f"- {url}")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shardbench
+          path: out/
