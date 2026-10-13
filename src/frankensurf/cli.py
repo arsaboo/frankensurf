@@ -370,6 +370,20 @@ async def run(args):
     elif args.operation == "uninstall":
         from . import installer
         result = installer.uninstall(args.urls)
+    elif args.operation == "share":
+        from . import share
+        action = args.urls[0]
+        if action == "export":
+            result = share.export(args.state)
+            if args.out:
+                Path(args.out).write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8")
+                result = {"written": args.out, "recipes": len(result["recipes"]),
+                          "next": "review the file, then contribute it: a pull request adding it to "
+                                  "community/recipes/ at https://github.com/yail259/frankensurf"}
+        elif action == "sync":
+            result = share.sync(args.state)
+        else:
+            result = share.remove(args.state)
     elif args.operation == "search-engine":
         from . import local_search
         result = getattr(local_search, args.urls[0])()
@@ -519,10 +533,11 @@ def build_parser():
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
         "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
-        "egress", "plugins", "search-engine", "install", "uninstall"])
+        "egress", "plugins", "search-engine", "install", "uninstall", "share"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
+    parser.add_argument("--out", metavar="FILE", help="share export: write the recipes to this file")
     parser.add_argument("--with-deps", action="store_true",
         help="install: also install the browsers' system libraries (Linux; asks for sudo)")
     parser.add_argument("--list", action="store_true",
@@ -736,6 +751,9 @@ def parse_args(argv=None):
                 (len(args.urls) == 4 and args.urls[0] == "trust")
                 or (len(args.urls) == 3 and args.urls[0] in ("untrust", "disable", "enable"))):
             parser.error(usage)
+    elif args.operation == "share":
+        if len(args.urls) != 1 or args.urls[0] not in ("export", "sync", "remove"):
+            parser.error("share takes: export [--out FILE] | sync | remove")
     elif args.operation in ("install", "uninstall"):
         from . import installer
         if args.operation == "uninstall" and not args.urls:

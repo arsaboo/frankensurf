@@ -41,6 +41,9 @@ _AUTHORITY_FIELDS = frozenset({"identity", "provider", "provider_candidates",
 _OPERATOR_BASIS = "explicit operator configuration"
 _BUNDLED_BASIS = "bundled benchmark-verified route seed"
 _COMPATIBILITY_BASIS = "bundled provisional compatibility seed"
+# Downloaded by `frankensurf share sync` (share.py): provisional, like compatibility seeds.
+_COMMUNITY_BASIS = "community provisional seed"
+_SEED_BASES = frozenset({_COMPATIBILITY_BASIS, _COMMUNITY_BASIS})
 
 
 def _identifier(value):
@@ -150,7 +153,7 @@ class PublicRouteRecipe:
             _invalid()
         if (self.operation not in {"read", "extract", "paginate"} or type(self.enabled) is not bool
                 or self.basis not in {_OPERATOR_BASIS, _BUNDLED_BASIS,
-                                      _COMPATIBILITY_BASIS}
+                                      _COMPATIBILITY_BASIS, _COMMUNITY_BASIS}
                 or self.adapter_scope not in {"exact", "any"}
                 or (self.adapter_scope == "any"
                     and self.operation != "extract")):
@@ -355,11 +358,29 @@ class RouteRecipeRegistry:
             if fd is not None:
                 os.close(fd)
 
+    def _load_community(self):
+        """Community seeds saved by `frankensurf share sync`, if any. Unreadable or invalid
+        community data is ignored rather than breaking reads; `share sync` checks it on save."""
+        path = self.path.with_name("community_routes.json")
+        try:
+            with path.open("r", encoding="utf-8") as stream:
+                recipes = self._decode(json.load(stream), _COMMUNITY_BASIS)
+        except (OSError, ValueError, TypeError):
+            return []
+        return [recipe for recipe in recipes
+                if recipe.id.startswith("community_") and recipe.operation == "read"
+                and recipe.representation == "single_page"]
+
     def _load(self):
         operator = self._load_operator()
         overridden = {recipe.id for recipe in operator}
         packaged = self._load_bundled() + self._load_compatibility()
-        return operator + [recipe for recipe in packaged
+        # A site a packaged or operator recipe covers keeps that recipe: community seeds only
+        # fill sites nothing else knows.
+        covered = {(recipe.origin, recipe.operation) for recipe in operator + packaged}
+        community = [recipe for recipe in self._load_community()
+                     if (recipe.origin, recipe.operation) not in covered]
+        return operator + [recipe for recipe in packaged + community
                            if recipe.id not in overridden]
 
     @contextmanager
@@ -463,16 +484,16 @@ class RouteRecipeRegistry:
                         reason = "IDENTITY_POLICY_DENIED"
                     elif manifest.version != recipe.provider_version:
                         reason = "PROVIDER_VERSION_MISMATCH"
-                    elif (recipe.basis == _COMPATIBILITY_BASIS
+                    elif (recipe.basis in _SEED_BASES
                           and manifest.route_scope_required
                           and recipe.adapter_scope != "exact"):
                         reason = "ROUTE_SCOPE_REQUIRED"
-                    elif (recipe.basis == _COMPATIBILITY_BASIS
+                    elif (recipe.basis in _SEED_BASES
                           and not providers.is_available(
                               recipe.provider, configured=configured)):
                         reason = "PROVIDER_UNAVAILABLE"
                     else:
-                        target = (seeds if recipe.basis == _COMPATIBILITY_BASIS
+                        target = (seeds if recipe.basis in _SEED_BASES
                                   else plans)
                         target.append(AcquisitionPlan(
                             recipe.provider, effective, adapter, recipe))

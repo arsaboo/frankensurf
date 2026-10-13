@@ -1,0 +1,48 @@
+---
+title: Shared site knowledge
+description: Share which tool reads which site, and start from what others learned. Opt in both ways, as data.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Every read teaches Frankensurf something about a site: which tool got through, and which didn't.
+That stays on your machine (route memory). Sharing it is opt in, both ways, and it's only data:
+which tool reads a site reliably, never code and never anything signed in.
+
+## Start from the community's
+
+```bash
+frankensurf share sync      # fetch community/routes.json from the repository
+frankensurf share remove    # stop using it
+```
+
+`sync` downloads the community recipes, checks every one, and saves them beside your own recipes.
+A community recipe is a provisional seed: it orders the first tools tried on that site. It can't
+turn on paid tools, use an identity, or override your own recipes and route memory, and a site a
+bundled recipe already covers keeps that recipe.
+
+## Share yours
+
+```bash
+frankensurf share export --out my-recipes.json
+```
+
+The export lists sites where one tool read reliably when the cheapest tool didn't: at least 3 reads,
+at least 80% of them good. It includes only:
+
+- **the site's origin and a short path pattern**, cut to the first path segment, or the whole site
+  when even that looks item-specific, so it says which sites need which tool, not which pages you
+  read;
+- **public reads only**, so nothing read with a profile, identity or your own browser;
+- **how many reads back each recipe.**
+
+Nothing is sent anywhere. Read the file, delete anything you'd rather keep to yourself, then open a
+pull request adding it to
+[`community/recipes/`](https://github.com/yail259/frankensurf/tree/main/community). Accepted
+recipes are merged into the file `share sync` downloads.
+
+<Aside type="note">
+  Every file in `community/` is checked by the same rules `share sync` applies: known recipe
+  fields, a `community_` id, single pages, and no authority settings such as identities, paid tools
+  or provider lists.
+</Aside>
