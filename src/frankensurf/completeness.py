@@ -309,6 +309,11 @@ NAV_LEAD_SHARE = 0.5       # of the lead, this share must be links or menu token
 NAV_THIN_PROSE = 1200      # prose (or code) after the lead below this is "thin"
 NAV_BARE_PROSE = 400       # a page with less prose than this and mostly links is only menus
 NAV_BARE_LINKS = 0.5
+NAV_ARTICLE_RUN = 800      # an article is consecutive paragraphs: its longest run of prose reaches this
+# Footer and boilerplate sentences: prose-shaped, never the page's content.
+_FOOTER = re.compile(r"(?i)(©|\(c\) ?\d{4}|copyright|all rights reserved|terms (of|and) (use|service|conditions)|"
+                     r"privacy (policy|notice|statement)|sign up for (our|the)|subscribe to (our|the)|newsletter|"
+                     r"registered (office|in england|company)|company (number|no\.?|registration))")
 _NAV_TOKEN = re.compile(r"(?i)^[\W_]*(menu|home|search|sign[ -]?in|sign[ -]?up|log[ -]?in|log[ -]?out|register|"
                         r"subscribe|skip to [\w ]+|cart|basket|account|close|open menu|toggle[\w ]*|"
                         r"main navigation|navigation|more|back to top|accept( all)?|reject( all)?|"
@@ -330,8 +335,11 @@ def nav_led(content: str) -> dict | None:
     prose (8+ words ending in punctuation, not mostly links), or neutral (headings,
     metadata). Fenced code counts as content. The lead is everything before the
     first real paragraph (a prose line of 120+ characters that is not consent text).
-    A page is navigation-led when its lead is large and mostly navigation and the
-    content after it is thin, or when it is mostly links with almost no prose.
+    A page is navigation-led when its lead is large and mostly navigation and what
+    follows is not an article (thin, or no run of consecutive paragraphs: teasers
+    between links, footer and legal text), or when it is mostly links with almost
+    no prose. Short menu-like lines (a few words, no sentence) count as navigation
+    in the lead: readers often flatten a menu to plain text.
     """
     from .main_content import _CONSENT, _MD_LINK, _link_share
     lines, fenced = [], False
@@ -352,10 +360,13 @@ def nav_led(content: str) -> dict | None:
         elif line.startswith("#") or re.match(r"(?i)(title|url source|published time|markdown content|description):", line):
             lines.append(("neutral", len(plain)))
         elif _prose_line(plain) and _link_share(line) < 0.35:
-            lines.append(("consent" if _CONSENT.search(plain) else "prose", len(plain)))
+            lines.append(("consent" if _CONSENT.search(plain) else "footer" if _FOOTER.search(plain)
+                          else "prose", len(plain)))
+        elif plain and len(plain) <= 40 and len(plain.split()) <= 5 and not _SENTENCE_END.search(plain):
+            lines.append(("short", len(plain)))
         else:
             lines.append(("neutral", len(plain)))
-    total = sum(size for kind, size in lines if kind != "neutral") or 1
+    total = sum(size for kind, size in lines if kind not in ("neutral", "short")) or 1
     nav = sum(size for kind, size in lines if kind == "nav")
     prose = sum(size for kind, size in lines if kind in ("prose", "code"))
     # The lead ends at the first real paragraph.
@@ -363,13 +374,29 @@ def nav_led(content: str) -> dict | None:
                   if line[0] == "code" or (line[0] == "prose" and line[1] >= 120)), len(lines))
     lead = lines[:start]
     lead_chars = sum(size for kind, size in lead if kind != "neutral")
-    lead_nav = sum(size for kind, size in lead if kind == "nav")
+    # Before the first real paragraph, menus and boilerplate (consent, footer text) are all not the page.
+    lead_nav = sum(size for kind, size in lead if kind in ("nav", "short", "footer", "consent"))
     after = sum(size for kind, size in lines[start:] if kind in ("prose", "code"))
+    # The longest run of paragraphs after the lead (headings may sit between them;
+    # a link list, a menu word or a footer line ends a run).
+    run = best_run = 0
+    for kind, size in lines[start:]:
+        if kind in ("prose", "code"):
+            run += size
+            best_run = max(best_run, run)
+        elif kind != "neutral":
+            run = 0
     measure = {"lead_chars": lead_chars, "lead_nav_share": round(lead_nav / max(lead_chars, 1), 2),
-               "prose_chars": prose, "prose_share": round(prose / total, 2), "nav_share": round(nav / total, 2)}
+               "prose_chars": prose, "prose_share": round(prose / total, 2), "nav_share": round(nav / total, 2),
+               "article_run_chars": best_run}
     if lead_chars >= NAV_LEAD_CHARS and lead_nav / lead_chars >= NAV_LEAD_SHARE and after < NAV_THIN_PROSE:
         measure["reason"] = (f"opens with {lead_chars} characters of navigation "
                              f"({round(measure['lead_nav_share'] * 100)}% links); only {after} characters of prose follow")
+        return measure
+    if lead_chars >= NAV_LEAD_CHARS and lead_nav / lead_chars >= NAV_LEAD_SHARE and best_run < NAV_ARTICLE_RUN:
+        measure["reason"] = (f"opens with {lead_chars} characters of navigation "
+                             f"({round(measure['lead_nav_share'] * 100)}% links), and no article follows: the "
+                             f"longest run of paragraphs is {best_run} characters (teasers, footer or legal text)")
         return measure
     if prose < NAV_BARE_PROSE and nav / total >= NAV_BARE_LINKS and total >= 400:
         measure["reason"] = f"{round(nav / total * 100)}% of the text is links and menu words, {prose} characters of prose"

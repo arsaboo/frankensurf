@@ -34,6 +34,26 @@ def test_navigation_then_a_long_article_stays_good():
     assert verdict["complete"] is True and grade_ == "good" and not verdict.get("nav_led")
 
 
+def test_a_flattened_plain_text_menu_then_footer_text_is_poor():
+    # A script-built page read before its content rendered: the menu as plain words,
+    # then the footer's legal and newsletter sentences (prose-shaped, not content).
+    menu = "\n\n".join(["Products", "Solutions", "Pricing", "Customers", "Resources", "Company", "Careers",
+                         "Partners", "Developers", "Docs", "Status", "Blog"] * 12)
+    footer = "\n\n".join([
+        "Sign up for our newsletter to get the latest product news, events and offers in your inbox.",
+        "Copyright 2026 Example Holdings Limited. All rights reserved, and trademarks belong to their owners.",
+        "Example Holdings Limited is registered in England and Wales with company number 01234567.",
+        "Read our privacy policy and terms of use to learn how we handle the information you share."] * 4)
+    verdict, grade_ = grade(f"# Example\n\n{menu}\n\n{footer}\n", "https://www.example.com/platform/overview")
+    assert verdict["complete"] is False and grade_ == "poor"
+
+
+def test_navigation_then_story_teasers_between_links_is_poor():
+    teasers = "\n".join(f"[Story {n}](https://news.example.com/a/{n})\n{SENTENCE}" for n in range(14))
+    verdict, grade_ = grade(f"{HEADER}\n\n{teasers}\n\n{FOOTER}\n")
+    assert verdict["complete"] is False and "no article follows" in verdict["reason"] and grade_ == "poor"
+
+
 def test_a_normal_article_is_good():
     assert grade(f"# Ferry launches\n\nBy A. Writer\n\n{ARTICLE}\n")[1] == "good"
 

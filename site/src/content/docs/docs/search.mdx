@@ -13,14 +13,17 @@ homepage, listing or challenge page.
 - Free by default: your own [SearXNG](/docs/integrations/searxng/) (optional,
   no Docker: `frankensurf install search`, and search is stronger with it), then
   [DuckDuckGo](/docs/integrations/duckduckgo/) and [Bing](/docs/integrations/bing/),
-  plus Wikipedia, Hacker News, Stack Exchange, GitHub, arXiv, Open Library, and
-  `site_watch`, which reads a site's own feeds and sitemaps.
+  plus [Google News](/docs/integrations/google-news/), Wikipedia, Hacker News,
+  Stack Exchange, GitHub, arXiv, Open Library, and `site_watch`, which reads a
+  site's own feeds and sitemaps.
 - When a source's results fail the checks, Frankensurf climbs to the next one
   and merges what passed ([the search ladder](#the-search-ladder)).
 - Paid sources [Exa](/docs/integrations/exa/), Firecrawl search,
-  [Brave](/docs/integrations/brave/), [Tavily](/docs/integrations/tavily/) and
-  [Parallel](/docs/integrations/parallel/) join when their keys are set and you
-  allow paid tools, cheapest likely success first.
+  [Brave](/docs/integrations/brave/), [Tavily](/docs/integrations/tavily/),
+  [Parallel](/docs/integrations/parallel/), [Serper](/docs/integrations/serper/),
+  [SerpAPI](/docs/integrations/serpapi/) and
+  [Google Programmable Search](/docs/integrations/google-cse/) join when their keys
+  are set and you allow paid tools, cheapest likely success first.
 - Name a source and Frankensurf uses only that one, never a substitute.
 
 ## Usage
@@ -105,6 +108,29 @@ never comes back from any source, and dated results older than the window are
 dropped. `receipt.search_options.filtered` counts what went, including how
 many results had no date to check.
 
+## Boolean queries
+
+Monitoring tools write queries like `"Rio Tinto" OR "Rio Tinto Group" (acquisition
+OR layoffs OR "data breach")`. Each source gets the query as written. The checks
+judge results by what the query names: a story that names Rio Tinto (or Rio Tinto
+Group) is on the query without also naming an event word, which only narrows what
+the engines return. Event words (acquisition, layoffs, lawsuit, funding, earnings ...)
+beside a name make it a news search.
+
+Free sources often mishandle long OR-lists, returning homepages or nothing. When a
+boolean query's answer is not good, Frankensurf searches once more for the main name
+alone (`"Rio Tinto"`), in the same vertical and window, and keeps whichever answer
+passed more results. `receipt.query_simplified` says what was asked, what was kept and
+what the first try cost:
+
+```json
+"query_simplified": {"from": "\"Rio Tinto\" OR ...", "to": "\"Rio Tinto\"", "kept": "simpler",
+                     "why": "the query as written got a weak answer (2 results passed the checks)"}
+```
+
+A named source is never retried. On 12 companies with free sources only and no
+SearXNG, a monitoring-style query found every company, against 7 of 12 before.
+
 ## Kinds of search
 
 `vertical` picks the kind of source. Automatic fallback stays inside it. Leave
@@ -161,6 +187,14 @@ Search works with nothing installed. A local SearXNG makes it stronger:
 `frankensurf install search` installs and starts one, no Docker needed, and
 search starts it again after a reboot. `frankensurf search-engine start`, `stop`
 and `status` manage it. See [SearXNG](/docs/integrations/searxng/).
+
+Expect it to thin out at volume. SearXNG asks the public engines from your own
+address, and Google, Brave and DuckDuckGo start refusing (CAPTCHAs, blocks) after a
+few dozen searches in a few minutes; in one test, 39 of the first 100 searches met a
+refusal. Frankensurf's settings switch on more engines (Bing, Yahoo, Qwant, Mojeek
+beside them) and rest a refusing engine for 15 minutes, so some keep answering, but
+for steady volume (hundreds of searches an hour) add a paid source such as
+[Serper](/docs/integrations/serper/) ($1 per 1,000) and allow paid tools.
 
 When an automatic search ran without it because nothing answered on
 `127.0.0.1:8088`, the receipt says why results may be thinner:

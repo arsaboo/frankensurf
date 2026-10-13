@@ -31,6 +31,21 @@ like, they are never overwritten. After a reboot, the next search starts it agai
 (set `FRANKENSURF_SEARCH_AUTOSTART=0` to stop that). If a SearXNG with JSON
 already answers on that port, nothing is run.
 
+## At volume
+
+SearXNG asks Google, Brave, DuckDuckGo and the other public engines from your own
+address. At a few dozen searches in a few minutes they start refusing: CAPTCHAs,
+"access denied", "too many requests". In one test, 39 of the first 100 searches met
+a refusal, with 54 refusal messages in 5 minutes. SearXNG then rests each refusing
+engine and answers from the rest, so results get thinner rather than stopping.
+
+Frankensurf's settings spread the load: Bing, Google, Yahoo, Qwant and Mojeek are
+switched on beside SearXNG's defaults (DuckDuckGo and Brave), and a refusing engine
+rests 15 minutes instead of 3. An unedited settings file from an earlier release is
+upgraded to these the next time the engine starts; one you edited is left alone
+(delete it to get the new defaults). For steady volume, add a paid source such as
+[Serper](/docs/integrations/serper/) and allow paid tools.
+
 Prefer Docker? Without the native install, `frankensurf search-engine start`
 runs a pinned SearXNG image as a container named `frankensurf-search` on the same
 port, with the same settings.

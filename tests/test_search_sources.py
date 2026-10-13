@@ -1,315 +1,207 @@
-"""Firecrawl search, Exa options and dates, published dates on free sources, site_watch."""
-from datetime import datetime, timedelta, timezone
+"""Boolean (monitoring-style) queries and the v0.41 search sources: Google News (free),
+Serper, SerpAPI and Google Programmable Search (keyed). Synthetic fixtures only."""
 import json
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlsplit
 
 import httpx
 import pytest
 
-from frankensurf import Runtime, WebPolicy, hosted_providers
-from frankensurf.hosted_providers import ExaTransport, FirecrawlSearchTransport, search_url
-from frankensurf.providers import ProviderRequest
-from frankensurf.runtime import WebFailure
-from frankensurf.search import normalize_results
-from frankensurf.search_plugins import DEFAULT_SEARCHES, HostedSearchPlugin
-from frankensurf.site_watch import infer_site, key_terms
+from frankensurf import hosted_providers
+from frankensurf.runtime import Runtime, WebPolicy
+from frankensurf.search import build_search, normalize_results
+from frankensurf.search_checks import (boolean_groups, check_results, focus_query, infer_vertical, is_boolean,
+                                       simple_query)
 
 KEY = "test-key-must-not-leak"
+ARGUS = '"Harbour Mining" OR "Harbour Mining Group" (acquisition OR layoffs OR "data breach")'
 
+
+# --- reading a boolean query -----------------------------------------------------------------
+
+def test_boolean_queries_are_recognised_and_taken_apart():
+    assert is_boolean(ARGUS) and is_boolean("a | b") and is_boolean('"x y" "z w"')
+    assert not is_boolean("harbour mining news") and not is_boolean('"Harbour Mining" results')
+    assert boolean_groups(ARGUS) == [["Harbour Mining", "Harbour Mining Group"],
+                                     ["acquisition", "layoffs", "data breach"]]
+    assert boolean_groups("(python OR rust) web framework -java site:example.com") == [
+        ["python", "rust"], ["web"], ["framework"]]
+
+
+def test_the_checks_judge_a_boolean_query_by_its_name_and_the_simpler_query_is_the_name():
+    assert focus_query(ARGUS) == "Harbour Mining | Harbour Mining Group"
+    assert focus_query("plain words stay") == "plain words stay"
+    assert simple_query(ARGUS) == '"Harbour Mining"'
+    assert simple_query("plain words") is None
+
+
+def test_a_story_naming_the_company_is_on_query_without_the_topic_words():
+    items = [{"url": "https://news.example.com/2026/10/harbour-mining-expands-port", "title":
+              "Harbour Mining expands its port operations", "snippet": "The miner said on Monday."},
+             {"url": "https://news.example.com/2026/10/other-miner-profit", "title": "Another miner lifts profit",
+              "snippet": "Results beat forecasts."}]
+    verdicts = {item["url"]: item for item in check_results(focus_query(ARGUS), items, limit=5)["results"]}
+    assert verdicts[items[0]["url"]]["passed"] is True
+    assert "off_query" in verdicts[items[1]["url"]]["reasons"]
+
+
+def test_company_event_words_beside_a_name_route_to_news():
+    assert infer_vertical(ARGUS, "month")[0] == "news"
+    assert infer_vertical("Harbour Mining layoffs")[0] == "news"
+    assert infer_vertical("how layoffs affect morale")[0] != "news"      # no name: not a company story
+
+
+def rss(items):
+    body = "".join(f"<item><title>{title}</title><link>{link}</link><description>{title}</description>"
+                   f"<pubDate>Mon, 12 Oct 2026 08:00:00 GMT</pubDate></item>" for title, link in items)
+    return httpx.Response(200, text=f'<?xml version="1.0"?><rss version="2.0"><channel>{body}</channel></rss>',
+                          headers={"content-type": "application/rss+xml"})
+
+
+async def test_a_weak_boolean_answer_is_retried_with_the_name_and_the_better_answer_kept(tmp_path):
+    asked = []
+
+    def handle(request):
+        query = parse_qs(urlsplit(str(request.url)).query).get("q", [""])[0]
+        asked.append((request.url.host, request.url.path, query))
+        if request.url.host == "127.0.0.1":
+            return httpx.Response(503, text="down")
+        if request.url.host == "www.bing.com" and request.url.path == "/news/search":
+            if query.startswith('"Harbour Mining"') and " OR " not in query:
+                return rss([(f"Harbour Mining story {n}", f"https://news{n}.example.com/2026/10/harbour-mining-{n}")
+                            for n in range(5)])
+            return rss([("Unrelated mining roundup", "https://news.example.com/2026/10/roundup")])
+        if request.url.host == "news.google.com":
+            return rss([])
+        return httpx.Response(404, text="none")
+    async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
+        result = await web.search(ARGUS, limit=5, recency="month",
+                                  policy=WebPolicy(provider="http", search_good_results=3))
+    note = result["receipt"]["query_simplified"]
+    assert note["to"] == '"Harbour Mining"' and note["kept"] == "simpler"
+    assert result["query"] == ARGUS and len(result["results"]) >= 3
+    assert all("harbour-mining" in item["url"] for item in result["results"])
+    assert result["receipt"]["search_routing"]["vertical"] == "news"
+
+
+async def test_an_explicit_source_is_never_retried(tmp_path):
+    def handle(request):
+        return rss([("Unrelated", "https://news.example.com/2026/10/x")])
+    async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
+        result = await web.search(ARGUS, source="bing_news_rss", limit=5, policy=WebPolicy(provider="http"))
+    assert "query_simplified" not in result["receipt"]
+
+
+# --- Google News (free) ----------------------------------------------------------------------
+
+def test_google_news_query_carries_the_window_and_region():
+    url, _ = build_search('"Harbour Mining"', "google_news_rss", {"recency": "week", "region": "en-AU"})
+    params = parse_qs(urlsplit(url).query)
+    assert url.startswith("https://news.google.com/rss/search?")
+    assert params["q"] == ['"Harbour Mining" when:7d'] and params["gl"] == ["AU"] and params["ceid"] == ["AU:en"]
+
+
+def test_google_news_items_name_their_publisher_and_date():
+    content = ('<?xml version="1.0"?><rss version="2.0"><channel><item><title>Harbour Mining buys a port - '
+               'Example Times</title><link>https://news.google.com/rss/articles/CBMiAB</link>'
+               '<pubDate>Mon, 12 Oct 2026 08:00:00 GMT</pubDate><description>&lt;a href="x"&gt;Harbour Mining buys'
+               '&lt;/a&gt;</description><source url="https://times.example.com">Example Times</source></item>'
+               '</channel></rss>')
+    found, _ = normalize_results(content, None, "google_news_rss", 10, "https://news.google.com/rss/search?q=x")
+    assert found[0]["title"] == "Harbour Mining buys a port"
+    assert found[0]["extra"] == {"publisher": "Example Times", "publisher_url": "https://times.example.com"}
+    assert found[0]["published"].startswith("2026-10-12")
+
+
+# --- keyed sources ---------------------------------------------------------------------------
 
 @pytest.fixture
 def api(monkeypatch):
-    calls, replies = [], []
-
-    async def call(method, url, policy, *, headers=None, params=None, json_body=None):
-        calls.append({"method": method, "url": url, "headers": headers or {}, "json": json_body})
-        status, body = replies.pop(0)
-        return status, {}, json.dumps(body).encode()
-
-    monkeypatch.setattr(hosted_providers, "_call", call)
-    return calls, replies
-
-
-# ---- published dates on free sources ----
-
-def test_free_sources_surface_iso_published_dates():
-    news = ('<rss xmlns:News="https://www.bing.com/news"><channel><item><title>Lomo</title>'
-            '<link>https://news.example/a</link><pubDate>Thu, 08 Oct 2026 03:00:00 GMT</pubDate>'
-            '</item></channel></rss>')
-    rows, _ = normalize_results(news, None, "bing_news_rss", 5)
-    assert rows[0]["published"] == "2026-10-08T03:00:00Z"
-    rows, _ = normalize_results("", {"hits": [{"objectID": "1", "title": "T", "created_at": "2026-10-01T10:00:00.000Z"}]},
-                                "hacker_news", 5)
-    assert rows[0]["published"] == "2026-10-01T10:00:00Z"
-    atom = ('<feed xmlns="http://www.w3.org/2005/Atom"><entry><id>http://arxiv.org/abs/1</id><title>P</title>'
-            '<summary>S</summary><published>2026-09-30T12:00:00Z</published></entry></feed>')
-    rows, _ = normalize_results(atom, None, "arxiv", 5)
-    assert rows[0]["published"] == "2026-09-30T12:00:00Z"
-    repo = {"items": [{"html_url": "https://github.com/a/b", "full_name": "a/b",
-                       "pushed_at": "2026-10-05T00:00:00Z", "created_at": "2020-01-01T00:00:00Z"}]}
-    rows, _ = normalize_results("", repo, "github", 5)
-    assert rows[0]["published"] == "2026-10-05T00:00:00Z"
-    assert rows[0]["extra"]["created_at"] == "2020-01-01T00:00:00Z"
-    stack = {"items": [{"link": "https://stackoverflow.com/q/1", "title": "Q", "creation_date": 1790000000,
-                        "last_activity_date": 1790100000}]}
-    rows, _ = normalize_results("", stack, "stack_exchange", 5)
-    assert rows[0]["published"] == datetime.fromtimestamp(1790000000, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    # Undated results carry no published key at all.
-    rows, _ = normalize_results("", {"docs": [{"key": "/works/1", "title": "B"}]}, "open_library", 5)
-    assert "published" not in rows[0]
-
-
-# ---- Exa ----
-
-async def test_exa_maps_recency_and_domains_natively_and_surfaces_published(api, monkeypatch):
-    calls, replies = api
-    monkeypatch.setenv("FRANKENSURF_EXA_API_KEY", KEY)
-    replies.append((200, {"results": [{"url": "https://a.example/x", "title": "X", "publishedDate": "2026-10-02T00:00:00.000Z",
-                                       "highlights": ["h"]}], "costDollars": {"total": 0.005}}))
-    url = search_url("exa_api", "q", 5, {"site": "a.example", "exclude_domains": ["b.example"], "recency": "week"})
-    result = await ExaTransport().acquire(ProviderRequest(url, WebPolicy()), None)
-    body = calls[0]["json"]
-    assert body["includeDomains"] == ["a.example"] and body["excludeDomains"] == ["b.example"]
-    start = datetime.strptime(body["startPublishedDate"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-    assert abs((datetime.now(timezone.utc) - start) - timedelta(days=7)) < timedelta(minutes=2)
-    assert result["cost_usd"] == 0.005
-    rows = HostedSearchPlugin("exa", "exa_api", "exa_api_key")._normalize(json.loads(result["content"]), 5)
-    assert rows[0]["published"] == "2026-10-02T00:00:00Z" and rows[0]["indexed_date"] == "2026-10-02T00:00:00.000Z"
-
-
-# ---- Firecrawl search ----
-
-def test_firecrawl_search_is_registered_paid_and_opt_in(monkeypatch):
-    manifest = next(item for item in DEFAULT_SEARCHES.inspect() if item["id"] == "firecrawl_search")
-    assert manifest["paid"] and manifest["vertical"] == "web" and manifest["transport_provider"] == "firecrawl_search_api"
-    plugin = DEFAULT_SEARCHES._plugins["firecrawl_search"]
-    assert plugin.available() is False
-    monkeypatch.setenv("FRANKENSURF_FIRECRAWL_API_KEY", KEY)
-    assert plugin.available() is True
-    assert "firecrawl_search" not in DEFAULT_SEARCHES.candidates(WebPolicy())
-    assert "firecrawl_search" in DEFAULT_SEARCHES.candidates(WebPolicy(allow_paid_fallbacks=True))
-
-
-async def test_firecrawl_search_request_shape_cost_and_key_secrecy(api, monkeypatch):
-    calls, replies = api
-    monkeypatch.setenv("FRANKENSURF_FIRECRAWL_API_KEY", KEY)
-    replies += [(200, {"success": True, "data": []})] * 4
-    url = search_url("firecrawl_search_api", "film cameras", 10,
-                     {"site": "a.example", "exclude_domains": ["b.example"], "recency": "month", "region": "en-AU"})
-    result = await FirecrawlSearchTransport().acquire(ProviderRequest(url, WebPolicy()), None)
-    assert calls[0]["method"] == "POST" and calls[0]["url"] == "https://api.firecrawl.dev/v2/search"
-    assert calls[0]["headers"]["Authorization"] == "Bearer " + KEY
-    assert calls[0]["json"] == {"query": "film cameras site:a.example -site:b.example", "limit": 10,
-                                "tbs": "qdr:m", "country": "AU"}
-    assert result["cost_usd"] == pytest.approx(0.0076)  # 2 credits per 10 results at $0.0038
-    for recency, tbs in (("day", "qdr:d"), ("week", "qdr:w"), ("year", "qdr:y")):
-        await FirecrawlSearchTransport().acquire(
-            ProviderRequest(search_url("firecrawl_search_api", "q", 20, {"recency": recency}), WebPolicy()), None)
-        assert calls[-1]["json"]["tbs"] == tbs
-    assert calls[-1]["json"]["limit"] == 20 and "tbs" not in FirecrawlSearchTransport._body("q", 5, {})
-    assert KEY not in json.dumps(result, default=str)
-
-
-async def test_firecrawl_search_cost_override_and_service_errors(api, monkeypatch):
-    calls, replies = api
-    monkeypatch.setenv("FRANKENSURF_FIRECRAWL_API_KEY", KEY)
-    monkeypatch.setenv("FRANKENSURF_FIRECRAWL_SEARCH_COST_PER_QUERY", "0.003")
-    replies += [(200, {"data": []}), (402, {}), (429, {})]
-    url = search_url("firecrawl_search_api", "q", 5)
-    assert (await FirecrawlSearchTransport().acquire(ProviderRequest(url, WebPolicy()), None))["cost_usd"] == 0.003
-    for code in ("BUDGET_EXHAUSTED", "RATE_LIMITED"):
-        with pytest.raises(WebFailure) as failure:
-            await FirecrawlSearchTransport().acquire(ProviderRequest(url, WebPolicy()), None)
-        assert failure.value.code == code
-
-
-def test_firecrawl_search_normalizes_v1_list_and_v2_groups():
-    plugin = HostedSearchPlugin("firecrawl_search", "firecrawl_search_api", "firecrawl_api_key")
-    v1 = {"success": True, "data": [{"url": "https://a.example/1", "title": "One", "description": "d1",
-                                     "metadata": {"publishedTime": "2026-10-01T08:00:00+02:00"}}]}
-    assert plugin._normalize(v1, 5) == [{
-        "url": "https://a.example/1", "title": "One", "snippet": "d1", "engines": ["firecrawl_search"],
-        "indexed_date": "2026-10-01T08:00:00+02:00", "published": "2026-10-01T06:00:00Z"}]
-    v2 = {"data": {"web": [{"url": "https://a.example/2", "title": "Two", "description": "d2"}],
-                   "news": [{"url": "https://n.example/3", "title": "Three", "snippet": "s", "date": "2 days ago"},
-                            {"title": "no url"}]}}
-    rows = plugin._normalize(v2, 5)
-    assert [row["url"] for row in rows] == ["https://a.example/2", "https://n.example/3"]
-    assert all("published" not in row for row in rows)  # undated, or a date that is not a date
-    assert len(plugin._normalize(v2, 1)) == 1
-    with pytest.raises(ValueError):
-        plugin._normalize({"data": "nope"}, 5)
-
-
-async def test_firecrawl_search_end_to_end_through_runtime(tmp_path, monkeypatch):
-    monkeypatch.setenv("FRANKENSURF_FIRECRAWL_API_KEY", KEY)
-    seen = []
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    calls, routes = [], {}
 
     def handle(request):
-        seen.append(request)
-        return httpx.Response(200, json={"data": [{"url": "https://a.example/1", "title": "One",
-                                                   "description": "d", "metadata": {"publishedTime": today}}]})
+        calls.append(request)
+        for prefix, responder in routes.items():
+            if str(request.url).startswith(prefix):
+                return responder(request)
+        return httpx.Response(404, text="no mock")
     monkeypatch.setattr(hosted_providers, "TRANSPORT", httpx.MockTransport(handle))
-    async with Runtime(tmp_path, transport=httpx.MockTransport(lambda r: httpx.Response(500))) as web:
-        denied = await web.search("q", source="firecrawl_search")
-        result = await web.search("q", source="firecrawl_search", recency="week",
+    return calls, routes
+
+
+def no_target(request):
+    raise AssertionError("a search API, not the target, answers")
+
+
+async def keyed_search(tmp_path, source, **kwargs):
+    async with Runtime(tmp_path, transport=httpx.MockTransport(no_target)) as web:
+        return await web.search("harbour mining", source=source, policy=WebPolicy(allow_paid_fallbacks=True),
+                                limit=5, **kwargs)
+
+
+async def test_serper_sends_the_key_window_and_region_and_prices_by_credit(tmp_path, monkeypatch, api):
+    calls, routes = api
+    monkeypatch.setenv("SERPER_API_KEY", KEY)
+    routes["https://google.serper.dev/search"] = lambda request: httpx.Response(200, json={
+        "organic": [{"title": "Harbour Mining", "link": "https://harbour.example.com/", "snippet": "Miner",
+                     "position": 1}], "credits": 1})
+    result = await keyed_search(tmp_path, "serper", recency="week", region="en-AU")
+    body = json.loads(calls[0].content)
+    assert calls[0].headers["x-api-key"] == KEY and KEY not in json.dumps(result)
+    assert body.pop("num") >= 5      # the runtime asks for more than it keeps, to check and rank
+    assert body == {"q": "harbour mining", "tbs": "qdr:w", "gl": "au", "hl": "en"}
+    assert result["results"][0]["url"] == "https://harbour.example.com/"
+    assert result["receipt"]["cost_usd"] == 0.001
+
+
+async def test_serper_news_rows_come_from_its_news_endpoint(tmp_path, monkeypatch, api):
+    calls, routes = api
+    monkeypatch.setenv("SERPER_API_KEY", KEY)
+    routes["https://google.serper.dev/news"] = lambda request: httpx.Response(200, json={"news": [
+        {"title": "Harbour Mining buys a port", "link": "https://times.example.com/a", "snippet": "Deal",
+         "date": "2 days ago", "source": "Example Times"}]})
+    async with Runtime(tmp_path, transport=httpx.MockTransport(no_target)) as web:
+        result = await web.search("Harbour Mining acquisition", source="serper", vertical="news",
                                   policy=WebPolicy(allow_paid_fallbacks=True))
-    assert denied["receipt"]["failure"]["code"] == "POLICY_DENIED"
-    assert result["receipt"]["status"] == "observed" and result["receipt"]["cost_usd"] == pytest.approx(0.0152)  # recency overfetches to 20 results
-    assert result["results"][0]["published"] == today + "T00:00:00Z"
-    assert json.loads(seen[0].content)["tbs"] == "qdr:w"
-    assert KEY not in json.dumps(result, default=str)
+    assert calls[0].url.path == "/news"
+    assert result["results"][0]["extra"] == {"publisher": "Example Times"}
 
 
-# ---- site_watch ----
-
-HOME = ('<html><head><title>Example</title><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml">'
-        '</head><body>' + "<p>Welcome</p>" * 30 + "</body></html>")
-
-
-def rss(*items):
-    body = "".join(f"<item><title>{t}</title><link>{u}</link><pubDate>{d}</pubDate>"
-                   f"<description>&lt;p&gt;{s}&lt;/p&gt;</description></item>" for t, u, d, s in items)
-    return f'<?xml version="1.0"?><rss version="2.0"><channel><title>Blog</title>{body}</channel></rss>'
-
-
-def recent(days):
-    return (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+async def test_serpapi_sends_the_key_as_a_parameter_and_reads_organic_results(tmp_path, monkeypatch, api):
+    calls, routes = api
+    monkeypatch.setenv("SERPAPI_API_KEY", KEY)
+    routes["https://serpapi.com/search.json"] = lambda request: httpx.Response(200, json={
+        "search_metadata": {"status": "Success"},
+        "organic_results": [{"title": "Harbour Mining", "link": "https://harbour.example.com/", "snippet": "Miner"}]})
+    result = await keyed_search(tmp_path, "serpapi", recency="month")
+    params = calls[0].url.params
+    assert params["engine"] == "google" and params["tbs"] == "qdr:m" and params["api_key"] == KEY
+    assert KEY not in json.dumps(result["receipt"])
+    assert result["results"][0]["url"] == "https://harbour.example.com/" and result["receipt"]["cost_usd"] == 0.015
 
 
-def site(routes, log):
-    def handle(request):
-        log.append(str(request.url))
-        reply = routes.get(request.url.path)
-        if reply is None:
-            return httpx.Response(404, text="missing", headers={"content-type": "text/plain"})
-        content_type, text = reply
-        return httpx.Response(200, text=text, headers={"content-type": content_type})
-    return httpx.MockTransport(handle)
+async def test_google_cse_needs_a_key_and_an_engine_id(tmp_path, monkeypatch, api):
+    calls, routes = api
+    monkeypatch.setenv("GOOGLE_CSE_API_KEY", KEY)
+    from frankensurf.search_plugins import HostedSearchPlugin
+    plugin = HostedSearchPlugin("google_cse", "google_cse_api", "google_cse_api_key", "google_cse_cx")
+    assert plugin.available() is False                      # a key alone: no engine to search
+    monkeypatch.setenv("FRANKENSURF_GOOGLE_CSE_CX", "engine-123")
+    assert plugin.available() is True
+    routes["https://www.googleapis.com/customsearch/v1"] = lambda request: httpx.Response(200, json={
+        "queries": {}, "items": [{"title": "Harbour Mining", "link": "https://harbour.example.com/",
+                                  "snippet": "Miner", "pagemap": {"metatags": [
+                                      {"article:published_time": "2026-10-10T00:00:00Z"}]}}]})
+    result = await keyed_search(tmp_path, "google_cse", recency="week", site="harbour.example.com")
+    params = calls[0].url.params
+    assert params["cx"] == "engine-123" and params["dateRestrict"] == "w1"
+    assert params["siteSearch"] == "harbour.example.com" and "site:" not in params["q"]
+    assert result["results"][0]["published"].startswith("2026-10-10")
+    assert result["receipt"]["cost_usd"] == 0.005
 
 
-def test_site_inference_and_key_terms():
-    assert infer_site("example.com pricing change") == ("example.com", "pricing change")
-    assert infer_site("new releases https://www.Example.org/blog") == ("example.org", "new releases")
-    assert infer_site("anything site:docs.example.co.uk apis") == ("docs.example.co.uk", "anything apis")
-    for query in ("node.js release notes", "report.pdf summary", "e.g. things", "just words", "v1.2 changes"):
-        assert infer_site(query)[0] is None
-    assert key_terms("the latest pricing updates for Widgets") == ["pricing", "widgets"]
-
-
-async def test_site_watch_reads_advertised_feed_filters_and_sorts_newest_first(tmp_path):
-    log = []
-    feed = rss(("Old widget news", "https://example.com/blog/old", recent(60), "ancient"),
-               ("Widget launch", "https://example.com/blog/launch", recent(3), "We launched &lt;b&gt;widgets&lt;/b&gt;"),
-               ("Unrelated", "https://example.com/blog/other", recent(2), "nothing"),
-               ("Widget update", "https://example.com/blog/update", recent(1), "More"),
-               ("Elsewhere widget", "https://elsewhere.net/widget", recent(1), "off site"))
-    transport = site({"/": ("text/html", HOME), "/blog/rss.xml": ("application/rss+xml", feed)}, log)
-    async with Runtime(tmp_path, transport=transport) as web:
-        result = await web.search("example.com widget", source="site_watch", recency="month")
-    assert result["receipt"]["status"] == "observed", result["receipt"]
-    assert [item["url"] for item in result["results"]] == [
-        "https://example.com/blog/update", "https://example.com/blog/launch"]
-    first = result["results"][1]
-    assert first["snippet"] == "We launched widgets" and first["engines"] == ["site_watch"]
-    assert first["published"].endswith("Z") and first["indexed_date"] == first["published"]
-    assert first["extra"] == {"discovered_via": "feed"}
-    assert result["source"] == "site_watch" and result["receipt"]["cost_usd"] == 0
-    assert len(log) == 2  # homepage + the advertised feed; nothing else probed
-    assert result["receipt"]["search_options"]["recency"] == "month"
-
-
-async def test_site_watch_site_option_and_vertical_routing(tmp_path):
-    feed = rss(("Release 2", "https://example.com/r2", recent(1), ""), ("Release 1", "https://example.com/r1", recent(5), ""))
-    transport = site({"/": ("text/html", HOME), "/blog/rss.xml": ("application/rss+xml", feed)}, [])
-    async with Runtime(tmp_path, transport=transport) as web:
-        result = await web.search("release", vertical="site", site="example.com")
-        assert result["source"] == "site_watch"
-        assert [item["title"] for item in result["results"]] == ["Release 2", "Release 1"]
-        assert result["receipt"]["search_routing"]["candidates"][0] == "site_watch"  # web engines are later rungs
-
-
-async def test_site_watch_probes_conventional_feeds_then_stops_at_first_hit(tmp_path):
-    log = []
-    feed = rss(("Hello", "https://example.com/hello", recent(1), "hi"))
-    transport = site({"/": ("text/html", "<html><body>" + "x" * 300 + "</body></html>"),
-                      "/rss": ("application/rss+xml", feed), "/rss.xml": ("application/rss+xml", feed)}, log)
-    async with Runtime(tmp_path, transport=transport) as web:
-        result = await web.search("example.com", source="site_watch")
-    assert [item["url"] for item in result["results"]] == ["https://example.com/hello"]
-    assert [urlparse(url).path for url in log] == ["/", "/feed", "/rss"]
-
-
-SITEMAP_INDEX = ('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-                 '<sitemap><loc>https://example.com/sitemap-pages.xml</loc><lastmod>2020-01-01</lastmod></sitemap>'
-                 '<sitemap><loc>https://example.com/sitemap-posts-2026.xml</loc><lastmod>2026-10-08</lastmod></sitemap>'
-                 '</sitemapindex>')
-
-
-def urlset(*pairs):
-    rows = "".join(f"<url><loc>{u}</loc><lastmod>{d}</lastmod></url>" for u, d in pairs)
-    return f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{rows}</urlset>'
-
-
-async def test_site_watch_falls_back_to_robots_sitemap_index_and_child_sitemap(tmp_path):
-    log = []
-    today = datetime.now(timezone.utc)
-    day = lambda n: (today - timedelta(days=n)).strftime("%Y-%m-%d")
-    posts = urlset(("https://example.com/posts/pricing-update", day(1)),
-                   ("https://example.com/posts/team-offsite", day(2)),
-                   ("https://example.com/posts/ancient-pricing", "2019-03-04"))
-    transport = site({
-        "/": ("text/html", "<html><body>" + "x" * 300 + "</body></html>"),
-        "/robots.txt": ("text/plain", "User-agent: *\nDisallow: /admin\nSitemap: https://example.com/sitemap_index.xml\n"),
-        "/sitemap_index.xml": ("application/xml", SITEMAP_INDEX),
-        "/sitemap-posts-2026.xml": ("application/xml", posts),
-    }, log)
-    async with Runtime(tmp_path, transport=transport) as web:
-        result = await web.search("example.com pricing", source="site_watch", recency="month")
-    assert result["receipt"]["status"] == "observed", result["receipt"]
-    assert [item["url"] for item in result["results"]] == ["https://example.com/posts/pricing-update"]
-    item = result["results"][0]
-    assert item["title"] == "Pricing update" and item["extra"] == {"discovered_via": "sitemap"}
-    assert item["published"] == day(1) + "T00:00:00Z"
-    paths = [urlparse(url).path for url in log]
-    assert paths[:2] == ["/", "/feed"] and "/sitemap-posts-2026.xml" in paths and len(paths) <= 8
-
-
-async def test_site_watch_news_sitemap_dates_and_titles(tmp_path):
-    news = ('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
-            'xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"><url><loc>https://example.com/a</loc>'
-            '<news:news><news:publication_date>2026-10-07T09:00:00Z</news:publication_date>'
-            '<news:title>Big story</news:title></news:news></url></urlset>')
-    transport = site({"/": ("text/html", "<html><body>" + "x" * 300 + "</body></html>"),
-                      "/sitemap.xml": ("application/xml", news)}, [])
-    async with Runtime(tmp_path, transport=transport) as web:
-        result = await web.search("example.com", source="site_watch")
-    assert (result["results"][0]["title"], result["results"][0]["published"]) == ("Big story", "2026-10-07T09:00:00Z")
-
-
-async def test_site_watch_fails_fast_without_a_site_and_when_nothing_is_published(tmp_path):
-    log = []
-    async with Runtime(tmp_path, transport=site({"/": ("text/html", "<html><body>" + "x" * 300 + "</body></html>")}, log)) as web:
-        nosite = await web.search("just some words", source="site_watch")
-        assert log == []
-        assert nosite["receipt"]["failure"]["code"] == "INVALID_URL"
-        assert "needs a site" in nosite["receipt"]["failure"]["message"]
-        bare = await web.search("example.com", source="site_watch")
-    assert bare["receipt"]["status"] == "failed"
-    assert "No feed or sitemap found for example.com" in bare["receipt"]["failure"]["message"]
-    assert len(log) <= 8
-
-
-def test_site_watch_is_a_free_site_vertical_source():
-    manifest = next(item for item in DEFAULT_SEARCHES.inspect() if item["id"] == "site_watch")
-    assert manifest["vertical"] == "site" and not manifest["paid"] and manifest["transport_provider"] == "http"
-
-
-def test_arxiv_query_prefixes_every_topic_word():
-    from frankensurf.search import build_search
-    url, _ = build_search("recent papers on mixture of experts", "arxiv", {"recency": "year"})
-    assert "all%3Amixture%20AND%20all%3Aexperts" in url
-    assert "all%3A%22mixture%20experts%22%20OR" in url and "sortBy=relevance" in url
-    assert "submittedDate%3A%5B" in url
-    assert "recent" not in url.split("search_query=")[1].split("&")[0]
+def test_google_cse_with_no_items_is_an_empty_answer_not_a_broken_one():
+    from frankensurf.search_plugins import HostedSearchPlugin
+    plugin = HostedSearchPlugin("google_cse", "google_cse_api", "google_cse_api_key", "google_cse_cx")
+    assert plugin._normalize({"searchInformation": {"totalResults": "0"}}, 10) == []
+    with pytest.raises(ValueError):
+        plugin._normalize({"error": "bad"}, 10)

@@ -1,0 +1,48 @@
+---
+title: "Google Programmable Search"
+description: "Google's Custom Search JSON API: 100 free queries a day."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+[Google Programmable Search](https://developers.google.com/custom-search/v1/overview) (the Custom Search JSON API) searches Google with your own key and search engine.
+
+- The first 100 queries a day are free, then $5 per 1,000. Frankensurf can't see the day's count, so it prices every query at $0.005; set `FRANKENSURF_GOOGLE_CSE_COST_PER_QUERY=0` if you stay inside the free tier.
+- Up to 10 results per query; window (`dateRestrict`), `site` (`siteSearch`) and region are applied natively.
+- Joins after the free sources when paid tools are allowed. Skipped until both settings are set.
+
+## Set up
+
+Create a search engine set to search the entire web, then set `GOOGLE_CSE_API_KEY` (or `FRANKENSURF_GOOGLE_CSE_API_KEY`) and `FRANKENSURF_GOOGLE_CSE_CX` (the search engine ID).
+
+## Use it
+
+Ask for this source by name. Named sources never fall back to another.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+from frankensurf import WebPolicy
+
+results = await web.search("rio tinto acquisition", source="google_cse", policy=WebPolicy(allow_paid_fallbacks=True))
+```
+
+</TabItem>
+<TabItem label="MCP">
+
+```json
+{ "tool": "search", "arguments": { "query": "rio tinto acquisition", "source": "google_cse", "acquisition_policy": { "allow_paid_fallbacks": true } } }
+```
+
+</TabItem>
+</Tabs>
+
+## Details
+
+| Property | Value |
+| --- | --- |
+| Source ID | `google_cse` |
+| Cost | Paid (100 a day free) |
+| Tested | Mocks only (request and response shapes from Google's documentation) |
+| Docs | [developers.google.com/custom-search](https://developers.google.com/custom-search/v1/overview) |

@@ -87,6 +87,9 @@ receipts or errors.
 | [Brave](/docs/integrations/brave/) | `BRAVE_API_KEY` |
 | [Tavily](/docs/integrations/tavily/) | `TAVILY_API_KEY` |
 | [Parallel](/docs/integrations/parallel/) | `PARALLEL_API_KEY` |
+| [Serper](/docs/integrations/serper/) | `SERPER_API_KEY` |
+| [SerpAPI](/docs/integrations/serpapi/) | `SERPAPI_API_KEY` |
+| [Google Programmable Search](/docs/integrations/google-cse/) | `GOOGLE_CSE_API_KEY`, and `FRANKENSURF_GOOGLE_CSE_CX` |
 
 All prefixed with `FRANKENSURF_`.
 
@@ -97,9 +100,12 @@ their worst case (ZenRows, Firecrawl and the hosted browsers) refuse a call that
 could pass what's left, with `BUDGET_EXHAUSTED`. Tools that can't report cost
 don't run under a cap.
 
-A bound is an estimate. When a paid call still bills more than the cap (a PDF
-with more pages than expected), the page you paid for is returned, not thrown
-away: `receipt.budget` is `{"cap_usd": 0.02, "spent_usd": 0.0266, "exceeded": true}`,
+A bound is an estimate. For Firecrawl, a PDF adds a credit per parsed page, so
+under a cap a URL that looks like a PDF (`.pdf`, arXiv's `/pdf/`, `?format=pdf`)
+is priced for the pages the policy would read, and a page nothing has fetched yet
+gets one `HEAD` request first (free, from your machine) to learn whether it is a
+PDF and how big. When a paid call still bills more than the cap (a PDF with more
+pages than expected), the page you paid for is returned, not thrown away: `receipt.budget` is `{"cap_usd": 0.02, "spent_usd": 0.0266, "exceeded": true}`,
 `cost_budget_satisfied` is `false`, and no further paid call runs. Set
 `strict_cost_cap=True` to fail with `BUDGET_EXHAUSTED` instead. A call whose
 cost is unknown is always refused.

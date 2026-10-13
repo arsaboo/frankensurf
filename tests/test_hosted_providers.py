@@ -330,8 +330,41 @@ async def test_firecrawl_caps_pages_to_what_the_remaining_budget_pays_for(tmp_pa
     routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(4)
     # Not a .pdf URL, so only the flat estimate applies; the cap still bounds the pages.
     result = await read(tmp_path, URL, provider="firecrawl", allow_paid_fallbacks=True, max_cost_usd=0.02)
-    assert json.loads(calls[0].content)["parsers"] == [{"type": "pdf", "maxPages": 4}]
+    # (The page is probed first under a cap; it has no answer here, so the flat estimate stands.)
+    posts = [call for call in calls if call.url.host == "api.firecrawl.dev"]
+    assert json.loads(posts[0].content)["parsers"] == [{"type": "pdf", "maxPages": 4}]
     assert result["receipt"]["cost_usd"] <= 0.02
+
+
+def test_pdf_urls_that_do_not_end_in_pdf_are_recognised():
+    for url in ("https://arxiv.org/pdf/2401.01234", "https://arxiv.org/pdf/2401.01234v2",
+                "https://files.example.com/report.pdf?token=abc", "https://example.com/docs/42/pdf",
+                "https://example.com/export?id=7&format=pdf", "https://example.com/a/report.PDF#page=3"):
+        assert hosted_providers.looks_like_pdf(url), url
+    for url in ("https://example.com/pdf-tools-review", "https://example.com/blog/how-to-pdf",
+                "https://shop.example.com/item/1", "https://example.com/?q=pdf"):
+        assert not hosted_providers.looks_like_pdf(url), url
+
+
+async def test_under_a_cap_an_unseen_page_is_probed_and_a_pdf_priced_per_page(tmp_path, monkeypatch, api):
+    calls, routes = api
+    key(monkeypatch, "firecrawl_api_key")
+    routes[FIRECRAWL_SCRAPE] = firecrawl_pdf(8)
+    # The HEAD answer: a 400 KB PDF is about 8 pages, 9 credits ($0.034): over a $0.01 cap.
+    routes[URL] = lambda request: httpx.Response(200, headers={"content-type": "application/pdf",
+                                                               "content-length": "400000"})
+    refused = await read(tmp_path / "a", URL, provider="firecrawl", allow_paid_fallbacks=True, max_cost_usd=0.01)
+    assert refused["receipt"]["failure"]["code"] == "BUDGET_EXHAUSTED"
+    assert [call.method for call in calls] == ["HEAD"] and refused["receipt"]["cost_usd"] == 0
+    # An HTML page (or no answer to the probe) keeps the flat estimate.
+    calls.clear()
+    routes[URL] = lambda request: httpx.Response(200, headers={"content-type": "text/html"})
+    allowed = await read(tmp_path / "b", URL, provider="firecrawl", allow_paid_fallbacks=True, max_cost_usd=0.04)
+    assert [call.method for call in calls] == ["HEAD", "POST"]
+    # Without a cap there is nothing to protect: no probe.
+    calls.clear()
+    await read(tmp_path / "c", URL, provider="firecrawl", allow_paid_fallbacks=True)
+    assert [call.method for call in calls] == ["POST"]
 
 
 def test_firecrawl_pdf_size_seen_earlier_sets_the_page_estimate():
@@ -376,7 +409,7 @@ async def test_overspend_keeps_the_paid_page_flags_it_and_stops_the_paid_climb(t
     assert receipt["budget"] == {"cap_usd": 0.01, "spent_usd": spent, "exceeded": True}
     first = receipt["attempts"][0]
     assert first["provider"] == "firecrawl" and first["cost_usd"] == spent
-    assert [call.url.host for call in calls] == ["api.firecrawl.dev"]
+    assert [call.url.host for call in calls] == ["shop.example.com", "api.firecrawl.dev"]   # probe, then the read
 
 
 async def test_strict_cost_cap_discards_the_overspent_page(tmp_path, monkeypatch, api):
@@ -392,7 +425,7 @@ async def test_strict_cost_cap_discards_the_overspent_page(tmp_path, monkeypatch
     assert receipt["status"] == "failed" and receipt["failure"]["code"] == "BUDGET_EXHAUSTED"
     assert receipt["cost_budget_satisfied"] is False and "budget" not in receipt
     assert not result.get("text")
-    assert [call.url.host for call in calls] == ["api.firecrawl.dev"]
+    assert [call.url.host for call in calls] == ["shop.example.com", "api.firecrawl.dev"]   # probe, then the read
 
 
 def test_strict_cost_cap_is_validated():

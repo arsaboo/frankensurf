@@ -1,0 +1,48 @@
+---
+title: "SerpAPI"
+description: "Google results as JSON through SerpAPI."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+[SerpAPI](https://serpapi.com/) returns Google's results as JSON.
+
+- Cost is $0.015 per search by default (Developer plan, $75 for 5,000); set yours with `FRANKENSURF_SERPAPI_COST_PER_QUERY`.
+- Window (`tbs=qdr:`), region (`gl`, `hl`) and news (`tbm=nws`) are applied natively.
+- Joins after the free sources when paid tools are allowed. Skipped until the key is set.
+
+## Set up
+
+Set `SERPAPI_API_KEY` (or `FRANKENSURF_SERPAPI_API_KEY`).
+
+## Use it
+
+Ask for this source by name. Named sources never fall back to another.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+from frankensurf import WebPolicy
+
+results = await web.search("rio tinto acquisition", source="serpapi", policy=WebPolicy(allow_paid_fallbacks=True))
+```
+
+</TabItem>
+<TabItem label="MCP">
+
+```json
+{ "tool": "search", "arguments": { "query": "rio tinto acquisition", "source": "serpapi", "acquisition_policy": { "allow_paid_fallbacks": true } } }
+```
+
+</TabItem>
+</Tabs>
+
+## Details
+
+| Property | Value |
+| --- | --- |
+| Source ID | `serpapi` |
+| Cost | Paid |
+| Tested | Mocks only (request and response shapes from SerpAPI's documentation) |
+| Docs | [serpapi.com/search-api](https://serpapi.com/search-api) |

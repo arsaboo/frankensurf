@@ -1,0 +1,48 @@
+---
+title: "Serper"
+description: "Google results as JSON through serper.dev."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+[Serper](https://serper.dev/) returns Google's results as JSON: the web through `/search`, news through `/news`.
+
+- Cost is $0.001 per credit by default ($1.00 per 1,000 searches on the Starter pack); a search is 1 credit and Serper reports the credits used. Set yours with `FRANKENSURF_SERPER_USD_PER_CREDIT`.
+- Window (`tbs=qdr:`), region (`gl`, `hl`) and `site:` operators are applied natively; news-vertical searches use `/news`.
+- Joins after the free sources when paid tools are allowed. Skipped until the key is set.
+
+## Set up
+
+Set `SERPER_API_KEY` (or `FRANKENSURF_SERPER_API_KEY`).
+
+## Use it
+
+Ask for this source by name. Named sources never fall back to another.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+from frankensurf import WebPolicy
+
+results = await web.search("rio tinto acquisition", source="serper", policy=WebPolicy(allow_paid_fallbacks=True))
+```
+
+</TabItem>
+<TabItem label="MCP">
+
+```json
+{ "tool": "search", "arguments": { "query": "rio tinto acquisition", "source": "serper", "acquisition_policy": { "allow_paid_fallbacks": true } } }
+```
+
+</TabItem>
+</Tabs>
+
+## Details
+
+| Property | Value |
+| --- | --- |
+| Source ID | `serper` |
+| Cost | Paid |
+| Tested | Mocks only (request and response shapes from Serper's documentation) |
+| Docs | [serper.dev](https://serper.dev/) |

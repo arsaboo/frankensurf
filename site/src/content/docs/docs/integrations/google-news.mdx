@@ -1,0 +1,46 @@
+---
+title: "Google News"
+description: "Google News search as RSS: free, no key."
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+[Google News](https://news.google.com/) answers news searches as an RSS feed, free and without a key.
+
+- In the news vertical, after Bing News; quoted names, `OR` and the date window (`when:7d`) work.
+- Each result names its publisher (`extra.publisher`, `extra.publisher_url`) and date.
+- Links go through Google's redirect to the article; a browser read follows it.
+
+## Set up
+
+Nothing to set up.
+
+## Use it
+
+Ask for this source by name. Named sources never fall back to another.
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+results = await web.search("\"Rio Tinto\" acquisition", source="google_news_rss")
+```
+
+</TabItem>
+<TabItem label="MCP">
+
+```json
+{ "tool": "search", "arguments": { "query": "\"Rio Tinto\" acquisition", "source": "google_news_rss" } }
+```
+
+</TabItem>
+</Tabs>
+
+## Details
+
+| Property | Value |
+| --- | --- |
+| Source ID | `google_news_rss` |
+| Cost | Free |
+| Tested | Live |
+| Docs | [news.google.com](https://news.google.com/) |

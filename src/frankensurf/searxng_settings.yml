@@ -1,6 +1,13 @@
 # SearXNG settings for FrankenSurf's local search engine.
-# `frankensurf search-engine start` copies this to ~/.local/share/frankensurf/searxng/
-# with a random secret key. Keep JSON output on: FrankenSurf reads results as JSON.
+# `frankensurf install search` (or `search-engine start`) copies this to
+# ~/.local/share/frankensurf/searxng/ with a random secret key. Keep JSON output on:
+# FrankenSurf reads results as JSON.
+#
+# Expect refusals at volume: SearXNG asks the public engines from your own address,
+# and Google, Brave and DuckDuckGo start answering with CAPTCHAs or blocks after a few
+# dozen searches in a few minutes. These settings spread the load over more engines
+# and rest a refusing engine for 15 minutes instead of hammering it every 3.
+# settings-version: 2
 use_default_settings: true
 server:
   secret_key: "__SECRET_KEY__"
@@ -11,5 +18,23 @@ search:
     - html
     - json
   safe_search: 0
+  suspended_times:
+    SearxEngineAccessDenied: 900
+    SearxEngineTooManyRequests: 900
+    SearxEngineCaptcha: 3600
 outgoing:
   request_timeout: 8.0
+# More general web engines than SearXNG's defaults (DuckDuckGo and Brave), so one
+# provider's refusal leaves others answering.
+engines:
+  - name: bing
+    disabled: false
+  - name: google
+    disabled: false
+  - name: yahoo
+    disabled: false
+  - name: qwant
+    disabled: false
+  - name: mojeek
+    disabled: false
+    inactive: false
