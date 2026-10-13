@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-13",
+  "where": "GitHub Actions (data-centre address)",
+  "version": "0.42.0",
+  "set": "held-out set 7 (150 sites picked blind on 10 October 2026)",
+  "sites": 150,
+  "arms": {
+    "scrapling": {
+      "label": "Scrapling",
+      "sites": 150,
+      "read": 101,
+      "rate": 0.6733,
+      "median_s": 6.0,
+      "p90_s": 10.8,
+      "cost_usd": 0.0
+    },
+    "local": {
+      "label": "Headless Chromium",
+      "sites": 150,
+      "read": 63,
+      "rate": 0.42,
+      "median_s": 2.5,
+      "p90_s": 5.7,
+      "cost_usd": 0.0
+    },
+    "http": {
+      "label": "Plain HTTP",
+      "sites": 150,
+      "read": 66,
+      "rate": 0.44,
+      "median_s": 0.9,
+      "p90_s": 2.6,
+      "cost_usd": 0.0
+    },
+    "jina_reader": {
+      "label": "Jina Reader",
+      "sites": 150,
+      "read": 105,
+      "rate": 0.7,
+      "median_s": 5.1,
+      "p90_s": 13.7,
+      "cost_usd": 0.0
+    },
+    "camoufox": {
+      "label": "Camoufox",
+      "sites": 150,
+      "read": 99,
+      "rate": 0.66,
+      "median_s": 8.7,
+      "p90_s": 14.0,
+      "cost_usd": 0.0
+    },
+    "patchright": {
+      "label": "Patchright",
+      "sites": 150,
+      "read": 64,
+      "rate": 0.4267,
+      "median_s": 3.0,
+      "p90_s": 7.3,
+      "cost_usd": 0.0
+    },
+    "stitched_free": {
+      "label": "Frankensurf, free tools only",
+      "sites": 150,
+      "read": 122,
+      "rate": 0.8133,
+      "median_s": 4.0,
+      "p90_s": 28.3,
+      "cost_usd": 0.0
+    }
+  }
+}

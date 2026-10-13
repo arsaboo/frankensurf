@@ -1,0 +1,16 @@
+[
+ {
+  "date": "2026-10-13",
+  "version": "0.42.0",
+  "sites": 150,
+  "rates": {
+   "scrapling": 0.6733,
+   "local": 0.42,
+   "http": 0.44,
+   "jina_reader": 0.7,
+   "camoufox": 0.66,
+   "patchright": 0.4267,
+   "stitched_free": 0.8133
+  }
+ }
+]
