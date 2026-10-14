@@ -1,14 +1,13 @@
 ---
 // Shared shell for the blog: the landing page's nav, fonts and colours, with a reading column.
 import "../styles/global.css";
-import StitchedWave from "../assets/stitched-wave.svg";
+import SiteNav from "../components/SiteNav.astro";
 import stitchedWaveMint from "../assets/stitched-wave-mint.svg?url";
 
 const { frontmatter = {}, title: pageTitle, description: pageDescription } = Astro.props;
 const title = frontmatter.title ?? pageTitle ?? "Blog";
 const description = frontmatter.description ?? pageDescription ?? "Notes from building Frankensurf.";
 const image = frontmatter.image ? new URL(frontmatter.image, Astro.site ?? Astro.url).href : undefined;
-const repo = "https://github.com/yail259/frankensurf";
 // "2026-10-09" (or a YAML date) → "9 October 2026"
 const date = frontmatter.date
   ? new Date(frontmatter.date).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
@@ -30,22 +29,7 @@ const date = frontmatter.date
 </head>
 <body class="blog-page">
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="nav" id="nav">
-  <div class="nav-shell">
-    <a class="brand" href="/" aria-label="Frankensurf home">
-      <StitchedWave class="brand-mark" aria-hidden="true" />
-      <span class="brand-word">FRANKEN<span>SURF</span></span>
-    </a>
-    <nav class="nav-actions">
-      <a class="docs-link" href="/blog/">Blog</a>
-      <a class="docs-link" href="/docs/" data-astro-prefetch>Docs</a>
-      <a class="gh" href={repo} aria-label="FrankenSurf on GitHub">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" /></svg>
-        <span>GitHub</span>
-      </a>
-    </nav>
-  </div>
-</header>
+<SiteNav />
 
 <main id="main" class="post">
   {date && <p class="post-date">{date}</p>}
@@ -58,9 +42,6 @@ const date = frontmatter.date
 </html>
 
 <style is:global>
-  /* The landing page spaces its nav with the voltage meter; the blog has none. */
-  .blog-page .nav-actions { margin-left: auto; }
-  .blog-page .nav-shell { background: rgb(9, 11, 13); }
   .post { max-width: 720px; margin-inline: auto; padding: 140px 24px 96px; font: 18px/1.7 var(--sans); color: var(--fg-2); }
   .post h1 { font: 600 clamp(34px, 6vw, 52px)/1.1 var(--sans); letter-spacing: -0.03em; color: var(--fg); margin: 0 0 40px; }
   .post h2 { font: 600 28px/1.25 var(--sans); letter-spacing: -0.02em; color: var(--fg); margin: 56px 0 16px; }

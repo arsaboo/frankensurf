@@ -1,6 +1,8 @@
 ---
 // Starlight page title override, after the Firecrawl docs: a section eyebrow, the title with a
-// "Copy page" button that copies the page as Markdown for an LLM, and the description as a subtitle.
+// "Copy page" button and a menu to view the page as Markdown or open it in ChatGPT or Claude, and
+// the description as a subtitle.
+import { docMarkdown, docMarkdownPath } from "../lib/docmd";
 // Starlight links "Overview" in the table of contents to this id; its constant isn't exported.
 const PAGE_TITLE_ID = "_top";
 
@@ -13,20 +15,40 @@ const sections: Record<string, string> = {
 };
 const segment = entry.id.split("/")[1] ?? "";
 const eyebrow = sections[segment] ?? "Get started";
-// MDX imports and component tags are noise to a model; keep the prose, tables and code.
-const markdown = `# ${title}\n\n${description ? description + "\n\n" : ""}${(entry.body ?? "")
-  .replace(/^import .*$/gm, "")
-  .replace(/^\s*<\/?(Tabs|TabItem|Steps|CardGrid|LinkCard|Card|Aside)\b[^>]*>\s*$/gm, "")
-  .replace(/\n{3,}/g, "\n\n")
-  .trim()}\n`;
+const markdown = docMarkdown(entry);
+const mdUrl = new URL(docMarkdownPath(entry.id), Astro.site ?? "https://frankensurf.dev").href;
+// The assistants read the page themselves from its Markdown address.
+const ask = encodeURIComponent(`Read ${mdUrl} so I can ask you questions about it.`);
+const actions = [
+  { label: "View as Markdown", href: docMarkdownPath(entry.id), icon: "md" },
+  { label: "Open in ChatGPT", href: `https://chatgpt.com/?hints=search&q=${ask}`, icon: "chat" },
+  { label: "Open in Claude", href: `https://claude.ai/new?q=${ask}`, icon: "chat" },
+  { label: "llms-full.txt", href: "/llms-full.txt", icon: "md" },
+];
 ---
 <p class="fs-eyebrow">{eyebrow}</p>
 <div class="fs-title-row">
   <h1 id={PAGE_TITLE_ID}>{title}</h1>
-  <button class="fs-copy" type="button" data-markdown={markdown} aria-label="Copy this page as Markdown">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
-    <span>Copy page</span>
-  </button>
+  <div class="fs-actions">
+    <button class="fs-copy" type="button" data-markdown={markdown} aria-label="Copy this page as Markdown">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
+      <span>Copy page</span>
+    </button>
+    <details class="fs-more">
+      <summary aria-label="More ways to use this page with an AI assistant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></summary>
+      <div class="fs-menu" role="menu">
+        {actions.map((a) => (
+          <a role="menuitem" href={a.href} target={a.href.startsWith("http") ? "_blank" : undefined} rel={a.href.startsWith("http") ? "noopener" : undefined}>
+            {a.icon === "md"
+              ? <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 15V9l2.5 3L12 9v6M15 12l2 3 2-3M17 9v6" /></svg>
+              : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" /></svg>}
+            <span>{a.label}</span>
+            {a.href.startsWith("http") && <svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>}
+          </a>
+        ))}
+      </div>
+    </details>
+  </div>
 </div>
 {description && <p class="fs-subtitle">{description}</p>}
 
@@ -39,6 +61,13 @@ const markdown = `# ${title}\n\n${description ? description + "\n\n" : ""}${(ent
       setTimeout(() => (label.textContent = "Copy page"), 1600);
     });
   });
+  // Close the menu on a click outside it or on Escape.
+  document.addEventListener("click", (e) => {
+    document.querySelectorAll<HTMLDetailsElement>(".fs-more[open]").forEach((d) => { if (!d.contains(e.target as Node)) d.open = false; });
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") document.querySelectorAll<HTMLDetailsElement>(".fs-more[open]").forEach((d) => (d.open = false));
+  });
 </script>
 
 <style>
@@ -46,8 +75,18 @@ const markdown = `# ${title}\n\n${description ? description + "\n\n" : ""}${(ent
   .fs-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
   h1 { margin: 0; font-size: var(--sl-text-h1); line-height: var(--sl-line-height-headings); font-weight: 650; letter-spacing: -0.035em; color: var(--sl-color-white); }
   .fs-subtitle { margin: 0.6rem 0 0; font-size: 1.1rem; line-height: 1.55; color: var(--sl-color-gray-2); max-width: 40rem; }
-  .fs-copy { flex: none; display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.45rem; padding: 0.35rem 0.7rem; border-radius: 8px; border: 1px solid var(--sl-color-hairline-light); background: transparent; color: var(--sl-color-gray-2); font: 500 0.8rem var(--sl-font); cursor: pointer; white-space: nowrap; }
-  .fs-copy:hover { color: var(--sl-color-white); border-color: var(--sl-color-gray-4); }
-  .fs-copy svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .fs-actions { flex: none; position: relative; display: flex; margin-top: 0.45rem; border-radius: 8px; border: 1px solid var(--sl-color-hairline-light); }
+  .fs-copy, .fs-more summary { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.7rem; background: transparent; border: 0; color: var(--sl-color-gray-2); font: 500 0.8rem var(--sl-font); cursor: pointer; white-space: nowrap; }
+  .fs-more summary { list-style: none; padding: 0.35rem 0.5rem; border-inline-start: 1px solid var(--sl-color-hairline-light); height: 100%; }
+  .fs-more summary::-webkit-details-marker { display: none; }
+  .fs-copy:hover, .fs-more summary:hover, .fs-more[open] summary { color: var(--sl-color-white); }
+  .fs-actions svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .fs-more[open] summary svg { transform: rotate(180deg); }
+  .fs-menu { position: absolute; z-index: 20; top: calc(100% + 6px); right: 0; width: 12.5rem; padding: 0.25rem; border-radius: 10px; border: 1px solid var(--sl-color-hairline-light); background: var(--sl-color-black); box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.55); }
+  .fs-menu a { display: flex; gap: 0.55rem; align-items: center; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; color: var(--sl-color-gray-2); text-decoration: none; }
+  .fs-menu a:hover { background: var(--sl-color-gray-6); color: var(--sl-color-white); }
+  .fs-menu a svg { width: 14px; height: 14px; flex: none; color: var(--sl-color-gray-3); }
+  .fs-menu a span { flex: 1; }
+  .fs-menu a .ext { width: 11px; height: 11px; color: var(--sl-color-gray-4); }
   @media (max-width: 40rem) { .fs-copy span { display: none; } .fs-copy { padding: 0.45rem; } }
 </style>

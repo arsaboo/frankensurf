@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import StitchedWave from "../assets/stitched-wave.svg";
+import SiteNav from "../components/SiteNav.astro";
 import stitchedWaveMint from "../assets/stitched-wave-mint.svg?url";
 import { sources, marquee, walls, toolRows, usRow, cellClass, chipLogos, docsFor, layers, stats, failures, versus, usVersus, usFree, ledger, rungs, searchStats } from "../data/site";
 
@@ -57,6 +57,43 @@ const kindLabel = { oss: "Open source", managed: "Managed", standard: "Open stan
 // Unblockers patch: a short wall across the read's path, with the middle course knocked out.
 const bricks = [2, 19, 45, 62].flatMap((y, row) =>
   row % 2 ? [{ x: 100, y, w: 18 }, { x: 122, y, w: 18 }] : [{ x: 100, y, w: 8 }, { x: 112, y, w: 18 }, { x: 134, y, w: 6 }]);
+
+// The plugin rack in #always: what already sits in each slot. Yours bolts on at the end.
+const rack = [
+  { kind: "Providers", does: "get a page", yours: "my_fetch", mods: [
+    { name: "Plain HTTP" }, { name: "Jina Reader" }, { name: "Chromium" }, { name: "Camoufox" },
+    { name: "Scrapling" }, { name: "Patchright" }, { name: "Steel", paid: true }, { name: "Firecrawl", paid: true }, { name: "Zyte", paid: true }] },
+  { kind: "Search sources", does: "find pages", yours: "my_index", mods: [
+    { name: "SearXNG" }, { name: "DuckDuckGo" }, { name: "Google News" }, { name: "Wikipedia" }, { name: "arXiv" }, { name: "Brave", paid: true },
+    { name: "Serper", paid: true }, { name: "Exa", paid: true }, { name: "Tavily", paid: true }] },
+];
+// #agents: one tab per place an agent runs. Code is trusted markup written here.
+const fits = [
+  { id: "cc", name: "Claude Code", how: "plugin", code: "/plugin marketplace add yail259/frankensurf\n/plugin install frankensurf@frankensurf",
+    note: "The MCP server plus a skill that tells Claude when to read, search, try harder or hand you a wall.", href: "/docs/agents/", link: "Claude Code setup" },
+  { id: "mcp", name: "Any MCP client", how: "mcp server", code: "frankensurf-mcp",
+    note: "Cursor, Codex, Claude Desktop, Windsurf and the rest start the same server.", href: "/docs/agents/", link: "Setup for each client" },
+  { id: "lc", name: "LangChain", how: "python", code: '<span class="k">from</span> frankensurf.agent_tools <span class="k">import</span> langchain_tools\n\nagent = create_react_agent(model, langchain_tools())',
+    note: "Sync and async tools for LangChain and LangGraph.", href: "/docs/frameworks/", link: "Frameworks" },
+  { id: "oa", name: "OpenAI Agents", how: "python", code: '<span class="k">from</span> frankensurf.agent_tools <span class="k">import</span> openai_agents_tools\n\nAgent(name=<span class="s">"researcher"</span>, tools=openai_agents_tools())',
+    note: "Strict-schema function tools for the Agents SDK.", href: "/docs/frameworks/", link: "Frameworks" },
+  { id: "crew", name: "CrewAI", how: "python", code: '<span class="k">from</span> frankensurf.agent_tools <span class="k">import</span> crewai_tools\n\nAgent(role=<span class="s">"Researcher"</span>, tools=crewai_tools())',
+    note: "CrewAI tools with typed arguments.", href: "/docs/frameworks/", link: "Frameworks" },
+];
+// #agents: every tool the MCP server exposes (src/frankensurf/mcp_server.py), grouped by job.
+const agentTools: { group: string; tools: [string, string][] }[] = [
+  { group: "Read", tools: [["read", "one page, checked; try_harder_than to go again"], ["batch", "many pages, a receipt each"], ["paginate", "follow next pages under one receipt"], ["extract", "fields with an adapter"], ["images", "exact image URLs, decoded"]] },
+  { group: "Search & watch", tools: [["search", "free sources first, results checked"], ["watch_sites", "what's new from feeds and sitemaps"]] },
+  { group: "Sites", tools: [["discover_site_module", "learn a site from its own data"], ["site_modules", "save and manage them"], ["read_template", "a saved search URL, filled in"], ["batch_template", "the same, for many queries"], ["repair_site_module", "propose a fix when a site changes"]] },
+  { group: "Receipts & repair", tools: [["trace", "what ran, what failed, time and cost"], ["repair", "diagnose a failed read"]] },
+  { group: "Signed in", tools: [["do", "one bounded action, with a receipt"], ["identity_status", "health of your saved sessions"], ["profiles", "names and sites, never sessions"], ["import_evidence", "a page you opened yourself"], ["import_image_evidence", "an image you saved yourself"]] },
+];
+const byName = Object.fromEntries(agentTools.map((g) => [g.group, g]));
+const toolCols = [[byName["Read"]], [byName["Sites"]], [byName["Signed in"]], [byName["Search & watch"], byName["Receipts & repair"]]];
+// #box: the latest weekly run, benchmarks/weekly/2026-10-13/summary.json (free tools only).
+const weekly = [
+  { name: "Frankensurf", rate: 81 }, { name: "Jina", rate: 70 }, { name: "Scrapling", rate: 67 }, { name: "Camoufox", rate: 66 }, { name: "HTTP", rate: 44 },
+];
 ---
 <html lang="en">
 <head>
@@ -73,26 +110,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="nav" id="nav">
-  <div class="nav-shell">
-    <a class="brand" href="#top" aria-label="Frankensurf home">
-      <StitchedWave class="brand-mark" aria-hidden="true" />
-      <span class="brand-word">FRANKEN<span>SURF</span></span>
-    </a>
-    <div class="volt" aria-label="Lab voltage">
-      <canvas id="ekg" width="120" height="28" aria-hidden="true"></canvas>
-      <span class="volt-read"><b id="kv">0.0</b> kV</span>
-    </div>
-    <nav class="nav-actions">
-      <a class="docs-link" href="/blog/">Blog</a>
-      <a class="docs-link" href="/docs/" data-astro-prefetch>Docs</a>
-      <a class="gh" href={repo} aria-label="FrankenSurf on GitHub">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" /></svg>
-        <span>GitHub</span>
-      </a>
-    </nav>
-  </div>
-</header>
+<SiteNav home />
 <p class="sr-only" id="strike-status" role="status"></p>
 
 <main id="main">
@@ -102,7 +120,7 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
       <h1>The <em class="horror">last</em> web tool<br />you&rsquo;ll need.</h1>
       <p class="sub">Because we stitched together the best ones out there: 28 web scrapers and browsers in one free, open-source tool for AI agents.</p>
       <div class="actions">
-        <a class="btn primary" href={repo}><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg>Star on GitHub<span class="stars" data-stars hidden></span></a>
+        <a class="btn primary" href={repo}>Star on GitHub<span class="stars"><span data-stars hidden></span><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg></span></a>
         <a class="btn" href="#router">See it route</a>
       </div>
       <a class="proof" href="#targets"><span class="claim"><b>96%</b> of 150 sites picked blind</span><span>Firecrawl alone 85% · Zyte alone 86%</span><span class="arrow" aria-hidden="true">↓</span></a>
@@ -386,133 +404,194 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
   <section class="container sec" id="always">
     <div class="sec-head" data-reveal>
       <h2>A better tool ships. We <em class="horror">bolt</em> it on.</h2>
+      <p class="sec-sub">Every tool in Frankensurf is a plugin, the built-in ones too. Yours goes in the same slot and gets the routing, pacing, page checks, retries, cost caps and receipts without writing any of them.</p>
     </div>
-    <div class="ledger" data-reveal>
-      {ledger.map((e) => (
-        <div class="entry">
-          <span class="when">{e.when}</span>
-          <div class="node"><i></i></div>
-          <div><h3>{e.change}</h3><p>{e.detail}</p></div>
-          <span class="delta">{e.delta}</span>
+
+    <figure class="rack" data-reveal>
+      {rack.map((rail) => (
+        <div class="rail">
+          <div class="rail-head"><b>{rail.kind}</b><span>{rail.does}</span></div>
+          <div class="rail-line">
+            {rail.mods.map((m) => <span class:list={["mod", { paid: m.paid }]}>{m.name}<i>{m.paid ? "paid" : "free"}</i></span>)}
+            {rail.yours && <span class="mod yours" aria-label="Your plugin"><span class="bolt-in">{rail.yours}<i>yours</i></span></span>}
+          </div>
         </div>
       ))}
-    </div>
+      <figcaption class="wrap-line">
+        <span class="wl-k">around every plugin</span>
+        {["routing", "pacing", "page checks", "retries", "cost caps", "receipt"].map((w) => <span class="wl-w">{w}</span>)}
+      </figcaption>
+    </figure>
 
-    <div class="window plug" data-reveal>
-      <div class="w-bar">
-        <div class="w-dots"><i></i><i></i><i></i></div>
-        <span class="w-title">bolt on your own</span>
-      </div>
-      <div class="w-body">
-        <div class="w-left">
-          <span class="label">your_tool.py</span>
-<pre class="code"><span class="k">class</span> <span class="f">MyFetch</span>:
-    manifest = ProviderManifest(
-        <span class="s">"my_fetch"</span>, <span class="s">"0.1.0"</span>, paid=<span class="k">True</span>)
+    <div class="how plug-steps">
+      <div class="panel" data-spot data-reveal>
+<pre class="code mini"><span class="k">class</span> <span class="f">MyFetch</span>:
+  manifest = ProviderManifest(
+    <span class="s">"my_fetch"</span>, <span class="s">"0.1.0"</span>, paid=<span class="k">True</span>)
 
-    <span class="k">async def</span> <span class="f">acquire</span>(self, request, services):
-        page = <span class="k">await</span> my_api(request.url)
-        <span class="k">return</span> &#123;<span class="s">"url"</span>: page.url,
-                <span class="s">"content"</span>: page.html,
-                <span class="s">"content_type"</span>: <span class="s">"text/html"</span>,
-                <span class="s">"http_status"</span>: page.status&#125;</pre>
-          <span class="label">then</span>
-<pre class="code">pip install -e ./my-fetch
-frankensurf plugins trust provider my_fetch my-fetch</pre>
+  <span class="k">async def</span> <span class="f">acquire</span>(self, req, svc):
+    page = <span class="k">await</span> my_api(req.url)
+    <span class="k">return</span> &#123;<span class="s">"url"</span>: page.url,
+      <span class="s">"content"</span>: page.html,
+      <span class="s">"content_type"</span>: <span class="s">"text/html"</span>,
+      <span class="s">"http_status"</span>: page.status&#125;</pre>
+        <h3>Write one class</h3>
+        <p>Return the page. Search sources return results; adapters shape them.</p>
+      </div>
+      <div class="panel" data-spot data-reveal>
+        <div class="term">
+          <span class="cmd-l"><b>$</b> pip install ./my-fetch</span>
+          <div class="pstate"><span class="pid">my_fetch</span><span class="lock">installed · not trusted</span></div>
+          <div class="pstate off"><span class="pid">route</span><span class="skip">skips it</span></div>
         </div>
-        <div class="w-right">
-          <span class="label">every tool is a plugin</span>
-          <ul class="plug-kinds">
-            <li><b>Provider</b><span>gets a page</span></li>
-            <li><b>Search source</b><span>finds pages</span></li>
-            <li><b>Adapter</b><span>shapes a result</span></li>
-          </ul>
-          <p class="plug-note">Your scraping API, a browser you run elsewhere, your own index. Return the page and Frankensurf does the rest: routing, pacing, checks, retries, cost caps and a receipt on every read.</p>
-          <p class="plug-note">Installing a plugin never runs it. It runs only after you trust that plugin, from that exact package.</p>
-          <a class="plug-link" href="/docs/more/plugins/" data-astro-prefetch>Write a plugin →</a>
+        <h3>Installing runs nothing</h3>
+        <p>It sees every page your agent reads, so pip alone isn't enough.</p>
+      </div>
+      <div class="panel" data-spot data-reveal>
+        <div class="term">
+          <span class="cmd-l"><b>$</b> frankensurf plugins trust provider my_fetch my-fetch</span>
+          <div class="pstate on"><span class="pid">my_fetch</span><span class="ok">trusted · from my-fetch</span></div>
+          <div class="pstate on"><span class="pid">route</span><span class="ok">my_fetch in line, paid tier</span></div>
         </div>
+        <h3>Trust it by name</h3>
+        <p>That plugin, from that exact package. Untrust or disable it any time.</p>
       </div>
     </div>
+    <a class="plug-link" href="/docs/more/plugins/" data-astro-prefetch data-reveal>Write a plugin →</a>
   </section>
 
   <section class="container sec" id="agents">
     <div class="sec-head" data-reveal>
       <h2>Works where your agent <em class="horror">lives.</em></h2>
-      <p class="sec-sub">One MCP server for any client, a plugin for Claude Code, and ready-made tools for the agent frameworks. Each gives your agent the same read and search, with the same checks and receipts.</p>
     </div>
-    <div class="fit-grid">
-      <div class="panel fit" data-reveal>
-        <span class="label">Claude Code</span>
-<pre class="code">/plugin marketplace add yail259/frankensurf
-/plugin install frankensurf@frankensurf</pre>
-        <p>The MCP server plus the skill that teaches Claude when to read, search, try harder or hand you a wall.</p>
+    <div class="window fits" data-fits data-reveal>
+      <div class="w-bar">
+        <div class="w-dots"><i></i><i></i><i></i></div>
+        <div class="seg" role="tablist" aria-label="Where your agent runs">
+          {fits.map((f, i) => <button type="button" role="tab" aria-pressed={i === 0 ? "true" : "false"} data-fit={f.id}>{f.name}</button>)}
+        </div>
       </div>
-      <div class="panel fit" data-reveal>
-        <span class="label">Any MCP client</span>
-<pre class="code">claude mcp add frankensurf -- frankensurf-mcp</pre>
-        <p>Cursor, Codex, Claude Desktop and the rest start <code>frankensurf-mcp</code>. <a href="/docs/agents/" data-astro-prefetch>Setup for each client →</a></p>
-      </div>
-      <div class="panel fit" data-reveal>
-        <span class="label">LangChain</span>
-<pre class="code"><span class="k">from</span> frankensurf.agent_tools <span class="k">import</span> langchain_tools
-tools = langchain_tools()</pre>
-        <p>Sync and async tools for LangChain and LangGraph agents.</p>
-      </div>
-      <div class="panel fit" data-reveal>
-        <span class="label">OpenAI Agents SDK</span>
-<pre class="code">Agent(name=<span class="s">"researcher"</span>,
-      tools=openai_agents_tools())</pre>
-        <p>Strict-schema function tools, ready for the SDK.</p>
-      </div>
-      <div class="panel fit" data-reveal>
-        <span class="label">CrewAI</span>
-<pre class="code">Agent(role=<span class="s">"Researcher"</span>,
-      tools=crewai_tools())</pre>
-        <p>CrewAI tools with typed arguments. <a href="/docs/frameworks/" data-astro-prefetch>All frameworks →</a></p>
+      <div class="fits-body">
+        <div class="fits-top">
+          <div class="fits-setup">
+            {fits.map((f, i) => (
+              <div class="fit-pane" data-pane={f.id} hidden={i !== 0}>
+                <span class="label">{f.how}</span>
+                <pre class="code" set:html={f.code} />
+                <p class="fit-note">{f.note} <a href={f.href} data-astro-prefetch>{f.link} →</a></p>
+              </div>
+            ))}
+          </div>
+          <div class="receipt">
+            <span class="label">every call comes back with a receipt</span>
+<pre class="code"><span class="f">read</span>(<span class="s">"shop.example.com/search?q=lamp"</span>)
+→ the page · via Camoufox
+  tried  HTTP ✗ empty shell, Jina ✗ bot check
+  4.1 s · $0 · trace 7f3a…</pre>
+          </div>
+        </div>
+        <div class="fits-tools">
+          <span class="label">what your agent gets · {agentTools.reduce((n, g) => n + g.tools.length, 0)} tools</span>
+          <div class="toolcols">
+            {toolCols.map((col) => (
+              <div class="tcol">
+                {col.map((g) => (
+                  <div class="tg">
+                    <span class="tg-k">{g.group}<small>{g.tools.length}</small></span>
+                    <ul>{g.tools.map(([name, what]) => <li><code>{name}</code><span>{what}</span></li>)}</ul>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="container sec" id="box">
     <div class="sec-head" data-reveal>
-      <h2>More in the <em class="horror">box.</em></h2>
+      <h2>It does more than <em class="horror">fetch.</em></h2>
+      <p class="sec-sub">The parts that make an agent's web work hold up past the first read: fields instead of pages, a lever when a page is wrong, sites learned once, and change you can poll.</p>
     </div>
-    <div class="fit-grid box-grid">
-      <a class="panel fit" href="/docs/read/structured/" data-spot data-reveal>
-        <span class="label">Structured fields</span>
-        <h3>Ask for the fields, not the page</h3>
-        <p>Pass a JSON Schema and get its fields filled from the data the page publishes for machines. A page missing a required field gets read again by a stronger tool.</p>
-<pre class="code">frankensurf read URL --schema product.json</pre>
+    <div class="how box">
+      <a class="panel" href="/docs/read/structured/" data-spot data-reveal>
+        <div class="fields">
+          <div><span>name</span><code>"Air fryer 5.5 L"</code><i class="y">✓</i></div>
+          <div><span>price</span><code>129.00</code><i class="y">✓</i></div>
+          <div class="miss"><span>rating</span><code>missing</code><i class="up">read again ↑</i></div>
+        </div>
+        <h3>Ask for fields, not pages</h3>
+        <p>Pass a JSON Schema. A required field that's missing sends the read to a stronger tool.</p>
       </a>
-      <a class="panel fit" href="/docs/read/" data-spot data-reveal>
-        <span class="label">Try harder</span>
-        <h3>Wrong page? Pull the lever</h3>
-        <p>Every read returns a trace ID. Hand it back and the next read skips every tool already tried and starts from the strongest one left.</p>
-<pre class="code">frankensurf read URL --try-harder-than TRACE_ID</pre>
+      <a class="panel" href="/docs/read/" data-spot data-reveal>
+        <div class="harder">
+          <span class="tr">trace 7f3a…</span>
+          <div class="hops"><s>HTTP</s><s>Jina</s><s>Camoufox</s><b>Firecrawl</b></div>
+        </div>
+        <h3>Wrong page? Try harder</h3>
+        <p>Hand back the trace ID and the next read skips every tool already used.</p>
       </a>
-      <a class="panel fit" href="/docs/read/site-modules/" data-spot data-reveal>
-        <span class="label">Site modules</span>
+      <a class="panel" href="/docs/read/site-modules/" data-spot data-reveal>
+        <div class="rows">
+          <div class="rh"><span>title</span><span>price</span></div>
+          <div><span>Desk lamp, brass</span><span>$49</span></div>
+          <div><span>Clamp lamp</span><span>$32</span></div>
+          <div><span>LED task light</span><span>$58</span></div>
+        </div>
         <h3>Learn a site once</h3>
-        <p>Your agent saves how a site works, its search URL and where the results live, as data. Later reads come back as clean rows.</p>
-<pre class="code">frankensurf module discover URL --query "desk lamp" --save</pre>
+        <p>Your agent saves how a site's search works, as data. Later reads come back as rows.</p>
       </a>
-      <a class="panel fit" href="/docs/search/" data-spot data-reveal>
-        <span class="label">Watch sites</span>
-        <h3>What&rsquo;s new since Monday</h3>
-        <p>New pages from the feeds and sitemaps sites publish, polled politely with conditional requests.</p>
-<pre class="code">frankensurf watch-sites URL --since 2026-10-12</pre>
+      <a class="panel" href="/docs/search/" data-spot data-reveal>
+        <div class="cache feed">
+          <div>/blog/pricing-update <span class="chip-r">new</span></div>
+          <div>/docs/changelog <span class="chip-r">new</span></div>
+          <div class="old">/about <span>304</span></div>
+        </div>
+        <h3>See what changed</h3>
+        <p>New pages from the feeds and sitemaps sites publish, polled politely.</p>
       </a>
-      <a class="panel fit" href="/docs/integrations/searxng/" data-spot data-reveal>
-        <span class="label">Local search</span>
-        <h3>Your own search engine, no Docker</h3>
-        <p>A pinned, checksum-checked SearXNG on your machine, started again after a reboot. It makes free search much stronger.</p>
-<pre class="code">frankensurf install search</pre>
+      <a class="panel" href="/docs/integrations/searxng/" data-spot data-reveal>
+        <div class="lsearch">
+          <div class="sbox"><i></i>127.0.0.1:8088</div>
+          <div class="sres"><b></b><b></b><b></b></div>
+        </div>
+        <h3>Your own search engine</h3>
+        <p>A pinned, checksum-checked SearXNG on your machine. No Docker.</p>
       </a>
-      <a class="panel fit" href="/docs/more/weekly/" data-spot data-reveal>
-        <span class="label">Weekly benchmark</span>
-        <h3>Checked again every Monday</h3>
-        <p>The same 150 sites, read by every tool on its own and by Frankensurf on a fresh machine. The raw rows are in the repo.</p>
-<pre class="code">benchmarks/weekly/</pre>
+      <a class="panel" href="/benchmarks/" data-spot data-reveal>
+        <div class="mini-rungs wk">
+          {weekly.map((w, i) => <div><span>{w.name}</span><i style={`--w:${w.rate}%;--i:${i}`}></i><span>{w.rate}%</span></div>)}
+        </div>
+        <h3>Benchmarked every Monday</h3>
+        <p>Every tool alone and Frankensurf, on a fresh machine. Raw rows in the repo.</p>
+      </a>
+      <a class="panel" href="/docs/read/" data-spot data-reveal>
+        <div class="capm">
+          <div class="cap-top"><code>max_cost_usd</code><b>$0.002</b></div>
+          <div class="cap-bar"><i style="--w:35%"></i><em style="--at:70%"></em></div>
+          <div class="cap-rows"><span>Camoufox <i class="y">free ✓</i></span><span class="over">Zyte <i>over cap, skipped</i></span></div>
+        </div>
+        <h3>A spend cap on every read</h3>
+        <p>Paid tools only run if you allow them, and never past the cap you set.</p>
+      </a>
+      <a class="panel" href="/docs/read/signed-in/" data-spot data-reveal>
+        <div class="fields">
+          <div><span>profile</span><code>work</code><i class="y">✓</i></div>
+          <div><span>site</span><code>app.acme.dev</code><i class="y">✓</i></div>
+          <div><span>cookie</span><code>session=••••••</code><i class="you">yours</i></div>
+        </div>
+        <h3>Signed-in pages, on your terms</h3>
+        <p>Reads with a session you saved. Your agent sees profile names, never the session.</p>
+      </a>
+      <a class="panel" href="/docs/more/share/" data-spot data-reveal>
+        <div class="cache">
+          <div>docs.acme.dev <span class="chip-r">T0</span></div>
+          <div>shop.example.com <span class="chip-r">T3</span></div>
+          <div class="old">community/routes.json <span>⇅ sync</span></div>
+        </div>
+        <h3>Learn from everyone's reads</h3>
+        <p>Share which tool worked on which site, and start where others left off. No pages, no sessions.</p>
       </a>
     </div>
   </section>
@@ -522,7 +601,7 @@ tools = langchain_tools()</pre>
       <h2><em class="horror">Ride</em> the whole web.</h2>
       <p>Open source. Python 3.12+, Linux, macOS, or Windows through WSL. No account or key.</p>
       <div class="cta-row">
-        <a class="btn primary big" href={repo}><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg>Star on GitHub<span class="stars" data-stars hidden></span></a>
+        <a class="btn primary big" href={repo}>Star on GitHub<span class="stars"><span data-stars hidden></span><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg></span></a>
         <div class="cmd"><span class="p">$</span><span>pip install "frankensurf[mcp]" &amp;&amp; frankensurf install</span><button class="copy" type="button" data-copy={`pip install "frankensurf[mcp]" && frankensurf install`}>Copy</button></div>
       </div>
     </div>
@@ -532,6 +611,16 @@ tools = langchain_tools()</pre>
 
 <footer><span class="footer-brand"><img src={stitchedWaveMint} width="28" height="18" alt="" loading="lazy" />FRANKENSURF</span><span class="horror">It's alive.</span></footer>
 
+<script>
+  // #agents tabs: one pane per place an agent runs.
+  for (const w of document.querySelectorAll("[data-fits]")) {
+    const btns = w.querySelectorAll("[data-fit]");
+    for (const b of btns) b.addEventListener("click", () => {
+      for (const x of btns) x.setAttribute("aria-pressed", String(x === b));
+      for (const p of w.querySelectorAll("[data-pane]")) p.hidden = p.dataset.pane !== b.dataset.fit;
+    });
+  }
+</script>
 <script>
   // The snake plays reads in turn: a dot travels the path, stopping at each tool
   // the read tries (red with the reason, or green where it gets the page), the
@@ -555,11 +644,19 @@ tools = langchain_tools()</pre>
       if (geometry.has(svg)) return geometry.get(svg)!;
       const path = svg.querySelector<SVGPathElement>(".snake-path")!;
       const total = path.getTotalLength();
+      // Where each node sits along the path: one coarse pass over the path shared by every node,
+      // then a fine search near each node's best coarse point. (Sampling every 2px per node was
+      // ~20k getPointAtLength calls and froze the page for two seconds as this scrolled in.)
+      const COARSE = 24;
+      const samples: [number, number, number][] = [];
+      for (let l = 0; l <= total; l += COARSE) { const p = path.getPointAtLength(l); samples.push([l, p.x, p.y]); }
       const at: Record<string, number> = {};
       svg.querySelectorAll<SVGGElement>(".snake-node").forEach((node) => {
         const [x, y] = node.getAttribute("transform")!.match(/[\d.]+/g)!.map(Number);
         let best = 0, bestD = Infinity;
-        for (let l = 0; l <= total; l += 2) {
+        for (const [l, px, py] of samples) { const d = (px - x) ** 2 + (py - y) ** 2; if (d < bestD) { bestD = d; best = l; } }
+        const lo = Math.max(0, best - COARSE), hi = Math.min(total, best + COARSE);
+        for (let l = lo; l <= hi; l += 2) {
           const p = path.getPointAtLength(l);
           const d = (p.x - x) ** 2 + (p.y - y) ** 2;
           if (d < bestD) { bestD = d; best = l; }
@@ -638,32 +735,13 @@ tools = langchain_tools()</pre>
       }
       running = false;
     };
+    // Measure the path while the browser is idle, well before the figure scrolls into view.
+    const warm = () => { const svg = visible(); if (svg) measure(svg); };
+    if ("requestIdleCallback" in window) requestIdleCallback(warm, { timeout: 3000 }); else setTimeout(warm, 1200);
     new IntersectionObserver(([entry]) => {
       onScreen = entry.isIntersecting;
       if (onScreen) play();
     }, { threshold: 0.3 }).observe(fig);
-  })();
-
-  // Live star count on the GitHub buttons. GitHub's public API, cached for the
-  // visit; if it can't be reached the buttons simply show no count.
-  // The count appears from SHOW_FROM stars up, so a brand-new repo shows the star alone.
-  const SHOW_FROM = 10;
-  (async () => {
-    const show = (n: number) => n >= SHOW_FROM && document.querySelectorAll<HTMLElement>("[data-stars]").forEach((el) => {
-      el.textContent = n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n);
-      el.hidden = false;
-    });
-    let cached: string | null = null;
-    try { cached = sessionStorage.getItem("fs-stars"); } catch {}
-    if (cached !== null) return show(Number(cached));
-    try {
-      const response = await fetch("https://api.github.com/repos/yail259/frankensurf", { headers: { Accept: "application/vnd.github+json" } });
-      if (!response.ok) return;
-      const n = (await response.json()).stargazers_count;
-      if (typeof n !== "number") return;
-      try { sessionStorage.setItem("fs-stars", String(n)); } catch {}
-      show(n);
-    } catch {}
   })();
 
   import { mountSurf } from "../scripts/surf";

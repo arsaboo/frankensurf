@@ -1,0 +1,444 @@
+---
+// The weekly benchmark, as its own page. The latest run is read from benchmarks/weekly at build
+// time so the page is complete without JavaScript; in the browser it then checks the repository
+// for a newer Monday run and redraws from that, so a new run shows without a rebuild.
+import fs from "node:fs";
+import path from "node:path";
+import "../styles/global.css";
+import SiteNav from "../components/SiteNav.astro";
+
+const dir = path.resolve(process.cwd(), "../benchmarks/weekly");
+const read = (name: string) => JSON.parse(fs.readFileSync(path.join(dir, name), "utf-8"));
+const summary = read("latest.json");
+const history = read("history.json");
+
+// One entry per site: its category and, per tool, [read right?, seconds].
+function compact(rowsText: string) {
+  const sites: Record<string, { wall: string; url: string; arms: Record<string, [number, number]> }> = {};
+  for (const line of rowsText.split("\n")) {
+    if (!line.trim()) continue;
+    const r = JSON.parse(line);
+    const s = (sites[r.site] ??= { wall: r.wall, url: r.url, arms: {} });
+    s.arms[r.arm] = [r.valid ? 1 : 0, Math.round((r.latency_ms ?? 0) / 100) / 10];
+  }
+  return sites;
+}
+const sites = compact(fs.readFileSync(path.join(dir, summary.date, "rows.jsonl"), "utf-8"));
+const data = { summary, history, sites };
+
+const arms = Object.entries(summary.arms as Record<string, any>).sort((a, b) => b[1].rate - a[1].rate);
+const us = summary.arms.stitched_free;
+const best = arms.find(([k]) => !k.startsWith("stitched"))!;
+const pct = (r: number) => (r * 100).toFixed(1);
+const repo = "https://github.com/yail259/frankensurf";
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Weekly benchmark · Frankensurf</title>
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon-stitched-wave.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="description" content={`Every Monday, every web tool on its own and Frankensurf, on the same 150 sites. Latest: Frankensurf with free tools ${pct(us.rate)}%, best single tool ${pct(best[1].rate)}%.`} />
+  <script is:inline>
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || new URLSearchParams(location.search).get("motion") === "reduced") document.documentElement.dataset.motion = "reduced";
+  </script>
+</head>
+<body class="bench-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<SiteNav />
+
+<main id="main">
+  <section class="container bh">
+    <p class="bh-kicker"><span class="live"></span>Re-run every Monday, 02:00 UTC · <span data-next>next run soon</span></p>
+    <h1>Read again every <em class="horror">Monday.</em></h1>
+    <p class="bh-sub">The same 150 sites, picked blind before any tool saw them. Every free tool reads them alone, then Frankensurf reads them with all of them. Same pass/fail check, one read each, on a fresh machine with a data-centre address.</p>
+
+    <div class="bh-stats">
+      <div class="bh-big">
+        <span class="n"><b data-count={pct(us.rate)}>{pct(us.rate)}</b>%</span>
+        <span class="l">Frankensurf, free tools only</span>
+      </div>
+      <div class="bh-vs">
+        <span class="n"><b data-count={pct(best[1].rate)}>{pct(best[1].rate)}</b>%</span>
+        <span class="l">best single tool, <span data-best-name>{best[1].label}</span></span>
+      </div>
+      <div class="bh-delta">
+        <span class="n">+<b data-count={((us.rate - best[1].rate) * 100).toFixed(1)}>{((us.rate - best[1].rate) * 100).toFixed(1)}</b></span>
+        <span class="l">points ahead</span>
+      </div>
+    </div>
+    <p class="bh-meta" data-meta>{summary.date} · v{summary.version} · {summary.sites} sites · {summary.where}</p>
+  </section>
+
+  <section class="container sec" id="board">
+    <div class="sec-head" data-reveal>
+      <h2>Who read the <em class="horror">page.</em></h2>
+      <p class="sec-sub">Share of the 150 sites read right. A read counts only when the real page came back: a bot check, a sign-in wall or an empty shell is a miss, even with a 200.</p>
+    </div>
+    <div class="panel board" data-board data-reveal></div>
+  </section>
+
+  <section class="container sec" id="grid">
+    <div class="sec-head" data-reveal>
+      <h2>150 sites, one <em class="horror">square</em> each.</h2>
+      <p class="sec-sub">Each column is a site, each row a tool. Green is read right. Sites are sorted by how many tools got through, so the hard ones sit on the right. Hover or tap a square for the site.</p>
+    </div>
+    <div class="panel matrix-wrap" data-reveal>
+      <div class="matrix" data-matrix></div>
+      <p class="matrix-tip" data-tip aria-live="polite">&nbsp;</p>
+    </div>
+    <div class="how callouts" data-callouts></div>
+  </section>
+
+  <section class="container sec" id="speed">
+    <div class="sec-head" data-reveal>
+      <h2>Reads more. Costs <em class="horror">time.</em></h2>
+      <p class="sec-sub">Each dot is a tool's median read; the line runs out to its slowest tenth. Frankensurf's median stays low because most sites stop at the first cheap tool. Its tail is long because a hard site climbs several tools.</p>
+    </div>
+    <div class="panel speed" data-reveal><svg class="speed-svg" data-speed viewBox="0 0 760 340" role="img" aria-label="Median and slowest-tenth read time against share of sites read, per tool"></svg></div>
+  </section>
+
+  <section class="container sec" id="walls">
+    <div class="sec-head" data-reveal>
+      <h2>Where it <em class="horror">wins.</em></h2>
+      <p class="sec-sub">By kind of site. The grey tick is the best any single tool did on that kind; the green bar is Frankensurf.</p>
+    </div>
+    <div class="panel walls" data-walls data-reveal></div>
+  </section>
+
+  <section class="container sec" id="trend">
+    <div class="sec-head" data-reveal>
+      <h2>Week by <em class="horror">week.</em></h2>
+      <p class="sec-sub">Sites change, tools ship, walls go up. This is how each one holds up over time.</p>
+    </div>
+    <div class="panel trend" data-reveal><svg class="trend-svg" data-trend viewBox="0 0 760 300" role="img" aria-label="Share of sites read right per week, per tool"></svg><p class="trend-note" data-trend-note></p></div>
+  </section>
+
+  <section class="container sec" id="method">
+    <div class="sec-head" data-reveal>
+      <h2>Check our <em class="horror">work.</em></h2>
+    </div>
+    <div class="how">
+      <a class="panel" href={`${repo}/tree/main/benchmarks/weekly`} data-spot data-reveal><span class="label">raw rows</span><h3>Every read, every tool</h3><p>One line per site per tool: what came back, why it failed, how long it took.</p></a>
+      <a class="panel" href={`${repo}/blob/main/scripts/weekly_bench.py`} data-spot data-reveal><span class="label">the script</span><h3>Run it yourself</h3><p>The same script runs here every Monday. Point it at your own sites.</p></a>
+      <a class="panel" href={`${repo}/blob/main/.github/workflows/weekly-bench.yml`} data-spot data-reveal><span class="label">the machine</span><h3>A fresh runner each week</h3><p>GitHub Actions, no cache, no keys, no paid tools. Results are committed as they come.</p></a>
+    </div>
+    <p class="method-note">Free tools only: paid APIs aren't run every week. The full head-to-head with Firecrawl, Zyte and the rest is in the <a href="/blog/i-just-wanted-a-cheap-film-camera/">launch write-up</a> and its <a href={`${repo}/tree/main/benchmarks`}>benchmark folder</a>.</p>
+  </section>
+</main>
+
+<footer><span class="horror">It's alive.</span></footer>
+
+<script is:inline type="application/json" id="bench-data" set:html={JSON.stringify(data)} />
+
+<script>
+  type Arm = { label: string; sites: number; read: number; rate: number; median_s: number | null; p90_s: number | null };
+  type Data = { summary: { date: string; version: string; sites: number; where: string; arms: Record<string, Arm> };
+    history: { date: string; version: string; rates: Record<string, number> }[];
+    sites: Record<string, { wall: string; url: string; arms: Record<string, [number, number]> }> };
+
+  const US = "stitched_free";
+  const RAW = "https://raw.githubusercontent.com/yail259/frankensurf/main/benchmarks/weekly/";
+  const reduce = document.documentElement.dataset.motion === "reduced";
+  const esc = (t: unknown) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
+  const short = (label: string) => label.replace("Frankensurf, free tools only", "Frankensurf").replace("Headless Chromium", "Chromium");
+  const $ = (sel: string) => document.querySelector<HTMLElement>(sel);
+
+  function render(d: Data) {
+    const arms = Object.entries(d.summary.arms).sort((a, b) => b[1].rate - a[1].rate);
+    const singles = arms.filter(([k]) => k !== US);
+    const us = d.summary.arms[US];
+
+    // Hero numbers.
+    const best = singles[0][1];
+    const set = (sel: string, v: string) => { const el = $(sel); if (el) { el.dataset.count = v; el.textContent = v; } };
+    const counts = document.querySelectorAll<HTMLElement>(".bh-stats [data-count]");
+    set(".bh-big [data-count]", (us.rate * 100).toFixed(1));
+    set(".bh-vs [data-count]", (best.rate * 100).toFixed(1));
+    set(".bh-delta [data-count]", ((us.rate - best.rate) * 100).toFixed(1));
+    const bn = $("[data-best-name]"); if (bn) bn.textContent = best.label;
+    const meta = $("[data-meta]"); if (meta) meta.textContent = `${d.summary.date} · v${d.summary.version} · ${d.summary.sites} sites · ${d.summary.where}`;
+    countUp(counts);
+
+    // Leaderboard.
+    const board = $("[data-board]")!;
+    board.innerHTML = `<div class="b-row b-head"><span>Tool</span><span></span><span>Read</span><span>Median</span><span>Slowest tenth</span></div>` +
+      arms.map(([k, a], i) => `<div class="b-row${k === US ? " us" : ""}" style="--i:${i}">
+        <span class="b-name">${esc(short(a.label))}</span>
+        <span class="b-track"><i style="--w:${(a.rate * 100).toFixed(1)}%"></i><em>${(a.rate * 100).toFixed(1)}%</em></span>
+        <span class="b-num">${a.read}<small>/${a.sites}</small></span>
+        <span class="b-num">${a.median_s ?? "–"}<small> s</small></span>
+        <span class="b-num">${a.p90_s ?? "–"}<small> s</small></span></div>`).join("");
+
+    // Site matrix: columns sorted by how many single tools read the site, hardest on the right.
+    const ids = Object.keys(d.sites);
+    const reads = (id: string, k: string) => d.sites[id].arms[k]?.[0] === 1;
+    const nSingle = (id: string) => singles.filter(([k]) => reads(id, k)).length;
+    ids.sort((a, b) => (nSingle(b) - nSingle(a)) || (Number(reads(b, US)) - Number(reads(a, US))) || d.sites[a].wall.localeCompare(d.sites[b].wall));
+    const matrix = $("[data-matrix]")!;
+    matrix.style.setProperty("--cols", String(ids.length));
+    matrix.innerHTML = arms.map(([k, a]) => `<div class="m-row${k === US ? " us" : ""}"><span class="m-name">${esc(short(a.label))}</span><div class="m-cells">` +
+      ids.map((id, c) => `<i class="${reads(id, k) ? "y" : "n"}" style="--c:${c}" data-site="${esc(id)}" data-arm="${esc(short(a.label))}"></i>`).join("") +
+      `</div></div>`).join("");
+    const tip = $("[data-tip]")!;
+    const showTip = (el: HTMLElement) => {
+      const s = d.sites[el.dataset.site!]; if (!s) return;
+      const who = arms.filter(([k]) => reads(el.dataset.site!, k)).map(([, a]) => short(a.label));
+      tip.innerHTML = `<b>${esc(s.url.replace(/^https?:\/\/(www\.)?/, ""))}</b> · ${esc(s.wall)} · ${who.length ? "read by " + esc(who.join(", ")) : "nobody read it"}`;
+    };
+    matrix.onmouseover = (e) => { const t = e.target as HTMLElement; if (t.dataset.site) showTip(t); };
+    matrix.onclick = (e) => { const t = e.target as HTMLElement; if (t.dataset.site) showTip(t); };
+
+    // Callouts.
+    const onlyUs = ids.filter((id) => reads(id, US) && nSingle(id) === 0).length;
+    const nobody = ids.filter((id) => !reads(id, US) && nSingle(id) === 0).length;
+    const missed = ids.filter((id) => !reads(id, US) && nSingle(id) > 0).length;
+    $("[data-callouts]")!.innerHTML = [
+      [onlyUs, "sites only Frankensurf read", "No single tool got the real page. Routing between them did."],
+      [missed, "sites a single tool read and Frankensurf missed", "Usually a slow tool it didn't wait for. These are the next things to fix."],
+      [nobody, "sites nothing read", "Hard walls for every free tool. Paid tools or you get these."],
+    ].map(([n, h, p]) => `<div class="panel" data-spot><span class="co-n">${n}</span><h3>${h}</h3><p>${p}</p></div>`).join("");
+
+    drawSpeed(arms);
+    drawWalls(d, arms, ids);
+    drawTrend(d, arms);
+  }
+
+  // Labels in a column: sorted by height, pushed apart so none overlap, kept inside [lo, hi].
+  function spread(ys: number[], gap: number, lo: number, hi: number) {
+    const order = ys.map((y, i) => [y, i]).sort((a, b) => a[0] - b[0]);
+    const out = ys.slice();
+    let prev = -Infinity;
+    for (const [y, i] of order) { out[i] = Math.max(y, prev + gap); prev = out[i]; }
+    const over = prev - hi;
+    if (over > 0) for (const [, i] of order) out[i] = Math.max(lo, out[i] - over);
+    return out;
+  }
+
+  function drawSpeed(arms: [string, Arm][]) {
+    const svg = $("[data-speed]")!;
+    const W = 760, H = 340, L = 56, R = 130, T = 20, B = 46;
+    const maxS = Math.ceil(Math.max(...arms.map(([, a]) => a.p90_s ?? 0)) / 5) * 5;
+    const x = (s: number) => L + (s / maxS) * (W - L - R);
+    const y = (r: number) => T + (1 - r) * (H - T - B);
+    let g = "";
+    for (let r = 0; r <= 1.0001; r += 0.25) g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(r)}" y2="${y(r)}"/><text class="ax" x="${L - 10}" y="${y(r) + 4}" text-anchor="end">${r * 100}%</text>`;
+    for (let s = 0; s <= maxS; s += 5) g += `<text class="ax" x="${x(s)}" y="${H - B + 20}" text-anchor="middle">${s} s</text>`;
+    g += `<text class="ax" x="${W - R}" y="${H - 6}" text-anchor="end">read time: dot = median, line = slowest tenth</text>`;
+    const shown = arms.filter(([, a]) => a.median_s != null);
+    const ly = spread(shown.map(([, a]) => y(a.rate)), 17, T, H - B);
+    const lx = W - R + 18;
+    shown.forEach(([k, a], i) => {
+      const us = k === US, cy = y(a.rate), end = x(a.p90_s ?? a.median_s!);
+      g += `<g class="pt${us ? " us" : ""}" style="--i:${i}"><line class="whisk" x1="${x(a.median_s!)}" x2="${end}" y1="${cy}" y2="${cy}"/>` +
+        `<circle cx="${x(a.median_s!)}" cy="${cy}" r="${us ? 7 : 5}"/>` +
+        `<path class="lead" d="M${end + 6} ${cy} L${lx - 12} ${cy} L${lx - 4} ${ly[i]}"/>` +
+        `<text class="pl" x="${lx}" y="${ly[i] + 4}">${esc(short(a.label))}</text></g>`;
+    });
+    svg.innerHTML = g;
+  }
+
+  function drawWalls(d: Data, arms: [string, Arm][], ids: string[]) {
+    const byWall: Record<string, string[]> = {};
+    for (const id of ids) (byWall[d.sites[id].wall] ??= []).push(id);
+    const rate = (list: string[], k: string) => list.filter((id) => d.sites[id].arms[k]?.[0] === 1).length / list.length;
+    const rows = Object.entries(byWall).filter(([, l]) => l.length >= 3).map(([wall, list]) => {
+      const singles = arms.filter(([k]) => k !== US).map(([k, a]) => [a.label, rate(list, k)] as [string, number]).sort((a, b) => b[1] - a[1]);
+      return { wall, n: list.length, us: rate(list, US), best: singles[0] };
+    }).sort((a, b) => (b.us - b.best[1]) - (a.us - a.best[1]));
+    $("[data-walls]")!.innerHTML = rows.map((r, i) => `<div class="w-row" style="--i:${i}"><span class="w-name">${esc(r.wall.replace(/_(\w+)$/, (_, s) => " " + s.toUpperCase()).replace(/ OTHER$/, " other"))}<small>${r.n} sites</small></span>` +
+      `<span class="w-track"><i style="--w:${(r.us * 100).toFixed(0)}%"></i><b style="--at:${(r.best[1] * 100).toFixed(0)}%" title="${esc(r.best[0])}"></b></span>` +
+      `<span class="w-num">${(r.us * 100).toFixed(0)}%<small>${r.us >= r.best[1] ? "+" : "−"}${Math.abs((r.us - r.best[1]) * 100).toFixed(0)}</small></span></div>`).join("");
+  }
+
+  function drawTrend(d: Data, arms: [string, Arm][]) {
+    const svg = $("[data-trend]")!;
+    const W = 760, H = 300, L = 64, R = 130, T = 16, B = 36;
+    const weeks = d.history;
+    const n = Math.max(weeks.length, 2);
+    const x = (i: number) => weeks.length === 1 ? L + (W - L - R) / 2 : L + (i / (n - 1)) * (W - L - R);
+    const y = (r: number) => T + (1 - r) * (H - T - B);
+    let g = "";
+    for (let r = 0; r <= 1.0001; r += 0.25) g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(r)}" y2="${y(r)}"/><text class="ax" x="${L - 10}" y="${y(r) + 4}" text-anchor="end">${r * 100}%</text>`;
+    weeks.forEach((w, i) => (g += `<text class="ax" x="${x(i)}" y="${H - 10}" text-anchor="middle">${esc(w.date.slice(5))}</text>`));
+    const lines = arms.map(([k, a]) => ({ k, a, pts: weeks.map((w, i) => [x(i), y(w.rates[k] ?? 0)] as [number, number]).filter((_, i) => weeks[i].rates[k] != null) })).filter((l) => l.pts.length);
+    const ends = spread(lines.map((l) => l.pts[l.pts.length - 1][1]), 16, T, H - B);
+    lines.slice().reverse().forEach(({ k, a, pts }) => {
+      const us = k === US, j = lines.findIndex((l) => l.k === k);
+      if (pts.length > 1) g += `<polyline class="tl${us ? " us" : ""}" points="${pts.map((p) => p.join(",")).join(" ")}"/>`;
+      pts.forEach(([px, py]) => (g += `<circle class="td${us ? " us" : ""}" cx="${px}" cy="${py}" r="${us ? 5 : 3.5}"/>`));
+      const [px, py] = pts[pts.length - 1];
+      g += `<path class="lead" d="M${px + 8} ${py} L${px + 22} ${ends[j]}"/><text class="tlab${us ? " us" : ""}" x="${px + 28}" y="${ends[j] + 4}">${esc(short(a.label))}</text>`;
+    });
+    svg.innerHTML = g;
+    const note = $("[data-trend-note]")!;
+    note.textContent = weeks.length < 2 ? "One run so far. The lines start from the second Monday." : `${weeks.length} weekly runs.`;
+  }
+
+  function countUp(els: NodeListOf<HTMLElement>) {
+    if (reduce) return;
+    els.forEach((el) => {
+      const end = Number(el.dataset.count), dp = (el.dataset.count!.split(".")[1] ?? "").length;
+      const t0 = performance.now(), dur = 1100;
+      const step = (now: number) => {
+        const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = (end * e).toFixed(dp);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
+  // Next Monday 02:00 UTC.
+  (() => {
+    const el = $("[data-next]"); if (!el) return;
+    const now = new Date(), next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 2));
+    while (next.getUTCDay() !== 1 || next <= now) next.setUTCDate(next.getUTCDate() + 1);
+    const h = Math.round((next.getTime() - now.getTime()) / 3600000);
+    el.textContent = h >= 48 ? `next run in ${Math.round(h / 24)} days` : `next run in ${h} hours`;
+  })();
+
+  // Reveal: sections animate in once as they scroll into view.
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.15 });
+  document.querySelectorAll("[data-reveal]").forEach((el) => io.observe(el));
+
+  const initial: Data = JSON.parse(document.getElementById("bench-data")!.textContent!);
+  render(initial);
+
+  // A newer Monday run in the repository than this build? Redraw from it.
+  (async () => {
+    try {
+      const latest = await (await fetch(RAW + "latest.json", { cache: "no-store" })).json();
+      if (!latest?.date || latest.date <= initial.summary.date) return;
+      const [history, rows] = await Promise.all([
+        fetch(RAW + "history.json", { cache: "no-store" }).then((r) => r.json()),
+        fetch(RAW + latest.date + "/rows.jsonl", { cache: "no-store" }).then((r) => r.text()),
+      ]);
+      const sites: Data["sites"] = {};
+      for (const line of rows.split("\n")) {
+        if (!line.trim()) continue;
+        const r = JSON.parse(line);
+        const s = (sites[r.site] ??= { wall: r.wall, url: r.url, arms: {} });
+        s.arms[r.arm] = [r.valid ? 1 : 0, Math.round((r.latency_ms ?? 0) / 100) / 10];
+      }
+      render({ summary: latest, history, sites });
+    } catch {}
+  })();
+</script>
+
+<style is:global>
+  .bench-page main { padding-top: 120px; }
+  .bench-page footer { text-align: center; padding-bottom: 60px; color: var(--dim); }
+  .bh { padding-block: 40px 40px; }
+  .bh-kicker { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 22px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); font: 12px var(--mono); color: var(--fg-2); }
+  .live { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(154, 240, 176, 0.6); }
+  @media (prefers-reduced-motion: no-preference) { html:not([data-motion="reduced"]) .live { animation: pulse 2s infinite; } }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(154, 240, 176, 0); } 100% { box-shadow: 0 0 0 0 rgba(154, 240, 176, 0); } }
+  .bh h1 { margin: 0; font-size: clamp(44px, 7vw, 92px); line-height: 0.98; letter-spacing: -0.05em; font-weight: 600; }
+  .bh h1 em.horror { color: var(--accent); }
+  .bh-sub { max-width: 64ch; margin: 22px 0 0; font-size: 17px; line-height: 1.6; color: var(--fg-2); }
+  .bh-stats { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; margin-top: 48px; }
+  .bh-stats > div { display: flex; flex-direction: column; gap: 6px; padding: 26px; border-radius: var(--r); border: 1px solid var(--line); background: linear-gradient(180deg, var(--panel-2), var(--panel)); }
+  .bh-stats .n { font: 600 clamp(44px, 6vw, 76px)/1 var(--sans); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+  .bh-stats .l { font: 13px var(--mono); color: var(--dim); }
+  .bh-big { border-color: rgba(154, 240, 176, 0.35) !important; box-shadow: 0 30px 80px -40px rgba(154, 240, 176, 0.35); }
+  .bh-big .n { color: var(--accent); }
+  .bh-vs .n { color: var(--fg-2); }
+  .bh-delta .n { color: var(--spark); }
+  .bh-meta { margin: 16px 0 0; font: 12px var(--mono); color: var(--dim); }
+  @media (max-width: 760px) { .bh-stats { grid-template-columns: 1fr 1fr; } .bh-big { grid-column: 1 / -1; } }
+
+  /* Leaderboard */
+  .board { padding: 10px 22px; }
+  .b-row { display: grid; grid-template-columns: 130px minmax(0, 1fr) 70px 70px 96px; gap: 16px; align-items: center; padding: 13px 0; border-top: 1px solid var(--line); }
+  .b-row:first-child { border-top: 0; }
+  .b-head { font: 11px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+  .b-name { font-size: 15px; font-weight: 500; }
+  .b-row.us .b-name { color: var(--accent); }
+  .b-track { position: relative; display: flex; align-items: center; height: 22px; }
+  .b-track i { display: block; height: 10px; border-radius: 5px; width: 0; background: linear-gradient(90deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.1)); transition: width 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i) * 90ms); }
+  .b-row.us .b-track i { height: 14px; border-radius: 7px; background: linear-gradient(90deg, var(--accent), rgba(154, 240, 176, 0.35)); box-shadow: 0 0 20px -2px rgba(154, 240, 176, 0.5); }
+  .in .b-track i, html[data-motion="reduced"] .b-track i { width: var(--w); }
+  .b-track em { font: normal 12.5px var(--mono); color: var(--fg-2); margin-left: 10px; white-space: nowrap; }
+  .b-row.us .b-track em { color: var(--accent); }
+  .b-num { font: 14px var(--mono); text-align: right; font-variant-numeric: tabular-nums; color: var(--fg-2); }
+  .b-num small { color: var(--dim); }
+  .b-head span:nth-child(n + 3) { text-align: right; }
+  @media (max-width: 760px) {
+    .b-row { grid-template-columns: 92px minmax(0, 1fr) 56px; gap: 10px; }
+    .b-row > :nth-child(4), .b-row > :nth-child(5) { display: none; }
+    .board { padding: 6px 14px; }
+  }
+
+  /* Matrix */
+  .matrix-wrap { padding: 22px; }
+  .matrix { display: grid; gap: 5px; }
+  .m-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 14px; align-items: center; }
+  .m-name { font: 12px var(--mono); color: var(--fg-2); white-space: nowrap; }
+  .m-row.us .m-name { color: var(--accent); }
+  .m-cells { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 1.5px; }
+  .m-cells i { display: block; aspect-ratio: 1 / 2.2; border-radius: 1.5px; background: rgba(255, 255, 255, 0.06); cursor: pointer; transition: background 0.4s calc(var(--c) * 5ms), transform 0.15s; }
+  .in .m-cells i.y, html[data-motion="reduced"] .m-cells i.y { background: rgba(154, 240, 176, 0.45); }
+  .in .m-row.us .m-cells i.y, html[data-motion="reduced"] .m-row.us .m-cells i.y { background: var(--accent); }
+  .m-row.us { padding-bottom: 8px; margin-bottom: 4px; border-bottom: 1px dashed var(--line-2); }
+  .m-cells i:hover { transform: scaleY(1.25); outline: 1px solid var(--fg); }
+  .matrix-tip { margin: 16px 0 0; min-height: 1.6em; font: 12.5px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+  .matrix-tip b { color: var(--fg); font-weight: 500; }
+  @media (max-width: 760px) {
+    .m-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } .matrix-wrap { padding: 14px; } .matrix { gap: 10px; }
+    .m-cells { gap: 0.5px; } .m-cells i { aspect-ratio: auto; height: 14px; border-radius: 0; }
+    .speed, .trend { overflow-x: auto; } .speed-svg, .trend-svg { min-width: 640px; }
+  }
+  .callouts { margin-top: 16px; }
+  .callouts p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .co-n { font: 600 54px/1 var(--sans); letter-spacing: -0.04em; color: var(--accent); }
+  .callouts .panel:nth-child(2) .co-n { color: var(--spark); }
+  .callouts .panel:nth-child(3) .co-n { color: var(--fg-2); }
+
+  /* Speed scatter */
+  .speed, .trend { padding: 18px; }
+  .speed-svg, .trend-svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .grid { stroke: var(--line); }
+  .ax { font: 11px var(--mono); fill: var(--dim); }
+  .pt circle { fill: var(--panel-2); stroke: var(--fg-2); stroke-width: 1.5; }
+  .pt .whisk { stroke: rgba(255, 255, 255, 0.25); stroke-width: 2; stroke-linecap: round; }
+  .pt .pl { font: 12px var(--sans); fill: var(--fg-2); }
+  .pt.us circle { fill: var(--accent); stroke: var(--accent); }
+  .pt.us .whisk { stroke: var(--accent); opacity: 0.6; stroke-dasharray: 4 4; }
+  .pt.us .pl { fill: var(--accent); font-weight: 600; }
+  .lead { fill: none; stroke: rgba(255, 255, 255, 0.18); stroke-width: 1; }
+  .pt { opacity: 0; transition: opacity 0.5s calc(var(--i) * 80ms); }
+  .in .pt, html[data-motion="reduced"] .pt { opacity: 1; }
+
+  /* By kind of site */
+  .walls { padding: 10px 22px; }
+  .w-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) 80px; gap: 16px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); }
+  .w-row:first-child { border-top: 0; }
+  .w-name { display: flex; flex-direction: column; font-size: 14.5px; text-transform: capitalize; }
+  .w-name small { font: 11px var(--mono); color: var(--dim); text-transform: none; }
+  .w-track { position: relative; height: 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.04); }
+  .w-track i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 6px; background: linear-gradient(90deg, var(--accent), rgba(154, 240, 176, 0.35)); transition: width 1s cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i) * 60ms); }
+  .in .w-track i, html[data-motion="reduced"] .w-track i { width: var(--w); }
+  .w-track b { position: absolute; top: -5px; bottom: -5px; left: var(--at); width: 2px; margin-left: -1px; border-radius: 1px; background: var(--fg-2); }
+  .w-num { font: 14px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+  .w-num small { display: block; font-size: 11px; color: var(--dim); }
+  @media (max-width: 760px) { .w-row { grid-template-columns: 96px minmax(0, 1fr) 52px; gap: 10px; } .walls { padding: 6px 14px; } }
+
+  /* Trend */
+  .tl { fill: none; stroke: rgba(255, 255, 255, 0.3); stroke-width: 1.5; }
+  .tl.us { stroke: var(--accent); stroke-width: 2.5; }
+  .td { fill: rgba(255, 255, 255, 0.5); }
+  .td.us { fill: var(--accent); }
+  .tlab { font: 11.5px var(--sans); fill: var(--fg-2); }
+  .tlab.us { fill: var(--accent); font-weight: 600; }
+  .trend-note { margin: 8px 0 0; font: 12px var(--mono); color: var(--dim); }
+
+  .how .panel .label { margin-bottom: 4px; }
+  #method .panel { text-decoration: none; color: inherit; }
+  #method .panel p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .method-note { margin: 24px 0 0; color: var(--muted); font-size: 14.5px; }
+  .method-note a { color: var(--accent); }
+</style>
+</body>
+</html>

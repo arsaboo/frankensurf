@@ -1,0 +1,32 @@
+---
+// Replaces Starlight's social icons in the docs header with the same links as the site nav:
+// Benchmarks, Blog, Docs and GitHub with its live star count (set by the script below).
+const repo = "https://github.com/yail259/frankensurf";
+const here = Astro.url.pathname;
+const links = [
+  { label: "Benchmarks", href: "/benchmarks/" },
+  { label: "Blog", href: "/blog/" },
+  { label: "Docs", href: "/docs/", current: here.startsWith("/docs") },
+];
+---
+{links.map((l) => <a class:list={["dn-link", { on: l.current }]} href={l.href} aria-current={l.current ? "page" : undefined}>{l.label}</a>)}
+<a class="dn-gh" href={repo} rel="me">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.6 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" /></svg>
+  <span>GitHub</span>
+  <span class="dn-stars"><span data-stars hidden></span><svg class="dn-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg></span>
+</a>
+
+<script>
+  import { mountStars } from "../scripts/stars";
+  mountStars();
+</script>
+
+<style>
+  .dn-link { padding: 0.3rem 0.65rem; border-radius: 8px; font-size: 0.875rem; font-weight: 550; color: var(--sl-color-gray-2); text-decoration: none; }
+  .dn-link:hover, .dn-link.on { color: var(--sl-color-white); background: var(--sl-color-gray-6); }
+  .dn-gh { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.3rem 0.7rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none; color: var(--sl-color-black); background: var(--sl-color-white); }
+  .dn-gh:hover { opacity: 0.9; }
+  .dn-gh > svg { width: 16px; height: 16px; fill: currentColor; }
+  .dn-stars { display: inline-flex; align-items: center; gap: 0.25rem; padding-inline-start: 0.5rem; border-inline-start: 1px solid color-mix(in srgb, currentColor 18%, transparent); font: 600 0.8rem var(--sl-font-mono); }
+  .dn-star { width: 13px; height: 13px; fill: #e2a400; }
+</style>

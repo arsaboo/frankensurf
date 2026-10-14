@@ -18,7 +18,7 @@ export default defineConfig({
       head: [{ tag: "link", attrs: { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" } }],
       social: [{ icon: "github", label: "GitHub", href: "https://github.com/yail259/frankensurf" }],
       customCss: ["./src/styles/docs.css"],
-      components: { PageTitle: "./src/components/PageTitle.astro" },
+      components: { PageTitle: "./src/components/PageTitle.astro", SocialIcons: "./src/components/DocsNavLinks.astro" },
       expressiveCode: {
         themes: ["github-dark-dimmed", "github-light"],
         styleOverrides: {
