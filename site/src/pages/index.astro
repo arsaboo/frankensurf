@@ -397,15 +397,133 @@ const bricks = [2, 19, 45, 62].flatMap((y, row) =>
         </div>
       ))}
     </div>
+
+    <div class="window plug" data-reveal>
+      <div class="w-bar">
+        <div class="w-dots"><i></i><i></i><i></i></div>
+        <span class="w-title">bolt on your own</span>
+      </div>
+      <div class="w-body">
+        <div class="w-left">
+          <span class="label">your_tool.py</span>
+<pre class="code"><span class="k">class</span> <span class="f">MyFetch</span>:
+    manifest = ProviderManifest(
+        <span class="s">"my_fetch"</span>, <span class="s">"0.1.0"</span>, paid=<span class="k">True</span>)
+
+    <span class="k">async def</span> <span class="f">acquire</span>(self, request, services):
+        page = <span class="k">await</span> my_api(request.url)
+        <span class="k">return</span> &#123;<span class="s">"url"</span>: page.url,
+                <span class="s">"content"</span>: page.html,
+                <span class="s">"content_type"</span>: <span class="s">"text/html"</span>,
+                <span class="s">"http_status"</span>: page.status&#125;</pre>
+          <span class="label">then</span>
+<pre class="code">pip install -e ./my-fetch
+frankensurf plugins trust provider my_fetch my-fetch</pre>
+        </div>
+        <div class="w-right">
+          <span class="label">every tool is a plugin</span>
+          <ul class="plug-kinds">
+            <li><b>Provider</b><span>gets a page</span></li>
+            <li><b>Search source</b><span>finds pages</span></li>
+            <li><b>Adapter</b><span>shapes a result</span></li>
+          </ul>
+          <p class="plug-note">Your scraping API, a browser you run elsewhere, your own index. Return the page and Frankensurf does the rest: routing, pacing, checks, retries, cost caps and a receipt on every read.</p>
+          <p class="plug-note">Installing a plugin never runs it. It runs only after you trust that plugin, from that exact package.</p>
+          <a class="plug-link" href="/docs/more/plugins/" data-astro-prefetch>Write a plugin →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container sec" id="agents">
+    <div class="sec-head" data-reveal>
+      <h2>Works where your agent <em class="horror">lives.</em></h2>
+      <p class="sec-sub">One MCP server for any client, a plugin for Claude Code, and ready-made tools for the agent frameworks. Each gives your agent the same read and search, with the same checks and receipts.</p>
+    </div>
+    <div class="fit-grid">
+      <div class="panel fit" data-reveal>
+        <span class="label">Claude Code</span>
+<pre class="code">/plugin marketplace add yail259/frankensurf
+/plugin install frankensurf@frankensurf</pre>
+        <p>The MCP server plus the skill that teaches Claude when to read, search, try harder or hand you a wall.</p>
+      </div>
+      <div class="panel fit" data-reveal>
+        <span class="label">Any MCP client</span>
+<pre class="code">claude mcp add frankensurf -- frankensurf-mcp</pre>
+        <p>Cursor, Codex, Claude Desktop and the rest start <code>frankensurf-mcp</code>. <a href="/docs/agents/" data-astro-prefetch>Setup for each client →</a></p>
+      </div>
+      <div class="panel fit" data-reveal>
+        <span class="label">LangChain</span>
+<pre class="code"><span class="k">from</span> frankensurf.agent_tools <span class="k">import</span> langchain_tools
+tools = langchain_tools()</pre>
+        <p>Sync and async tools for LangChain and LangGraph agents.</p>
+      </div>
+      <div class="panel fit" data-reveal>
+        <span class="label">OpenAI Agents SDK</span>
+<pre class="code">Agent(name=<span class="s">"researcher"</span>,
+      tools=openai_agents_tools())</pre>
+        <p>Strict-schema function tools, ready for the SDK.</p>
+      </div>
+      <div class="panel fit" data-reveal>
+        <span class="label">CrewAI</span>
+<pre class="code">Agent(role=<span class="s">"Researcher"</span>,
+      tools=crewai_tools())</pre>
+        <p>CrewAI tools with typed arguments. <a href="/docs/frameworks/" data-astro-prefetch>All frameworks →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container sec" id="box">
+    <div class="sec-head" data-reveal>
+      <h2>More in the <em class="horror">box.</em></h2>
+    </div>
+    <div class="fit-grid box-grid">
+      <a class="panel fit" href="/docs/read/structured/" data-spot data-reveal>
+        <span class="label">Structured fields</span>
+        <h3>Ask for the fields, not the page</h3>
+        <p>Pass a JSON Schema and get its fields filled from the data the page publishes for machines. A page missing a required field gets read again by a stronger tool.</p>
+<pre class="code">frankensurf read URL --schema product.json</pre>
+      </a>
+      <a class="panel fit" href="/docs/read/" data-spot data-reveal>
+        <span class="label">Try harder</span>
+        <h3>Wrong page? Pull the lever</h3>
+        <p>Every read returns a trace ID. Hand it back and the next read skips every tool already tried and starts from the strongest one left.</p>
+<pre class="code">frankensurf read URL --try-harder-than TRACE_ID</pre>
+      </a>
+      <a class="panel fit" href="/docs/read/site-modules/" data-spot data-reveal>
+        <span class="label">Site modules</span>
+        <h3>Learn a site once</h3>
+        <p>Your agent saves how a site works, its search URL and where the results live, as data. Later reads come back as clean rows.</p>
+<pre class="code">frankensurf module discover URL --query "desk lamp" --save</pre>
+      </a>
+      <a class="panel fit" href="/docs/search/" data-spot data-reveal>
+        <span class="label">Watch sites</span>
+        <h3>What&rsquo;s new since Monday</h3>
+        <p>New pages from the feeds and sitemaps sites publish, polled politely with conditional requests.</p>
+<pre class="code">frankensurf watch-sites URL --since 2026-10-12</pre>
+      </a>
+      <a class="panel fit" href="/docs/integrations/searxng/" data-spot data-reveal>
+        <span class="label">Local search</span>
+        <h3>Your own search engine, no Docker</h3>
+        <p>A pinned, checksum-checked SearXNG on your machine, started again after a reboot. It makes free search much stronger.</p>
+<pre class="code">frankensurf install search</pre>
+      </a>
+      <a class="panel fit" href="/docs/more/weekly/" data-spot data-reveal>
+        <span class="label">Weekly benchmark</span>
+        <h3>Checked again every Monday</h3>
+        <p>The same 150 sites, read by every tool on its own and by Frankensurf on a fresh machine. The raw rows are in the repo.</p>
+<pre class="code">benchmarks/weekly/</pre>
+      </a>
+    </div>
   </section>
 
   <section class="cta" id="start">
     <div class="cta-card" data-reveal>
       <h2><em class="horror">Ride</em> the whole web.</h2>
-      <p>Open source.</p>
+      <p>Open source. Python 3.12+, Linux, macOS, or Windows through WSL. No account or key.</p>
       <div class="cta-row">
         <a class="btn primary big" href={repo}><svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z" /></svg>Star on GitHub<span class="stars" data-stars hidden></span></a>
-        <div class="cmd"><span class="p">$</span><span>git clone {repo}.git</span><button class="copy" type="button" data-copy={`git clone ${repo}.git`}>Copy</button></div>
+        <div class="cmd"><span class="p">$</span><span>pip install "frankensurf[mcp]" &amp;&amp; frankensurf install</span><button class="copy" type="button" data-copy={`pip install "frankensurf[mcp]" && frankensurf install`}>Copy</button></div>
       </div>
     </div>
   </section>
