@@ -631,3 +631,32 @@ footer { position: relative; margin-top: 96px; padding-top: 40px; }
   .sec { padding-inline: 16px; border-inline: 0; background: none; }
   .sec::after { display: none; }
 }
+
+/* Bolt on your own: the plugin window under the ledger. */
+.window.plug { margin-top: 48px; }
+.plug .w-body { min-height: 0; }
+.plug .w-left { gap: 12px; }
+/* Code reads as code: scroll sideways on a narrow screen rather than wrap. */
+.plug pre.code { white-space: pre; word-break: normal; overflow-x: auto; }
+.plug-kinds { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.plug-kinds li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.02); }
+.plug-kinds b { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+.plug-kinds span { font: 13px var(--mono); color: var(--dim); }
+.plug-note { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+.plug-link { margin-top: auto; font: 600 14px var(--sans); color: var(--accent); text-decoration: none; }
+.plug-link:hover { text-decoration: underline; }
+@media (max-width: 860px) { .plug .w-body { grid-template-columns: minmax(0, 1fr); } .plug .w-left { border-right: 0; border-bottom: 1px solid var(--line); } }
+
+/* Works where your agent lives, and More in the box: cards with a label, a line and the real command. */
+.fit-grid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 980px) { .fit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .fit-grid { grid-template-columns: minmax(0, 1fr); } }
+.panel.fit { display: flex; flex-direction: column; gap: 10px; padding: 20px; text-decoration: none; color: inherit; min-width: 0; }
+.panel.fit h3 { margin: 0; font-size: 17px; letter-spacing: -0.01em; }
+.panel.fit p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+.panel.fit p a { color: var(--accent); text-decoration: none; }
+.panel.fit p a:hover { text-decoration: underline; }
+.panel.fit pre.code { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12.5px; padding: 10px 12px;
+  border-radius: 8px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.25); }
+.box-grid .panel.fit pre.code { margin-top: auto; }
+.panel.fit code { font: 13px var(--mono); }
