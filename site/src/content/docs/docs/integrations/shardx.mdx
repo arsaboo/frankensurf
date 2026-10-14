@@ -1,0 +1,113 @@
+---
+title: "ShardX (optional plugin)"
+description: "ProxyShard's anti-detect browser, as a plugin you install and trust yourself. Fast on Akamai sites; closed source."
+---
+
+import { Tabs, TabItem, Aside, Steps } from "@astrojs/starlight/components";
+
+[ShardX](https://github.com/ProxyShard/ShardBrowser) is ProxyShard's anti-detect browser. On
+Akamai-protected sites it was the strongest single browser we tested, and several times faster
+than Frankensurf climbing its own ladder to the same pages. It isn't part of Frankensurf: it comes
+as a separate plugin, [`contrib/frankensurf-shardx`](https://github.com/yail259/frankensurf/tree/main/contrib/frankensurf-shardx),
+that you install and trust yourself.
+
+<Aside type="caution" title="Closed source">
+  ShardX's engine is a prebuilt Chromium that the `shardx` SDK downloads from the vendor the first
+  time it starts. Its source isn't published, so nobody outside ProxyShard can check what it does.
+  Like any plugin it runs with your permissions, and it can see every page it reads. We only ever
+  ran it on a throwaway machine with no keys or logins. Decide for yourself before trusting it, and
+  consider a separate user or a VM.
+</Aside>
+
+## Set up
+
+<Steps>
+
+1. Install the plugin. It pins `shardx==2.0.3`, the version we benchmarked, and installs
+   Playwright to drive it:
+
+   ```bash
+   pip install "frankensurf-shardx @ git+https://github.com/yail259/frankensurf#subdirectory=contrib/frankensurf-shardx"
+   ```
+
+2. Trust it. Until you do, Frankensurf loads it but never runs it:
+
+   ```bash
+   frankensurf plugins trust provider shardx frankensurf-shardx
+   frankensurf plugins            # shardx should be under "loaded"
+   ```
+
+3. Read with it. The first read downloads ShardX's browser and starts it; later reads in the
+   same session reuse it.
+
+</Steps>
+
+To stop using it: `frankensurf plugins untrust provider shardx`, then `pip uninstall frankensurf-shardx`.
+
+## Use it
+
+Once trusted, it joins automatic reads after the bundled tools, and Frankensurf learns from your
+reads which walls it gets past. To try it first on a site you know is behind Akamai, name it:
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+page = await web.read("https://www.example.com/search?q=lamp", provider="shardx")
+```
+
+</TabItem>
+<TabItem label="CLI">
+
+```bash
+frankensurf read "https://www.example.com/search?q=lamp" --provider shardx
+```
+
+</TabItem>
+<TabItem label="MCP">
+
+```json
+{ "tool": "read", "arguments": { "url": "https://www.example.com/search?q=lamp", "provider": "shardx" } }
+```
+
+</TabItem>
+</Tabs>
+
+Or put it early on the completeness ladder, so it's tried as soon as a cheap read comes back
+incomplete: `completeness_ladder=("jina_reader", "shardx", "scrapling", ...)`.
+
+It opens a window by default. On Linux with no display it runs headless; set
+`FRANKENSURF_SHARDX_HEADLESS=1` to force that, or `FRANKENSURF_SHARDX_HEADED=1` to always show the
+window. The benchmarks below ran with a window, under a virtual display.
+
+## How it did
+
+One read per tool per site, same pass/fail check as every other benchmark, on a throwaway GitHub
+machine. Raw rows: [benchmarks/2026-10-14-shardx](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-14-shardx).
+
+**18 Akamai-protected sites** (46 retail search pages listed first, kept only where Akamai answered):
+
+| Tool | Read right | Median |
+| --- | --- | --- |
+| Frankensurf, free tools | 15/18 | 25.0 s |
+| ShardX | 11/18 | 5.4 s |
+| Camoufox | 6/18 | 6.2 s |
+| Scrapling | 5/18 | 4.2 s |
+
+**150 sites picked blind:** ShardX 69.3%, Scrapling 64.0%, Camoufox 62.7%. Frankensurf with free
+tools read 81.3% of the same set the day before: site by site, ShardX read 3 that Frankensurf
+missed, and Frankensurf read 21 that ShardX missed.
+
+So it doesn't add many sites Frankensurf can't already read. What it adds is speed on Akamai: about
+5 s a page where Frankensurf's own climb took 25.
+
+## Details
+
+| Property | Value |
+| --- | --- |
+| Provider ID | `shardx` |
+| Package | `frankensurf-shardx` (not on PyPI; install from the repository) |
+| Cost | Free |
+| Source | Plugin open source; ShardX engine closed |
+| Tested | Live on a throwaway machine (14 Oct 2026); plugin tests with ShardX faked |
+| Docs | [github.com/ProxyShard/ShardBrowser](https://github.com/ProxyShard/ShardBrowser) |

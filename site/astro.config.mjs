@@ -85,6 +85,7 @@ export default defineConfig({
           ] },
           { label: "Stealth", collapsed: true, items: [
             "docs/integrations/camoufox", "docs/integrations/scrapling", "docs/integrations/patchright", "docs/integrations/nodriver",
+            "docs/integrations/shardx",
           ] },
           { label: "Scrapers and unblockers", collapsed: true, items: [
             "docs/integrations/firecrawl", "docs/integrations/zenrows", "docs/integrations/fastcrw", "docs/integrations/scrapfly",

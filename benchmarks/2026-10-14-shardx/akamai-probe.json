@@ -1,0 +1,370 @@
+[
+ {
+  "site": "ikea",
+  "url": "https://www.ikea.com/au/en/search/?q=billy",
+  "origin": "known",
+  "vendor": "cloudflare",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "bunnings",
+  "url": "https://www.bunnings.com.au/search/products?q=cordless%20drill",
+  "origin": "known",
+  "vendor": "cloudflare",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "domain",
+  "url": "https://www.domain.com.au/sale/sydney-nsw-2000/",
+  "origin": "known",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "homedepot",
+  "url": "https://www.homedepot.com/s/cordless%20drill",
+  "origin": "known",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": true
+ },
+ {
+  "site": "bestbuy",
+  "url": "https://www.bestbuy.com/site/searchpage.jsp?st=laptop&intl=nosplash",
+  "origin": "known",
+  "vendor": "akamai",
+  "status": 200,
+  "bot_manager_cookie": true
+ },
+ {
+  "site": "nike",
+  "url": "https://www.nike.com/au/w/mens-shoes-nik1zy7ok",
+  "origin": "known",
+  "vendor": "akamai",
+  "status": 200,
+  "bot_manager_cookie": true
+ },
+ {
+  "site": "asos",
+  "url": "https://www.asos.com/au/search/?q=jeans",
+  "origin": "known",
+  "vendor": null,
+  "status": "ReadTimeout",
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "costco",
+  "url": "https://www.costco.com/CatalogSearch?keyword=television",
+  "origin": "known",
+  "vendor": null,
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "davidjones",
+  "url": "https://www.davidjones.com/search?q=shirt",
+  "origin": "known",
+  "vendor": "imperva",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "lowes",
+  "url": "https://www.lowes.com/search?searchTerm=cordless%20drill",
+  "origin": "known",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "myer",
+  "url": "https://www.myer.com.au/search?query=dress",
+  "origin": "known",
+  "vendor": null,
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "rebelsport",
+  "url": "https://www.rebelsport.com.au/search?q=running%20shoes",
+  "origin": "known",
+  "vendor": "cloudflare",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "woolworths",
+  "url": "https://www.woolworths.com.au/shop/search/products?searchTerm=milk",
+  "origin": "known",
+  "vendor": null,
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "macys",
+  "url": "https://www.macys.com/shop/search?keyword=towels",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "kohls",
+  "url": "https://www.kohls.com/search.jsp?search=blender",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "walgreens",
+  "url": "https://www.walgreens.com/search/results.jsp?Ntt=vitamin%20c",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "adidas",
+  "url": "https://www.adidas.com/us/search?q=ultraboost",
+  "origin": "fresh",
+  "vendor": null,
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "sephora",
+  "url": "https://www.sephora.com/search?keyword=lipstick",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "ulta",
+  "url": "https://www.ulta.com/search?search=mascara",
+  "origin": "fresh",
+  "vendor": null,
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "dicks",
+  "url": "https://www.dickssportinggoods.com/search/SearchDisplay?searchTerm=basketball",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "newbalance",
+  "url": "https://www.newbalance.com/search?q=990",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "underarmour",
+  "url": "https://www.underarmour.com/en-us/search/?q=hoodie",
+  "origin": "fresh",
+  "vendor": null,
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "footlocker",
+  "url": "https://www.footlocker.com/search?query=jordan",
+  "origin": "fresh",
+  "vendor": "kasada",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "officedepot",
+  "url": "https://www.officedepot.com/a/search/?q=stapler",
+  "origin": "fresh",
+  "vendor": null,
+  "status": "ReadTimeout",
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "samsclub",
+  "url": "https://www.samsclub.com/s/coffee",
+  "origin": "fresh",
+  "vendor": "perimeterx",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "chewy",
+  "url": "https://www.chewy.com/s?query=cat%20food",
+  "origin": "fresh",
+  "vendor": "kasada",
+  "status": 429,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "autozone",
+  "url": "https://www.autozone.com/searchresult?searchText=oil%20filter",
+  "origin": "fresh",
+  "vendor": "datadome",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "kmart-au",
+  "url": "https://www.kmart.com.au/search/?searchTerm=towel",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "bigw",
+  "url": "https://www.bigw.com.au/search?text=lego",
+  "origin": "fresh",
+  "vendor": null,
+  "status": "ReadTimeout",
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "chemistwarehouse",
+  "url": "https://www.chemistwarehouse.com.au/search?searchtext=vitamin",
+  "origin": "fresh",
+  "vendor": "cloudflare",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "thegoodguys",
+  "url": "https://www.thegoodguys.com.au/SearchDisplay?searchTerm=fridge",
+  "origin": "fresh",
+  "vendor": "cloudflare",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "supercheapauto",
+  "url": "https://www.supercheapauto.com.au/search?q=oil",
+  "origin": "fresh",
+  "vendor": "cloudflare",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "catch",
+  "url": "https://www.catch.com.au/search?query=headphones",
+  "origin": "fresh",
+  "vendor": null,
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "coles",
+  "url": "https://www.coles.com.au/search/products?q=milk",
+  "origin": "fresh",
+  "vendor": "imperva",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "jbhifi",
+  "url": "https://www.jbhifi.com.au/search?query=headphones",
+  "origin": "fresh",
+  "vendor": "cloudflare",
+  "status": 429,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "argos",
+  "url": "https://www.argos.co.uk/search/kettle/",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "johnlewis",
+  "url": "https://www.johnlewis.com/search?search-term=sofa",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 200,
+  "bot_manager_cookie": true
+ },
+ {
+  "site": "currys",
+  "url": "https://www.currys.co.uk/search?q=laptop",
+  "origin": "fresh",
+  "vendor": "cloudflare",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "next",
+  "url": "https://www.next.co.uk/search?w=jeans",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "zalando",
+  "url": "https://www.zalando.co.uk/catalog/?q=trainers",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 200,
+  "bot_manager_cookie": true
+ },
+ {
+  "site": "marksandspencer",
+  "url": "https://www.marksandspencer.com/l/women/dresses",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 200,
+  "bot_manager_cookie": true
+ },
+ {
+  "site": "boots",
+  "url": "https://www.boots.com/sitesearch?searchTerm=sunscreen",
+  "origin": "fresh",
+  "vendor": "imperva",
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "halfords",
+  "url": "https://www.halfords.com/search?q=bike",
+  "origin": "fresh",
+  "vendor": null,
+  "status": 200,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "lululemon",
+  "url": "https://shop.lululemon.com/search?Ntt=leggings",
+  "origin": "fresh",
+  "vendor": null,
+  "status": "ReadTimeout",
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "levi",
+  "url": "https://www.levi.com/US/en_US/search/501",
+  "origin": "fresh",
+  "vendor": "akamai",
+  "status": 403,
+  "bot_manager_cookie": false
+ },
+ {
+  "site": "redfin",
+  "url": "https://www.redfin.com/city/30749/NY/New-York",
+  "origin": "fresh",
+  "vendor": "aws_waf",
+  "status": 405,
+  "bot_manager_cookie": false
+ }
+]

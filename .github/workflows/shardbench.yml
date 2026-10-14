@@ -1,4 +1,7 @@
-# ShardX (ProxyShard's anti-detect browser) against the free stealth browsers on held-out set 7.
+# ShardX (ProxyShard's anti-detect browser) against the free stealth browsers, on held-out set 7
+# or on Akamai-protected sites (scripts/shardbench-akamai-candidates.json). With plugin_check it
+# instead installs the optional plugin (contrib/frankensurf-shardx) the way a user would, trusts
+# it, and reads a few pages through it (scripts/shardx_plugin_check.py).
 # Runs only by hand, on a throwaway GitHub machine: ShardX downloads a closed, prebuilt Chromium
 # from the vendor's bucket, so it never runs on a machine with keys, logins or anything else.
 # No secrets are used, and the token can only read this repository.
@@ -8,8 +11,20 @@ on:
   workflow_dispatch:
     inputs:
       sample:
-        description: "Sites to read (empty: all 150 of held-out set 7)"
+        description: "Sites to read (empty: the whole set)"
         required: false
+      site_set:
+        description: "heldout7 (150 sites picked blind) or akamai (Akamai-protected sites, probed first)"
+        required: false
+        default: "heldout7"
+      frankensurf:
+        description: "Also read with FrankenSurf, free tools only"
+        type: boolean
+        default: false
+      plugin_check:
+        description: "Check the optional plugin end to end instead of benchmarking"
+        type: boolean
+        default: false
       shardx_version:
         description: "shardx package version on PyPI"
         required: false
@@ -36,15 +51,28 @@ jobs:
           /tmp/fs/bin/pip install -q ".[mcp]" "shardx==${SHARDX_VERSION}"
           sudo apt-get install -y -q xvfb unzip
           /tmp/fs/bin/frankensurf install --with-deps chromium stealth | tail -20
-      - name: read held-out set 7 with every arm
+          # FrankenSurf's free router also uses Jina Reader and the local search engine.
+          if [ "${{ inputs.frankensurf }}" = "true" ]; then /tmp/fs/bin/frankensurf install search | tail -5; fi
+      - name: check the optional plugin, installed and trusted as a user would
+        if: inputs.plugin_check
+        run: |
+          mkdir -p out
+          /tmp/fs/bin/pip install -q ./contrib/frankensurf-shardx
+          /tmp/fs/bin/frankensurf plugins trust provider shardx frankensurf-shardx
+          xvfb-run -a /tmp/fs/bin/python scripts/shardx_plugin_check.py | tee out/plugin-check.txt
+          exit ${PIPESTATUS[0]}
+      - name: read the set with every arm
+        if: ${{ !inputs.plugin_check }}
         env:
           SAMPLE: ${{ inputs.sample }}
+          SITE_SET: ${{ inputs.site_set || 'heldout7' }}
+          WITH_FS: ${{ inputs.frankensurf && '--frankensurf' || '' }}
         run: |
           mkdir -p out
           xvfb-run -a /tmp/fs/bin/python scripts/shardbench.py --out out/shardbench-rows.jsonl \
-            ${SAMPLE:+--sample "$SAMPLE"} | tee out/shardbench-log.txt
+            --set "$SITE_SET" $WITH_FS ${SAMPLE:+--sample "$SAMPLE"} | tee out/shardbench-log.txt
       - name: summary
-        if: always()
+        if: ${{ always() && !inputs.plugin_check }}
         run: |
           /tmp/fs/bin/python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           import json, collections

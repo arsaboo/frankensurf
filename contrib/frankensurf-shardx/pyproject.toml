@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "frankensurf-shardx"
+version = "0.1.0"
+description = "Optional Frankensurf provider plugin for ShardX, ProxyShard's closed-source anti-detect browser"
+readme = "README.md"
+requires-python = ">=3.12"
+# shardx is pinned to the version benchmarked on 14 October 2026; its SDK downloads a closed,
+# prebuilt Chromium from the vendor the first time it launches.
+dependencies = ["frankensurf>=0.43", "shardx==2.0.3", "playwright>=1.49"]
+
+# The entry point name is the plugin ID; it must match the manifest's ID.
+[project.entry-points."frankensurf.plugins.provider"]
+shardx = "frankensurf_shardx:ShardXBrowser"
+
+[tool.setuptools.packages.find]
+where = ["src"]

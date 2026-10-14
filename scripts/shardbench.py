@@ -1,4 +1,5 @@
-"""ShardX (ProxyShard's anti-detect browser) against the free stealth browsers, on held-out set 7.
+"""ShardX (ProxyShard's anti-detect browser) against the free stealth browsers, on held-out set 7
+or on a set of Akamai-protected sites.
 
 Run only on a throwaway CI machine (.github/workflows/shardbench.yml): ShardX's SDK downloads a
 prebuilt, closed Chromium build from the vendor's bucket, checked only against a manifest it
@@ -10,6 +11,11 @@ in one ShardX browser over CDP (Playwright connect_over_cdp), then hands the HTM
 own challenge check and parser, so its pages are judged exactly as a FrankenSurf browser's are.
 
   PYTHONPATH=.:src python scripts/shardbench.py --out rows.jsonl [--sample 20]
+  PYTHONPATH=.:src python scripts/shardbench.py --out rows.jsonl --set akamai --frankensurf
+
+--set akamai reads shardbench-akamai-candidates.json, written before any tool read those pages.
+Each URL first gets one plain request; only those where FrankenSurf's wall_vendor() says Akamai
+answered are read by the arms, and the probe results are saved next to the rows.
 """
 from __future__ import annotations
 
@@ -26,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import toolbench  # noqa: E402
 
 BASELINE = ["local", "camoufox", "scrapling", "patchright"]
+AKAMAI = Path(__file__).with_name("shardbench-akamai-candidates.json")
 SETTLE_MS = 2500
 GOTO_TIMEOUT_MS = 45_000
 
@@ -95,12 +102,40 @@ class ShardArm:
                 "rescued": False, "http_status": status}
 
 
-async def run(cases, out, workers, gap, headless):
+async def akamai_cases(out: Path) -> list[dict]:
+    """The candidates where Akamai answers a plain request, by the fixed rule in the candidates file."""
+    import httpx
+    from frankensurf.runtime import _user_agent, wall_vendor
+    spec = json.loads(AKAMAI.read_text())
+    candidates = [{**c, "origin": "known"} for c in spec["known"]] + [{**c, "origin": "fresh"} for c in spec["fresh"]]
+    probes, cases = [], []
+    async with httpx.AsyncClient(follow_redirects=True, timeout=20, headers={"User-Agent": _user_agent()}) as client:
+        for candidate in candidates:
+            try:
+                response = await client.get(candidate["url"])
+                vendor, status = wall_vendor(response.headers, response.text), response.status_code
+                cookies = " ".join(response.headers.get_list("set-cookie"))
+                bot_manager = any(name in cookies for name in ("_abck=", "bm_sz=", "ak_bmsc="))
+            except Exception as error:
+                vendor, status, bot_manager = None, type(error).__name__, False
+            probes.append({"site": candidate["site"], "url": candidate["url"], "origin": candidate["origin"],
+                           "vendor": vendor, "status": status, "bot_manager_cookie": bot_manager})
+            print(json.dumps(probes[-1]), flush=True)
+            if vendor == "akamai":
+                cases.append({"set": "akamai", "kind": "article", "expect_min": 3, "wall": "akamai",
+                              "site": candidate["site"], "url": candidate["url"], "expect": candidate["expect"]})
+            await asyncio.sleep(1.0)
+    out.with_name("shardbench-akamai-probe.json").write_text(json.dumps(probes, indent=1))
+    return cases
+
+
+async def run(cases, out, workers, gap, headless, frankensurf=False):
     from frankensurf import Runtime
     rng = random.Random(7)
-    arms = ["shardx", *BASELINE]
+    baseline = [*BASELINE, *(["stitched_free"] if frankensurf else [])]
+    arms = ["shardx", *baseline]
     state = Path(out).parent / "shardbench-state"
-    runtimes = {arm: Runtime(state_dir=state / arm) for arm in BASELINE}
+    runtimes = {arm: Runtime(state_dir=state / arm) for arm in baseline}
     for web in runtimes.values():
         await web.__aenter__()
     shard = ShardArm(headless)
@@ -146,12 +181,17 @@ def main(argv=None):
     parser.add_argument("--gap", type=float, default=2.0)
     parser.add_argument("--sample", type=int, help="read only this many sites, spread over the set")
     parser.add_argument("--headless", action="store_true", help="ShardX headless (default: headed, under xvfb)")
+    parser.add_argument("--set", choices=["heldout7", "akamai"], default="heldout7")
+    parser.add_argument("--frankensurf", action="store_true", help="also read with FrankenSurf, free tools only")
     args = parser.parse_args(argv)
-    cases = [case for case in toolbench.heldout() if case["set"] == "heldout7"]
+    if args.set == "akamai":
+        cases = asyncio.run(akamai_cases(args.out))
+    else:
+        cases = [case for case in toolbench.heldout() if case["set"] == "heldout7"]
     if args.sample and args.sample < len(cases):
         step = len(cases) / args.sample
         cases = [cases[int(index * step)] for index in range(args.sample)]
-    rows = asyncio.run(run(cases, args.out, args.workers, args.gap, args.headless))
+    rows = asyncio.run(run(cases, args.out, args.workers, args.gap, args.headless, args.frankensurf))
     summary = toolbench.summarize(rows)
     print(json.dumps({"rows": str(args.out), "sites": len(cases), "summary": summary}, indent=2))
 
