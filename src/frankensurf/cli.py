@@ -387,6 +387,17 @@ async def run(args):
     elif args.operation == "search-engine":
         from . import local_search
         result = getattr(local_search, args.urls[0])()
+    elif args.operation == "serve":
+        import sys
+        from .firecrawl_compat import serve
+        policy = _policy_kwargs(args)
+        WebPolicy(**policy)  # fail early on a bad setting
+        say = lambda server: print(
+            f"Firecrawl-compatible endpoint on http://{args.host}:{args.port} "
+            f"(POST /v1/scrape, /v1/search, /v2/scrape, /v2/search). Point FIRECRAWL_BASE_URL at it.",
+            file=sys.stderr, flush=True)
+        await serve(args.state, args.host, args.port, policy, ready=say)
+        return
     elif args.operation == "egress":
         from .egress import check
         result = {"connections": await check(),
@@ -533,10 +544,14 @@ def build_parser():
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
         "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
-        "egress", "plugins", "search-engine", "install", "uninstall", "share"])
+        "egress", "plugins", "search-engine", "install", "uninstall", "share", "serve"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
+    parser.add_argument("--port", type=int, default=3002,
+        help="serve: port for the Firecrawl-compatible endpoint (default 3002, Firecrawl's own)")
+    parser.add_argument("--host", default="127.0.0.1",
+        help="serve: address to listen on (default 127.0.0.1, this machine only)")
     parser.add_argument("--out", metavar="FILE", help="share export: write the recipes to this file")
     parser.add_argument("--with-deps", action="store_true",
         help="install: also install the browsers' system libraries (Linux; asks for sudo)")
@@ -741,6 +756,9 @@ def parse_args(argv=None):
         if args.urls not in (["start"], ["stop"], ["status"]):
             parser.error("search-engine takes: start | stop | status (local search: SearXNG on port 8088; "
                          "install it with: frankensurf install search)")
+    elif args.operation == "serve":
+        if args.urls:
+            parser.error("serve takes no arguments: frankensurf serve [--port 3002] [--host 127.0.0.1] [--paid]")
     elif args.operation == "egress":
         if args.urls != ["check"]:
             parser.error("egress takes: check")

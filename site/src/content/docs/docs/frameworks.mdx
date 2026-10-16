@@ -5,7 +5,9 @@ description: Use Frankensurf's read and search as tools in LangChain, the OpenAI
 
 import { Tabs, TabItem } from "@astrojs/starlight/components";
 
-Any MCP client can start `frankensurf-mcp` ([Add to your agent](/docs/agents/)). For frameworks
+Any MCP client can start `frankensurf-mcp` ([Add to your agent](/docs/agents/)). A project that
+already reads through Firecrawl, like GPT Researcher or deep-research, can point its Firecrawl URL at
+`frankensurf serve` instead ([Firecrawl-compatible API](/docs/firecrawl-compatible/)). For frameworks
 that take Python tools, `frankensurf.agent_tools` gives you two ready-made ones:
 
 - **frankensurf_read**: a page's text (or the article, with `main`), its title, a quality grade,

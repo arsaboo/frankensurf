@@ -1,0 +1,103 @@
+---
+title: Firecrawl-compatible API
+description: Run Frankensurf as a local Firecrawl-compatible endpoint, so GPT Researcher, deep-research and anything else that takes a Firecrawl URL reads through it with no code change.
+---
+
+import { Tabs, TabItem, Aside, Steps } from "@astrojs/starlight/components";
+
+A lot of agent projects read the web through Firecrawl, and most of them let you point at your own
+Firecrawl server. `frankensurf serve` is one: it answers Firecrawl's `scrape` and `search` calls,
+and reads every page through Frankensurf instead.
+
+```bash
+frankensurf serve            # http://127.0.0.1:3002, Firecrawl's own port, this machine only
+```
+
+Then set the project's Firecrawl URL to `http://127.0.0.1:3002`. The API key can be anything; it
+isn't checked. Free tools only unless you start it with `--paid`, and `--max-cost` caps a request.
+
+## What you get back
+
+- **Scrape** (`POST /v1/scrape`, `/v2/scrape`): the whole page's text as markdown, plus `html` if
+  you ask for it. `metadata.frankensurf` carries the trace ID, so `frankensurf trace <id>` shows every
+  tool it tried. `onlyMainContent` is accepted and ignored: Frankensurf's
+  [main-content cut](/docs/read/main-content/) is built for articles, and on search and listing
+  pages it lost the results. Menus cost a few tokens; missing results cost the answer.
+- **Search** (`POST /v1/search`, `/v2/search`): Frankensurf's checked search results. With
+  `scrapeOptions.formats`, each result is read too.
+- **A page no tool could read is never passed off as one.** Scrape answers `success: false` with a
+  plain reason, status 500 like Firecrawl's own failures (408 when the request's `timeout` runs
+  out), so the SDKs raise it as an error:
+
+  ```text
+  Could not read this page (CAPTCHA: Provider returned a challenge or sign-in page).
+  Tried: http, steel, camoufox, local, scrapling_http, patchright, nodriver, crawl4ai.
+  Don't fill in its contents from search snippets or memory.
+  ```
+
+  In search, that result keeps its URL, title and description, but has no markdown; the reason is
+  in `metadata.error`. A research agent that uses the markdown simply doesn't get a page that
+  wasn't there.
+
+Crawl, map, extract and batch endpoints aren't served (404).
+
+## GPT Researcher
+
+[GPT Researcher](https://github.com/assafelovic/gpt-researcher) can scrape through Firecrawl. Point
+it at Frankensurf:
+
+```bash
+frankensurf serve &
+export SCRAPER=firecrawl
+export FIRECRAWL_SERVER_URL=http://127.0.0.1:3002
+export FIRECRAWL_API_KEY=local
+export FIRECRAWL_CONCURRENCY=4     # GPT Researcher's default of 2 suits Firecrawl's free tier
+pip install firecrawl-py           # GPT Researcher installs it on first use otherwise
+```
+
+Search stays with GPT Researcher's own retriever; only the page reads change.
+
+### What it changed, on 150 sites
+
+We read the 150 sites of our held-out set 7 (picked before any was read, never tuned on) with
+GPT Researcher's own scraper code, and graded every page with the benchmark's check: does the text
+hold what the page should, at least three times.
+
+| GPT Researcher scraping with | Right page | Wrong page passed on | No page |
+| --- | --- | --- | --- |
+| its default scraper (`SCRAPER=bs`) | 58 | 15 | 77 |
+| `frankensurf serve`, free tools only | 134 | 3 | 13, each with the reason |
+
+Through Frankensurf it read 76 sites the default scraper didn't, and none the other way. It is
+slower: a median of 9.0 s a page against 1.7 s, and 40 s for the slowest tenth, because a walled
+page climbs through several tools before it gets in or gives up. One run on 16 October 2026; the
+rows and scripts are in
+[`benchmarks/2026-10-16-gpt-researcher`](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-16-gpt-researcher).
+
+## deep-research
+
+[deep-research](https://github.com/dzhng/deep-research) searches and reads through Firecrawl. In
+its `.env.local`:
+
+```bash
+FIRECRAWL_KEY=local
+FIRECRAWL_BASE_URL=http://127.0.0.1:3002
+FIRECRAWL_CONCURRENCY=4
+```
+
+Its searches ask for each result's markdown with a 15 second timeout. Frankensurf answers 3
+seconds inside it, so a slow page comes back as a missing page instead of a failed search. In two
+runs of four searches with its exact call, 17 and then 14 of 20 pages came back in time; most of
+the misses were Google News links, which take a while to follow. If you'd rather wait for the slow
+ones, raise the `timeout` in `src/deep-research.ts`.
+
+## Anything else that takes a Firecrawl URL
+
+We've checked Firecrawl's own SDKs against it: `@mendable/firecrawl-js` 1.16 (v1 API) and
+`firecrawl-py` 4.50 (v2 API), for scrape and search. If a tool lets you set Firecrawl's URL, it
+should work; tell us if one doesn't.
+
+<Aside type="note">
+  `serve` listens on 127.0.0.1 only. `--host 0.0.0.0` opens it to your network, with no
+  authentication: anyone who can reach it can read pages through your machine.
+</Aside>
