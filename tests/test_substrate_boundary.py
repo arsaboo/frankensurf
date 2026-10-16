@@ -20,7 +20,7 @@ CORE = frozenset({
     "provider_worker", "providers", "public_entry", "real_browser", "recovery", "repair",
     "route_memory", "routes", "runtime", "scrapling_ready", "search", "search_checks", "search_plugins",
     "site_watch",
-    "site_modules", "web_do", "schema_extract", "agent_tools", "share", "firecrawl_compat", "simple", "telemetry", "to_markdown", "crawl",
+    "site_modules", "web_do", "schema_extract", "agent_tools", "share", "firecrawl_compat", "simple", "telemetry", "to_markdown", "crawl", "agent",
 })
 
 SITE_WORDS = re.compile(r"ebay|gumtree|depop|reverb|carsales|bikesales|cashconverters|grays|allbids|lloyds|pickles"

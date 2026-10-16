@@ -103,6 +103,12 @@ page = await fs.aread(url)                       # aread, abatch, asearch inside
 
 For a long-running service, keep one `Runtime` open: `async with Runtime() as web: await web.read(url)`.
 
+**Map and crawl:** `fs.map(url)` lists a site's URLs; `fs.crawl(url, limit=50)` reads a section of it as markdown.
+
+**Agent mode** (`pip install "frankensurf[agent]"`, any LiteLLM model): `fs.ask("question")` searches, reads and
+answers with sources, and says what it couldn't read; `fs.extract(urls, schema=...)` and `fs.summarize(url)`.
+[Agent mode](https://frankensurf.dev/docs/agent-mode/).
+
 **From any tool that takes a Firecrawl URL** (GPT Researcher, deep-research and others):
 `frankensurf serve`, then point it at `http://127.0.0.1:3002` ([setup](https://frankensurf.dev/docs/firecrawl-compatible/)).
 

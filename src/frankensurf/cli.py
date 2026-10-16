@@ -399,7 +399,7 @@ async def run(args):
             f"Firecrawl-compatible endpoint on http://{args.host}:{args.port} "
             f"(POST /v1/scrape, /v1/search, /v2/scrape, /v2/search). Point FIRECRAWL_BASE_URL at it.",
             file=sys.stderr, flush=True)
-        await serve(args.state, args.host, args.port, policy, ready=say)
+        await serve(args.state, args.host, args.port, policy, ready=say, model=args.model)
         return
     elif args.operation == "egress":
         from .egress import check
@@ -504,6 +504,9 @@ async def run(args):
                     args.urls[0], args.disable_reason)
             elif args.operation == "watch-sites":
                 result = await web.watch_sites(list(args.urls), since=args.since, read_new=args.read_new)
+            elif args.operation == "ask":
+                from .agent import ask
+                result = await ask(web, " ".join(args.urls), model=args.model, policy=policy_kwargs)
             elif args.operation == "map":
                 from .crawl import site_map
                 result = await site_map(web, args.urls[0], limit=args.limit or 5000, search=args.query,
@@ -557,7 +560,7 @@ def build_parser():
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
         "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
-        "egress", "plugins", "search-engine", "install", "uninstall", "share", "serve", "map", "crawl"])
+        "egress", "plugins", "search-engine", "install", "uninstall", "share", "serve", "map", "crawl", "ask"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
@@ -697,6 +700,7 @@ def build_parser():
     parser.add_argument("--limit", type=int, default=None,
         help="search: results (default 10); map: URLs (default 5000); crawl: pages (default 100)")
     parser.add_argument("--max-depth", type=int, default=2, help="crawl: link hops from the start page")
+    parser.add_argument("--model", help="ask, serve: the LiteLLM model for agent mode (default $FRANKENSURF_AGENT_MODEL)")
     parser.add_argument("--include-path", action="append", help="crawl: only paths matching this regex; repeat")
     parser.add_argument("--exclude-path", action="append", help="crawl: skip paths matching this regex; repeat")
     parser.add_argument("--entire-domain", action="store_true", help="crawl: the whole site, not only under the start path")
@@ -780,6 +784,9 @@ def parse_args(argv=None):
         if args.urls not in (["start"], ["stop"], ["status"]):
             parser.error("search-engine takes: start | stop | status (local search: SearXNG on port 8088; "
                          "install it with: frankensurf install search)")
+    elif args.operation == "ask":
+        if not args.urls:
+            parser.error('ask takes a question: frankensurf ask "What did NVIDIA report last quarter?" --model ...')
     elif args.operation in ("map", "crawl"):
         if len(args.urls) != 1:
             parser.error(args.operation + " takes one URL: frankensurf " + args.operation + " https://example.com/docs/")

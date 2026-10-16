@@ -100,6 +100,23 @@ async def test_serve_map_and_a_crawl_job_in_firecrawls_shapes(tmp_path):
     assert all(doc["markdown"] for doc in job["data"])
 
 
+async def test_serve_batch_scrape_job(tmp_path):
+    import asyncio
+    from frankensurf.firecrawl_compat import FirecrawlCompat
+    async with Runtime(tmp_path, transport=transport([]), domain_delay=0) as web:
+        app = FirecrawlCompat(web, POLICY)
+        _, started = await app.handle("POST", "/v1/batch/scrape",
+                                      b'{"urls": ["https://shop.test/lenses", "https://shop.test/missing"], "formats": ["markdown"]}')
+        for _ in range(100):
+            _, job = await app.handle("GET", "/v1/batch/scrape/" + started["id"], b"")
+            if job["status"] != "scraping":
+                break
+            await asyncio.sleep(0.05)
+    assert job["status"] == "completed" and job["completed"] == 2 and len(job["data"]) == 1
+    assert job["data"][0]["markdown"].startswith("# Lenses")
+    assert job["frankensurf"]["failed"][0]["url"] == "https://shop.test/missing"
+
+
 async def test_crawl_stays_under_the_start_path_unless_entire_domain(tmp_path):
     async with Runtime(tmp_path, transport=transport([]), domain_delay=0) as web:
         under = await crawl(web, "https://shop.test/lenses", policy_overrides=POLICY)

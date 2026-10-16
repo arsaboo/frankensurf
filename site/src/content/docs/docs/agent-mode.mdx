@@ -1,0 +1,72 @@
+---
+title: Agent mode
+description: A built-in agent, on any model LiteLLM supports, that searches and reads with Frankensurf and answers with sources. Plus LLM extraction and summaries.
+---
+
+import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+
+Frankensurf is built for agents, but you don't need one to use it. In agent mode a model you choose
+does the searching and reading for you: ask a question, get an answer with the pages it came from,
+and a plain list of anything it couldn't read.
+
+```bash
+pip install "frankensurf[agent]"
+export FRANKENSURF_AGENT_MODEL=openrouter/google/gemini-2.5-flash   # any LiteLLM model, or pass model=
+export OPENROUTER_API_KEY=...                                       # the provider's key, as LiteLLM reads it
+```
+
+## Ask
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+import frankensurf as fs
+
+answer = fs.ask("What revenue did NVIDIA report for its most recent quarter?")
+print(answer["answer"])          # cites [1], [2] ... with a source list
+print(answer["sources"])         # the pages it read: url, title, trace_id
+print(answer["couldnt_read"])    # pages no tool could read, and why
+print(answer["llm_cost_usd"])    # what the model calls cost (None if the provider doesn't say)
+```
+
+</TabItem>
+<TabItem label="CLI">
+
+```bash
+frankensurf ask "What revenue did NVIDIA report for its most recent quarter?"
+```
+
+</TabItem>
+</Tabs>
+
+The model gets two tools, Frankensurf's `search` and `read` (pages come back as markdown), and is
+told to read before it answers. If it tries to answer from search snippets alone, it's sent back to
+read the pages first. A page no tool could read reaches it as "Could not read this page (CODE)",
+with the instruction to say so instead of filling it in. Each answer lists the pages it read, so
+you can check them.
+
+## Extract and summarize
+
+```python
+data = fs.extract(["https://example.com/pricing"], prompt="the plans and their monthly prices",
+                  schema={"type": "object", "properties": {"plans": {"type": "array"}}})
+data["data"]        # checked against the schema; one retry with the errors if it doesn't fit
+
+summary = fs.summarize("https://example.com/post")["summary"]
+```
+
+`frankensurf serve --model ...` gives Firecrawl's `summary` and `json` scrape formats and its
+`/v1/extract` and `/v2/extract` jobs the same engine ([Firecrawl-compatible API](/docs/firecrawl-compatible/)).
+
+## Options
+
+`model=` (or `FRANKENSURF_AGENT_MODEL`), `max_steps=` (8 tool rounds, then a final answer),
+`paid=` and `max_cost=` for Frankensurf's own paid tools. Anything else goes to
+`litellm.acompletion` (`temperature`, `api_base` for a local model, and so on).
+
+<Aside type="caution" title="Pages are untrusted">
+  Page text reaches the model inside `<page>` tags with the instruction never to follow what's in
+  them, but a model can still be steered by a page written to do it. Treat answers about pages you
+  don't trust accordingly. Your provider key stays with LiteLLM; Frankensurf never sees or logs it.
+</Aside>

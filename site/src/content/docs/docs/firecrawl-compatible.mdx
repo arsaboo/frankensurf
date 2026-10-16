@@ -43,7 +43,12 @@ isn't checked. Free tools only unless you start it with `--paid`, and `--max-cos
   `completed`; `DELETE` cancels): the same engine as [Map and crawl](/docs/crawl/). Crawl jobs live in the
   server's memory, so they end with it. Pages no tool could read are listed under `frankensurf.failed`.
 
-Extract and batch endpoints aren't served yet (404).
+- **With a model** (`frankensurf serve --model <any LiteLLM model>`, or `FRANKENSURF_AGENT_MODEL`): the
+  `summary` and `json` scrape formats (v1 `jsonOptions`, v2 `{"type": "json", "schema", "prompt"}`), and
+  `/v1/extract`, `/v2/extract` jobs (`GET /v1/extract/{id}`). See [Agent mode](/docs/agent-mode/).
+
+- **Batch scrape** (`/v1/batch/scrape`, `/v2/batch/scrape`, then `GET .../batch/scrape/{id}`): each URL
+  scraped with the same options, paced per site; failures under `frankensurf.failed`.
 
 ## GPT Researcher
 

@@ -79,11 +79,20 @@ def _document(result: dict, url: str, formats: list[str]) -> dict:
 class FirecrawlCompat:
     """Request handling, separate from the socket so it can be tested without one."""
 
-    def __init__(self, web: Runtime, policy: dict | None = None, base_url: str = ""):
+    def __init__(self, web: Runtime, policy: dict | None = None, base_url: str = "", model: str | None = None):
+        import os
         self.web = web
         self.policy = dict(policy or {})
         self.base_url = base_url  # for the status URL a crawl answers with
+        self.model = model or os.getenv("FRANKENSURF_AGENT_MODEL")  # summary, json and extract (agent mode)
         self.crawls: dict[str, dict] = {}
+        self.extracts: dict[str, dict] = {}
+
+    def _needs_model(self):
+        if not self.model:
+            return 400, {"success": False, "error": "summary, json and extract need a model: start frankensurf "
+                         "serve --model <any LiteLLM model>, or set FRANKENSURF_AGENT_MODEL"}
+        return None
 
     async def _read(self, url: str, timeout_ms: int | None) -> dict:
         # Real markdown, as Firecrawl returns it (headings, lists, links, tables), and links for
@@ -98,7 +107,14 @@ class FirecrawlCompat:
         url = body.get("url")
         if not isinstance(url, str) or not url.startswith(("http://", "https://")):
             return 400, {"success": False, "error": "url must be an http(s) URL"}
-        formats = [f for f in body.get("formats") or ["markdown"] if isinstance(f, str)]
+        raw_formats = body.get("formats") or ["markdown"]
+        formats = [f for f in raw_formats if isinstance(f, str)]
+        json_spec = next((f for f in raw_formats if isinstance(f, dict) and f.get("type") == "json"), None)
+        if json_spec is None and "json" in formats:
+            json_spec = body.get("jsonOptions") or body.get("extract") or {}
+        wants_llm = "summary" in formats or json_spec is not None
+        if wants_llm and self._needs_model():
+            return self._needs_model()
         try:
             result = await self._read(url, body.get("timeout"))
         except asyncio.TimeoutError:
@@ -111,7 +127,73 @@ class FirecrawlCompat:
                                          "failure": receipt.get("failure"),
                                          "attempts": attempt_summary(receipt),
                                          "next_step": receipt.get("next_step")}}
-        return 200, {"success": True, "data": _document(result, url, formats)}
+        document = _document(result, url, formats)
+        if wants_llm:
+            from .agent import on_page
+            document.update(await on_page(result, url, summary="summary" in formats, json_output=json_spec is not None,
+                                          schema=(json_spec or {}).get("schema"), prompt=(json_spec or {}).get("prompt"),
+                                          model=self.model))
+        return 200, {"success": True, "data": document}
+
+    async def batch_start(self, body: dict, version: str) -> tuple[int, dict]:
+        urls = [u for u in body.get("urls") or [] if isinstance(u, str) and u.startswith(("http://", "https://"))]
+        if not urls:
+            return 400, {"success": False, "error": "urls must be a list of http(s) URLs"}
+        import uuid
+        job_id = str(uuid.uuid4())
+        job = {"status": "scraping", "total": len(urls), "completed": 0, "data": [], "failed": []}
+        self.crawls[job_id] = job
+        options = {key: value for key, value in body.items() if key not in ("urls", "url")}
+
+        async def one(url):
+            status, out = await self.scrape({**options, "url": url})
+            job["completed"] += 1
+            if out.get("success"):
+                job["data"].append(out["data"])
+            else:
+                job["failed"].append({"url": url, "error": out.get("error")})
+
+        async def run():
+            try:
+                await asyncio.gather(*(one(url) for url in urls))
+                job["status"] = "completed"
+            except Exception as error:
+                job.update(status="failed", error=f"{type(error).__name__}: {error}")
+        job["task"] = asyncio.get_running_loop().create_task(run())
+        return 200, {"success": True, "id": job_id, "url": f"{self.base_url}/{version}/batch/scrape/{job_id}"}
+
+    async def extract_start(self, body: dict, version: str) -> tuple[int, dict]:
+        if self._needs_model():
+            return self._needs_model()
+        urls = [u for u in body.get("urls") or [] if isinstance(u, str) and u.startswith(("http://", "https://"))]
+        if not urls:
+            return 400, {"success": False, "error": "urls must be a list of http(s) URLs"}
+        import uuid
+        from .agent import extract
+        job_id = str(uuid.uuid4())
+        job = {"status": "processing", "data": None}
+        self.extracts[job_id] = job
+
+        async def run():
+            try:
+                done = await extract(self.web, urls, schema=body.get("schema"), prompt=body.get("prompt"),
+                                     model=self.model, policy=self.policy)
+                job.update(status="completed" if done.get("data") is not None else "failed", data=done.get("data"),
+                           frankensurf={"sources": done["sources"], "couldnt_read": done["couldnt_read"],
+                                        "llm_cost_usd": done["llm_cost_usd"]},
+                           **({"error": done["error"]} if done.get("error") else {}))
+            except Exception as error:
+                job.update(status="failed", error=f"{type(error).__name__}: {error}")
+        job["task"] = asyncio.get_running_loop().create_task(run())
+        return 200, {"success": True, "id": job_id, "url": f"{self.base_url}/{version}/extract/{job_id}"}
+
+    def extract_status(self, job_id: str) -> tuple[int, dict]:
+        job = self.extracts.get(job_id)
+        if job is None:
+            return 404, {"success": False, "error": "no extract with that id"}
+        return 200, {"success": True, "status": job["status"], "data": job["data"], "expiresAt": None,
+                     **({"error": job["error"]} if job.get("error") else {}),
+                     **({"frankensurf": job["frankensurf"]} if job.get("frankensurf") else {})}
 
     async def search(self, body: dict, v2: bool = False) -> tuple[int, dict]:
         query = body.get("query")
@@ -211,7 +293,10 @@ class FirecrawlCompat:
         path = path.split("?", 1)[0].rstrip("/")
         if method == "GET" and path in ("", "/health"):
             return 200, {"success": True, "service": "frankensurf", "compatible_with": "firecrawl v1, v2"}
-        status_path = re.fullmatch(r"/(v1|v2)/crawl/([0-9a-f-]{36})", path)
+        extract_path = re.fullmatch(r"/(v1|v2)/extract/([0-9a-f-]{36})", path)
+        if extract_path and method == "GET":
+            return self.extract_status(extract_path.group(2))
+        status_path = re.fullmatch(r"/(v1|v2)/(?:crawl|batch/scrape)/([0-9a-f-]{36})", path)
         if status_path and method == "GET":
             return self.crawl_status(status_path.group(2))
         if status_path and method == "DELETE":
@@ -224,9 +309,13 @@ class FirecrawlCompat:
         routes = {"/v1/scrape": self.scrape, "/v2/scrape": self.scrape,
                   "/v1/search": self.search, "/v2/search": lambda b: self.search(b, v2=True),
                   "/v1/map": self.map, "/v2/map": lambda b: self.map(b, v2=True),
-                  "/v1/crawl": lambda b: self.crawl_start(b, "v1"), "/v2/crawl": lambda b: self.crawl_start(b, "v2")}
+                  "/v1/crawl": lambda b: self.crawl_start(b, "v1"), "/v2/crawl": lambda b: self.crawl_start(b, "v2"),
+                  "/v1/extract": lambda b: self.extract_start(b, "v1"), "/v2/extract": lambda b: self.extract_start(b, "v2"),
+                  "/v1/batch/scrape": lambda b: self.batch_start(b, "v1"),
+                  "/v2/batch/scrape": lambda b: self.batch_start(b, "v2")}
         if path not in routes:
-            return 404, {"success": False, "error": f"Frankensurf serves scrape, search, map and crawl, not {path}"}
+            return 404, {"success": False,
+                         "error": f"Frankensurf serves scrape, search, map, crawl and extract, not {path}"}
         if method != "POST":
             return 405, {"success": False, "error": "use POST"}
         try:
@@ -247,9 +336,9 @@ async def _respond(writer, status: int, payload: dict) -> None:
 
 
 async def serve(state_dir, host: str = "127.0.0.1", port: int = DEFAULT_PORT,
-                policy: dict | None = None, ready=None) -> None:
+                policy: dict | None = None, ready=None, model: str | None = None) -> None:
     async with Runtime(state_dir=state_dir) as web:
-        app = FirecrawlCompat(web, policy, base_url=f"http://{host}:{port}")
+        app = FirecrawlCompat(web, policy, base_url=f"http://{host}:{port}", model=model)
 
         async def connection(reader, writer):
             try:

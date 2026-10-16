@@ -63,6 +63,9 @@ These map to [WebPolicy](/docs/reference/settings/) fields and work on
 
 `map URL` (`--query`, `--limit`) and `crawl URL` (`--limit`, `--max-depth`, `--include-path`, `--exclude-path`,
 `--entire-domain`, `--ignore-robots`): see [Map and crawl](/docs/crawl/).
+
+`ask "question"` (`--model`): agent mode, see [Agent mode](/docs/agent-mode/). `serve --model` turns on the
+summary, json and extract endpoints.
 | `--expect WORD` (repeat) | `expect_terms` |
 | `--freshness now\|hour\|day\|cached` | `freshness` |
 | `--timeout S` | `timeout_seconds` |

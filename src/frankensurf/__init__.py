@@ -10,10 +10,11 @@ from .web_do import (BrowserAction, WebIntent,
 # imported, which would otherwise replace the search() function below whenever it loads later.
 from . import search as _search_module  # noqa: F401
 from . import crawl as _crawl_module  # noqa: F401  (same reason: crawl() below)
-from .simple import Page, aread, abatch, acrawl, amap, asearch, batch, crawl, map, read, search
+from .simple import (Page, aask, abatch, acrawl, aextract, amap, aread, asearch, ask, asummarize, batch, crawl,
+                     extract, map, read, search, summarize)
 
 __all__ = ["read", "aread", "batch", "abatch", "search", "asearch", "map", "amap", "crawl",
-           "acrawl", "Page",
+           "acrawl", "ask", "aask", "extract", "aextract", "summarize", "asummarize", "Page",
            "Runtime", "WebPolicy", "ACTION_CLASSES", "BrowserAction",
            "WebIntent", "LOCAL_REVERSIBLE_DRAFT_CONTRACT",
            "RAW_BROWSER_CONTROL_CONTRACT",

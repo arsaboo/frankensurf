@@ -23,7 +23,7 @@ from __future__ import annotations
 from typing import Any, Iterable
 
 __all__ = ["Page", "read", "aread", "batch", "abatch", "search", "asearch", "map", "amap",
-           "crawl", "acrawl"]
+           "crawl", "acrawl", "ask", "aask", "extract", "aextract", "summarize", "asummarize"]
 
 
 class Page(dict):
@@ -170,6 +170,38 @@ async def acrawl(url: str, *, limit: int = 100, max_depth: int = 2, include: lis
     return done["pages"]
 
 
+async def aask(question: str, *, model: str | None = None, max_steps: int = 8, paid: bool = False,
+               max_cost: float | None = None, state_dir: str | None = None, **completion: Any) -> dict:
+    """Agent mode: a model you choose (any LiteLLM model) searches and reads with Frankensurf and
+    answers with sources. Returns answer, sources, couldnt_read, steps, model, llm_cost_usd. Extra
+    keywords go to litellm.acompletion (temperature, api_base ...). pip install "frankensurf[agent]"."""
+    from .agent import ask
+    from .runtime import Runtime, default_state_dir
+    async with Runtime(state_dir or default_state_dir()) as web:
+        return await ask(web, question, model=model, max_steps=max_steps,
+                         policy=_overrides(paid, max_cost, False, False, {}), **completion)
+
+
+async def aextract(urls, *, schema: dict | None = None, prompt: str | None = None, model: str | None = None,
+                   paid: bool = False, state_dir: str | None = None, **completion: Any) -> dict:
+    """Structured data from one or more pages with an LLM, checked against schema (JSON Schema) when
+    given. Returns data, sources, couldnt_read, model, llm_cost_usd (and error if it never fit)."""
+    from .agent import extract
+    from .runtime import Runtime, default_state_dir
+    async with Runtime(state_dir or default_state_dir()) as web:
+        return await extract(web, [urls] if isinstance(urls, str) else list(urls), schema=schema, prompt=prompt,
+                             model=model, policy=_overrides(paid, None, False, False, {}), **completion)
+
+
+async def asummarize(url: str, *, model: str | None = None, paid: bool = False, state_dir: str | None = None,
+                     **completion: Any) -> dict:
+    """A short summary of a page with an LLM, or why it couldn't be read."""
+    from .agent import summarize
+    from .runtime import Runtime, default_state_dir
+    async with Runtime(state_dir or default_state_dir()) as web:
+        return await summarize(web, url, model=model, policy=_overrides(paid, None, False, False, {}), **completion)
+
+
 def _run(coroutine):
     from .agent_tools import _runner
     return _runner()(coroutine)
@@ -198,3 +230,18 @@ def map(url: str, **options: Any) -> list[str]:  # noqa: A001 - Firecrawl's name
 def crawl(url: str, **options: Any) -> list[dict]:
     """Sync crawl(). Options as acrawl()."""
     return _run(acrawl(url, **options))
+
+
+def ask(question: str, **options: Any) -> dict:
+    """Sync ask(). Options as aask()."""
+    return _run(aask(question, **options))
+
+
+def extract(urls, **options: Any) -> dict:
+    """Sync extract(). Options as aextract()."""
+    return _run(aextract(urls, **options))
+
+
+def summarize(url: str, **options: Any) -> dict:
+    """Sync summarize(). Options as asummarize()."""
+    return _run(asummarize(url, **options))

@@ -65,6 +65,7 @@ export default defineConfig({
           ] },
           { label: "Search", slug: "docs/search" },
           { label: "Map and crawl", slug: "docs/crawl" },
+          { label: "Agent mode", slug: "docs/agent-mode" },
           { label: "Watch", slug: "docs/watch" },
           { label: "Paginate", slug: "docs/paginate" },
           { label: "Act", slug: "docs/act" },
