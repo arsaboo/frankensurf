@@ -9,7 +9,10 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 - In the news vertical, after Bing News; quoted names, `OR` and the date window (`when:7d`) work.
 - Each result names its publisher (`extra.publisher`, `extra.publisher_url`) and date.
-- Links go through Google's redirect to the article; a browser read follows it.
+- Results link to the publisher's own article. Google's feed links go through a redirect that only
+  a browser can follow, so search swaps each one for the URL it leads to (two small requests to
+  Google, run in parallel) and keeps Google's link in `extra.google_news_url`. A link that doesn't
+  swap stays as Google's.
 
 ## Set up
 

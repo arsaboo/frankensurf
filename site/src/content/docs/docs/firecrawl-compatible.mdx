@@ -99,10 +99,10 @@ FIRECRAWL_CONCURRENCY=4
 ```
 
 Its searches ask for each result's markdown with a 15 second timeout. Frankensurf answers 3
-seconds inside it, so a slow page comes back as a missing page instead of a failed search. In two
-runs of four searches with its exact call, 17 and then 14 of 20 pages came back in time; most of
-the misses were Google News links, which take a while to follow. If you'd rather wait for the slow
-ones, raise the `timeout` in `src/deep-research.ts`.
+seconds inside it, so a slow page comes back as a missing page instead of a failed search. With its
+exact call, four searches got all 20 pages in time, twice, in 4 to 13 seconds a search. (Before
+v0.44.1 it was 17 and 14 of 20: news searches returned Google News redirect links, which are slow to
+follow. Search now swaps them for the publisher's own URL.)
 
 ## Anything else that takes a Firecrawl URL
 

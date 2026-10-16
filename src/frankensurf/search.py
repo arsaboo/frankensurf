@@ -414,6 +414,60 @@ def _text(value):
     return " ".join(BeautifulSoup(html.unescape(str(value or "")), "html.parser").get_text(" ").split())
 
 
+GOOGLE_NEWS_ARTICLE = re.compile(r"^https://news\.google\.com/(?:rss/)?articles/([\w-]+)")
+
+
+async def resolve_google_news(results, user_agent: str, timeout: float = 6.0, concurrency: int = 6,
+                              transport=None):
+    """Swap Google News RSS links (news.google.com/rss/articles/...) for the publisher's own URL.
+
+    Those links only reach the article through a script on Google's side, so reading one takes a
+    browser and is often the slowest page in a set. Google's own article page carries a signature
+    that its batchexecute endpoint exchanges for the target URL: two small requests per link, run
+    in parallel. Best effort: a link that doesn't decode stays as it was. The Google link is kept
+    in extra.google_news_url.
+    """
+    import asyncio
+    import json
+    import httpx
+
+    pending = [item for item in results if GOOGLE_NEWS_ARTICLE.match(item.get("url") or "")]
+    if not pending:
+        return results
+    gate = asyncio.Semaphore(concurrency)
+
+    async def decode(client, item):
+        article_id = GOOGLE_NEWS_ARTICLE.match(item["url"]).group(1)
+        async with gate:
+            page = await client.get(f"https://news.google.com/rss/articles/{article_id}")
+            node = BeautifulSoup(page.text, "html.parser").select_one("[data-n-a-sg][data-n-a-ts]")
+            if node is None:
+                return
+            inner = ["garturlreq", [["X", "X", ["X", "X"], None, None, 1, 1, "US:en", None, 1, None, None,
+                                     None, None, None, 0, 1], "X", "X", 1, [1, 1, 1], 1, 1, None, 0, 0, None, 0],
+                     article_id, int(node["data-n-a-ts"]), node["data-n-a-sg"]]
+            response = await client.post(
+                "https://news.google.com/_/DotsSplashUi/data/batchexecute",
+                data={"f.req": json.dumps([[["Fbv4je", json.dumps(inner), None, "generic"]]])})
+        payload = json.loads(response.text.split("\n\n", 1)[-1])
+        target = json.loads(payload[0][2])[1]
+        if (isinstance(target, str) and target.startswith(("http://", "https://"))
+                and not GOOGLE_NEWS_ARTICLE.match(target)):
+            item["extra"] = {**(item.get("extra") or {}), "google_news_url": item["url"]}
+            item["url"] = target
+
+    async def safe(client, item):
+        try:
+            await decode(client, item)
+        except Exception:
+            pass
+
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, transport=transport,
+                                 headers={"User-Agent": user_agent}) as client:
+        await asyncio.wait_for(asyncio.gather(*(safe(client, item) for item in pending)), timeout * 2)
+    return results
+
+
 def normalize_results(content: str, structured: object, source: str, limit: int, request_url: str | None = None):
     upstream_failures = []
     found = []

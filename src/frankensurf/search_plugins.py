@@ -9,7 +9,7 @@ import math
 import re
 from typing import Awaitable, Callable, Protocol
 
-from .search import REGISTRY, build_search, normalize_results
+from .search import REGISTRY, build_search, normalize_results, resolve_google_news
 
 
 _PLUGIN_ID = re.compile(r"[a-z][a-z0-9_.-]{0,127}\Z")
@@ -776,6 +776,12 @@ class HttpSearchPlugin:
                     receipt.update(status="failed", failure={"code": "SEARCH_UNAVAILABLE",
                         "message": "Upstream returned results unrelated to the query"})
                 else:
+                    if self.manifest.id == "google_news_rss":
+                        from .runtime import _user_agent
+                        try:
+                            await resolve_google_news(found, _user_agent())
+                        except Exception:
+                            pass  # best effort: undecoded links stay as Google's
                     response["results"] = [{**item, "listing_state": "unknown",
                         "verification": "indexed_discovery", "query_attribution": attribution}
                         for item in found]
