@@ -9,9 +9,11 @@ from .web_do import (BrowserAction, WebIntent,
 # The search submodule loads first: Python binds a submodule onto the package the first time it is
 # imported, which would otherwise replace the search() function below whenever it loads later.
 from . import search as _search_module  # noqa: F401
-from .simple import Page, aread, abatch, asearch, batch, read, search
+from . import crawl as _crawl_module  # noqa: F401  (same reason: crawl() below)
+from .simple import Page, aread, abatch, acrawl, amap, asearch, batch, crawl, map, read, search
 
-__all__ = ["read", "aread", "batch", "abatch", "search", "asearch", "Page",
+__all__ = ["read", "aread", "batch", "abatch", "search", "asearch", "map", "amap", "crawl",
+           "acrawl", "Page",
            "Runtime", "WebPolicy", "ACTION_CLASSES", "BrowserAction",
            "WebIntent", "LOCAL_REVERSIBLE_DRAFT_CONTRACT",
            "RAW_BROWSER_CONTROL_CONTRACT",

@@ -17,6 +17,8 @@ import { Aside } from "@astrojs/starlight/components";
 | `batch_template` | `module`, `template`, `params_list`, `acquisition_policy` | One saved template (say, a search) for many parameter sets as one paced batch: each result's `params`, `items`, `next_url` and receipt status, without page text. |
 | `discover_site_module` | `url`, `save`, `module_id`, `query` | Up to three validated module drafts from a listing page's JSON-LD, script JSON, fetched JSON or repeated HTML cards, each with its item count and sample rows. `save` saves the best. |
 | `repair_site_module` | `trace_id`, `module` | Propose the next version of a module that failed on a read. Validated against the kept page and a fresh read with the old version's assertions; only the owner promotes it. |
+| `map_site` | `url`, `search`, `limit`, `include_subdomains` | A site's URLs from its sitemaps and links, without reading them ([Map and crawl](/docs/crawl/)). |
+| `crawl` | `url`, `limit`, `max_depth`, `include_paths`, `exclude_paths`, `entire_domain`, `acquisition_policy` | Read a section of a site as markdown, breadth first, paced per site. |
 | `trace` | `trace_id` | The full record of an earlier read: tools tried, failures, timings, completeness steps. No page content. |
 | `extract` | `url`, `adapter`, `include_images`, `identity`, `provider`, `freshness`, `acquisition_policy` | The page through an adapter: `html` (default), `json` or `rss`. |
 | `batch` | `urls`, `provider`, `adapter`, `identity`, `include_images`, `freshness` | One result per URL. |

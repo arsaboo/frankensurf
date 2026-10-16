@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from typing import Any
 
 from .runtime import Runtime, WebPolicy, attempt_summary
@@ -78,9 +79,11 @@ def _document(result: dict, url: str, formats: list[str]) -> dict:
 class FirecrawlCompat:
     """Request handling, separate from the socket so it can be tested without one."""
 
-    def __init__(self, web: Runtime, policy: dict | None = None):
+    def __init__(self, web: Runtime, policy: dict | None = None, base_url: str = ""):
         self.web = web
         self.policy = dict(policy or {})
+        self.base_url = base_url  # for the status URL a crawl answers with
+        self.crawls: dict[str, dict] = {}
 
     async def _read(self, url: str, timeout_ms: int | None) -> dict:
         # Real markdown, as Firecrawl returns it (headings, lists, links, tables), and links for
@@ -142,14 +145,88 @@ class FirecrawlCompat:
             await asyncio.gather(*(fill(item) for item in items))
         return 200, {"success": True, "data": {"web": items} if v2 else items}
 
+    async def map(self, body: dict, v2: bool = False) -> tuple[int, dict]:
+        url = body.get("url")
+        if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+            return 400, {"success": False, "error": "url must be an http(s) URL"}
+        from .crawl import site_map
+        found = await site_map(self.web, url, limit=max(1, int(body.get("limit") or 5000)),
+                               search=body.get("search"), include_subdomains=bool(body.get("includeSubdomains")),
+                               use_sitemap=body.get("sitemap") != "skip" and not body.get("ignoreSitemap"),
+                               policy_overrides=self.policy)
+        links = [{"url": link} for link in found["links"]] if v2 else found["links"]
+        return 200, {"success": True, "links": links}
+
+    async def crawl_start(self, body: dict, version: str) -> tuple[int, dict]:
+        url = body.get("url")
+        if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+            return 400, {"success": False, "error": "url must be an http(s) URL"}
+        import uuid
+        from .crawl import crawl
+        job_id = str(uuid.uuid4())
+        job = {"status": "scraping", "total": 0, "completed": 0, "data": [], "failed": [], "version": version}
+        self.crawls[job_id] = job
+        formats = [f for f in (body.get("scrapeOptions") or {}).get("formats") or ["markdown"] if isinstance(f, str)]
+        depth = body.get("maxDiscoveryDepth", body.get("maxDepth", 2))
+
+        def on_page(page):
+            job["completed"] += 1
+            if page["status"] == "observed":
+                job["data"].append({"markdown": page["markdown"], "metadata": {
+                    "title": page["title"], "sourceURL": page["url"], "url": page["final_url"] or page["url"],
+                    "statusCode": 200, "frankensurf": {"trace_id": page["trace_id"], "depth": page["depth"]}}}
+                    if "markdown" in formats else {"metadata": {"sourceURL": page["url"], "title": page["title"]}})
+            else:
+                job["failed"].append({"url": page["url"], "failure": page["failure"], "trace_id": page["trace_id"]})
+
+        async def run():
+            try:
+                done = await crawl(self.web, url, limit=max(1, int(body.get("limit") or 100)),
+                                   max_depth=max(0, int(depth if depth is not None else 2)),
+                                   include=body.get("includePaths") or None, exclude=body.get("excludePaths") or None,
+                                   include_subdomains=bool(body.get("allowSubdomains")),
+                                   entire_domain=bool(body.get("crawlEntireDomain") or body.get("allowBackwardLinks")),
+                                   use_sitemap=body.get("sitemap") != "skip" and not body.get("ignoreSitemap"),
+                                   policy_overrides=self.policy, on_page=on_page)
+                job.update(status="completed", total=done["completed"])
+            except asyncio.CancelledError:
+                job["status"] = "cancelled"
+                raise
+            except Exception as error:
+                job.update(status="failed", error=f"{type(error).__name__}: {error}")
+        job["task"] = asyncio.get_running_loop().create_task(run())
+        return 200, {"success": True, "id": job_id, "url": f"{self.base_url}/{version}/crawl/{job_id}"}
+
+    def crawl_status(self, job_id: str) -> tuple[int, dict]:
+        job = self.crawls.get(job_id)
+        if job is None:
+            return 404, {"success": False, "error": "no crawl with that id"}
+        return 200, {"success": True, "status": job["status"], "total": max(job["total"], job["completed"]),
+                     "completed": job["completed"], "creditsUsed": 0, "expiresAt": None,
+                     "data": job["data"],  # no "next": everything comes in one page
+                     **({"error": job["error"]} if job.get("error") else {}),
+                     "frankensurf": {"failed": job["failed"]}}
+
     async def handle(self, method: str, path: str, body: bytes) -> tuple[int, dict]:
         path = path.split("?", 1)[0].rstrip("/")
         if method == "GET" and path in ("", "/health"):
             return 200, {"success": True, "service": "frankensurf", "compatible_with": "firecrawl v1, v2"}
+        status_path = re.fullmatch(r"/(v1|v2)/crawl/([0-9a-f-]{36})", path)
+        if status_path and method == "GET":
+            return self.crawl_status(status_path.group(2))
+        if status_path and method == "DELETE":
+            job = self.crawls.get(status_path.group(2))
+            if job is None:
+                return 404, {"success": False, "error": "no crawl with that id"}
+            job["task"].cancel()
+            job["status"] = "cancelled"
+            return 200, {"success": True, "status": "cancelled"}
         routes = {"/v1/scrape": self.scrape, "/v2/scrape": self.scrape,
-                  "/v1/search": self.search, "/v2/search": lambda b: self.search(b, v2=True)}
+                  "/v1/search": self.search, "/v2/search": lambda b: self.search(b, v2=True),
+                  "/v1/map": self.map, "/v2/map": lambda b: self.map(b, v2=True),
+                  "/v1/crawl": lambda b: self.crawl_start(b, "v1"), "/v2/crawl": lambda b: self.crawl_start(b, "v2")}
         if path not in routes:
-            return 404, {"success": False, "error": f"Frankensurf serves scrape and search only, not {path}"}
+            return 404, {"success": False, "error": f"Frankensurf serves scrape, search, map and crawl, not {path}"}
         if method != "POST":
             return 405, {"success": False, "error": "use POST"}
         try:
@@ -172,7 +249,7 @@ async def _respond(writer, status: int, payload: dict) -> None:
 async def serve(state_dir, host: str = "127.0.0.1", port: int = DEFAULT_PORT,
                 policy: dict | None = None, ready=None) -> None:
     async with Runtime(state_dir=state_dir) as web:
-        app = FirecrawlCompat(web, policy)
+        app = FirecrawlCompat(web, policy, base_url=f"http://{host}:{port}")
 
         async def connection(reader, writer):
             try:

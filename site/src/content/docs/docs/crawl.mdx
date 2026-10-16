@@ -1,0 +1,68 @@
+---
+title: Map and crawl
+description: List a site's URLs without reading them, or read a whole section of a site as markdown.
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+**Map** lists what a site has: the sitemaps robots.txt names (or `/sitemap.xml`,
+`/sitemap_index.xml`, `/sitemap-index.xml`), walked through any sitemap index, plus the links on the
+start page. It reads no pages, so it's quick. `search` keeps the URLs that mention its words, best
+match first.
+
+**Crawl** reads a section of a site: the start page, the sitemap and the links they lead to,
+breadth first, up to `max_depth` link hops and `limit` pages. Like Firecrawl, it only reads pages
+under the start URL's path (`/docs/` reads `/docs/...`) unless you pass `entire_domain`. Every page
+is a normal read: paced per site, checked, climbing to a stronger tool when walled, with a receipt.
+Each comes back as markdown. robots.txt is honoured unless you turn it off.
+
+## Usage
+
+<Tabs syncKey="lang">
+<TabItem label="Python">
+
+```python
+import frankensurf as fs
+
+urls = fs.map("https://frankensurf.dev/", search="cost")
+pages = fs.crawl("https://frankensurf.dev/docs/", limit=50, max_depth=2,
+                 exclude=[r"^/docs/reference/"])
+for page in pages:
+    print(page["status"], page["url"], len(page["markdown"]))
+```
+
+</TabItem>
+<TabItem label="CLI">
+
+```bash
+frankensurf map https://frankensurf.dev/ --query cost
+frankensurf crawl https://frankensurf.dev/docs/ --limit 50 --max-depth 2 --exclude-path '^/docs/reference/'
+```
+
+</TabItem>
+<TabItem label="MCP">
+
+```json
+{ "tool": "crawl", "arguments": { "url": "https://frankensurf.dev/docs/", "limit": 20 } }
+```
+
+</TabItem>
+</Tabs>
+
+## Options
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| `limit` | 100 (map: 5,000) | Most pages to read (map: URLs to return). |
+| `max_depth` | `2` | Link hops from the start page; sitemap pages count as one hop. |
+| `include`, `exclude` | none | Regular expressions on the URL path; only matching, or never matching. |
+| `entire_domain` | `false` | Read the whole site, not only under the start path. |
+| `include_subdomains` | `false` | Follow links to the site's subdomains. |
+| `respect_robots` | `true` | Skip what robots.txt disallows (`--ignore-robots` turns it off). |
+
+Each page: `url`, `final_url`, `depth`, `status`, `title`, `markdown`, `failure`, `trace_id`,
+`cost_usd`. The crawl also reports `read`, `failed`, `left_in_queue` (pages found past the limit) and
+`skipped` (by robots.txt and by your filters).
+
+`frankensurf serve` answers Firecrawl's `/v1/map`, `/v2/map`, `/v1/crawl` and `/v2/crawl` with the same
+engine ([Firecrawl-compatible API](/docs/firecrawl-compatible/)).

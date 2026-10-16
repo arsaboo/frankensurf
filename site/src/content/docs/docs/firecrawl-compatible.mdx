@@ -39,7 +39,11 @@ isn't checked. Free tools only unless you start it with `--paid`, and `--max-cos
   in `metadata.error`. A research agent that uses the markdown simply doesn't get a page that
   wasn't there.
 
-Crawl, map, extract and batch endpoints aren't served (404).
+- **Map** (`/v1/map`, `/v2/map`) and **crawl** (`/v1/crawl`, `/v2/crawl`, then `GET /v1/crawl/{id}` until
+  `completed`; `DELETE` cancels): the same engine as [Map and crawl](/docs/crawl/). Crawl jobs live in the
+  server's memory, so they end with it. Pages no tool could read are listed under `frankensurf.failed`.
+
+Extract and batch endpoints aren't served yet (404).
 
 ## GPT Researcher
 

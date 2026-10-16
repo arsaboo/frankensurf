@@ -103,7 +103,7 @@ def test_bad_requests_and_unknown_routes():
     app = FirecrawlCompat(FakeWeb())
     assert call(app, "/v1/scrape", {"url": "file:///etc/passwd"})[0] == 400
     assert call(app, "/v1/search", {"query": " "})[0] == 400
-    assert call(app, "/v1/crawl", {"url": "https://example.com"})[0] == 404
+    assert call(app, "/v1/deep-research", {"url": "https://example.com"})[0] == 404
     assert asyncio.run(app.handle("POST", "/v1/scrape", b"not json"))[0] == 400
     assert asyncio.run(app.handle("GET", "/v1/scrape", b""))[0] == 405
     assert asyncio.run(app.handle("GET", "/health", b""))[1]["service"] == "frankensurf"

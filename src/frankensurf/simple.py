@@ -22,7 +22,8 @@ from __future__ import annotations
 
 from typing import Any, Iterable
 
-__all__ = ["Page", "read", "aread", "batch", "abatch", "search", "asearch"]
+__all__ = ["Page", "read", "aread", "batch", "abatch", "search", "asearch", "map", "amap",
+           "crawl", "acrawl"]
 
 
 class Page(dict):
@@ -139,6 +140,36 @@ async def asearch(query: str, *, limit: int = 10, recency: str | None = None, si
              "published": item.get("published")} for item in found.get("results") or []]
 
 
+async def amap(url: str, *, limit: int = 5000, search: str | None = None, include_subdomains: bool = False,
+               state_dir: str | None = None, **policy: Any) -> list[str]:
+    """A site's URLs, from its sitemaps and the start page's links, without reading them. search
+    keeps the URLs that mention its words, best match first."""
+    from .crawl import site_map
+    from .runtime import Runtime, default_state_dir
+    async with Runtime(state_dir or default_state_dir()) as web:
+        found = await site_map(web, url, limit=limit, search=search, include_subdomains=include_subdomains,
+                               policy_overrides=policy)
+    return found["links"]
+
+
+async def acrawl(url: str, *, limit: int = 100, max_depth: int = 2, include: list[str] | None = None,
+                 exclude: list[str] | None = None, include_subdomains: bool = False, paid: bool = False,
+                 max_cost: float | None = None, respect_robots: bool = True, entire_domain: bool = False,
+                 state_dir: str | None = None, **policy: Any) -> list[dict]:
+    """Read a site: the start page, its sitemap and the links they lead to, up to max_depth hops and
+    limit pages, only under the start URL's path unless entire_domain. include/exclude are regular
+    expressions on the URL path. Each page: url, status,
+    title, markdown, failure, trace_id."""
+    from .crawl import crawl as crawl_site
+    from .runtime import Runtime, default_state_dir
+    async with Runtime(state_dir or default_state_dir()) as web:
+        done = await crawl_site(web, url, limit=limit, max_depth=max_depth, include=include, exclude=exclude,
+                                include_subdomains=include_subdomains, respect_robots=respect_robots,
+                                entire_domain=entire_domain,
+                                policy_overrides=_overrides(paid, max_cost, False, False, policy))
+    return done["pages"]
+
+
 def _run(coroutine):
     from .agent_tools import _runner
     return _runner()(coroutine)
@@ -157,3 +188,13 @@ def batch(urls: Iterable[str], **options: Any) -> list[Page]:
 def search(query: str, **options: Any) -> list[dict]:
     """Sync search(). Options as asearch()."""
     return _run(asearch(query, **options))
+
+
+def map(url: str, **options: Any) -> list[str]:  # noqa: A001 - Firecrawl's name for it
+    """Sync map(). Options as amap()."""
+    return _run(amap(url, **options))
+
+
+def crawl(url: str, **options: Any) -> list[dict]:
+    """Sync crawl(). Options as acrawl()."""
+    return _run(acrawl(url, **options))

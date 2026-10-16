@@ -453,7 +453,7 @@ async def run(args):
                     "provider", "provider_candidates", "identity")) else WebPolicy(
                     **{**policy_kwargs, "provider": "http"})
                 result = await web.search(" ".join(args.urls), source=args.source,
-                    limit=args.limit, engine_config=config, policy=search_policy,
+                    limit=args.limit or 10, engine_config=config, policy=search_policy,
                     site=_one_site(args.site), exclude_domains=args.exclude_domains, recency=args.recency,
                     region=args.region, vertical=args.vertical, mode=args.mode)
             elif args.operation == "do":
@@ -504,6 +504,16 @@ async def run(args):
                     args.urls[0], args.disable_reason)
             elif args.operation == "watch-sites":
                 result = await web.watch_sites(list(args.urls), since=args.since, read_new=args.read_new)
+            elif args.operation == "map":
+                from .crawl import site_map
+                result = await site_map(web, args.urls[0], limit=args.limit or 5000, search=args.query,
+                                        policy_overrides=policy_kwargs)
+            elif args.operation == "crawl":
+                from .crawl import crawl
+                result = await crawl(web, args.urls[0], limit=args.limit or 100, max_depth=args.max_depth,
+                                     include=args.include_path, exclude=args.exclude_path,
+                                     entire_domain=args.entire_domain, respect_robots=not args.ignore_robots,
+                                     policy_overrides=policy_kwargs)
             elif args.operation == "watch":
                 result = await web.watch(args.urls[0], link_pattern=args.link_pattern,
                                          policy_overrides=policy_kwargs)
@@ -547,7 +557,7 @@ def build_parser():
         "repair-disable", "executor-enroll", "identity-enroll",
         "identity-status", "identity-revoke", "bot-auth-init", "bot-auth-directory",
         "profile-login", "profile-list", "profile-delete", "module", "read-template", "setup", "skill",
-        "egress", "plugins", "search-engine", "install", "uninstall", "share", "serve"])
+        "egress", "plugins", "search-engine", "install", "uninstall", "share", "serve", "map", "crawl"])
     parser.add_argument("urls", nargs="*")
     parser.add_argument("--explain", action="store_true",
         help="read: print each tool tried and what happened, then the page, instead of JSON")
@@ -684,7 +694,13 @@ def build_parser():
     parser.add_argument("--search-source-timeout", type=float,
         help="Per-source search timeout in seconds; zero uses the operation timeout")
     parser.add_argument("--search-url")
-    parser.add_argument("--limit", type=int, default=10)
+    parser.add_argument("--limit", type=int, default=None,
+        help="search: results (default 10); map: URLs (default 5000); crawl: pages (default 100)")
+    parser.add_argument("--max-depth", type=int, default=2, help="crawl: link hops from the start page")
+    parser.add_argument("--include-path", action="append", help="crawl: only paths matching this regex; repeat")
+    parser.add_argument("--exclude-path", action="append", help="crawl: skip paths matching this regex; repeat")
+    parser.add_argument("--entire-domain", action="store_true", help="crawl: the whole site, not only under the start path")
+    parser.add_argument("--ignore-robots", action="store_true", help="crawl: read pages robots.txt disallows")
     parser.add_argument("--evidence-file")
     parser.add_argument("--observed-at")
     parser.add_argument("--content-type", default="text/html")
@@ -764,6 +780,9 @@ def parse_args(argv=None):
         if args.urls not in (["start"], ["stop"], ["status"]):
             parser.error("search-engine takes: start | stop | status (local search: SearXNG on port 8088; "
                          "install it with: frankensurf install search)")
+    elif args.operation in ("map", "crawl"):
+        if len(args.urls) != 1:
+            parser.error(args.operation + " takes one URL: frankensurf " + args.operation + " https://example.com/docs/")
     elif args.operation == "serve":
         if args.urls:
             parser.error("serve takes no arguments: frankensurf serve [--port 3002] [--host 127.0.0.1] [--paid]")

@@ -64,6 +64,7 @@ export default defineConfig({
             { label: "Structured fields", slug: "docs/read/structured" },
           ] },
           { label: "Search", slug: "docs/search" },
+          { label: "Map and crawl", slug: "docs/crawl" },
           { label: "Watch", slug: "docs/watch" },
           { label: "Paginate", slug: "docs/paginate" },
           { label: "Act", slug: "docs/act" },

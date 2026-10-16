@@ -426,6 +426,31 @@ async def import_image_evidence(path: str, url: str, observed_at: str,
 
 
 @server.tool()
+async def map_site(url: str, search: str | None = None, limit: int = 5000,
+                   include_subdomains: bool = False) -> dict:
+    """A site's URLs from its sitemaps and the start page's links, without reading them. search keeps
+    the URLs that mention its words, best match first."""
+    from .crawl import site_map
+    async with runtime() as web:
+        return await site_map(web, url, limit=limit, search=search, include_subdomains=include_subdomains)
+
+
+@server.tool()
+async def crawl(url: str, limit: int = 20, max_depth: int = 2, include_paths: list[str] | None = None,
+                exclude_paths: list[str] | None = None, entire_domain: bool = False,
+                acquisition_policy: dict | None = None) -> dict:
+    """Read a site breadth-first from url: its sitemap and the links it leads to, up to max_depth hops
+    and limit pages, only under url's path unless entire_domain. include_paths / exclude_paths are
+    regular expressions on the path. Each page comes back as markdown with its status and trace_id;
+    robots.txt is honoured. Pages are paced per site, so a big crawl takes a while: keep limit small."""
+    from .crawl import crawl as crawl_site
+    async with runtime() as web:
+        return await crawl_site(web, url, limit=limit, max_depth=max_depth, include=include_paths,
+                                exclude=exclude_paths, entire_domain=entire_domain,
+                                policy_overrides=_acquisition_overrides(acquisition_policy, {}))
+
+
+@server.tool()
 async def trace(trace_id: str) -> dict:
     """The full record of one earlier read: every tool tried, failures, timings,
     completeness steps and evidence references. Page content is not included."""
