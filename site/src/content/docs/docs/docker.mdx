@@ -75,6 +75,6 @@ volumes:
   stealth Chromium runs without it, the same as Playwright's own Chromium does by default; the
   container is the isolation. Outside a container it stays on wherever the kernel allows it.
 - **Memory:** about 1 GB for each browser read running at once.
-- **Agent mode:** add `-e FRANKENSURF_AGENT_MODEL=...` and the provider's key to get the summary,
-  json and extract endpoints ([Agent mode](/docs/agent-mode/)).
+- **Agent mode:** the image ships LiteLLM. Add `-e FRANKENSURF_AGENT_MODEL=...` and the provider's key
+  to get the summary, json and extract endpoints ([Agent mode](/docs/agent-mode/)).
 - The container runs as an unprivileged user, with `tini` reaping browser processes.

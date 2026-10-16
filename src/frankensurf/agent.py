@@ -50,6 +50,22 @@ class AgentModeError(RuntimeError):
     """Agent mode can't run: no model named, or LiteLLM isn't installed."""
 
 
+NEED_LITELLM = 'Agent mode needs LiteLLM: pip install "frankensurf[agent]"'
+
+
+def litellm_missing() -> str | None:
+    """The sentence to answer with when LiteLLM isn't installed, None when it is. Looks for the
+    package rather than importing it, which takes seconds."""
+    import sys
+    if "litellm" in sys.modules:
+        return None if sys.modules["litellm"] is not None else NEED_LITELLM
+    import importlib.util
+    try:
+        return None if importlib.util.find_spec("litellm") is not None else NEED_LITELLM
+    except (ImportError, ValueError):
+        return NEED_LITELLM
+
+
 def _model(model: str | None) -> str:
     chosen = model or os.getenv("FRANKENSURF_AGENT_MODEL")
     if not chosen:
@@ -62,7 +78,7 @@ def _litellm():
     try:
         import litellm
     except ImportError:
-        raise AgentModeError('Agent mode needs LiteLLM: pip install "frankensurf[agent]"') from None
+        raise AgentModeError(NEED_LITELLM) from None
     return litellm
 
 

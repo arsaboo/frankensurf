@@ -25,7 +25,8 @@ RUN apt-get update \
 WORKDIR /opt/frankensurf
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
-RUN pip install ".[mcp]"
+# agent (LiteLLM) is serve's summary, json and extract; without it the image broke its own docs.
+RUN pip install ".[mcp,agent]"
 
 # Chromium and its system libraries (and Firefox's, for Camoufox), then the free stealth browsers in
 # their own environment. The stealth browsers aren't built for every platform: where one fails, the

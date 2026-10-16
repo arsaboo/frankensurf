@@ -131,6 +131,11 @@ def _data_url(path) -> str | None:
         return None
 
 
+def _wants_llm(formats) -> bool:
+    """summary or json among these format names: the request needs a model."""
+    return "summary" in formats or "json" in formats
+
+
 class FirecrawlCompat:
     """Request handling, separate from the socket so it can be tested without one."""
 
@@ -192,9 +197,14 @@ class FirecrawlCompat:
         return 404, {"success": False, "error": f"Frankensurf doesn't serve {path}"}
 
     def _needs_model(self):
+        """A 400 when agent mode is asked for and this server cannot run it."""
         if not self.model:
             return 400, {"success": False, "error": "summary, json and extract need a model: start frankensurf "
                          "serve --model <any LiteLLM model>, or set FRANKENSURF_AGENT_MODEL"}
+        from .agent import litellm_missing
+        missing = litellm_missing()
+        if missing:
+            return 400, {"success": False, "error": f"{missing} (this server was asked for {self.model})"}
         return None
 
     def _overrides(self, body: dict | None) -> dict:
@@ -330,6 +340,8 @@ class FirecrawlCompat:
         urls = [u for u in body.get("urls") or [] if isinstance(u, str) and u.startswith(("http://", "https://"))]
         if not urls:
             return 400, {"success": False, "error": "urls must be a list of http(s) URLs"}
+        if _wants_llm(_format_names(body.get("formats"))) and self._needs_model():
+            return self._needs_model()
         import uuid
         job_id = str(uuid.uuid4())
         job = {"status": "scraping", "total": len(urls), "completed": 0, "data": [], "failed": []}

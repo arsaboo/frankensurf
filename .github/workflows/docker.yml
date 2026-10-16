@@ -47,4 +47,8 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:3002/v1/scrape -d '{"url":"https://example.com"}')" = 401
           curl -fsS -X POST localhost:3002/v1/scrape -H 'Authorization: Bearer smoke' \
                -H 'Content-Type: application/json' -d '{"url":"https://example.com"}' | grep -q '"success": true'
+          # Agent mode is in the image; without a model it says so (400) rather than dying (500).
+          docker exec fs python -c "import litellm; print('litellm', litellm.__version__)"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:3002/v1/scrape -H 'Authorization: Bearer smoke' \
+               -H 'Content-Type: application/json' -d '{"url":"https://example.com","formats":["summary"]}')" = 400
           docker logs fs | tail -5

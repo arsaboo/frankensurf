@@ -126,6 +126,14 @@ def test_without_litellm_the_error_says_how_to_install(monkeypatch):
     monkeypatch.setitem(sys.modules, "litellm", None)
     with pytest.raises(agent.AgentModeError, match=r"frankensurf\[agent\]"):
         agent._litellm()
+    assert agent.litellm_missing() == agent.NEED_LITELLM
+
+
+def test_the_docker_image_installs_the_extra_agent_mode_needs():
+    from pathlib import Path
+    lines = [line.strip() for line in (Path(__file__).parent.parent / "Dockerfile").read_text().splitlines()
+             if line.strip().startswith("RUN pip install")]
+    assert lines == ['RUN pip install ".[mcp,agent]"']
 
 
 async def test_an_answer_before_any_read_gets_one_nudge(tmp_path, fake_litellm, site):

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sys
 
 import httpx
 
@@ -165,3 +166,37 @@ def test_serve_answers_over_http(monkeypatch):
     ok, missing = asyncio.run(scenario())
     assert ok.status_code == 200 and ok.json()["data"]["markdown"]
     assert missing.status_code == 404
+
+
+def no_litellm(monkeypatch):
+    monkeypatch.setitem(sys.modules, "litellm", None)
+
+
+def test_agent_formats_without_litellm_answer_400_not_a_500_or_a_dead_job(monkeypatch):
+    # Measured on the shipped image, which installed ".[mcp]" only.
+    no_litellm(monkeypatch)
+    app = FirecrawlCompat(FakeWeb(), model="openai/gpt-4o-mini")
+    for path, body in (("/v1/scrape", {"url": "https://example.com/article", "formats": ["summary"]}),
+                       ("/v1/scrape", {"url": "https://example.com/article", "formats": ["json"]}),
+                       ("/v2/scrape", {"url": "https://example.com/article",
+                                       "formats": [{"type": "json", "prompt": "the price"}]}),
+                       ("/v1/extract", {"urls": ["https://example.com/article"], "schema": {"type": "object"}}),
+                       ("/v2/batch/scrape", {"urls": ["https://example.com/article"], "formats": ["summary"]})):
+        status, out = call(app, path, body)
+        assert status == 400, (path, out)
+        assert out["success"] is False and "frankensurf[agent]" in out["error"]
+    assert call(app, "/v1/scrape", {"url": "https://example.com/article"})[0] == 200
+
+
+def test_agent_formats_without_a_model_name_the_way_to_set_one(monkeypatch):
+    monkeypatch.delenv("FRANKENSURF_AGENT_MODEL", raising=False)
+    app = FirecrawlCompat(FakeWeb())
+    status, out = call(app, "/v1/scrape", {"url": "https://example.com/article", "formats": ["summary"]})
+    assert status == 400 and "FRANKENSURF_AGENT_MODEL" in out["error"]
+    assert call(app, "/v1/extract", {"urls": ["https://example.com/article"]})[0] == 400
+
+
+def test_litellm_present_is_no_block(monkeypatch):
+    monkeypatch.setitem(sys.modules, "litellm", sys.modules["json"])
+    from frankensurf import agent
+    assert agent.litellm_missing() is None
