@@ -55,7 +55,16 @@ export FIRECRAWL_CONCURRENCY=4     # GPT Researcher's default of 2 suits Firecra
 pip install firecrawl-py           # GPT Researcher installs it on first use otherwise
 ```
 
-Search stays with GPT Researcher's own retriever; only the page reads change.
+That changes the page reads. For search too, install the retriever plugin, which ships the way
+GPT Researcher asks search providers to ship:
+
+```bash
+pip install "gptr-frankensurf @ git+https://github.com/yail259/frankensurf#subdirectory=contrib/gptr-frankensurf"
+export RETRIEVER=frankensurf          # or frankensurf,duckduckgo
+```
+
+Its results are Frankensurf's checked search results, free sources only unless
+`FRANKENSURF_GPTR_PAID=1`.
 
 ### What it changed, on 150 sites
 
@@ -70,8 +79,12 @@ hold what the page should, at least three times.
 
 Through Frankensurf it read 76 sites the default scraper didn't, and none the other way. It is
 slower: a median of 9.0 s a page against 1.7 s, and 40 s for the slowest tenth, because a walled
-page climbs through several tools before it gets in or gives up. One run on 16 October 2026; the
-rows and scripts are in
+page climbs through several tools before it gets in or gives up.
+
+We also had it write full reports for 8 questions whose best sources sit behind walls. Through
+`frankensurf serve` it read 89 sources against 65, and a model grading the reports blind scored them
+7.0 against 5.9 out of 10, better on 6 questions and worse on 1. That's a consistent direction, but 8
+questions are too few to call it significant. One run on 16 October 2026; the rows and scripts are in
 [`benchmarks/2026-10-16-gpt-researcher`](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-16-gpt-researcher).
 
 ## deep-research

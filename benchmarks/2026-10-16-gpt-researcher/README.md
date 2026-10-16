@@ -22,6 +22,32 @@ at least three times). One run each, free tools only, no paid spend.
 - travelocity.com is dropped in every GPT Researcher arm by its own URL check (a DNS failure at the
   time), before any scraper runs.
 
+## Full research runs: 8 questions, 3 setups
+
+GPT Researcher 0.16.1 writing a full `research_report` for 8 questions whose best sources tend to sit
+behind walls (company funding, retail and car prices, rents, job listings, plus two easy controls),
+`scripts/questions.txt`. Every model is Gemini 2.5 Flash through OpenRouter; one run each.
+
+| Setup | Search | Pages | Sources read | Under 500 chars | Median source | Blind score |
+| --- | --- | --- | --- | --- | --- | --- |
+| A | DuckDuckGo | default scraper (`bs`) | 65 | 3 | 7,831 chars | 5.88 |
+| B | DuckDuckGo | `frankensurf serve` | 89 | 0 | 13,616 chars | 7.00 |
+| C | `gptr-frankensurf` plugin | `frankensurf serve` | 95 | 2 | 13,235 chars | 6.38 |
+
+- **Blind score:** per question, a different model (GPT-5.4 via OpenRouter, `scripts/judge.py`) scored
+  the three reports 1 to 10 under shuffled labels, for specific current facts tied to sources and for
+  saying so when something couldn't be found. It was told the date, so it wouldn't mark 2026 facts
+  wrong for being newer than its training. Verdicts in `e2e-judge.json`.
+- **B against A:** better on 6 questions, worse on 1 (Budapest rents), tied on 1. Two-sided sign test
+  p ≈ 0.13: the direction is consistent but 8 questions aren't enough to call it significant.
+- **C against B:** Frankensurf's own search didn't beat DuckDuckGo here (6.38 against 7.00), mostly the
+  Python 3.15 question (4 against 9). Not significant either way.
+- **Cost and time:** $1.17, $1.41 and $1.18 for the 8 runs; median 49 s, 84 s and 72 s a run.
+- Gemini 2.5 Flash sometimes looped while writing (reports of 130k to 316k characters, 3, 3 and 1 of
+  them by setup); that's the writer, not the reading, and the judge saw the first 12,000 characters.
+- `e2e-research-runs.jsonl` keeps each run's sources (URL and length), time, cost and report length;
+  the report text isn't kept.
+
 ## What this run changed in Frankensurf
 
 The first runs through `serve` honoured Firecrawl's `onlyMainContent` (the Python SDK sends `true` by

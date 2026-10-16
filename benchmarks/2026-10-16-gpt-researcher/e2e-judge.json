@@ -1,0 +1,74 @@
+[
+ {
+  "question": "What did Lidl Germany change about its coffee prices in 2026?",
+  "scores": {
+   "A": 6,
+   "C": 8,
+   "B": 7
+  },
+  "why": "Report Y is most useful because it gives the clearest sourced specifics on what Lidl changed in 2026\u2014including example old/new prices and the scope of Bellarom cuts\u2014while X and Z mostly state general reductions with fewer concrete Lidl-specific facts and more filler/context."
+ },
+ {
+  "question": "How much has Perplexity AI raised in total, and at what latest valuation?",
+  "scores": {
+   "B": 8,
+   "C": 7,
+   "A": 8
+  },
+  "why": "Reports X and Z are the most useful because they directly compare conflicting sourced totals and distinguish confirmed valuations from rumors, while Report Y is a bit less useful because it settles on broader ranges and relies more on weaker/less clearly authoritative sources."
+ },
+ {
+  "question": "What are current prices for the Toyota RAV4 hybrid in Australia?",
+  "scores": {
+   "B": 8,
+   "C": 7,
+   "A": 3
+  },
+  "why": "Report X gives a clear current variant-by-variant Australian price list with source-backed caveats about drive-away pricing, Report Y is also source-tied and current but less directly focused and complete on actual prices, and Report Z is incomplete/truncated and therefore much less useful despite citing some relevant current figures."
+ },
+ {
+  "question": "What revenue did NVIDIA report for its most recent quarter, and how did it compare with a year earlier?",
+  "scores": {
+   "B": 8,
+   "C": 7,
+   "A": 6
+  },
+  "why": "Report X most directly answers the question with the latest quarter\u2019s revenue ($96.2 billion) and the year-earlier comparison (up 106%, from $46.7 billion) tied to NVIDIA sources, while Report Y gives the key figures but is more padded with extra material and less explicit about the prior-year base, and Report Z gives the top-line answer but relies on vaguer source links and is incomplete/noisier."
+ },
+ {
+  "question": "What are the best-reviewed ultralight tents of 2026, and what do they cost?",
+  "scores": {
+   "C": 3,
+   "B": 4,
+   "A": 2
+  },
+  "why": "Report Y is slightly more useful because it gives more source-tied specifics and names than the others, but all three score poorly for this question because they mostly discuss reviews without clearly giving current prices/costs, often substitute vague estimated ranges or no prices at all, and do not directly answer 'what are the best-reviewed ultralight tents of 2026, and what do they cost?'."
+ },
+ {
+  "question": "What software engineering jobs is Canva currently advertising in Sydney?",
+  "scores": {
+   "A": 6,
+   "B": 7,
+   "C": 8
+  },
+  "why": "Report Z is most useful because it names the widest set of specific current Sydney roles and ties them to cited sources, while Y is also fairly specific but includes more aggregation/noise, and X gives fewer concrete role titles and spends more space on generic skills and benefits rather than directly answering which jobs are advertised."
+ },
+ {
+  "question": "What are typical rents for a two-bedroom apartment in central Budapest right now?",
+  "scores": {
+   "B": 5,
+   "A": 8,
+   "C": 7
+  },
+  "why": "Report Y is most useful because it gives district-specific current two-bedroom rent ranges in central Budapest tied to named sources, while Report Z gives sourced current averages/ranges but is less central-specific, and Report X is weakened by relying heavily on one source, lots of irrelevant filler, and less direct central-Budapest pricing."
+ },
+ {
+  "question": "What changed in the latest Python 3.15 release?",
+  "scores": {
+   "C": 4,
+   "A": 8,
+   "B": 9
+  },
+  "why": "Report Z is the most useful because it gives a current, source-tied summary of concrete 3.15 changes and notes specific reversions and compatibility details, Report Y is also strong but includes a few overconfident or questionable specifics, and Report X is less useful because it is partly vague, truncated, and leans on speculative or weak sourcing (including Reddit) for key claims."
+ }
+]
