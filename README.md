@@ -88,12 +88,23 @@ claude mcp add frankensurf -- frankensurf-mcp
 **From Python:**
 
 ```python
-from frankensurf import Runtime
+import frankensurf as fs
 
-async with Runtime("state") as web:
-    page = await web.read("https://example.com", policy_overrides={"prefer_markdown": True})
-    hits = await web.search("playwright python tutorial")
+page = fs.read("https://example.com/pricing")
+if page.ok:
+    print(page.title, page.text[:500])
+else:
+    print("couldn't read it:", page.failure)    # {"code": "CAPTCHA", "message": ...}
+
+pages = fs.batch(urls, links=True)               # paced per site, in order
+hits = fs.search("playwright python tutorial", recency="month")
+page = await fs.aread(url)                       # aread, abatch, asearch inside async code
 ```
+
+For a long-running service, keep one `Runtime` open: `async with Runtime() as web: await web.read(url)`.
+
+**From any tool that takes a Firecrawl URL** (GPT Researcher, deep-research and others):
+`frankensurf serve`, then point it at `http://127.0.0.1:3002` ([setup](https://frankensurf.dev/docs/firecrawl-compatible/)).
 
 **From the command line:**
 
@@ -122,6 +133,10 @@ the receipt. Your agent decides what the page means. If it isn't what it wanted,
 `retry_of=<trace_id>` and Frankensurf skips every tool it already tried.
 
 ## Benchmark
+
+**Cost per 1,000 correct pages:** Frankensurf free $0.24 on a rented VM (88% right), with paid
+fallbacks $0.43 (96%); Firecrawl alone $0.71 on its Scale plan, $0.98 on Standard (85%).
+[How that's worked out](https://frankensurf.dev/docs/more/cost/).
 
 `scripts/toolbench.py` runs each tool on its own, then Frankensurf, on the same pages with the same
 content checks. The newest set: 150 sites in 15 categories, picked before any was read, read once

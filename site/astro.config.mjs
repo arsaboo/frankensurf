@@ -109,6 +109,7 @@ export default defineConfig({
         ] },
         { label: "More", items: [
           { label: "Benchmarks", slug: "docs/more/benchmarks" },
+          { label: "What it costs", slug: "docs/more/cost" },
             { label: "Weekly benchmark", slug: "docs/more/weekly" },
             { label: "Shared site knowledge", slug: "docs/more/share" },
           { label: "Repairing failed extracts", slug: "docs/more/repair" },

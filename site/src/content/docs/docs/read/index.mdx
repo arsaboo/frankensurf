@@ -21,12 +21,27 @@ it.
 <TabItem label="Python">
 
 ```python
+import frankensurf as fs
+
+page = fs.read("https://developer.mozilla.org/en-US/docs/Web/HTTP")
+if page.ok:
+    print(page.title)
+    print(page.text[:500])
+else:
+    print("couldn't read it:", page.failure)   # the code and why, never a stand-in page
+```
+
+`fs.read` takes `paid=True`, `max_cost=`, `main=True`, `links=True`, `provider=` and
+`try_harder_than=`, and any other [setting](/docs/reference/settings/) as a keyword. `page` is the
+full result dict with shortcuts: `ok`, `failure`, `title`, `text`, `links`, `via`, `cost_usd`,
+`trace_id`. Inside async code use `await fs.aread(...)`; for many pages, `fs.batch(urls)`. A
+long-running service keeps one `Runtime` open instead:
+
+```python
 from frankensurf import Runtime
 
-async with Runtime("state") as web:
+async with Runtime() as web:
     page = await web.read("https://developer.mozilla.org/en-US/docs/Web/HTTP")
-    print(page["title"])
-    print(page["text"][:500])
 ```
 
 </TabItem>
