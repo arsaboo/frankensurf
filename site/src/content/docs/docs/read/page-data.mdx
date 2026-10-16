@@ -14,6 +14,9 @@ dates or listings without scraping the layout.
   as Next.js's `__NEXT_DATA__`.
 - `captured_json`: on rendered reads, the JSON responses the page fetched from
   its own API.
+- `links`, with `include_links`: every link on the page as `url` and anchor
+  text, in page order and once each (up to `max_links`, 500), so a results
+  page's item URLs come back with it. `--links` on the CLI, `links` in MCP.
 
 ## Usage
 

@@ -20,9 +20,9 @@ and a message. `receipt.attempts` shows what each provider hit on the way.
 | Code | What happened | Next |
 | --- | --- | --- |
 | `VISUAL_REQUIRED` | Plain HTTP got an app shell or an unrendered template. | Climbs to a browser automatically. |
-| `EMPTY_PAGE` | A browser rendered almost no text. | Climbs automatically. |
+| `EMPTY_PAGE` | A browser rendered almost no text, or any tool, named or not, got a page with nothing on it (no text, page data, links or forms). | Climbs automatically. |
 | `NOT_FOUND` | 404 or 410. Stops the climb unless an earlier attempt hit a wall. | A missing page does not prove a sale. |
-| `CONTENT_MISMATCH` | The page is not what was asked for. | Check the URL. |
+| `CONTENT_MISMATCH` | The page is not what was asked for, for example a search that was redirected to the site's home page. | Climbs automatically; check the URL. |
 | `SCHEMA_CHANGED` | The response did not have the expected shape. | Check the adapter, or the service changed. |
 | `TIMEOUT` | Too slow. | Raise `timeout_seconds`. |
 | `LIMIT_EXCEEDED` | Too big. | Raise `max_bytes`. |
@@ -34,7 +34,7 @@ and a message. `receipt.attempts` shows what each provider hit on the way.
 | Code | What happened |
 | --- | --- |
 | `PROVIDER_DOWN` | The provider or site had a server error. Free providers retry once. |
-| `PROVIDER_UNAVAILABLE` | Not installed or not configured (no key, no display). |
+| `PROVIDER_UNAVAILABLE` | Not installed or not configured (no key, no display), including a browser build Playwright expects but can't find: run `frankensurf install chromium`. |
 | `PLUGIN_DISABLED` | The provider is disabled in the catalogue. |
 | `POLICY_DENIED` | Your settings allow no provider for this. |
 | `BUDGET_EXHAUSTED` | The next call could pass `max_cost_usd`. |

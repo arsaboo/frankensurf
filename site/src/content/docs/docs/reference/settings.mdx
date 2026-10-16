@@ -38,6 +38,8 @@ These tables are generated from the code with `scripts/web_policy_doc.py`.
 | `include_images` | `False` | Download and check the page's images. |
 | `max_images` | `50` | Most images to download. |
 | `card_images` | `False` | Add `cards`: each result link with its title and own thumbnail URL. |
+| `include_links` | `False` | Add `links`: every link on the page (`url`, `text`), in page order, once each. |
+| `max_links` | `500` | Most links `include_links` returns. |
 | `scroll_screens` | `0` | Screens a browser scrolls before capture so lazy content loads (3 with `card_images`). |
 | `expect_terms` | `()` | Words search results should mention besides the URL query; results that mention none are flagged `off_query`. |
 | `main_content` | `False` | Also return `main_text`: the article without menus, footers and banners. |

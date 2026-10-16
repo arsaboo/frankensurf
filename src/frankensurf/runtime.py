@@ -155,6 +155,10 @@ class WebPolicy:
     # so lazy thumbnails load; card_images alone scrolls 3.
     card_images: bool = False
     scroll_screens: int = 0
+    # Every link on the page (result["links"]: url and anchor text, page order, no
+    # duplicates), up to max_links, so a results page's item URLs come back with it.
+    include_links: bool = False
+    max_links: int = 500
     # The calling agent's "try harder" lever (see Runtime.read retry_of): skip
     # these providers, and order the rest strongest-first.
     exclude_providers: tuple[str, ...] = ()
@@ -485,6 +489,8 @@ class WebPolicy:
                          for term in self.expect_terms),
                  "expect_terms must be up to 10 nonempty strings")
         _require(type(self.card_images) is bool, "card_images must be a boolean")
+        _require(type(self.include_links) is bool, "include_links must be a boolean")
+        _require(_is_int(self.max_links, 1), "max_links must be a positive integer")
         _require(_is_int(self.scroll_screens, 0) and self.scroll_screens <= 20,
                  "scroll_screens must be an integer from 0 to 20")
         _require(_is_int(self.completeness_borderline_items, 0),
@@ -1089,11 +1095,18 @@ _SIGN_IN_PHRASES = (
     "ingresa a tu cuenta", "inicia sesión para continuar", "faça login para continuar",
     "entre na sua conta", "connectez-vous pour continuer", "identifiez-vous",
     "bitte melden sie sich an", "melden sie sich an, um", "accedi per continuare",
-    "log in om verder te gaan")
+    "log in om verder te gaan",
+    "请登录", "请先登录", "登录后查看", "登录后才能", "請登入", "請先登入", "登入後查看",
+    "ログインしてください", "ログインが必要です", "로그인해 주세요", "로그인이 필요합니다",
+    "войдите в аккаунт", "войдите, чтобы продолжить")
 _SIGN_IN_TEXT_MAX = 2500
+# Markdown link and image targets: "](https://...)", dropped when measuring visible text.
+_MARKDOWN_TARGETS = re.compile(r"\]\([^)\s]*(?:\s+\"[^\"]*\")?\)")
 # Final URLs that are a site's own bot or block page.
 _BOT_PAGE_PATH = re.compile(r"/(captcha|bots?|blocked|block|challenge|access[-_]?denied|"
-                            r"are-?you-?(human|a-?robot)|robot-?check)(\.html?|/|$)", re.I)
+                            r"are-?you-?(human|a-?robot)|robot-?check|punish)(\.html?|/|$)", re.I)
+# A deep link that lands on the site's home page has lost what was asked for.
+_HOME_ALIASES = re.compile(r"^/?((index|default|home)(\.\w+)?)?/?$", re.I)
 
 
 def _challenge_text(title: str | None, text: str) -> bool:
@@ -1187,6 +1200,14 @@ async def _rendered_html(page):
     return content[:index] + block + content[index:] if index >= 0 else content + block
 
 
+# Playwright's own words when the browser build it expects isn't on disk (a fresh install, or
+# Playwright upgraded past the browsers that were downloaded for an older version).
+_BROWSER_MISSING = re.compile(r"Executable doesn't exist|playwright install|"
+                              r"Looks like Playwright .{0,40}was just installed or updated", re.I)
+_BROWSER_MISSING_MESSAGE = ("The browser this Playwright version needs isn't installed (or Playwright was "
+                            "upgraded since it was): run `frankensurf install chromium`")
+
+
 # A browser's own error page ("This site can't be reached") is not the site.
 _BROWSER_ERROR = re.compile(r"\b(ERR_[A-Z0-9_]{4,}|NS_ERROR_[A-Z_]+)\b|this site can.t be reached|"
                             r"unable to connect|hmm\. we.re having trouble finding that site", re.I)
@@ -1194,6 +1215,43 @@ _BROWSER_ERROR = re.compile(r"\b(ERR_[A-Z0-9_]{4,}|NS_ERROR_[A-Z_]+)\b|this site
 _MAINTENANCE = re.compile(r"(?i)\b(down for maintenance|under maintenance|scheduled maintenance|"
                           r"we.ll be back (soon|shortly)|we are currently (performing|undergoing) maintenance|"
                           r"currently working on [a-z0-9.-]+\.[a-z]{2,}|temporarily unavailable|site is temporarily down)\b")
+
+
+def _page_links(html: str, base: str, limit: int) -> list[dict]:
+    """Every http(s) link on the page, absolute, without fragments, in page order, once each,
+    with its anchor text (or the image's alt text), up to limit."""
+    found, seen = [], set()
+    for anchor in BeautifulSoup(html, "html.parser").select("a[href]"):
+        href = urljoin(base, anchor.get("href") or "").split("#", 1)[0]
+        if not href.startswith(("http://", "https://")) or href in seen:
+            continue
+        seen.add(href)
+        text = " ".join(anchor.get_text(" ", strip=True).split())
+        if not text:
+            image = anchor.find("img", alt=True)
+            text = " ".join((image["alt"] if image else "").split())
+        found.append({"url": href, "text": text[:200]})
+        if len(found) >= limit:
+            break
+    return found
+
+
+def _nothing_on_page(response, parsed) -> bool:
+    structured = parsed.get("structured")
+    has_data = (any(structured.values()) if isinstance(structured, dict) else bool(structured))
+    if (parsed.get("text") or "").strip() or has_data:
+        return False
+    content = response.get("content")
+    content = (content.decode("utf-8", "replace") if isinstance(content, bytes) else content or "").lower()
+    return "<a " not in content and "<form" not in content
+
+
+_WALL_MESSAGES = {
+    "CAPTCHA": "Provider returned a challenge page",
+    "AUTH_REQUIRED": "Provider returned a sign-in page instead of the page",
+    "CONTENT_MISMATCH": "Redirected away from the page to the site's home page",
+    "PROVIDER_DOWN": "Provider returned a browser error or maintenance page",
+}
 
 
 def _wall_after_parse(title, text, requested_url, final_url):
@@ -1213,12 +1271,29 @@ def _wall_after_parse(title, text, requested_url, final_url):
     if (moved and _SIGN_IN_PATH.search(final.hostname.split(".")[0] + "/" + final.path)
             and not _SIGN_IN_PATH.search(requested.path)):
         return "AUTH_REQUIRED"
-    body = (text or "").strip()
+    # Measured as visible text: a reader's markdown spells out every link's URL, which can
+    # make a header-only page look long.
+    body = _MARKDOWN_TARGETS.sub("]", (text or "")).strip()
     if len(body) < _SIGN_IN_TEXT_MAX and any(p in body.lower() for p in _SIGN_IN_PHRASES):
         return "AUTH_REQUIRED"
     if not _SIGN_IN_PATH.search(requested.path) and _login_wall(title, text, requested_url):
         return "AUTH_REQUIRED"
+    if moved and _redirected_home(requested, final):
+        return "CONTENT_MISMATCH"
     return None
+
+
+def _site_core(host):
+    labels = (host or "").lower().split(".")
+    return ".".join(labels[1:]) if len(labels) > 2 else ".".join(labels)
+
+
+def _redirected_home(requested, final) -> bool:
+    """A deep link that landed on the same site's home page (a shortener landing on a
+    home page is a different site, so it isn't caught)."""
+    return (bool(_HOME_ALIASES.match(final.path or "/"))
+            and not _HOME_ALIASES.match(requested.path or "/")
+            and _site_core(requested.hostname) == _site_core(final.hostname))
 
 
 _SCROLL_SCRIPT = """async (screens) => {
@@ -1620,9 +1695,15 @@ def _reject_unusable_page(candidate, candidate_record, policy, resolved, adapter
         wall = _wall_after_parse(parsed.get("title"), parsed.get("text"),
                                  url, response.get("url"))
         if wall:
-            raise WebFailure(wall, "Provider returned a challenge or sign-in page",
+            raise WebFailure(wall, _WALL_MESSAGES.get(wall, "Provider returned a challenge or sign-in page"),
                              response.get("http_status"),
                              response_url=response.get("url"))
+        # A page with nothing on it is never the page, whichever tool was named (a 202 with an
+        # empty body, a redirect to an empty challenge shell, a script-only redirect). Text,
+        # the page's own data, a link or a form all count as something.
+        if not resolved and adapter in (None, "html") and _nothing_on_page(response, parsed):
+            raise WebFailure("EMPTY_PAGE", "The page came back with nothing on it",
+                             response.get("http_status"), response_url=response.get("url"))
 
 
 def _wants_second_opinion(result, policy, provider):
@@ -2388,6 +2469,8 @@ class Runtime:
             code = _navigation_failure(str(exc))
             if code:
                 raise WebFailure(code, "Target refused the page", response_url=url) from exc
+            if _BROWSER_MISSING.search(str(exc)):
+                raise WebFailure("PROVIDER_UNAVAILABLE", _BROWSER_MISSING_MESSAGE) from exc
             raise WebFailure("PROVIDER_DOWN", "Browser connection or execution failed") from exc
         except (httpx.HTTPError, KeyError, ValueError) as exc:
             raise WebFailure("PROVIDER_DOWN", "Browser connection or execution failed") from exc
@@ -5885,6 +5968,14 @@ class Runtime:
                                          for card in found]
                                 found = [card for card in found if card["url"]]
                             result["cards"] = found
+                        if policy.include_links and "html" in (response.get("content_type") or ""):
+                            links = _page_links(response.get("content") or "", response.get("url") or url,
+                                                policy.max_links)
+                            if resolved:
+                                links = [{**link, "url": _output_url(link["url"], named_identity=True)}
+                                         for link in links]
+                                links = [link for link in links if link["url"]]
+                            result["links"] = links
                         if policy.include_images:
                             if resolved:
                                 result["images"] = await self._download_identity_images(
@@ -5979,6 +6070,7 @@ class Runtime:
             if exc.code.startswith("IDENTITY_"):
                 for field,value in {"title":None,"text":"","content":"","structured":None,"images":[],"image_urls":[]}.items(): result[field]=value
                 result.pop("cards", None)
+                result.pop("links", None)
                 receipt["evidence"] = []
             if getattr(exc, "response_url", None) and not exc.code.startswith("IDENTITY_"):
                 result["url"] = _output_url(exc.response_url, named_identity=bool(policy.identity))
