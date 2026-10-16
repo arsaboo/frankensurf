@@ -1639,7 +1639,9 @@ class ProviderRegistry:
             allowed_result_fields = {
                 "url", "content", "content_type", "raw", "http_status",
                 "headers", "screenshot", "navigation", "navigation_data",
-                "cost_usd", "acquisition_evidence", "provider_attempts"}
+                "cost_usd", "acquisition_evidence", "provider_attempts", "actions"}
+            if "actions" in result and type(result["actions"]) is not dict:
+                raise WebFailure("PROVIDER_DOWN", "Invalid provider actions envelope")
             pdf = result.get("pdf")
             if pdf is not None:
                 if (type(pdf) is not dict

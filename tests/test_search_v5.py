@@ -47,7 +47,10 @@ def repo_row(owner, name, stars=5000, snippet="", language="JavaScript"):
 
 async def test_a_paid_set_that_passes_is_the_answer_in_its_own_order_even_if_free_results_score_higher(
         monkeypatch, tmp_path, low_paid_prior):
-    when = (datetime.now(timezone.utc) - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # The results are dated from the real clock (dated() does the same), so the old-merge comparison
+    # below checks them against that clock too, not the fixed NOW: a fixed date drifts into the past.
+    now = datetime.now(timezone.utc)
+    when = (now - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
     # Its first result matches the query only through the snippet (lower relevance), the others by title.
     paid = [{"url": "https://e9.test/rust/runtime-notes", "title": "Tokio runtime notes",
              "snippet": "rust async", "published": when}] + dated(3, "e", days=2)
@@ -57,10 +60,10 @@ async def test_a_paid_set_that_passes_is_the_answer_in_its_own_order_even_if_fre
     anchor = anchor_of(result)
     assert anchor == {"source": "exa", "kept": 4, "replaced": [], "filled": 0}
     # The same results, merged the old way, put the free ones first.
-    free_group = annotate(dated(4, "f"), check_results("rust async", dated(4, "f"), recency="week", now=NOW,
+    free_group = annotate(dated(4, "f"), check_results("rust async", dated(4, "f"), recency="week", now=now,
                                                       priors={"source": "free", "paid_rate": None}))
     paid_rows = [{**item, "published": item["published"]} for item in paid]
-    paid_group = annotate(paid_rows, check_results("rust async", paid_rows, recency="week", now=NOW,
+    paid_group = annotate(paid_rows, check_results("rust async", paid_rows, recency="week", now=now,
                                                   priors={"source": "exa", "paid_rate": 0.1}))
     assert merge_results([("exa", paid_group), ("free", free_group)], windowed=True)[0]["url"].startswith("https://f")
 

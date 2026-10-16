@@ -1,4 +1,6 @@
 """map and crawl over a synthetic site served through a mock transport."""
+import json
+
 import httpx
 
 from frankensurf.crawl import crawl, site_map
@@ -115,6 +117,84 @@ async def test_serve_batch_scrape_job(tmp_path):
     assert job["status"] == "completed" and job["completed"] == 2 and len(job["data"]) == 1
     assert job["data"][0]["markdown"].startswith("# Lenses")
     assert job["frankensurf"]["failed"][0]["url"] == "https://shop.test/missing"
+
+
+def hooked_transport(hooks):
+    base = transport([])
+
+    def handle(request):
+        if request.url.host == "hooks.test":
+            hooks.append(json.loads(request.content))
+            return httpx.Response(200, text="ok")
+        return base.handle_request(request)
+    return httpx.MockTransport(handle)
+
+
+async def test_crawl_webhooks_and_jobs_that_outlive_the_server(tmp_path):
+    import asyncio
+    from frankensurf.firecrawl_compat import FirecrawlCompat
+    hooks = []
+    async with Runtime(tmp_path, transport=hooked_transport(hooks), domain_delay=0) as web:
+        app = FirecrawlCompat(web, POLICY)
+        body = json.dumps({"url": "https://shop.test/lenses", "limit": 5,
+                           "webhook": {"url": "https://hooks.test/in", "metadata": {"run": 7},
+                                       "events": ["started", "page", "completed"]}})
+        _, started = await app.handle("POST", "/v1/crawl", body.encode())
+        for _ in range(100):
+            _, job = await app.handle("GET", "/v1/crawl/" + started["id"], b"")
+            if job["status"] != "scraping":
+                break
+            await asyncio.sleep(0.05)
+        await asyncio.sleep(0.2)
+        # A fresh server (nothing in memory) still answers from disk.
+        _, again = await FirecrawlCompat(web, POLICY).handle("GET", "/v1/crawl/" + started["id"], b"")
+        jobs = web.state_dir / "serve-jobs"
+        (jobs / ("crawl-" + "0" * 8 + "-0000-0000-0000-" + "0" * 12 + ".json")).write_text(
+            json.dumps({"status": "scraping", "total": 0, "completed": 1, "data": [], "failed": []}))
+        _, stuck = await FirecrawlCompat(web, POLICY).handle(
+            "GET", "/v1/crawl/" + "0" * 8 + "-0000-0000-0000-" + "0" * 12, b"")
+    assert job["status"] == "completed" and again["status"] == "completed" and len(again["data"]) == 2
+    assert [hook["type"] for hook in hooks] == ["crawl.started", "crawl.page", "crawl.page", "crawl.completed"]
+    assert hooks[0]["metadata"] == {"run": 7} and hooks[-1]["id"] == started["id"]
+    assert stuck["status"] == "failed" and "stopped before" in stuck["error"]
+
+
+async def test_change_tracking_new_same_changed(tmp_path, monkeypatch):
+    from frankensurf.firecrawl_compat import FirecrawlCompat
+    body = b'{"url": "https://shop.test/about", "formats": ["markdown", {"type": "changeTracking", "modes": ["git-diff"]}]}'
+    async with Runtime(tmp_path, transport=transport([]), domain_delay=0) as web:
+        app = FirecrawlCompat(web, {**POLICY, "freshness": "now"})
+        _, first = await app.handle("POST", "/v2/scrape", body)
+        _, second = await app.handle("POST", "/v2/scrape", body)
+        monkeypatch.setitem(SITE, "/about", ("text/html", "<html><title>About</title><body>" + BODY +
+                                             "<p>We moved.</p></body></html>"))
+        _, third = await app.handle("POST", "/v2/scrape", body)
+    assert first["data"]["changeTracking"]["changeStatus"] == "new"
+    assert second["data"]["changeTracking"]["changeStatus"] == "same"
+    assert second["data"]["changeTracking"]["previousScrapeAt"]
+    assert third["data"]["changeTracking"]["changeStatus"] == "changed"
+    assert "+We moved." in third["data"]["changeTracking"]["diff"]["text"]
+
+
+def test_scrape_options_become_frankensurf_settings():
+    from frankensurf.firecrawl_compat import STEALTH_CANDIDATES, FirecrawlCompat, _screenshot_spec
+    app = FirecrawlCompat(type("Web", (), {})(), {})
+    settings = app._overrides({"location": {"country": "DE", "languages": ["de-DE", "en"]},
+                               "actions": [{"type": "click", "selector": "#more"}],
+                               "formats": [{"type": "screenshot", "fullPage": True}]})
+    assert settings["accept_language"] == "de-DE,en;q=0.8"
+    assert settings["provider"] == "local" and settings["screenshot_full_page"] is True
+    assert settings["browser_actions"] == ({"type": "click", "selector": "#more"},)
+    assert app._overrides({"proxy": "stealth"})["provider_candidates"] == STEALTH_CANDIDATES
+    assert _screenshot_spec(["screenshot@fullPage"]) == {"fullPage": True} and _screenshot_spec(["markdown"]) is None
+
+
+async def test_bad_actions_are_refused_before_reading(tmp_path):
+    from frankensurf.firecrawl_compat import FirecrawlCompat
+    async with Runtime(tmp_path, transport=transport([]), domain_delay=0) as web:
+        status, out = await FirecrawlCompat(web, POLICY).handle(
+            "POST", "/v1/scrape", b'{"url": "https://shop.test/", "actions": [{"type": "launch_missiles"}]}')
+    assert status == 400 and out["error"].startswith("actions:")
 
 
 async def test_crawl_stays_under_the_start_path_unless_entire_domain(tmp_path):

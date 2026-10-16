@@ -50,6 +50,20 @@ isn't checked. Free tools only unless you start it with `--paid`, and `--max-cos
 - **Batch scrape** (`/v1/batch/scrape`, `/v2/batch/scrape`, then `GET .../batch/scrape/{id}`): each URL
   scraped with the same options, paced per site; failures under `frankensurf.failed`.
 
+### Scrape options
+
+| Firecrawl option | In Frankensurf |
+| --- | --- |
+| `actions` (`wait`, `click`, `write`, `press`, `scroll`, `screenshot`, `scrape`, `executeJavascript`) | Run in order in Frankensurf's own local browser before the page is captured; results under `actions` (`screenshots`, `scrapes`, `javascriptReturns`). Public reads only: never with a stored profile or identity, where a click could act as you. A failed action stops the rest and is named in `metadata.frankensurf.action_failed`. |
+| `screenshot`, `screenshot@fullPage`, `{"type": "screenshot", "fullPage": true}` | A browser read; the image comes back as a `data:image/png;base64,...` URL rather than a hosted link. |
+| `changeTracking` (`modes: ["git-diff"]`, `tag`) | Compared with the last scrape of the same URL and tag on this machine: `new`, `same` or `changed`, with `previousScrapeAt` and a unified diff. Kept in the state directory, so it survives restarts. |
+| `location.languages` | Sent as Accept-Language and used as the browser's locale. `location.country` isn't applied: Frankensurf has no proxies of its own in other countries ([egress](/docs/blocked/egress/) can add some). |
+| `proxy: "stealth"` | Starts from the stealth browsers (Scrapling, Camoufox, Patchright, nodriver) instead of plain HTTP. `basic` and `auto` are the usual cheapest-first route. |
+| `webhook` (crawl, batch scrape) | `started`, `page`, `completed` and `failed` events, POSTed as `{success, type, id, data, metadata}`, filtered by `events`, with your `headers`. |
+
+Crawl, batch scrape and extract jobs are kept in the state directory: their results outlive the
+server, and a job that was running when it stopped comes back as `failed`, saying so.
+
 ## GPT Researcher
 
 [GPT Researcher](https://github.com/assafelovic/gpt-researcher) can scrape through Firecrawl. Point

@@ -162,6 +162,13 @@ class WebPolicy:
     # result["markdown"]: the page as markdown (headings, lists, links, tables), converted
     # from its HTML (to_markdown.py), or the site's own markdown when it served some.
     markdown_output: bool = False
+    # Accept-Language for plain HTTP reads and the browser's locale (e.g. "de-DE,de;q=0.9").
+    accept_language: str | None = None
+    # Caller-named browser actions before capture (browser_actions.py); local browser, public
+    # reads only. result["actions"] reports them.
+    browser_actions: tuple = ()
+    # The browser screenshot of the whole page instead of the first screen.
+    screenshot_full_page: bool = False
     # The calling agent's "try harder" lever (see Runtime.read retry_of): skip
     # these providers, and order the rest strongest-first.
     exclude_providers: tuple[str, ...] = ()
@@ -494,6 +501,16 @@ class WebPolicy:
         _require(type(self.card_images) is bool, "card_images must be a boolean")
         _require(type(self.include_links) is bool, "include_links must be a boolean")
         _require(type(self.markdown_output) is bool, "markdown_output must be a boolean")
+        _require(self.accept_language is None or (isinstance(self.accept_language, str)
+                 and re.fullmatch(r"[A-Za-z0-9*,;=. -]{1,100}", self.accept_language) is not None),
+                 "accept_language must look like an Accept-Language header (en-AU,en;q=0.9)")
+        _require(type(self.screenshot_full_page) is bool, "screenshot_full_page must be a boolean")
+        if self.browser_actions:
+            from .browser_actions import validate as _validate_actions
+            try:
+                object.__setattr__(self, "browser_actions", _validate_actions(self.browser_actions))
+            except ValueError as error:
+                _require(False, "browser_actions: " + str(error))
         _require(_is_int(self.max_links, 1), "max_links must be a positive integer")
         _require(_is_int(self.scroll_screens, 0) and self.scroll_screens <= 20,
                  "scroll_screens must be an integer from 0 to 20")
@@ -2287,6 +2304,8 @@ class Runtime:
         try:
             headers = ({"Accept": "text/markdown, text/html;q=0.9, */*;q=0.8"}
                        if policy.prefer_markdown else None)
+            if policy.accept_language:
+                headers = {**(headers or {}), "Accept-Language": policy.accept_language}
             from .bot_auth import SIGNER, current_signer
             from .profiles import ACTIVE
             signing = SIGNER.set(current_signer() if policy.sign_requests else None)
@@ -2435,7 +2454,12 @@ class Runtime:
                     await self._steel_page.wait_for_timeout(300)
                 page = self._steel_page
             else:
-                context = await browser.new_context()
+                locale = {}
+                if policy.accept_language:
+                    first = policy.accept_language.split(",")[0].split(";")[0].strip()
+                    locale = {"extra_http_headers": {"Accept-Language": policy.accept_language},
+                              **({"locale": first} if first and first != "*" else {})}
+                context = await browser.new_context(**locale)
                 page = await context.new_page()
             if policy.capture_json_responses:
                 capture = _JsonCapture(policy.capture_json_max_items, policy.capture_json_max_bytes)
@@ -2472,6 +2496,14 @@ class Runtime:
             if policy.interactions:
                 from .interactions import run as interact
                 performed = await interact(page, policy.interactions)
+            actions_done = None
+            if policy.browser_actions:
+                if profile is not None or policy.identity:
+                    # A named click while signed in could act as the owner: never.
+                    raise WebFailure("POLICY_DENIED", "Browser actions run only on public reads, not with a "
+                                     "profile or identity")
+                from .browser_actions import run as run_actions
+                actions_done = await run_actions(page, policy.browser_actions, self._save_bytes)
             content_readiness = await self._wait_content_readiness(
                 page, policy, deadline, PWTimeout)
             content,raw,content_type = await self._browser_representation(page,response,policy)
@@ -2483,13 +2515,14 @@ class Runtime:
                     pass
             if profile is not None and profile.merge(await context.storage_state()):
                 profile.changed = True
-            screenshot = self._save_bytes(await page.screenshot(full_page=False), ".png")
+            screenshot = self._save_bytes(await page.screenshot(full_page=policy.screenshot_full_page), ".png")
             captured = None
             if capture is not None:
                 captured = await capture.settle(min(5.0, deadline - time.monotonic()))
             return {"url": page.url, "content": content, "raw": raw,
                     "content_type": content_type, "http_status": status,
                     "headers": {}, "screenshot": screenshot,
+                    **({"actions": actions_done} if actions_done is not None else {}),
                     **({"captured_json": captured} if captured is not None else {}),
                     **({"interactions": performed} if performed is not None else {}),
                     **({"content_readiness": content_readiness}
@@ -5344,6 +5377,11 @@ class Runtime:
         if response.get("screenshot"):
             pending_receipt_evidence.append(
                 response["screenshot"])
+            if not (policy.identity or policy.profile):
+                # The page's screenshot (a local evidence file) for callers that asked for one.
+                result["screenshot"] = response["screenshot"]
+        if isinstance(response.get("actions"), dict):
+            result["actions"] = response["actions"]
         pending_receipt_evidence.extend(
             response.get("acquisition_evidence", []))
         result["field_status"]["content"] = "observed"
