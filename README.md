@@ -109,6 +109,9 @@ For a long-running service, keep one `Runtime` open: `async with Runtime() as we
 answers with sources, and says what it couldn't read; `fs.extract(urls, schema=...)` and `fs.summarize(url)`.
 [Agent mode](https://frankensurf.dev/docs/agent-mode/).
 
+**In Docker**, one install for your whole network: `docker run -p 3002:3002 -e FRANKENSURF_API_KEY=... ghcr.io/yail259/frankensurf`
+([Docker](https://frankensurf.dev/docs/docker/)).
+
 **From any tool that takes a Firecrawl URL** (GPT Researcher, deep-research and others):
 `frankensurf serve`, then point it at `http://127.0.0.1:3002` ([setup](https://frankensurf.dev/docs/firecrawl-compatible/)).
 

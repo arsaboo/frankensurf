@@ -235,7 +235,9 @@ async def _packet(url, policy, provider):
     if proxy:
         request["proxy"] = proxy
     # Do not inherit provider keys, proxies, account/profile overrides or Python hooks.
-    permitted = {"HOME", "PATH", "LANG", "LC_ALL", "DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR", "XAUTHORITY", "TMPDIR"}
+    # PLAYWRIGHT_BROWSERS_PATH is where the browsers are (Docker, shared installs): a path, not a secret.
+    permitted = {"HOME", "PATH", "LANG", "LC_ALL", "DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR", "XAUTHORITY", "TMPDIR",
+                 "PLAYWRIGHT_BROWSERS_PATH"}
     env = {key: value for key, value in os.environ.items() if key in permitted}
     env.update(PYTHONUNBUFFERED="1", PYTHONNOUSERSITE="1")
     try:

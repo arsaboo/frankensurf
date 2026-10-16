@@ -43,6 +43,7 @@ export default defineConfig({
         { label: "Get started", items: [
           { label: "Introduction", slug: "docs" },
           { label: "Install", slug: "docs/install" },
+          { label: "Docker", slug: "docs/docker" },
           { label: "Add to your agent", slug: "docs/agents" },
           { label: "Agent frameworks", slug: "docs/frameworks" },
           { label: "Firecrawl-compatible API", slug: "docs/firecrawl-compatible" },

@@ -395,11 +395,19 @@ async def run(args):
         from .firecrawl_compat import serve
         policy = _policy_kwargs(args)
         WebPolicy(**policy)  # fail early on a bad setting
+        import os
+        api_key = args.api_key or os.getenv("FRANKENSURF_API_KEY") or None
         say = lambda server: print(
             f"Firecrawl-compatible endpoint on http://{args.host}:{args.port} "
-            f"(POST /v1/scrape, /v1/search, /v2/scrape, /v2/search). Point FIRECRAWL_BASE_URL at it.",
+            f"(scrape, search, map, crawl, batch scrape, extract). Point FIRECRAWL_BASE_URL at it"
+            + ("; requests need the API key as a Bearer token." if api_key else "."),
             file=sys.stderr, flush=True)
-        await serve(args.state, args.host, args.port, policy, ready=say, model=args.model)
+        try:
+            await serve(args.state, args.host, args.port, policy, ready=say, model=args.model,
+                        api_key=api_key, allow_unauthenticated=args.allow_unauthenticated)
+        except ValueError as error:
+            print(f"frankensurf serve: {error}", file=sys.stderr)
+            raise SystemExit(2) from None
         return
     elif args.operation == "egress":
         from .egress import check
@@ -568,6 +576,9 @@ def build_parser():
         help="serve: port for the Firecrawl-compatible endpoint (default 3002, Firecrawl's own)")
     parser.add_argument("--host", default="127.0.0.1",
         help="serve: address to listen on (default 127.0.0.1, this machine only)")
+    parser.add_argument("--api-key", help="serve: require this key as a Bearer token (default $FRANKENSURF_API_KEY)")
+    parser.add_argument("--allow-unauthenticated", action="store_true",
+        help="serve: listen beyond this machine without an API key (a network you trust)")
     parser.add_argument("--out", metavar="FILE", help="share export: write the recipes to this file")
     parser.add_argument("--with-deps", action="store_true",
         help="install: also install the browsers' system libraries (Linux; asks for sudo)")

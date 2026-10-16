@@ -1,0 +1,80 @@
+---
+title: Docker
+description: One Frankensurf for every machine on your network, as a Firecrawl-compatible API or an MCP server.
+---
+
+import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Run Frankensurf once, in a container, and point every machine at it. The image has Chromium and
+the free stealth browsers installed, and keeps its route memory and jobs on a volume.
+
+```bash
+docker run -d --name frankensurf -p 3002:3002 --shm-size=1g \
+  -e FRANKENSURF_API_KEY=change-me -v frankensurf:/data \
+  ghcr.io/yail259/frankensurf
+```
+
+That's the [Firecrawl-compatible API](/docs/firecrawl-compatible/) on port 3002. Anything that
+takes a Firecrawl URL uses it with the key as its API key:
+
+```python
+from firecrawl import Firecrawl
+app = Firecrawl(api_key="change-me", api_url="http://frankensurf.local:3002")
+page = app.scrape("https://example.com/pricing", formats=["markdown"])
+```
+
+## As an MCP server
+
+```bash
+docker run -d --name frankensurf-mcp -p 8000:8000 --shm-size=1g \
+  -e FRANKENSURF_API_KEY=change-me -v frankensurf:/data \
+  ghcr.io/yail259/frankensurf frankensurf-mcp --http --host 0.0.0.0
+```
+
+Then add it to a client as a streamable HTTP server at `http://frankensurf.local:8000/mcp` with the
+header `Authorization: Bearer change-me`. In Claude Code:
+
+```bash
+claude mcp add --transport http frankensurf http://frankensurf.local:8000/mcp \
+  --header "Authorization: Bearer change-me"
+```
+
+## Compose
+
+```yaml
+services:
+  frankensurf:
+    image: ghcr.io/yail259/frankensurf
+    restart: unless-stopped
+    shm_size: 1gb
+    ports: ["3002:3002"]
+    environment:
+      FRANKENSURF_API_KEY: change-me
+      # Paid tools stay off unless you add their keys and start with --paid:
+      # FRANKENSURF_FIRECRAWL_API_KEY: ...
+    volumes: ["frankensurf:/data"]
+volumes:
+  frankensurf:
+```
+
+<Aside type="caution" title="Set an API key">
+  On a network address, `frankensurf serve` and `frankensurf-mcp --http` refuse to start without
+  `FRANKENSURF_API_KEY`: anyone who can reach the port could read pages through it, and spend on
+  your paid tools if they're on. `--allow-unauthenticated` runs it open, for a network you trust.
+</Aside>
+
+## Notes
+
+- **Images:** `ghcr.io/yail259/frankensurf:<version>` and `:latest`, for `linux/amd64` and
+  `linux/arm64`. Where a stealth browser isn't built for a platform, that image still reads with
+  plain HTTP, Jina Reader and Chromium.
+- **Size:** about 6 GB unpacked. It carries four browsers (Chromium twice, for Frankensurf and the
+  stealth tools' own Playwright, plus Camoufox's Firefox), which is what gets it past walls.
+- **`--shm-size=1g`:** browsers need shared memory; Docker's default 64 MB makes them crash.
+- **Chrome's sandbox:** Docker blocks the user namespaces it needs, so inside the container the
+  stealth Chromium runs without it, the same as Playwright's own Chromium does by default; the
+  container is the isolation. Outside a container it stays on wherever the kernel allows it.
+- **Memory:** about 1 GB for each browser read running at once.
+- **Agent mode:** add `-e FRANKENSURF_AGENT_MODEL=...` and the provider's key to get the summary,
+  json and extract endpoints ([Agent mode](/docs/agent-mode/)).
+- The container runs as an unprivileged user, with `tini` reaping browser processes.

@@ -467,5 +467,58 @@ async def profiles() -> list[dict]:
     return ProfileStore().list()
 
 
-def main():
-    server.run()
+def _with_key(app, api_key):
+    """ASGI wrapper: every request needs Authorization: Bearer <api_key> (when one is set)."""
+    from .firecrawl_compat import authorized
+
+    async def guarded(scope, receive, send):
+        if scope["type"] == "http":
+            headers = {name.decode("latin-1").lower(): value.decode("latin-1")
+                       for name, value in scope.get("headers") or []}
+            if not authorized(headers, api_key):
+                await send({"type": "http.response.start", "status": 401,
+                            "headers": [(b"content-type", b"application/json")]})
+                await send({"type": "http.response.body",
+                            "body": b'{"error": "Unauthorized: send Authorization: Bearer <FRANKENSURF_API_KEY>"}'})
+                return
+        await app(scope, receive, send)
+    return guarded
+
+
+def main(argv=None):
+    """frankensurf-mcp: MCP over stdio (what local clients start). --http serves it over the network
+    (streamable HTTP at /mcp), for one Frankensurf shared by many machines, e.g. in Docker."""
+    import argparse
+    import os
+    import sys
+    parser = argparse.ArgumentParser(prog="frankensurf-mcp", description=main.__doc__)
+    parser.add_argument("--http", action="store_true", help="serve MCP over HTTP instead of stdio")
+    parser.add_argument("--host", default="127.0.0.1", help="--http: address (default 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=8000, help="--http: port (default 8000)")
+    parser.add_argument("--api-key", help="--http: require this Bearer token (default $FRANKENSURF_API_KEY)")
+    parser.add_argument("--allow-unauthenticated", action="store_true",
+                        help="--http: listen beyond this machine without an API key")
+    args = parser.parse_args(argv)
+    if not args.http:
+        server.run()
+        return
+    from .firecrawl_compat import network_guard
+    api_key = args.api_key or os.getenv("FRANKENSURF_API_KEY") or None
+    try:
+        network_guard(args.host, api_key, args.allow_unauthenticated)
+    except ValueError as error:
+        print(f"frankensurf-mcp: {error}", file=sys.stderr)
+        raise SystemExit(2) from None
+    import logging
+    import uvicorn
+    from mcp.server.transport_security import TransportSecuritySettings
+    # Every URL read (query strings included) would otherwise land in the server's logs.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    server.settings.host, server.settings.port = args.host, args.port
+    # Clients reach a networked server by its LAN or container name, not localhost; the API key is
+    # the guard there, so DNS-rebinding host checks would only block legitimate clients.
+    server.settings.transport_security = TransportSecuritySettings(enable_dns_rebinding_protection=False)
+    print(f"Frankensurf MCP on http://{args.host}:{args.port}/mcp"
+          + (" (Bearer API key required)" if api_key else ""), file=sys.stderr, flush=True)
+    uvicorn.run(_with_key(server.streamable_http_app(), api_key), host=args.host, port=args.port,
+                log_level="warning")

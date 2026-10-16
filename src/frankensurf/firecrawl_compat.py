@@ -30,7 +30,7 @@ DEFAULT_PORT = 3002
 MAX_BODY = 1_000_000
 # Answer this long before the client's own timeout (Firecrawl's SDKs send it as "timeout", in ms).
 TIMEOUT_MARGIN_SECONDS = 3.0
-REASONS = {200: "OK", 400: "Bad Request", 404: "Not Found", 405: "Method Not Allowed",
+REASONS = {200: "OK", 400: "Bad Request", 401: "Unauthorized", 404: "Not Found", 405: "Method Not Allowed",
            408: "Request Timeout", 413: "Payload Too Large", 500: "Internal Server Error"}
 
 
@@ -45,10 +45,14 @@ def _tried(receipt: dict) -> list[str]:
 
 def couldnt_read(receipt: dict) -> str:
     """The plain sentence a calling agent gets instead of a page."""
+    from types import SimpleNamespace
+    from .runtime import _readable_failure
     failure = receipt.get("failure") or {}
     reason = failure.get("code") or "UNKNOWN"
-    if failure.get("message"):
-        reason += f": {failure['message']}"
+    message = _readable_failure(SimpleNamespace(code=reason, message=failure.get("message") or "",
+                                                http_status=receipt.get("http_status")))
+    if message:
+        reason += f": {message}"
     tried = _tried(receipt)
     return (f"Could not read this page ({reason})."
             + (f" Tried: {', '.join(tried)}." if tried else "")
@@ -505,8 +509,32 @@ async def _respond(writer, status: int, payload: dict) -> None:
     await writer.drain()
 
 
+def network_guard(host: str, api_key: str | None, allow_unauthenticated: bool = False) -> None:
+    """Refuse to listen beyond this machine without an API key: anyone who can reach the port could
+    read pages through it (and spend on paid tools, if they're on)."""
+    import ipaddress
+    try:
+        loopback = host == "localhost" or ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        loopback = False
+    if not loopback and not api_key and not allow_unauthenticated:
+        raise ValueError(f"Listening on {host} reaches other machines: set an API key (--api-key or "
+                         "FRANKENSURF_API_KEY), or pass --allow-unauthenticated to run open on a network you trust")
+
+
+def authorized(headers: dict, api_key: str | None) -> bool:
+    """Bearer-token check, constant time. No key configured means open (this machine only)."""
+    import hmac
+    if not api_key:
+        return True
+    given = (headers.get("authorization") or "").removeprefix("Bearer ").strip()
+    return hmac.compare_digest(given.encode(), api_key.encode())
+
+
 async def serve(state_dir, host: str = "127.0.0.1", port: int = DEFAULT_PORT,
-                policy: dict | None = None, ready=None, model: str | None = None) -> None:
+                policy: dict | None = None, ready=None, model: str | None = None,
+                api_key: str | None = None, allow_unauthenticated: bool = False) -> None:
+    network_guard(host, api_key, allow_unauthenticated)
     async with Runtime(state_dir=state_dir) as web:
         app = FirecrawlCompat(web, policy, base_url=f"http://{host}:{port}", model=model)
 
@@ -522,6 +550,10 @@ async def serve(state_dir, host: str = "127.0.0.1", port: int = DEFAULT_PORT,
                     await _respond(writer, 413, {"success": False, "error": "body too large"})
                     return
                 body = await reader.readexactly(length) if length else b""
+                if path.split("?", 1)[0].rstrip("/") not in ("", "/health") and not authorized(headers, api_key):
+                    await _respond(writer, 401, {"success": False, "error": "Unauthorized: send Authorization: "
+                                                 "Bearer <your FRANKENSURF_API_KEY> (the SDKs' api key)"})
+                    return
                 status, payload = await app.handle(method.upper(), path, body)
                 await _respond(writer, status, payload)
             except (asyncio.IncompleteReadError, asyncio.LimitOverrunError, ConnectionError):

@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import os
 import re
 from pathlib import Path
 import sys
@@ -46,7 +47,24 @@ def _sandbox_possible():
                     return False
         except OSError:
             continue
-    return True
+    return _user_namespace_works()
+
+
+def _user_namespace_works():
+    """Try what Chrome's sandbox needs: a child process entering a new user namespace. Containers
+    (Docker's default seccomp profile) forbid it whatever the host kernel allows; there the
+    container is the isolation, and Chrome runs as the bundled local Chromium does."""
+    if not hasattr(os, "unshare") or not hasattr(os, "fork"):
+        return True  # can't probe (Python < 3.12 or not Linux): trust the kernel switches
+    pid = os.fork()
+    if pid == 0:
+        try:
+            os.unshare(os.CLONE_NEWUSER)
+            os._exit(0)
+        except OSError:
+            os._exit(1)
+    _, status = os.waitpid(pid, 0)
+    return os.waitstatus_to_exitcode(status) == 0
 
 
 def _scrapling_safety(session, implicit_feature_arg=None):
