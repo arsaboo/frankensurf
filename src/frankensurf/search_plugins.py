@@ -83,7 +83,7 @@ def _copy_attempts(value, policy):
         raise ValueError()
     allowed = {"provider", "provider_version", "provider_binding_id",
                "status", "failure",
-               "failure_stage", "latency_ms", "cost_usd", "final_url",
+               "failure_stage", "message", "latency_ms", "cost_usd", "final_url",
                "evidence", "children", "route_recipe"}
     output = []
     seen = {id(value)}
@@ -121,6 +121,12 @@ def _copy_attempts(value, policy):
             if not failed or row["failure_stage"] not in FAILURE_STAGES:
                 raise ValueError()
             saved["failure_stage"] = row["failure_stage"]
+        if "message" in row:
+            message = row["message"]
+            if (not failed or not isinstance(message, str) or len(message) > 200
+                    or any(not character.isprintable() for character in message)):
+                raise ValueError()
+            saved["message"] = message
         if "latency_ms" in row:
             saved["latency_ms"] = _number(row["latency_ms"])
         if "cost_usd" in row:

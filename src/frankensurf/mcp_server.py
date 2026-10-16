@@ -41,7 +41,7 @@ async def read(url: str, provider: str | None = None, render: bool | None = None
                allow_archive: bool | None = None, items: bool | None = None,
                main_content: bool | None = None, lightning: bool | None = None,
                allow_real_browser: bool | None = None, schema: dict | None = None,
-               links: bool | None = None,
+               links: bool | None = None, markdown: bool | None = None,
                acquisition_policy: dict | None = None) -> dict:
     """Retrieve evidence. Omitted settings use runtime defaults and operator public routes.
 
@@ -80,6 +80,8 @@ async def read(url: str, provider: str | None = None, render: bool | None = None
     thumbnail URL, from the same page load.
     links=True adds links: every link on the page (url and anchor text), in page
     order, so a results page's item URLs come back with it (max_links caps it, 500).
+    markdown=True adds markdown: the page converted to markdown (headings, lists,
+    links, tables), easier for a model to follow than the plain text.
     schema is a JSON Schema ({"type": "object", "properties": {...}, "required": [...]}):
     result.extracted.data fills its properties from what the page publishes for machines
     (JSON-LD, microdata, Open Graph, its own JSON), with missing, sources and valid. A page
@@ -94,7 +96,7 @@ async def read(url: str, provider: str | None = None, render: bool | None = None
         "identity": identity, "allow_handoff": allow_handoff, "profile": profile,
         "expect_terms": tuple(expect_terms) if expect_terms else None,
         "card_images": card_images, "allow_archive": allow_archive, "auto_items": items,
-        "include_links": links,
+        "include_links": links, "markdown_output": markdown,
         "main_content": main_content, "lightning": lightning,
         "allow_real_browser": allow_real_browser, "extract_schema": schema})
     # Agents read text: ask servers for markdown first (T0). Callers can pass

@@ -226,7 +226,7 @@ def _validated_provider_attempt_tree(tree, *, max_depth=None,
             count[0] += 1
             allowed = {"provider", "provider_version", "provider_binding_id",
                        "status", "cost_usd",
-                       "latency_ms", "failure", "failure_stage", "evidence",
+                       "latency_ms", "failure", "failure_stage", "message", "evidence",
                        "children"}
             if ((max_nodes is not None and count[0] > max_nodes)
                     or type(row) is not dict or id(row) in seen
@@ -262,7 +262,10 @@ def _validated_provider_attempt_tree(tree, *, max_depth=None,
                                  row["failure"]) is None))
                     or ("failure_stage" in row
                         and (row["status"] != "failed"
-                             or row["failure_stage"] not in FAILURE_STAGES))):
+                             or row["failure_stage"] not in FAILURE_STAGES))
+                    or ("message" in row
+                        and (row["status"] != "failed"
+                             or not _bounded_text(row["message"], 200)))):
                 raise ValueError()
             seen.add(id(row))
             charge(160 + len(row["provider"].encode())

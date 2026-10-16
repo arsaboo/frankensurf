@@ -1,0 +1,52 @@
+---
+title: Logging and tracing
+description: What each read tried and why each tool failed, for your agent, your logs, and OpenTelemetry.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Every read keeps a receipt. Its `attempts` list says which tools were tried, in order, and why each
+one failed, so "it didn't work" turns into something you can fix.
+
+```json
+[
+  {"provider": "http", "status": "failed", "failure": "BLOCKED", "message": "Provider returned a challenge page", "latency_ms": 307},
+  {"provider": "camoufox", "status": "failed", "failure": "CAPTCHA", "failure_stage": "navigation_readiness", "latency_ms": 4455},
+  {"provider": "firecrawl", "status": "observed", "latency_ms": 3120}
+]
+```
+
+## Where you see it
+
+- **Python:** `page.attempts` on `fs.read(...)`, or `frankensurf.runtime.attempt_summary(result["receipt"])`.
+- **MCP:** the `read` tool returns the whole receipt, attempts included.
+- **LangChain, OpenAI Agents SDK, CrewAI:** `frankensurf_read` returns `attempts` next to `failure`.
+- **`frankensurf serve`:** a page no tool could read answers with `frankensurf.attempts`.
+- **CLI:** `frankensurf read URL --explain` prints them; `frankensurf trace <id>` shows any earlier
+  read's full receipt.
+
+## OpenTelemetry
+
+```bash
+pip install "frankensurf[otel]"
+```
+
+With the OpenTelemetry API installed, each read is a span, `frankensurf.read`, with one child span
+per tool tried, `frankensurf.attempt`. Configure a tracer provider and exporter as you would for
+anything else (or run under `opentelemetry-instrument`), and reads show up in Jaeger, Honeycomb,
+Datadog, Grafana Tempo or Langfuse.
+
+| On | Attributes |
+| --- | --- |
+| `frankensurf.read` | `server.address`, `url.path`, `frankensurf.status`, `.method`, `.failure.code`, `.failure.message`, `.cost_usd`, `.trace_id`, `.attempts` |
+| `frankensurf.attempt` | `frankensurf.provider`, `.status`, `.failure.code`, `.failure.message`, `.failure.stage`, `.latency_ms` |
+
+A failed read or attempt has an error status with its failure code.
+
+<Aside type="note" title="Privacy">
+  Spans carry the host and the path, never the query string. Signed-in reads (an identity or a
+  profile) carry the host only. Without the package installed, nothing is recorded.
+</Aside>
+
+Attempt spans are placed one after another from the receipt's timings; tools raced at once
+(lightning mode, hedges) overlapped in reality.

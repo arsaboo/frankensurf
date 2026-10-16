@@ -23,7 +23,7 @@ import asyncio
 import json
 from typing import Any
 
-from .runtime import Runtime, WebPolicy
+from .runtime import Runtime, WebPolicy, attempt_summary
 
 DEFAULT_PORT = 3002
 MAX_BODY = 1_000_000
@@ -56,10 +56,12 @@ def couldnt_read(receipt: dict) -> str:
 
 def _document(result: dict, url: str, formats: list[str]) -> dict:
     receipt = result.get("receipt") or {}
-    text = result.get("text") or ""
+    text = result.get("markdown") or result.get("text") or ""
     document: dict[str, Any] = {}
     if "markdown" in formats or not formats:
         document["markdown"] = text
+    if "links" in formats:
+        document["links"] = [link["url"] for link in result.get("links") or []]
     content = result.get("content")
     if isinstance(content, bytes):
         content = content.decode("utf-8", "replace")
@@ -81,7 +83,9 @@ class FirecrawlCompat:
         self.policy = dict(policy or {})
 
     async def _read(self, url: str, timeout_ms: int | None) -> dict:
-        overrides = {**self.policy, "prefer_markdown": True}
+        # Real markdown, as Firecrawl returns it (headings, lists, links, tables), and links for
+        # the links format.
+        overrides = {**self.policy, "prefer_markdown": True, "markdown_output": True, "include_links": True}
         read = self.web.read(url, policy_overrides=overrides)
         if timeout_ms:
             return await asyncio.wait_for(read, max(1.0, timeout_ms / 1000 - TIMEOUT_MARGIN_SECONDS))
@@ -102,6 +106,7 @@ class FirecrawlCompat:
             return 500, {"success": False, "error": couldnt_read(receipt),
                          "frankensurf": {"trace_id": receipt.get("trace_id"), "tried": _tried(receipt),
                                          "failure": receipt.get("failure"),
+                                         "attempts": attempt_summary(receipt),
                                          "next_step": receipt.get("next_step")}}
         return 200, {"success": True, "data": _document(result, url, formats)}
 

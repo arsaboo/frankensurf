@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "frankensurf"
-version = "0.45.0"
+version = "0.46.0"
 description = "One read() call for AI agents, stitched from 28 web tools: cheapest first, every page checked, a receipt for every attempt"
 readme = "README.md"
 license = "Apache-2.0"
@@ -35,6 +35,8 @@ socks = ["httpx[socks]>=0.28,<1"]
 langchain = ["langchain-core>=0.3"]
 openai-agents = ["openai-agents>=0.2"]
 crewai = ["crewai>=0.100"]
+# OpenTelemetry spans for every read and each tool it tried (frankensurf.telemetry).
+otel = ["opentelemetry-api>=1.20"]
 
 [project.urls]
 Homepage = "https://frankensurf.dev"

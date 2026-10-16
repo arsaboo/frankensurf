@@ -56,8 +56,19 @@ class Page(dict):
         return self.get("main_text") or self.get("text") or ""
 
     @property
+    def markdown(self) -> str:
+        """The page as markdown, when read with markdown=True (else the plain text)."""
+        return self.get("markdown") or self.text
+
+    @property
     def links(self) -> list[dict]:
         return self.get("links") or []
+
+    @property
+    def attempts(self) -> list[dict]:
+        """Each tool tried, in order: provider, status, failure, message, failure_stage, latency_ms."""
+        from .runtime import attempt_summary
+        return attempt_summary(self.receipt)
 
     @property
     def via(self) -> str | None:
@@ -74,7 +85,8 @@ class Page(dict):
         return self.receipt.get("trace_id")
 
 
-def _overrides(paid: bool, max_cost: float | None, main: bool, links: bool, policy: dict) -> dict:
+def _overrides(paid: bool, max_cost: float | None, main: bool, links: bool, policy: dict,
+               markdown: bool = False) -> dict:
     overrides = dict(policy)
     if paid:
         overrides["allow_paid_fallbacks"] = True
@@ -84,27 +96,30 @@ def _overrides(paid: bool, max_cost: float | None, main: bool, links: bool, poli
         overrides["main_content"] = True
     if links:
         overrides["include_links"] = True
+    if markdown:
+        overrides["markdown_output"] = True
     return overrides
 
 
 async def aread(url: str, *, paid: bool = False, max_cost: float | None = None, main: bool = False,
-                links: bool = False, provider: str | None = None, try_harder_than: str | None = None,
-                state_dir: str | None = None, **policy: Any) -> Page:
+                links: bool = False, markdown: bool = False, provider: str | None = None,
+                try_harder_than: str | None = None, state_dir: str | None = None, **policy: Any) -> Page:
     """Read one page. paid allows paid tools whose keys are set; max_cost caps this read in USD."""
     from .runtime import Runtime, default_state_dir
     async with Runtime(state_dir or default_state_dir()) as web:
         result = await web.read(url, provider=provider, retry_of=try_harder_than,
-                                policy_overrides=_overrides(paid, max_cost, main, links, policy))
+                                policy_overrides=_overrides(paid, max_cost, main, links, policy, markdown))
     return Page(result)
 
 
 async def abatch(urls: Iterable[str], *, paid: bool = False, max_cost: float | None = None,
-                 main: bool = False, links: bool = False, state_dir: str | None = None,
-                 **policy: Any) -> list[Page]:
+                 main: bool = False, links: bool = False, markdown: bool = False,
+                 state_dir: str | None = None, **policy: Any) -> list[Page]:
     """Read many pages, paced per site; results keep the order of urls."""
     from .runtime import Runtime, default_state_dir
     async with Runtime(state_dir or default_state_dir()) as web:
-        results = await web.batch(list(urls), policy_overrides=_overrides(paid, max_cost, main, links, policy))
+        results = await web.batch(list(urls), policy_overrides=_overrides(paid, max_cost, main, links, policy,
+                                                                          markdown))
     return [Page(result) for result in results]
 
 

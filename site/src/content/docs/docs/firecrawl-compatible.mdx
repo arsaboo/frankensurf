@@ -18,8 +18,8 @@ isn't checked. Free tools only unless you start it with `--paid`, and `--max-cos
 
 ## What you get back
 
-- **Scrape** (`POST /v1/scrape`, `/v2/scrape`): the whole page's text as markdown, plus `html` if
-  you ask for it. `metadata.frankensurf` carries the trace ID, so `frankensurf trace <id>` shows every
+- **Scrape** (`POST /v1/scrape`, `/v2/scrape`): the page as markdown (headings, lists, links,
+  tables, converted from its HTML), plus `html` and `links` if you ask for them. `metadata.frankensurf` carries the trace ID, so `frankensurf trace <id>` shows every
   tool it tried. `onlyMainContent` is accepted and ignored: Frankensurf's
   [main-content cut](/docs/read/main-content/) is built for articles, and on search and listing
   pages it lost the results. Menus cost a few tokens; missing results cost the answer.

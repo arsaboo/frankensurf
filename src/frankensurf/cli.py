@@ -34,6 +34,7 @@ _POLICY_ARGUMENTS = {
     "expect": "expect_terms",
     "card_images": "card_images",
     "links": "include_links",
+    "markdown_output": "markdown_output",
     "max_links": "max_links",
     "scroll_screens": "scroll_screens",
     "search_source_candidates": "search_source_candidates",
@@ -607,6 +608,8 @@ def build_parser():
     parser.add_argument("--max-images", type=int)
     parser.add_argument("--card-images", action="store_true", default=None,
         help="Add cards: each result link with its title and its own thumbnail URL")
+    parser.add_argument("--markdown-output", action="store_true", default=None,
+        help="read: also return markdown, the page converted to markdown (headings, lists, links, tables)")
     parser.add_argument("--links", action="store_true", default=None,
         help="read: also return links, every link on the page (url and anchor text)")
     parser.add_argument("--max-links", type=int, help="read: most links to return with --links (default 500)")

@@ -134,8 +134,9 @@ the receipt. Your agent decides what the page means. If it isn't what it wanted,
 
 ## Benchmark
 
-**Cost per 1,000 correct pages:** Frankensurf free $0.24 on a rented VM (88% right), with paid
-fallbacks $0.43 (96%); Firecrawl alone $0.71 on its Scale plan, $0.98 on Standard (85%).
+**Cost per 1,000 correct pages:** Frankensurf's free tools $0 in fees, about $0.01 of a $5/month
+server (87–88% right); with paid fallbacks $0.22 (96%); Firecrawl on its own $0.71 on its Scale plan,
+$0.98 on Standard (85%).
 [How that's worked out](https://frankensurf.dev/docs/more/cost/).
 
 `scripts/toolbench.py` runs each tool on its own, then Frankensurf, on the same pages with the same

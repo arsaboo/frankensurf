@@ -5,6 +5,26 @@ description: Ask sites for markdown first, so your agent reads clean text.
 
 import { Tabs, TabItem } from "@astrojs/starlight/components";
 
+## Any page as markdown
+
+`markdown_output` converts the page Frankensurf got into markdown, whichever tool got it:
+headings, paragraphs, nested lists, links and images (made absolute), bold and italics, code
+blocks, tables and quotes. It comes back as `markdown`, next to the plain `text`. Scripts, styles
+and forms are dropped; menus stay (add `main_content` for the article alone). A page the site
+already served as markdown is passed through as it is.
+
+```python
+import frankensurf as fs
+
+page = fs.read("https://docs.python.org/3/library/asyncio-task.html", markdown=True)
+print(page.markdown[:500])
+```
+
+`--markdown-output` on the CLI, `markdown` in the MCP `read` tool. `frankensurf serve` always
+returns it in Firecrawl's `markdown` field.
+
+## Ask the site for markdown
+
 With `prefer_markdown`, the first request asks for `text/markdown`. Sites that
 support [Markdown for Agents](https://developers.cloudflare.com/fundamentals/reference/markdown-for-agents)
 answer with markdown directly; everyone else gets the usual HTML route.

@@ -159,6 +159,9 @@ class WebPolicy:
     # duplicates), up to max_links, so a results page's item URLs come back with it.
     include_links: bool = False
     max_links: int = 500
+    # result["markdown"]: the page as markdown (headings, lists, links, tables), converted
+    # from its HTML (to_markdown.py), or the site's own markdown when it served some.
+    markdown_output: bool = False
     # The calling agent's "try harder" lever (see Runtime.read retry_of): skip
     # these providers, and order the rest strongest-first.
     exclude_providers: tuple[str, ...] = ()
@@ -490,6 +493,7 @@ class WebPolicy:
                  "expect_terms must be up to 10 nonempty strings")
         _require(type(self.card_images) is bool, "card_images must be a boolean")
         _require(type(self.include_links) is bool, "include_links must be a boolean")
+        _require(type(self.markdown_output) is bool, "markdown_output must be a boolean")
         _require(_is_int(self.max_links, 1), "max_links must be a positive integer")
         _require(_is_int(self.scroll_screens, 0) and self.scroll_screens <= 20,
                  "scroll_screens must be an integer from 0 to 20")
@@ -1215,6 +1219,33 @@ _BROWSER_ERROR = re.compile(r"\b(ERR_[A-Z0-9_]{4,}|NS_ERROR_[A-Z_]+)\b|this site
 _MAINTENANCE = re.compile(r"(?i)\b(down for maintenance|under maintenance|scheduled maintenance|"
                           r"we.ll be back (soon|shortly)|we are currently (performing|undergoing) maintenance|"
                           r"currently working on [a-z0-9.-]+\.[a-z]{2,}|temporarily unavailable|site is temporarily down)\b")
+
+
+_PLAIN_FAILURES = {
+    "BLOCKED": "The site refused the request", "CAPTCHA": "The site served a challenge page",
+    "RATE_LIMITED": "The site rate-limited the request", "AUTH_REQUIRED": "The site asked for a sign-in",
+    "AUTH_EXPIRED": "The sign-in has expired", "NOT_FOUND": "The site said the page doesn't exist",
+    "PROVIDER_DOWN": "The tool or the site had an error", "TIMEOUT": "It took too long",
+}
+
+
+def _readable_failure(exc) -> str:
+    """The failure's message, unless it is internal shorthand ("... response requires stop"),
+    which becomes plain words with the HTTP status."""
+    message = str(getattr(exc, "message", "") or "")
+    if "requires stop" not in message and "acquisition failed at" not in message:
+        return message
+    plain = _PLAIN_FAILURES.get(exc.code, message)
+    status = getattr(exc, "http_status", None)
+    return f"{plain} (HTTP {status})" if status else plain
+
+
+def attempt_summary(receipt: dict | None) -> list[dict]:
+    """What a read tried, in order, and why each tool failed: the part of the receipt a calling
+    agent or a log line needs (tool, status, failure code and message, stage, time)."""
+    keep = ("provider", "status", "failure", "message", "failure_stage", "latency_ms")
+    return [{key: attempt[key] for key in keep if attempt.get(key) is not None}
+            for attempt in (receipt or {}).get("attempts") or () if isinstance(attempt, dict)]
 
 
 def _page_links(html: str, base: str, limit: int) -> list[dict]:
@@ -3507,7 +3538,23 @@ class Runtime:
         match), ``module=False`` turns modules off, and ``module_override`` runs
         an unsaved module for this read only. With a module, the result gains
         ``items`` and the receipt gains ``module``; raw page data is unchanged.
+
+        With OpenTelemetry installed (frankensurf[otel]), each read is a span with
+        one child span per tool tried (telemetry.py).
         """
+        from .telemetry import traced
+        overrides = policy_overrides or {}
+        private = bool((policy is not None and (policy.identity or policy.profile))
+                       or overrides.get("identity") or overrides.get("profile"))
+        return await traced("read", url, self._read_page(
+            url, policy, provider, adapter, policy_overrides=policy_overrides,
+            workload_assertions=workload_assertions, retry_of=retry_of, module=module,
+            module_override=module_override), private=private)
+
+    async def _read_page(self, url: str, policy: WebPolicy | None = None, provider: str | None = None,
+                         adapter: str | None = None, *, policy_overrides: dict | None = None,
+                    workload_assertions: dict | None = None, retry_of: str | None = None,
+                    module: str | bool | None = None, module_override: dict | None = None) -> dict:
         from .site_modules import ACTIVE as ACTIVE_MODULE, SiteModule, SiteModuleError
         if policy is None and (self.lightning_default or self.real_browser_default):
             # The owner's switches for every read (FRANKENSURF_LIGHTNING,
@@ -5360,6 +5407,11 @@ class Runtime:
         if _recipe: attempt["route_recipe"] = _recipe
         if getattr(exc, "failure_stage", None):
             attempt["failure_stage"] = exc.failure_stage
+        if getattr(exc, "message", None) and not exc.code.startswith("IDENTITY_"):
+            # Why this tool failed, in words, for the calling agent and the logs.
+            message = " ".join("".join(c if c.isprintable() else " " for c in _readable_failure(exc)).split())
+            if message:
+                attempt["message"] = message[:200]
         if safe_children is not None:
             attempt["children"] = safe_children
         if getattr(exc, "response_url", None) and not exc.code.startswith("IDENTITY_"):
@@ -5976,6 +6028,16 @@ class Runtime:
                                          for link in links]
                                 links = [link for link in links if link["url"]]
                             result["links"] = links
+                        if policy.markdown_output:
+                            content_type = response.get("content_type") or ""
+                            if "markdown" in content_type or resolved:
+                                # The site's own markdown; signed-in pages keep plain text, so
+                                # private link tokens never reach the output.
+                                result["markdown"] = parsed.get("text") or ""
+                            elif "html" in content_type:
+                                from .to_markdown import html_to_markdown
+                                result["markdown"] = html_to_markdown(response.get("content") or "",
+                                                                      response.get("url") or url)
                         if policy.include_images:
                             if resolved:
                                 result["images"] = await self._download_identity_images(
@@ -6071,6 +6133,7 @@ class Runtime:
                 for field,value in {"title":None,"text":"","content":"","structured":None,"images":[],"image_urls":[]}.items(): result[field]=value
                 result.pop("cards", None)
                 result.pop("links", None)
+                result.pop("markdown", None)
                 receipt["evidence"] = []
             if getattr(exc, "response_url", None) and not exc.code.startswith("IDENTITY_"):
                 result["url"] = _output_url(exc.response_url, named_identity=bool(policy.identity))

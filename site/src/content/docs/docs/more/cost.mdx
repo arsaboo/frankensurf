@@ -5,53 +5,54 @@ description: Cost per thousand correct pages, Frankensurf against Firecrawl's pl
 
 import { Aside } from "@astrojs/starlight/components";
 
-A scraping API charges for every page it fetches, right or wrong. Frankensurf's free tools cost
-nothing per page; you pay for the machine they run on, and for a paid tool only on the pages the
-free ones can't get. So the fair number is what each **correct** page costs.
+A scraping API charges for every page it fetches, right or wrong. Frankensurf's free tools charge
+nothing: no per-page fee, no plan, no credits. They run on your own machine, and a cheap one is
+enough. You only pay a paid tool for the pages the free ones can't get, and only if you turn paid
+tools on.
 
 ## Per 1,000 correct pages
 
-| | Pages read correctly | Cost per 1,000 pages | Cost per 1,000 correct pages |
+| | Pages read correctly | Per 1,000 pages | Per 1,000 correct pages |
 | --- | --- | --- | --- |
 | Firecrawl, Hobby ($16/mo, 5k pages) | 84.7% | $3.20 | $3.78 |
 | Firecrawl, Standard ($83/mo, 100k) | 84.7% | $0.83 | $0.98 |
 | Firecrawl, Scale ($599/mo, 1M) | 84.7% | $0.60 | $0.71 |
-| **Frankensurf, free tools**, on a rented 4 vCPU VM | 88.0% | $0.21 | **$0.24** |
-| **Frankensurf, free tools**, on a machine you already have | 88.0% | $0 | **$0** |
-| **Frankensurf with paid fallbacks** (Firecrawl at the Standard rate) | 96.0% | $0.41 | **$0.43** |
+| **Frankensurf, free tools** | 87–88% | **$0** in fees; about $0.01 of a $5/month server | **about $0.01** |
+| **Frankensurf with paid fallbacks** (Firecrawl at the Standard rate) | 96.0% | $0.21 | **$0.22** |
 
-So free tools read more pages correctly than Firecrawl alone for about a third of its best rate,
-and with paid fallbacks Frankensurf costs less than Firecrawl's Scale plan while reading 96% of
-pages instead of 85%.
+Free tools read more pages correctly than Firecrawl on its own, for close to nothing. With paid
+fallbacks, Frankensurf reads 96% of pages instead of 85% for about a third of Firecrawl's best
+rate, because it only pays on the quarter of pages that are walled.
 
 ## Where the numbers come from
 
 - **Pages read correctly:** held-out set 7, 150 sites picked before any was read, every tool alone
-  and Frankensurf, the same day, graded by the same check
+  and Frankensurf, graded by the same check
   ([rows](https://github.com/yail259/frankensurf/tree/main/benchmarks/2026-10-11)).
 - **Firecrawl:** its pricing page on 16 October 2026, billed yearly: 1 credit for a basic page
   scrape. A page that comes back 403 or 404 still costs a credit; JSON extraction adds 4 credits a
   page; monthly credits don't roll over below Scale.
-- **Frankensurf, free tools, compute:** the same 150 sites read in free mode on a GitHub-hosted
-  runner (4 vCPU, 16 GB), four at a time: 2,333 seconds of reading, about 925 pages an hour. Priced
-  at AWS's on-demand rate for a comparable machine (m6i.xlarge, $0.192 an hour), that is $0.21 per
-  1,000 pages; cheaper hosts, spot capacity or a machine you already run bring it down to cents or
-  nothing. One run; more reads at a time may fit on the same machine.
-- **With paid fallbacks:** 37 of the 150 reads cost anything, each one Firecrawl credit spent on a
-  page the free tools couldn't get (29 of them got the page through Firecrawl). At Firecrawl's
-  Standard rate that is $0.20 per 1,000 pages, plus the same compute.
+- **Frankensurf on a small server:** the same 150 sites in free mode, from a fresh state (no learned
+  routes), pinned to 2 CPU cores, four reads at a time: 820 seconds, about 660 pages an hour, or
+  roughly 480,000 a month, 131 of 150 read correctly. 107 of the 150 came back from plain HTTP or Jina
+  Reader with no browser at all. A 2 vCPU server costs about $5 a month (Hetzner CX22 class), so
+  about $0.01 per 1,000 pages. On a machine you already run, nothing.
+- **With paid fallbacks:** 37 of 150 reads spent anything, one Firecrawl credit each, on pages the
+  free tools couldn't get. At Firecrawl's Standard rate that is $0.20 per 1,000 pages, plus the server.
 
 ## At a million pages a month
 
 | | Monthly cost | Correct pages |
 | --- | --- | --- |
 | Firecrawl Scale | $599 | about 847,000 |
-| Frankensurf, free tools, rented VMs | about $210 (two VMs) | about 880,000 |
-| Frankensurf with paid fallbacks | about $545 (two VMs, and Firecrawl Growth for about 247,000 fallback credits) | about 960,000 |
+| Frankensurf, free tools | about $10 (two small servers) | about 875,000 |
+| Frankensurf with paid fallbacks | about $345 (two small servers, and Firecrawl Growth for about 247,000 fallback credits) | about 960,000 |
 
 <Aside type="note" title="What this leaves out">
   Firecrawl runs the machines for you; Frankensurf runs on yours, so someone looks after them.
-  Frankensurf is also slower on walled pages (a median of 3 to 9 seconds a page depending on the
-  machine, against Firecrawl's 4.6), so a big job needs more reads at a time. And these are basic
-  page reads: Firecrawl's extraction and Frankensurf's structured fields aren't priced the same way.
+  Walled pages are slower through Frankensurf (a median of 3 to 10 seconds a page, depending on the
+  machine, against Firecrawl's 4.6), so a big job runs more reads at a time. The 2-core run had more
+  memory than a 4 GB server; browsers want about 1 GB each, so keep reads at a time near the
+  memory you have. Six of its reads went through Steel. And these are basic page reads: Firecrawl's
+  extraction and Frankensurf's structured fields aren't priced the same way.
 </Aside>

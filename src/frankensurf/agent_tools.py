@@ -87,6 +87,8 @@ class Tools:
                "cost_usd": receipt.get("cost_usd")}
         if receipt.get("failure"):
             out["failure"] = receipt["failure"]
+        from .runtime import attempt_summary
+        out["attempts"] = attempt_summary(receipt)
         if "extracted" in result:
             out["extracted"] = result["extracted"]
         return out
