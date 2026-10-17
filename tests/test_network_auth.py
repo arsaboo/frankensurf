@@ -29,7 +29,7 @@ def test_authorized_is_a_bearer_check():
 
 def test_serve_answers_401_without_the_key_but_health_stays_open(monkeypatch):
     class FakeRuntime:
-        def __init__(self, state_dir=None):
+        def __init__(self, state_dir=None, **kwargs):
             pass
 
         async def __aenter__(self):

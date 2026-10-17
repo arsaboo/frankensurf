@@ -77,4 +77,6 @@ volumes:
 - **Memory:** about 1 GB for each browser read running at once.
 - **Agent mode:** add `-e FRANKENSURF_AGENT_MODEL=...` and the provider's key to get the summary,
   json and extract endpoints ([Agent mode](/docs/agent-mode/)).
+- **Search:** loopback inside a container is the container, so `-e FRANKENSURF_SEARCH_URL=http://<host>:<port>`
+  is how a SearXNG on another machine gets used ([SearXNG](/docs/integrations/searxng/)).
 - The container runs as an unprivileged user, with `tini` reaping browser processes.

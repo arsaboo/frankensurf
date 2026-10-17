@@ -42,8 +42,14 @@ async def test_bing_rss_search_normalizes_and_limits(tmp_path):
 
 def test_search_registry_rejects_paid_or_unvalidated_endpoint():
     with pytest.raises(ValueError): build_search("bike","unknown")
-    with pytest.raises(ValueError): build_search("bike","searxng",{"base_url":"https://paid-provider.test"})
     with pytest.raises(ValueError): build_search("bike","bing_rss",{"base_url":"https://unvalidated.test"})
+    with pytest.raises(ValueError): build_search("bike","searxng",{"base_url":"http://u:p@engine.test"})
+
+
+def test_a_self_hosted_engine_is_asked_where_the_operator_named_it():
+    url, definition = build_search("bike", "searxng", {"base_url": "http://192.168.2.162:4002"})
+    assert url.startswith("http://192.168.2.162:4002/search?")
+    assert definition["base_url"] == "http://192.168.2.162:4002"
 
 
 async def test_operator_import_preserves_actual_timestamp_without_live_or_automation_claim(tmp_path):

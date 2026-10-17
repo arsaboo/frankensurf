@@ -576,9 +576,10 @@ def authorized(headers: dict, api_key: str | None) -> bool:
 
 async def serve(state_dir, host: str = "127.0.0.1", port: int = DEFAULT_PORT,
                 policy: dict | None = None, ready=None, model: str | None = None,
-                api_key: str | None = None, allow_unauthenticated: bool = False) -> None:
+                api_key: str | None = None, allow_unauthenticated: bool = False,
+                search_url: str | None = None) -> None:
     network_guard(host, api_key, allow_unauthenticated)
-    async with Runtime(state_dir=state_dir) as web:
+    async with Runtime(state_dir=state_dir, search_url=search_url) as web:
         app = FirecrawlCompat(web, policy, base_url=f"http://{host}:{port}", model=model)
 
         async def connection(reader, writer):

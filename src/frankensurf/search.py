@@ -23,7 +23,7 @@ from urllib.parse import urlencode, urlparse, urljoin, parse_qs, quote
 from bs4 import BeautifulSoup
 
 REGISTRY = {
-    "searxng": {"kind": "json", "base_url": "http://127.0.0.1:8088", "path": "/search", "endpoint_scope": "loopback self-hosted", "vertical": "web"},
+    "searxng": {"kind": "json", "base_url": "http://127.0.0.1:8088", "path": "/search", "endpoint_scope": "self-hosted (loopback unless the operator names another)", "vertical": "web"},
     "duckduckgo_html": {"kind": "html", "base_url": "https://html.duckduckgo.com", "path": "/html/", "endpoint_scope": "public search", "vertical": "web"},
     # Bing's RSS search has been seen answering every query with the same unrelated pages, so it
     # is the last web source asked, and a set none of whose results touch the query is a failure
@@ -166,7 +166,6 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
     base = config.get("base_url") or default_base
     parsed = urlparse(base)
     if parsed.scheme not in {"http", "https"} or parsed.username or parsed.password: raise ValueError("Invalid search endpoint")
-    if source == "searxng" and parsed.hostname not in {"localhost", "127.0.0.1", "::1"}: raise ValueError("This release uses self-hosted loopback SearXNG only")
     if source != "searxng" and base != default_base: raise ValueError("Public search endpoints are fixed by validated adapter")
     now = now or datetime.now(timezone.utc)
     since = now - timedelta(days=RECENCY[options["recency"]]) if options.get("recency") else None
@@ -217,7 +216,7 @@ def build_search(query: str, source: str, config: dict | None = None, *, now=Non
     else:  # open_library
         params = {"q": query, "limit": 30}
     url = base.rstrip("/") + definition["path"] + "?" + urlencode(params, quote_via=quote)
-    return url, {**definition, "options": options}
+    return url, {**definition, "base_url": base, "options": options}
 
 
 # --- GitHub: the words of a project or a need, not of the platform

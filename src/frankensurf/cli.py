@@ -404,7 +404,8 @@ async def run(args):
             file=sys.stderr, flush=True)
         try:
             await serve(args.state, args.host, args.port, policy, ready=say, model=args.model,
-                        api_key=api_key, allow_unauthenticated=args.allow_unauthenticated)
+                        api_key=api_key, allow_unauthenticated=args.allow_unauthenticated,
+                        search_url=args.search_url)
         except ValueError as error:
             print(f"frankensurf serve: {error}", file=sys.stderr)
             raise SystemExit(2) from None
@@ -707,7 +708,8 @@ def build_parser():
         help="Maximum search sources attempted for an omitted --source")
     parser.add_argument("--search-source-timeout", type=float,
         help="Per-source search timeout in seconds; zero uses the operation timeout")
-    parser.add_argument("--search-url")
+    parser.add_argument("--search-url", help="search, serve: a self-hosted SearXNG at another address "
+        "(default http://127.0.0.1:8088; $FRANKENSURF_SEARCH_URL does the same for every search)")
     parser.add_argument("--limit", type=int, default=None,
         help="search: results (default 10); map: URLs (default 5000); crawl: pages (default 100)")
     parser.add_argument("--max-depth", type=int, default=2, help="crawl: link hops from the start page")

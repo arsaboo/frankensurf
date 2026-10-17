@@ -9,7 +9,7 @@ import { Tabs, TabItem } from "@astrojs/starlight/components";
 
 - First in the default search order.
 - Upstream engine failures are shown in `upstream_failures`, not hidden.
-- Bound to `127.0.0.1:8088`.
+- Bound to `127.0.0.1:8088` by default; `FRANKENSURF_SEARCH_URL` points at one anywhere else.
 
 Search works without it (DuckDuckGo, Bing and the topic sources answer), but is
 stronger with it: it answered about a third of the queries in our blind benchmark.
@@ -51,12 +51,15 @@ runs a pinned SearXNG image as a container named `frankensurf-search` on the sam
 port, with the same settings.
 
 Nothing needs an environment variable: Frankensurf looks at `http://127.0.0.1:8088`
-by default. Set `FRANKENSURF_SEARCH_URL` (MCP server) or pass `--search-url`
-(CLI) only to use a SearXNG somewhere else on loopback. From a clone,
-`bash scripts/start-search.sh` starts the same image.
+by default. Set `FRANKENSURF_SEARCH_URL`, or pass `--search-url` (search and serve),
+to point at a SearXNG somewhere else: another port, another machine, a container, where
+loopback is never the engine. Every search asks it there, and Frankensurf never starts
+its own engine beside it. From a clone, `bash scripts/start-search.sh` starts the same
+image.
 
 When a search ran without it because it was not reachable,
-`receipt.search_routing.local_search` says so, with the command to install or start it.
+`receipt.search_routing.local_search` says so, with the command to install or start it,
+and the `url` of the engine you named.
 
 ## Use it
 

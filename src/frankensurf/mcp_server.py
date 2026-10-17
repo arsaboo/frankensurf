@@ -362,8 +362,6 @@ async def search(query: str, source: str | None = None, limit: int = 10,
     says what was picked and why; an explicit vertical always wins.
     mode="merge" asks every eligible source at once and fuses them.
     """
-    config = ({"base_url": os.environ["FRANKENSURF_SEARCH_URL"]}
-              if os.getenv("FRANKENSURF_SEARCH_URL") and source in (None, "searxng") else None)
     options = _acquisition_overrides(acquisition_policy,
         {"identity": identity, "provider": provider})
     for field in ("provider_candidates", "search_source_candidates", "search_source_allow",
@@ -374,7 +372,7 @@ async def search(query: str, source: str | None = None, limit: int = 10,
             and not options.get("identity")):
         options["provider"] = "http"
     async with runtime() as web:
-        return await web.search(query, source=source, limit=limit, engine_config=config,
+        return await web.search(query, source=source, limit=limit,
                                 policy=WebPolicy(**options), site=site, exclude_domains=exclude_domains,
                                 recency=recency, region=region, vertical=vertical, mode=mode)
 

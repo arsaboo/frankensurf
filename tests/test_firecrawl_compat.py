@@ -139,7 +139,7 @@ def test_bad_requests_and_unknown_routes():
 
 def test_serve_answers_over_http(monkeypatch):
     class FakeRuntime(FakeWeb):
-        def __init__(self, state_dir=None):
+        def __init__(self, state_dir=None, **kwargs):
             super().__init__()
 
         async def __aenter__(self):
@@ -165,3 +165,27 @@ def test_serve_answers_over_http(monkeypatch):
     ok, missing = asyncio.run(scenario())
     assert ok.status_code == 200 and ok.json()["data"]["markdown"]
     assert missing.status_code == 404
+
+
+def test_serve_search_asks_the_engine_named_in_the_environment(monkeypatch, tmp_path):
+    # Measured: serve searched the public engines while FRANKENSURF_SEARCH_URL pointed at a SearXNG.
+    from frankensurf import Runtime
+    monkeypatch.setenv("FRANKENSURF_SEARCH_URL", "http://192.168.2.162:4002")
+    asked = []
+
+    def answer(request):
+        asked.append(str(request.url))
+        if request.url.host == "192.168.2.162":
+            return httpx.Response(200, json={"results": [
+                {"url": "https://example.com/%d" % index, "title": "example %d" % index,
+                 "content": "example thing %d" % index} for index in range(6)]})
+        return httpx.Response(200, json={"results": []})
+
+    async def scenario():
+        async with Runtime(tmp_path, transport=httpx.MockTransport(answer)) as web:
+            status, out = await FirecrawlCompat(web).handle("POST", "/v1/search", json.dumps({"query": "example"}).encode())
+        return status, out, asked
+
+    status, out, asked = asyncio.run(scenario())
+    assert status == 200 and out["success"] is True
+    assert any("192.168.2.162:4002/search?" in url for url in asked)

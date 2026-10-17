@@ -2037,7 +2037,8 @@ class Runtime:
                  local_cdp_url: str | None = None, concurrency: int = 4,
                  per_domain: int = 1, domain_delay: float = 0.25,
                  transport=None, identity_registry: str | Path | None = None,
-                 plugin_catalog=None, plugin_config_path: str | Path | None = None):
+                 plugin_catalog=None, plugin_config_path: str | Path | None = None,
+                 search_url: str | None = None):
         self.state_dir = Path(state_dir).expanduser()
         from .plugin_catalog import PluginCatalog, build_plugin_catalog
         if plugin_catalog is not None and plugin_config_path is not None:
@@ -2057,6 +2058,13 @@ class Runtime:
                 base_searches=search_module.DEFAULT_SEARCHES,
                 base_adapters=adapter_module.DEFAULT_ADAPTERS)
         self.steel_api_url = steel_api_url or os.getenv("FRANKENSURF_STEEL_URL")
+        # A self-hosted SearXNG anywhere: loopback, another machine, a container. Its name is
+        # operator configuration (argument or FRANKENSURF_SEARCH_URL), never a routing choice.
+        self.search_url = (search_url or os.getenv("FRANKENSURF_SEARCH_URL") or "").rstrip("/") or None
+        if self.search_url:
+            p = urlparse(self.search_url)
+            if p.scheme not in {"http", "https"} or not p.hostname or p.username or p.password:
+                raise ValueError("search_url must be an HTTP(S) SearXNG URL without credentials")
         # Servers that read URLs from search results or users should set this:
         # every read then refuses private network addresses.
         self.block_private_network = os.getenv("FRANKENSURF_BLOCK_PRIVATE_NETWORK", "").lower() in (
@@ -6411,6 +6419,12 @@ class Runtime:
         better recall, and one blocked engine costs nothing."""
         if mode not in ("fallback", "merge"):
             raise ValueError("mode is fallback or merge")
+        from . import local_search
+        # The self-hosted engine the operator named (FRANKENSURF_SEARCH_URL, --search-url, the
+        # MCP server) is the base searxng is asked at; an explicit engine_config base wins.
+        caller_base = (engine_config or {}).get("base_url")
+        if self.search_url and caller_base is None and source in (None, "searxng"):
+            engine_config = {**(engine_config or {}), "base_url": self.search_url}
         if mode == "merge" and source is None:
             return await self._search_merged(query, limit, engine_config, policy, site=site,
                                              exclude_domains=exclude_domains, recency=recency,
@@ -6562,6 +6576,8 @@ class Runtime:
                             source_timeout))
                 config = {**((engine_config or {}) if source is not None or identifier == "searxng" else {}),
                           **options, **engine_extra} or None
+                if (config or {}).get("base_url"):
+                    outcome["endpoint"] = config["base_url"]
                 if identifier in paid_ids and vertical in PAID_SEARCH_CATEGORY and not options.get("site"):
                     # A paid index that sorts pages by kind is asked for the kind this query wants.
                     config = {**(config or {}), "category": PAID_SEARCH_CATEGORY[vertical]}
@@ -6591,9 +6607,8 @@ class Runtime:
         automatic = ladder and source is None and policy.search_source_candidates is None
         free_queue = [item for item in queue if item not in paid_ids]
         verticals = {item["id"]: item["vertical"] for item in self.searches.inspect()}
-        from . import local_search
         if (automatic and "searxng" in order and self._transport is None
-                and (engine_config or {}).get("base_url") in (None, local_search.URL)):
+                and caller_base is None and local_search.loopback(self.search_url)):
             # An installed native engine that is not running (after a restart, say) is
             # started here, once per process, so the free search keeps its best source.
             await asyncio.to_thread(local_search.autostart)
@@ -6749,6 +6764,7 @@ class Runtime:
                     outcome = task.result()
                     manifest = outcome["manifest"]
                     base = {"source": identifier, "source_version": manifest.version,
+                          **({"endpoint": outcome["endpoint"]} if outcome.get("endpoint") else {}),
                             **({"search_binding_id": outcome["binding"]} if outcome["binding"] is not None else {})}
                     if outcome.get("failure") is not None:
                         exc = outcome["failure"]
@@ -7008,12 +7024,12 @@ class Runtime:
         if vertical_inferred:
             receipt["search_routing"]["vertical_inferred"] = vertical_inferred
         from . import local_search
-        if (source is None and (engine_config or {}).get("base_url") in (None, local_search.URL)
+        if (source is None and caller_base is None
                 and any(item["source"] == "searxng" and item["status"] == "failed"
                         and item.get("failure") == "PROVIDER_DOWN" for item in search_attempts)):
-            # The default local engine did not answer (a refused or broken connection):
-            # say so, so thinner results have a visible reason and a way to fix it.
-            receipt["search_routing"]["local_search"] = local_search.routing_note()
+            # The local engine did not answer (a refused or broken connection): say so, so thinner
+            # results have a visible reason and a way to fix it.
+            receipt["search_routing"]["local_search"] = local_search.routing_note(self.search_url)
         # The ladder's receipt: how the sources were ordered and raced, who won, and
         # what the checks made of the results that came back.
         need = max(1, min(policy.search_good_results, limit))

@@ -404,3 +404,55 @@ async def test_the_default_url_needs_no_environment_variable(monkeypatch):
     monkeypatch.delenv("FRANKENSURF_SEARCH_URL", raising=False)
     assert REGISTRY["searxng"]["base_url"] == URL
     assert build_search("rust async", "searxng")[0].startswith(URL + "/search?")
+
+
+NAMED = "http://192.168.2.162:4002"
+
+
+def test_the_environment_names_the_engine(monkeypatch):
+    monkeypatch.setenv("FRANKENSURF_SEARCH_URL", NAMED)
+    assert local_search.configured_url() == NAMED.rstrip("/") and local_search.loopback() is False
+    monkeypatch.delenv("FRANKENSURF_SEARCH_URL")
+    assert local_search.configured_url() == URL and local_search.loopback() is True
+
+
+def test_an_engine_named_elsewhere_is_probed_there_and_never_started_here(monkeypatch):
+    fake = FakeDocker(monkeypatch)
+    monkeypatch.setenv("FRANKENSURF_SEARCH_URL", NAMED)
+    assert local_search.status()["status"] == "not_running" and local_search.start()["status"] == "not_running"
+    assert fake.calls == []                       # no container for someone else's engine
+    monkeypatch.setattr(local_search, "_TRANSPORT", httpx.MockTransport(
+        lambda request: httpx.Response(400, json={"error": "No query"})))
+    assert local_search.status() == {"status": "running", "url": NAMED}
+
+
+def test_autostart_never_starts_the_loopback_engine_for_one_named_elsewhere(monkeypatch):
+    monkeypatch.setattr(local_search, "_autostarted", False)
+    monkeypatch.setattr(local_search, "native_installed", lambda: True)
+    monkeypatch.setattr(local_search, "start_native", lambda **kwargs: {"status": "started"})
+    monkeypatch.setenv("FRANKENSURF_SEARCH_URL", NAMED)
+    assert local_search.autostart() is False
+
+
+def test_the_receipt_names_the_engine_that_did_not_answer(monkeypatch):
+    monkeypatch.setenv("FRANKENSURF_SEARCH_URL", NAMED)
+    note = local_search.routing_note()
+    assert note["url"] == NAMED and NAMED in note["note"]
+
+
+async def test_search_asks_the_engine_named_in_the_environment(monkeypatch, tmp_path):
+    monkeypatch.setenv("FRANKENSURF_SEARCH_URL", NAMED)
+    asked = []
+
+    def handle(request):
+        asked.append(str(request.url))
+        if request.url.host == "192.168.2.162":
+            return httpx.Response(200, json={"results": [
+                {"url": "https://rust%d.test/async/%d" % (index, index), "title": "rust async story",
+                 "content": "rust async"} for index in range(6)]})
+        raise httpx.ConnectError("offline", request=request)
+    async with Runtime(tmp_path, transport=httpx.MockTransport(handle)) as web:
+        result = await web.search("rust async", policy=WebPolicy(provider="http"))
+    assert any(NAMED + "/search?" in url for url in asked)
+    attempt = [item for item in result["receipt"]["search_attempts"] if item["source"] == "searxng"][0]
+    assert attempt["endpoint"] == NAMED and attempt["status"] == "observed"

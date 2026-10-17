@@ -38,6 +38,7 @@ CONTAINER = "frankensurf-search"
 HOST = "127.0.0.1"
 PORT = 8088
 URL = f"http://{HOST}:{PORT}"
+SEARCH_URL_ENV = "FRANKENSURF_SEARCH_URL"
 MEMORY = "768m"
 START_COMMAND = "frankensurf search-engine start"
 INSTALL_COMMAND = "frankensurf install search"
@@ -60,6 +61,17 @@ NOT_INSTALLED_NOTE = ("No local search engine (SearXNG) answered, so this search
                       "if you run it in Docker: " + START_COMMAND)
 
 _TRANSPORT = None   # tests inject an httpx.MockTransport
+
+
+def configured_url(url=None):
+    """The engine to ask: the one passed, else $FRANKENSURF_SEARCH_URL, else loopback. Only the
+    loopback one is installed and started here; any other is the operator's, looked up as named."""
+    return (url or os.getenv(SEARCH_URL_ENV) or URL).rstrip("/")
+
+
+def loopback(url=None):
+    """Whether url (by default the configured engine) is the engine FrankenSurf manages itself."""
+    return configured_url(url) == URL
 
 
 class DockerUnavailable(Exception):
@@ -93,10 +105,11 @@ def docker_problem():
     return None if result.returncode == 0 else "daemon"
 
 
-def probe(url=URL, *, timeout=3.0):
+def probe(url=None, *, timeout=3.0):
     """What answers at url: "running" (SearXNG with JSON on), "json_disabled" (SearXNG,
     JSON refused), "other" (something else) or "unreachable". The query is empty, so the
     probe never triggers a real upstream search."""
+    url = configured_url(url)
     try:
         with httpx.Client(transport=_TRANSPORT, timeout=timeout, trust_env=False) as client:
             response = client.get(url.rstrip("/") + "/search", params={"q": "", "format": "json"})
@@ -207,11 +220,18 @@ def _no_docker(url, problem):
             "docker": "not installed" if problem == "missing" else "installed but not running"}
 
 
-def _occupied(url, state, port):
+def _occupied(url, state, port=None):
     return _not_running(url, error=(
-        f"Port {port} is answered by something that is not a JSON-enabled SearXNG "
+        f"{'Port ' + str(port) if port else url} is answered by something that is not a JSON-enabled SearXNG "
         f"({'JSON output is off' if state == 'json_disabled' else 'not SearXNG'}); free the port, or "
         "point FrankenSurf at another SearXNG with FRANKENSURF_SEARCH_URL"))
+
+
+def _engine_not_mine(url):
+    """An engine named by FRANKENSURF_SEARCH_URL is the operator's: never installed or started here."""
+    return _not_running(url, engine="configured", error=(
+        f"nothing answered at {url} ({SEARCH_URL_ENV}); FrankenSurf installs and starts only its own "
+        f"engine on {URL}"))
 
 
 # --- native: SearXNG without Docker ---------------------------------------------------------
@@ -357,11 +377,11 @@ def stop_native():
 _autostarted = False
 
 
-def autostart(url=URL):
+def autostart(url=None):
     """Search calls this when the default engine did not answer: if the native engine is
     installed, start it, once per process. True when it answers afterwards."""
     global _autostarted
-    if (_autostarted or url not in (None, URL) or os.environ.get(AUTOSTART_ENV) == "0"
+    if (_autostarted or not loopback(url) or os.environ.get(AUTOSTART_ENV) == "0"
             or not native_installed()):
         return False
     _autostarted = True
@@ -371,27 +391,33 @@ def autostart(url=URL):
     return start_native(wait=15).get("status") == "started"
 
 
-def status(url=URL):
+def status(url=None):
     """Report only; starts nothing. Docker is asked only when nothing answers."""
+    url = configured_url(url)
     state = probe(url)
     if state == "running":
         return {"status": "running", "url": url, **({"engine": "native"} if native_pid() else {})}
     if state != "unreachable":
-        return _occupied(url, state, PORT)
+        return _occupied(url, state, PORT if loopback(url) else None)
+    if not loopback(url):
+        return _engine_not_mine(url)
     if native_installed():
         return _not_running(url, engine="native")
     problem = docker_problem()
     return _no_docker(url, problem) if problem else _not_running(url)
 
 
-def start(*, url=URL, name=CONTAINER, port=PORT, folder=None, wait=90):
+def start(*, url=None, name=CONTAINER, port=PORT, folder=None, wait=90):
     """Make a local SearXNG answer at url: the native engine when it is installed, else
     Docker. Idempotent: if one already answers, nothing is run."""
+    url = configured_url(url)
     state = probe(url)
     if state == "running":
         return {"status": "running", "url": url}
     if state != "unreachable":
-        return _occupied(url, state, port)
+        return _occupied(url, state, port if loopback(url) else None)
+    if not loopback(url):
+        return _engine_not_mine(url)
     if native_installed():
         return start_native(url=url, port=port, folder=folder, wait=wait)
     problem = docker_problem()
@@ -435,8 +461,13 @@ def stop(*, name=CONTAINER, url=URL):
     return _not_running(url, note=f"stopped {name}")
 
 
-def routing_note():
+def routing_note(url=None):
     """What the search receipt says when the local engine did not answer."""
+    url = configured_url(url)
+    if not loopback(url):
+        return {"status": "not_running", "url": url, "note":
+                f"The SearXNG at {url} ({SEARCH_URL_ENV}) did not answer, so this search used other "
+                "sources and may be thinner."}
     if native_installed():
         return {"status": "not_running", "note": NOT_RUNNING_NOTE, "start_with": START_COMMAND}
     return {"status": "not_installed", "note": NOT_INSTALLED_NOTE, "install_with": INSTALL_COMMAND}
