@@ -105,6 +105,28 @@ def test_short_client_timeouts_keep_most_of_the_time_for_reading():
     assert firecrawl_compat.read_budget(500) == 1.0
 
 
+def test_v2_object_formats_count_like_their_names():
+    # n8n and Firecrawl's v2 docs send formats as objects: {"type": "markdown"}
+    status, out = call(FirecrawlCompat(FakeWeb()), "/v2/scrape", {"url": "https://example.com/article",
+                       "formats": [{"type": "markdown"}, {"type": "html"}, {"type": "links"}]})
+    assert status == 200 and out["data"]["markdown"] and out["data"]["html"].startswith("<html>")
+    assert "links" in out["data"]
+    assert firecrawl_compat._format_names(["markdown", {"type": "rawHtml"}, {"no": "type"}, 3]) == ["markdown", "rawHtml"]
+
+
+def test_account_endpoints_answer_so_key_checks_pass():
+    # n8n's Firecrawl credential test calls credit-usage; the SDKs read these shapes.
+    app = FirecrawlCompat(FakeWeb())
+    status, out = call(app, "/v2/team/credit-usage", {}, method="GET")
+    assert status == 200 and out["success"] is True and out["data"]["remainingCredits"] > 0
+    assert call(app, "/v1/team/token-usage", {}, method="GET")[1]["data"]["remainingTokens"] > 0
+    assert call(app, "/v2/team/credit-usage/historical", {}, method="GET")[1]["periods"] == []
+    queue = call(app, "/v2/team/queue-status", {}, method="GET")[1]
+    assert queue["jobsInQueue"] == 0 and queue["maxConcurrency"] > 0
+    assert call(app, "/v2/concurrency-check", {}, method="GET")[1]["concurrency"] == 0
+    assert call(app, "/v2/team/billing", {}, method="GET")[0] == 404
+
+
 def test_bad_requests_and_unknown_routes():
     app = FirecrawlCompat(FakeWeb())
     assert call(app, "/v1/scrape", {"url": "file:///etc/passwd"})[0] == 400

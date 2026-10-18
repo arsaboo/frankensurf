@@ -102,6 +102,21 @@ async def test_serve_map_and_a_crawl_job_in_firecrawls_shapes(tmp_path):
     assert all(doc["markdown"] for doc in job["data"])
 
 
+async def test_v2_crawl_with_object_formats_returns_markdown(tmp_path):
+    import asyncio
+    from frankensurf.firecrawl_compat import FirecrawlCompat
+    async with Runtime(tmp_path, transport=transport([]), domain_delay=0) as web:
+        app = FirecrawlCompat(web, POLICY)
+        _, started = await app.handle("POST", "/v2/crawl", json.dumps({
+            "url": "https://shop.test/", "limit": 2, "scrapeOptions": {"formats": [{"type": "markdown"}]}}).encode())
+        for _ in range(100):
+            _, job = await app.handle("GET", "/v2/crawl/" + started["id"], b"")
+            if job["status"] != "scraping":
+                break
+            await asyncio.sleep(0.05)
+    assert job["status"] == "completed" and job["data"] and all(doc["markdown"] for doc in job["data"])
+
+
 async def test_serve_batch_scrape_job(tmp_path):
     import asyncio
     from frankensurf.firecrawl_compat import FirecrawlCompat

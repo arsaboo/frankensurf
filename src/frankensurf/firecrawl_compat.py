@@ -31,6 +31,8 @@ MAX_BODY = 1_000_000
 # Answer this long before the client's own timeout (Firecrawl's SDKs send it as "timeout", in ms),
 # or a fifth of a short one (LibreChat's default is 7.5 s), so most of the time still goes to reading.
 TIMEOUT_MARGIN_SECONDS = 3.0
+# What the account endpoints report for credits and concurrency: serve has no limits of its own.
+UNMETERED = 1_000_000_000
 REASONS = {200: "OK", 400: "Bad Request", 401: "Unauthorized", 404: "Not Found", 405: "Method Not Allowed",
            408: "Request Timeout", 413: "Payload Too Large", 500: "Internal Server Error"}
 
@@ -88,6 +90,12 @@ def _document(result: dict, url: str, formats: list[str]) -> dict:
 
 
 STEALTH_CANDIDATES = ("scrapling", "camoufox", "patchright", "nodriver")
+
+
+def _format_names(formats) -> list[str]:
+    """Format names from v1 strings ("markdown") and v2 objects ({"type": "markdown", ...})."""
+    return [item if isinstance(item, str) else item["type"] for item in formats or ()
+            if isinstance(item, str) or (isinstance(item, dict) and isinstance(item.get("type"), str))]
 
 
 def _screenshot_spec(formats) -> dict | None:
@@ -161,6 +169,27 @@ class FirecrawlCompat:
         self.crawls: dict[str, dict] = {}
         self.extracts: dict[str, dict] = {}
         self._pending: set = set()  # webhook deliveries in flight
+        self._active = 0  # scrapes being read right now
+
+    def team(self, path: str) -> tuple[int, dict]:
+        """Firecrawl's account endpoints, which clients call to check a key works (n8n's credential
+        test calls credit-usage). Frankensurf has no credits or plan limits: free tools cost nothing
+        and paid fallbacks bill your own accounts, so usage is reported as unmetered."""
+        note = {"frankensurf": "unmetered: no credits or plan limits"}
+        jobs = [job for job in (*self.crawls.values(), *self.extracts.values())
+                if job.get("status") in ("scraping", "processing")]
+        if path in ("/team/credit-usage", "/team/token-usage"):
+            unit = "Credits" if "credit" in path else "Tokens"
+            return 200, {"success": True, "data": {f"remaining{unit}": UNMETERED, f"plan{unit}": UNMETERED,
+                                                   "billingPeriodStart": None, "billingPeriodEnd": None}, **note}
+        if path in ("/team/credit-usage/historical", "/team/token-usage/historical"):
+            return 200, {"success": True, "periods": [], **note}
+        if path == "/team/queue-status":
+            return 200, {"success": True, "jobsInQueue": len(jobs), "activeJobsInQueue": len(jobs),
+                         "waitingJobsInQueue": 0, "maxConcurrency": UNMETERED, "mostRecentSuccess": None, **note}
+        if path == "/concurrency-check":
+            return 200, {"success": True, "concurrency": self._active, "maxConcurrency": UNMETERED, **note}
+        return 404, {"success": False, "error": f"Frankensurf doesn't serve {path}"}
 
     def _needs_model(self):
         if not self.model:
@@ -194,16 +223,20 @@ class FirecrawlCompat:
 
     async def _read(self, url: str, timeout_ms: int | None, body: dict | None = None) -> dict:
         read = self.web.read(url, policy_overrides=self._overrides(body))
-        if timeout_ms:
-            return await asyncio.wait_for(read, read_budget(timeout_ms))
-        return await read
+        self._active += 1
+        try:
+            if timeout_ms:
+                return await asyncio.wait_for(read, read_budget(timeout_ms))
+            return await read
+        finally:
+            self._active -= 1
 
     async def scrape(self, body: dict) -> tuple[int, dict]:
         url = body.get("url")
         if not isinstance(url, str) or not url.startswith(("http://", "https://")):
             return 400, {"success": False, "error": "url must be an http(s) URL"}
         raw_formats = body.get("formats") or ["markdown"]
-        formats = [f for f in raw_formats if isinstance(f, str)]
+        formats = _format_names(raw_formats)
         json_spec = next((f for f in raw_formats if isinstance(f, dict) and f.get("type") == "json"), None)
         if json_spec is None and "json" in formats:
             json_spec = body.get("jsonOptions") or body.get("extract") or {}
@@ -376,7 +409,7 @@ class FirecrawlCompat:
                   "description": item.get("snippet") or ""}
                  for item in (found.get("results") or [])[:limit] if item.get("url")]
         options = body.get("scrapeOptions") or {}
-        formats = [f for f in options.get("formats") or [] if isinstance(f, str)]
+        formats = _format_names(options.get("formats"))
         if formats:
             async def fill(item):
                 try:
@@ -418,7 +451,7 @@ class FirecrawlCompat:
         job = {"status": "scraping", "total": 0, "completed": 0, "data": [], "failed": [], "version": version}
         self.crawls[job_id] = job
         scrape_options = body.get("scrapeOptions") or {}
-        formats = [f for f in scrape_options.get("formats") or ["markdown"] if isinstance(f, str)]
+        formats = _format_names(scrape_options.get("formats") or ["markdown"])
         depth = body.get("maxDiscoveryDepth", body.get("maxDepth", 2))
         hook = body.get("webhook")
 
@@ -477,6 +510,9 @@ class FirecrawlCompat:
         extract_path = re.fullmatch(r"/(v1|v2)/extract/([0-9a-f-]{36})", path)
         if extract_path and method == "GET":
             return self.extract_status(extract_path.group(2))
+        team_path = re.fullmatch(r"/(?:v1|v2)(/team/[a-z/-]+|/concurrency-check)", path)
+        if team_path and method == "GET":
+            return self.team(team_path.group(1))
         status_path = re.fullmatch(r"/(v1|v2)/(?:crawl|batch/scrape)/([0-9a-f-]{36})", path)
         if status_path and method == "GET":
             return self.crawl_status(status_path.group(2))

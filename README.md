@@ -112,7 +112,7 @@ answers with sources, and says what it couldn't read; `fs.extract(urls, schema=.
 **In Docker**, one install for your whole network: `docker run -p 3002:3002 -e FRANKENSURF_API_KEY=... ghcr.io/yail259/frankensurf`
 ([Docker](https://frankensurf.dev/docs/docker/)).
 
-**From any tool that takes a Firecrawl URL** (GPT Researcher, Hermes Agent, OpenClaw, Open WebUI, Dify, LibreChat, LangChain, LlamaIndex and others):
+**From any tool that takes a Firecrawl URL** (GPT Researcher, Hermes Agent, OpenClaw, Open WebUI, Dify, LibreChat, n8n, LangChain, LlamaIndex and others):
 `frankensurf serve`, then point it at `http://127.0.0.1:3002` ([setup](https://frankensurf.dev/docs/firecrawl-compatible/)).
 
 **From the command line:**

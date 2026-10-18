@@ -1,6 +1,6 @@
 ---
 title: Firecrawl-compatible API
-description: Run Frankensurf as a local Firecrawl-compatible endpoint, so GPT Researcher, Hermes Agent, OpenClaw, Open WebUI, Dify, LibreChat and anything else that takes a Firecrawl URL reads through it with no code change.
+description: Run Frankensurf as a local Firecrawl-compatible endpoint, so GPT Researcher, Hermes Agent, OpenClaw, Open WebUI, Dify, LibreChat, n8n and anything else that takes a Firecrawl URL reads through it with no code change.
 ---
 
 import { Tabs, TabItem, Aside, Steps } from "@astrojs/starlight/components";
@@ -207,6 +207,19 @@ its default, 7.5 seconds, suits pages a plain fetch can read, but a page that ne
 browsers takes 15 to 30. Checked with LibreChat's own scraper (`@librechat/agents` 4.0.6) on 18
 October 2026: with 7.5 seconds, a news front page that needs a stealth browser timed out; with 30, it
 read.
+
+## n8n
+
+Firecrawl's n8n node (`@mendable/n8n-nodes-firecrawl`, under Settings, Community Nodes) takes a base
+URL in its credential. Create a Firecrawl API credential with:
+
+- **Base URL:** `http://127.0.0.1:3002/v2` (`http://host.docker.internal:3002/v2` when n8n runs in
+  Docker, with `serve --host 0.0.0.0`)
+- **API Key:** the key you gave `serve`
+
+The credential's Test button works, and so do scrape, search, map and crawl, with or without a custom
+body. Checked with node 2.2.0 in n8n's Docker image on 18 October 2026: the credential test, a scrape
+and a search, run as a workflow.
 
 ## LangChain and LlamaIndex
 
