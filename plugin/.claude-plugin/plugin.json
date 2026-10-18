@@ -1,7 +1,7 @@
 {
   "name": "frankensurf",
   "displayName": "Frankensurf",
-  "version": "0.50.1",
+  "version": "0.50.2",
   "description": "Read any web page and search the web from Claude Code: 28 web tools stitched behind one read() call, cheapest first, every page checked, a receipt for every attempt.",
   "author": {
     "name": "yail259",

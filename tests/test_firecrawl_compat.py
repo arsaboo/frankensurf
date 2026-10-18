@@ -99,6 +99,12 @@ def test_request_timeout_is_a_reported_failure_not_a_page():
     assert status == 408 and out["success"] is False and "TIMEOUT" in out["error"]
 
 
+def test_short_client_timeouts_keep_most_of_the_time_for_reading():
+    assert firecrawl_compat.read_budget(30000) == 27.0   # 3 s early
+    assert firecrawl_compat.read_budget(7500) == 6.0     # LibreChat's default: a fifth early, not 3 s
+    assert firecrawl_compat.read_budget(500) == 1.0
+
+
 def test_bad_requests_and_unknown_routes():
     app = FirecrawlCompat(FakeWeb())
     assert call(app, "/v1/scrape", {"url": "file:///etc/passwd"})[0] == 400

@@ -1,6 +1,6 @@
 ---
 title: Firecrawl-compatible API
-description: Run Frankensurf as a local Firecrawl-compatible endpoint, so GPT Researcher, Hermes Agent, OpenClaw, Open WebUI and anything else that takes a Firecrawl URL reads through it with no code change.
+description: Run Frankensurf as a local Firecrawl-compatible endpoint, so GPT Researcher, Hermes Agent, OpenClaw, Open WebUI, Dify, LibreChat and anything else that takes a Firecrawl URL reads through it with no code change.
 ---
 
 import { Tabs, TabItem, Aside, Steps } from "@astrojs/starlight/components";
@@ -176,6 +176,53 @@ If Open WebUI runs in Docker, Frankensurf has to listen beyond 127.0.0.1 for it 
 network and use its container name. Open WebUI retries a failed page twice and then leaves it out of
 the answer, with a warning in its log. Checked with Open WebUI's own Firecrawl code on 18 October
 2026: search, page loads, and a page behind a challenge.
+
+## Dify
+
+[Dify](https://github.com/langgenius/dify) imports websites into a knowledge base through Firecrawl.
+Under Settings, Data Source, Firecrawl, set the base URL to Frankensurf (`http://host.docker.internal:3002`
+when Dify runs in Docker, with `serve --host 0.0.0.0`) and the API key to the one you gave `serve`.
+Crawling sub-pages, the page limit and "main content only" all carry over. Checked with Dify's own
+Firecrawl client on 18 October 2026: search, scrape, map, and a three-page website import. A page it
+can't read inside Dify's 30 second limit comes back as "Could not read this page (TIMEOUT)" rather
+than a hang.
+
+## LibreChat
+
+[LibreChat](https://github.com/danny-avila/LibreChat) can use Firecrawl as the scraper for web
+search. In `librechat.yaml`:
+
+```yaml
+webSearch:
+  scraperProvider: firecrawl
+  firecrawlApiKey: '${FIRECRAWL_API_KEY}'
+  firecrawlApiUrl: '${FIRECRAWL_API_URL}'   # e.g. http://127.0.0.1:3002
+  scraperTimeout: 30000
+  allowedAddresses:
+    - '127.0.0.1:3002'                      # or 'frankensurf:3002' in Docker
+```
+
+LibreChat blocks private addresses unless they're in `allowedAddresses`. Raise `scraperTimeout` too:
+its default, 7.5 seconds, suits pages a plain fetch can read, but a page that needs one of the stealth
+browsers takes 15 to 30. Checked with LibreChat's own scraper (`@librechat/agents` 4.0.6) on 18
+October 2026: with 7.5 seconds, a news front page that needs a stealth browser timed out; with 30, it
+read.
+
+## LangChain and LlamaIndex
+
+Their Firecrawl loaders take the URL as `api_url`:
+
+```python
+from langchain_community.document_loaders import FireCrawlLoader
+docs = FireCrawlLoader(url=url, api_key="change-me", api_url="http://127.0.0.1:3002", mode="scrape").load()
+
+from llama_index.readers.web import FireCrawlWebReader
+docs = FireCrawlWebReader(api_key="change-me", api_url="http://127.0.0.1:3002", mode="scrape").load_data(url=url)
+```
+
+A page Frankensurf can't read raises an error that says why, instead of returning an empty document.
+Checked with langchain-community 0.4.2 and llama-index-readers-web 0.7.0 (firecrawl-py 4.50) on 18
+October 2026.
 
 ## Anything else that takes a Firecrawl URL
 

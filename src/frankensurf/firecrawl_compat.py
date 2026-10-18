@@ -28,7 +28,8 @@ from .runtime import Runtime, WebPolicy, attempt_summary
 
 DEFAULT_PORT = 3002
 MAX_BODY = 1_000_000
-# Answer this long before the client's own timeout (Firecrawl's SDKs send it as "timeout", in ms).
+# Answer this long before the client's own timeout (Firecrawl's SDKs send it as "timeout", in ms),
+# or a fifth of a short one (LibreChat's default is 7.5 s), so most of the time still goes to reading.
 TIMEOUT_MARGIN_SECONDS = 3.0
 REASONS = {200: "OK", 400: "Bad Request", 401: "Unauthorized", 404: "Not Found", 405: "Method Not Allowed",
            408: "Request Timeout", 413: "Payload Too Large", 500: "Internal Server Error"}
@@ -41,6 +42,12 @@ def _tried(receipt: dict) -> list[str]:
         if provider and provider not in seen:
             seen.append(provider)
     return seen
+
+
+def read_budget(timeout_ms: float) -> float:
+    """Seconds a read gets inside a client timeout of timeout_ms."""
+    seconds = timeout_ms / 1000
+    return max(1.0, seconds - min(TIMEOUT_MARGIN_SECONDS, seconds / 5))
 
 
 def couldnt_read(receipt: dict) -> str:
@@ -188,7 +195,7 @@ class FirecrawlCompat:
     async def _read(self, url: str, timeout_ms: int | None, body: dict | None = None) -> dict:
         read = self.web.read(url, policy_overrides=self._overrides(body))
         if timeout_ms:
-            return await asyncio.wait_for(read, max(1.0, timeout_ms / 1000 - TIMEOUT_MARGIN_SECONDS))
+            return await asyncio.wait_for(read, read_budget(timeout_ms))
         return await read
 
     async def scrape(self, body: dict) -> tuple[int, dict]:
