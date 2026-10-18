@@ -1,6 +1,6 @@
 ---
 title: Firecrawl-compatible API
-description: Run Frankensurf as a local Firecrawl-compatible endpoint, so GPT Researcher, deep-research and anything else that takes a Firecrawl URL reads through it with no code change.
+description: Run Frankensurf as a local Firecrawl-compatible endpoint, so GPT Researcher, Hermes Agent, OpenClaw, Open WebUI and anything else that takes a Firecrawl URL reads through it with no code change.
 ---
 
 import { Tabs, TabItem, Aside, Steps } from "@astrojs/starlight/components";
@@ -142,6 +142,40 @@ Hermes picks the Firecrawl backend on its own when those are set (or set `web.ba
 `web_extract` hands the model "Could not read this page", what stopped it and the tools it tried,
 instead of an empty page. Checked with Hermes 0.21 (firecrawl-py 4.17) on 18 October 2026: search,
 extract, and a page behind a challenge that came back as that message.
+
+## OpenClaw
+
+[OpenClaw](https://github.com/openclaw/openclaw)'s Firecrawl plugin takes a self-hosted base URL on
+a private address, which `127.0.0.1` is. In the Gateway environment:
+
+```bash
+FIRECRAWL_BASE_URL=http://127.0.0.1:3002
+FIRECRAWL_API_KEY=change-me   # the key you gave serve
+```
+
+then choose Firecrawl for search, page fetches or both (`tools.web.search.provider: "firecrawl"`,
+`tools.web.fetch.provider: "firecrawl"`). A page Frankensurf can't read reaches the model as "Could not
+read this page", the reason and the tools tried. Checked with OpenClaw's own plugin code (2026.10.4)
+on 18 October 2026: search, page reads, and a page behind a challenge.
+
+## Open WebUI
+
+[Open WebUI](https://github.com/open-webui/open-webui) uses Firecrawl for web search, for loading
+pages, or both. Set in its environment (or under Admin Settings, Web Search):
+
+```bash
+ENABLE_WEB_SEARCH=true
+WEB_SEARCH_ENGINE=firecrawl
+WEB_LOADER_ENGINE=firecrawl
+FIRECRAWL_API_BASE_URL=http://host.docker.internal:3002   # http://127.0.0.1:3002 outside Docker
+FIRECRAWL_API_KEY=change-me
+```
+
+If Open WebUI runs in Docker, Frankensurf has to listen beyond 127.0.0.1 for it to reach it: run
+`serve --host 0.0.0.0` with a key, or run [Frankensurf's image](/docs/docker/) on the same Docker
+network and use its container name. Open WebUI retries a failed page twice and then leaves it out of
+the answer, with a warning in its log. Checked with Open WebUI's own Firecrawl code on 18 October
+2026: search, page loads, and a page behind a challenge.
 
 ## Anything else that takes a Firecrawl URL
 
