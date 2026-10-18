@@ -363,7 +363,7 @@ async def read_public(runtime, url, policy, provider):
     if len(raw) > policy.max_bytes:
         raise WebFailure("LIMIT_EXCEEDED", "Optional provider response byte limit exceeded", response_url=final_url)
     if "html" in content_type and _challenge(content):
-        _raise_public_failure(runtime, policy, packet, WebFailure("CAPTCHA", "Optional provider challenge page observed", status, response_url=final_url))
+        _raise_public_failure(runtime, policy, packet, WebFailure("CAPTCHA", "The site served a challenge page", status, response_url=final_url))
     if "html" in content_type:
         parsed = parse_content(content,content_type,final_url,None)
         if len(parsed["text"].strip()) < 80 and "<script" in content.lower():

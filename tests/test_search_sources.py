@@ -1,6 +1,7 @@
 """Boolean (monitoring-style) queries and the v0.41 search sources: Google News (free),
 Serper, SerpAPI and Google Programmable Search (keyed). Synthetic fixtures only."""
 import json
+from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qs, urlsplit
 
 import httpx
@@ -181,6 +182,7 @@ async def test_serpapi_sends_the_key_as_a_parameter_and_reads_organic_results(tm
 
 async def test_google_cse_needs_a_key_and_an_engine_id(tmp_path, monkeypatch, api):
     calls, routes = api
+    published = (datetime.now(timezone.utc) - timedelta(days=2)).strftime("%Y-%m-%d")  # inside the week
     monkeypatch.setenv("GOOGLE_CSE_API_KEY", KEY)
     from frankensurf.search_plugins import HostedSearchPlugin
     plugin = HostedSearchPlugin("google_cse", "google_cse_api", "google_cse_api_key", "google_cse_cx")
@@ -190,12 +192,12 @@ async def test_google_cse_needs_a_key_and_an_engine_id(tmp_path, monkeypatch, ap
     routes["https://www.googleapis.com/customsearch/v1"] = lambda request: httpx.Response(200, json={
         "queries": {}, "items": [{"title": "Harbour Mining", "link": "https://harbour.example.com/",
                                   "snippet": "Miner", "pagemap": {"metatags": [
-                                      {"article:published_time": "2026-10-10T00:00:00Z"}]}}]})
+                                      {"article:published_time": f"{published}T00:00:00Z"}]}}]})
     result = await keyed_search(tmp_path, "google_cse", recency="week", site="harbour.example.com")
     params = calls[0].url.params
     assert params["cx"] == "engine-123" and params["dateRestrict"] == "w1"
     assert params["siteSearch"] == "harbour.example.com" and "site:" not in params["q"]
-    assert result["results"][0]["published"].startswith("2026-10-10")
+    assert result["results"][0]["published"].startswith(published)
     assert result["receipt"]["cost_usd"] == 0.005
 
 

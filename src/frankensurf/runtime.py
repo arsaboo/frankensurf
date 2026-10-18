@@ -2507,7 +2507,7 @@ class Runtime:
             content_readiness = await self._wait_content_readiness(
                 page, policy, deadline, PWTimeout)
             content,raw,content_type = await self._browser_representation(page,response,policy)
-            if _challenge(content): raise WebFailure("CAPTCHA", "Browser challenge page observed", status, response_url=page.url)
+            if _challenge(content): raise WebFailure("CAPTCHA", "The site served a challenge page", status, response_url=page.url)
             if session_site is not None:
                 try:
                     self._save_site_session(session_site, await context.cookies())

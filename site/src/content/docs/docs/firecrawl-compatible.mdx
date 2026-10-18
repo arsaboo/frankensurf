@@ -127,6 +127,22 @@ exact call, four searches got all 20 pages in time, twice, in 4 to 13 seconds a 
 v0.44.1 it was 17 and 14 of 20: news searches returned Google News redirect links, which are slow to
 follow. Search now swaps them for the publisher's own URL.)
 
+## Hermes Agent
+
+[Hermes Agent](https://github.com/NousResearch/hermes-agent)'s Firecrawl backend takes a
+self-hosted URL, so its `web_search` and `web_extract` tools read through Frankensurf as they are.
+Start `serve` with a key, then in Hermes's environment:
+
+```bash
+FIRECRAWL_API_URL=http://127.0.0.1:3002
+FIRECRAWL_API_KEY=change-me   # the key you gave serve
+```
+
+Hermes picks the Firecrawl backend on its own when those are set (or set `web.backend: firecrawl`). When Frankensurf can't read a page,
+`web_extract` hands the model "Could not read this page", what stopped it and the tools it tried,
+instead of an empty page. Checked with Hermes 0.21 (firecrawl-py 4.17) on 18 October 2026: search,
+extract, and a page behind a challenge that came back as that message.
+
 ## Anything else that takes a Firecrawl URL
 
 We've checked Firecrawl's own SDKs against it: `@mendable/firecrawl-js` 1.16 (v1 API) and
@@ -134,6 +150,7 @@ We've checked Firecrawl's own SDKs against it: `@mendable/firecrawl-js` 1.16 (v1
 should work; tell us if one doesn't.
 
 <Aside type="note">
-  `serve` listens on 127.0.0.1 only. `--host 0.0.0.0` opens it to your network, with no
-  authentication: anyone who can reach it can read pages through your machine.
+  `serve` listens on 127.0.0.1 only. On a network address (`--host 0.0.0.0`) it won't start without
+  an API key (`--api-key` or `FRANKENSURF_API_KEY`), because anyone who can reach it could read pages
+  through your machine. See [Docker](/docs/docker/) for running it for a whole network.
 </Aside>
